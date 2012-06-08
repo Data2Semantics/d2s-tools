@@ -12,9 +12,9 @@ import org.data2semantics.tools.rdf.*;
 
 public class GraphFactory {
 	private Map<String, String> labelDict;
-	private RDFDataSet rdfDataSet;
+	private RDFFileDataSet rdfDataSet;
 
-	public GraphFactory(RDFDataSet rdfDataSet) {
+	public GraphFactory(RDFFileDataSet rdfDataSet) {
 		labelDict = new HashMap<String, String>();
 		this.rdfDataSet = rdfDataSet;
 	}
@@ -30,7 +30,10 @@ public class GraphFactory {
 		return graphs;
 	}
 
-
+	/*
+	 * TODO change to use other getStatements method
+	 * 
+	 */
 	private Graph getGraphFromNode(Resource startNode, int depth) {
 		List<Resource> queryNodes = new ArrayList<Resource>();
 		List<Resource> newQueryNodes;

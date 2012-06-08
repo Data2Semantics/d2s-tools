@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Test;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.rio.RDFFormat;
 
 import org.data2semantics.tools.rdf.*;
 
@@ -15,7 +16,7 @@ public class GraphFactoryTest {
 
 	@Test
 	public void test() {
-		RDFDataSet testSet = new RDFDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf");
+		RDFFileDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 		GraphFactory graphFac = new GraphFactory(testSet);
 
 		List<Statement> triples = testSet.getInstanceURIs("http://swrc.ontoware.org/ontology#affiliation", null);

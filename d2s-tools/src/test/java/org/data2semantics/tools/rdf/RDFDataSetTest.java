@@ -7,12 +7,13 @@ import java.util.List;
 import org.junit.Test;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.rio.RDFFormat;
 
 public class RDFDataSetTest {
 
 	@Test
 	public void test() {
-		RDFDataSet testSet = new RDFDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf");
+		RDFFileDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 
 		List<Statement> triples = testSet.getInstanceURIs("http://swrc.ontoware.org/ontology#affiliation", null);
 		
