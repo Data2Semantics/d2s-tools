@@ -42,6 +42,7 @@ public class Graph {
 		return edges;
 	}
 	
+	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer();
 		str.append("Nodes: ");

@@ -9,6 +9,8 @@ import org.junit.Test;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
+import org.data2semantics.tools.rdf.*;
+
 public class GraphFactoryTest {
 
 	@Test
