@@ -1,9 +1,12 @@
 package org.data2semantics.tools.rdf;
 
-import org.openrdf.model.Graph;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.impl.GraphImpl;
+import org.openrdf.model.Value;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
@@ -18,37 +21,17 @@ public class RDFDataSet {
 	}
 	
 	
-	public org.openrdf.model.Graph getFullGraph() {
-		return getStatements(null, null, null, true);
-	}
-	
-	
-	public Graph getStatements(String subject, String predicate, String object,
-			boolean allowInference) {
+	/*
+	 * Wrapper for the Sesame connection getStatements, to avoid try-catch statements. 
+	 */	
+	public List<Statement> getStatements(Resource subject, URI predicate, Value object, boolean allowInference) {
+		List<Statement> resGraph = new ArrayList<Statement>();
 		
-		Graph resGraph = new GraphImpl();	
-		
-		URI querySub = null;
-		URI queryPred = null;
-		URI queryObj = null;
-
-		if (subject != null) {
-			querySub = rdfRep.getValueFactory().createURI(subject);
-		}
-		
-		if (predicate != null) {
-			queryPred = rdfRep.getValueFactory().createURI(predicate);
-		}		
-
-		if (object != null) {
-			queryObj = rdfRep.getValueFactory().createURI(object);
-		}
-				
 		try {
 			RepositoryConnection repCon = rdfRep.getConnection();
 
 			try {
-				RepositoryResult<Statement> statements = repCon.getStatements(querySub, queryPred, queryObj, allowInference);
+				RepositoryResult<Statement> statements = repCon.getStatements(subject, predicate, object, allowInference);
 				
 				try {
 					resGraph.addAll(statements.asList());
@@ -64,12 +47,39 @@ public class RDFDataSet {
 			e.printStackTrace();
 		}
 		
-		return resGraph;
+		return resGraph;		
 	}
 	
 	
-	public org.openrdf.model.Graph sparqlQuery(String sparqlQuery) {
-		org.openrdf.model.Graph graph = new GraphImpl();
+	
+	public List<Statement> getFullGraph() {	
+		return getStatements(null, null, null, true);
+	}
+	
+	
+	public List<Statement> getStatementsFromStrings(String subject, String predicate, String object, boolean allowInference) {	
+		URI querySub = null;
+		URI queryPred = null;
+		URI queryObj = null;
+
+		if (subject != null) {
+			querySub = rdfRep.getValueFactory().createURI(subject);
+		}
+		
+		if (predicate != null) {
+			queryPred = rdfRep.getValueFactory().createURI(predicate);
+		}		
+
+		if (object != null) {
+			queryObj = rdfRep.getValueFactory().createURI(object);
+		}
+		
+		return getStatements(querySub, queryPred, queryObj, allowInference);
+	}
+	
+	
+	public List<Statement> sparqlQuery(String sparqlQuery) {
+		List<Statement> graph = new ArrayList<Statement>();
 		
 		try {
 			RepositoryConnection repCon = rdfRep.getConnection();
@@ -93,6 +103,55 @@ public class RDFDataSet {
 
 		return graph;
 	}
+	
+	
+	public List<Statement> getSubGraph(String startNode, int depth, boolean includeInverse) {
+		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse);
+	}
+	
+	public List<Statement> getSubGraph(URI startNode, int depth, boolean includeInverse) {
+		List<Statement> graph = new ArrayList<Statement>();
+		List<Statement> result;
+		List<Resource> queryNodes = new ArrayList<Resource>();
+		List<Resource> newQueryNodes;
+		
+		queryNodes.add(startNode);
+		
+		for (int i = 0; i < depth; i++) {
+			newQueryNodes = new ArrayList<Resource>();
+			
+			for (Resource queryNode : queryNodes) {
+				result = getStatements(queryNode, null, null, true);
+				graph.addAll(result);
+				newQueryNodes.addAll(getEndNodes(result, false));
+				
+				if (includeInverse) {
+					result = getStatements(null, null, queryNode, true);
+					graph.addAll(result);
+					newQueryNodes.addAll(getEndNodes(result, true));
+				}
+			}
+			
+			newQueryNodes.remove(startNode);
+			queryNodes = newQueryNodes;
+		}
+		
+		return graph;
+	}
+	
+	private List<Resource> getEndNodes(List<Statement> statements, boolean fromObject) {
+		List<Resource> newNodes = new ArrayList<Resource>();
+		
+		for (Statement statement : statements) {
+			if (fromObject) {
+				newNodes.add(statement.getSubject());
+			} else if (statement.getObject() instanceof Resource) {
+				newNodes.add((Resource) statement.getObject());
+			}
+		}
+		return newNodes;		
+	}
+
 	
 		
 

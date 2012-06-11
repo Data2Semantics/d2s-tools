@@ -1,12 +1,10 @@
 package org.data2semantics.tools.graphs;
 
-import static org.junit.Assert.*;
 
-import java.util.ArrayList;
+import static org.junit.Assert.*;
 import java.util.List;
 
 import org.junit.Test;
-import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 
@@ -20,12 +18,14 @@ public class GraphFactoryTest {
 	public void test() {
 		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 		//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
-		org.openrdf.model.Graph triples = testSet.getFullGraph();
+		List<Statement> triples = testSet.getFullGraph();
 			
-		DirectedGraph<String, Edge<String>> jungGraph = GraphFactory.createJUNGGraph(triples);
+		DirectedGraph<Node<String>, Edge<String>> jungGraph = GraphFactory.createJUNGGraph(triples);
 		
 		for (Edge<String> edge: jungGraph.getEdges()) {
 			System.out.println(jungGraph.getEndpoints(edge).getFirst() + " " + edge + " " + jungGraph.getEndpoints(edge).getSecond());
 		}
 	}
+	
+	
 }
