@@ -22,7 +22,7 @@ public class Graphs
 	 * @param rdfFile The file (in RDF XML) from which to read the graph.
 	 * @return A directed multigraph with labeled nodes and edges
 	 */
-	public static DirectedGraph<Node<String>, Edge<String>> graphFromRDF(File rdfFile)
+	public static DirectedGraph<Vertex<String>, Edge<String>> graphFromRDF(File rdfFile)
 	{
 		return graphFromRDF(rdfFile, RDFFormat.RDFXML);
 	}
@@ -33,14 +33,14 @@ public class Graphs
 	 * @param format
 	 * @return A directed multigraph with labeled nodes and edges
 	 */
-	public static DirectedGraph<Node<String>, Edge<String>> graphFromRDF(File rdfFile, RDFFormat format)
+	public static DirectedGraph<Vertex<String>, Edge<String>> graphFromRDF(File rdfFile, RDFFormat format)
 	{
 		RDFDataSet testSet = new RDFFileDataSet(rdfFile, format);
 
 		//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
 		List<Statement> triples = testSet.getFullGraph();
 			
-		DirectedGraph<Node<String>, Edge<String>> jungGraph = GraphFactory.createJUNGGraph(triples);
+		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = GraphFactory.createJUNGGraph(triples);
 				
 		return jungGraph;
 	}

@@ -21,7 +21,7 @@ public class GraphsTest
 	{
 		File file = new File("/Users/Peter/Documents/datasets/rdf/aifb/aifb-fixed_complete.owl");
 
-		DirectedGraph<Node<String>, Edge<String>> jungGraph = Graphs.graphFromRDF(file);	
+		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = Graphs.graphFromRDF(file);	
 	}
 
 }

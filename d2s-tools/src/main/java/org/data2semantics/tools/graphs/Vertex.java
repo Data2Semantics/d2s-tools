@@ -1,9 +1,9 @@
 package org.data2semantics.tools.graphs;
 
-public class Node<Label> {
+public class Vertex<Label> {
 	private Label label;
 
-	public Node(Label label) {
+	public Vertex(Label label) {
 		this.label = label;
 	}
 
