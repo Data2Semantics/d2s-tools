@@ -11,15 +11,17 @@ import org.openrdf.sail.memory.MemoryStore;
 public class RDFFileDataSet extends RDFDataSet {
 	
 	public RDFFileDataSet(String filename, RDFFormat fileFormat) {					
-			super(createRepository(filename, fileFormat));	
+			super(createRepository(new File(filename), fileFormat));	
 	}
 
-
-	private static Repository createRepository(String filename, RDFFormat fileFormat) {	
+	public RDFFileDataSet(File file, RDFFormat fileFormat) {					
+		super(createRepository(file, fileFormat));	
+	}
+	
+	private static Repository createRepository(File file, RDFFormat fileFormat) {	
 		Repository rdfRep = null;
 		
 		try {
-			File file = new File(filename);
 			rdfRep = new SailRepository(new MemoryStore());
 			rdfRep.initialize();
 			RepositoryConnection swrcRepCon = rdfRep.getConnection();
@@ -32,7 +34,7 @@ public class RDFFileDataSet extends RDFDataSet {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		return rdfRep;
 	}
