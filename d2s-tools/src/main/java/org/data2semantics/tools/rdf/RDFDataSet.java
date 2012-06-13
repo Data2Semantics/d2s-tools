@@ -1,7 +1,9 @@
 package org.data2semantics.tools.rdf;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -12,14 +14,27 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryResult;
+import org.openrdf.rio.RDFFormat;
 
-public class RDFDataSet {
+public class RDFDataSet
+{
 	private Repository rdfRep;
 
 	public RDFDataSet(Repository rdfRep) {
 		this.rdfRep = rdfRep;
 	}
 	
+	/**
+	 * 
+	 * @param file
+	 * @param fileFormat
+	 * @param edgeWhiteList A list of regular expressions. Only edges that match one or more of these are included
+	 * @param vertexWhiteList A list of regular expressions. Only vertices that one or more of these are included
+	 */
+	public RDFDataSet(Repository rdfRep, List<String> vertexWhiteList, List<String> edgeWhiteList)
+	{
+		this(rdfRep);
+	}	
 	
 	/*
 	 * Wrapper for the Sesame connection getStatements, to avoid try-catch statements. 
@@ -50,14 +65,14 @@ public class RDFDataSet {
 		return resGraph;		
 	}
 	
-	
-	
-	public List<Statement> getFullGraph() {	
+	public List<Statement> getFullGraph() 
+	{	
 		return getStatements(null, null, null, true);
 	}
 	
 	
-	public List<Statement> getStatementsFromStrings(String subject, String predicate, String object, boolean allowInference) {	
+	public List<Statement> getStatementsFromStrings(String subject, String predicate, String object, boolean allowInference) 
+	{	
 		URI querySub = null;
 		URI queryPred = null;
 		URI queryObj = null;
