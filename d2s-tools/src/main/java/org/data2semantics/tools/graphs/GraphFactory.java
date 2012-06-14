@@ -51,14 +51,14 @@ public class GraphFactory {
 		{
 			if(vWhiteList != null)
 			{
-				if(! matches(statement.getObject().toString(), vertexWhiteList))
+				if(! Graphs.matches(statement.getObject().toString(), vertexWhiteList))
 					continue;
-				if(! matches(statement.getSubject().toString(), vertexWhiteList))
+				if(! Graphs.matches(statement.getSubject().toString(), vertexWhiteList))
 					continue;
 			}
 			
 			if(eWhiteList != null)
-				if(! matches(statement.getPredicate().toString(), edgeWhiteList))
+				if(! Graphs.matches(statement.getPredicate().toString(), edgeWhiteList))
 					continue;
 			
 			node1 = nodes.get(statement.getSubject().toString());
@@ -67,33 +67,19 @@ public class GraphFactory {
 			if (node1 == null) {
 				node1 = new Vertex<String>(statement.getSubject().toString());
 				nodes.put(node1.getLabel(), node1);
+				graph.addVertex(node1);
 			}
-			graph.addVertex(node1);
 			
 			if (node2 == null) {
 				node2 = new Vertex<String>(statement.getObject().toString());
 				nodes.put(node2.getLabel(), node1);
+				graph.addVertex(node2);
 			}			
-			graph.addVertex(node2);
-						
+							
 			graph.addEdge(new Edge<String>(statement.getPredicate().toString()), node1, node2, EdgeType.DIRECTED);			
 		}	
 		
 		return graph;
-	}
-
-	/**
-	 * Returns true if the String matches one or more of the patterns in the list.
-	 * @param string
-	 * @param patterns
-	 * @return
-	 */
-	private static boolean matches(String string, List<Pattern> patterns)
-	{
-		for(Pattern pattern : patterns)
-			if(pattern.matcher(string).matches())
-				return true;
-		return false;
 	}
 
 }

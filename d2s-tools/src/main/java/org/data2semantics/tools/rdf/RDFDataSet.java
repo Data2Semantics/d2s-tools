@@ -24,19 +24,20 @@ public class RDFDataSet
 		this.rdfRep = rdfRep;
 	}
 	
-	/**
+	/*
 	 * 
 	 * @param file
 	 * @param fileFormat
 	 * @param edgeWhiteList A list of regular expressions. Only edges that match one or more of these are included
 	 * @param vertexWhiteList A list of regular expressions. Only vertices that one or more of these are included
 	 */
-	public RDFDataSet(Repository rdfRep, List<String> vertexWhiteList, List<String> edgeWhiteList)
-	{
-		this(rdfRep);
-	}	
+//	public RDFDataSet(Repository rdfRep, List<String> vertexWhiteList, List<String> edgeWhiteList)
+//	{
+//		this(rdfRep);
+//	}	
+//
 	
-	/*
+	/**
 	 * Wrapper for the Sesame connection getStatements, to avoid try-catch statements. 
 	 */	
 	public List<Statement> getStatements(Resource subject, URI predicate, Value object, boolean allowInference) {
