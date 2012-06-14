@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
+import org.data2semantics.tools.graphs.Graphs;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -33,6 +34,13 @@ public class WLSubTreeKernelTest {
 			if (triple.getSubject() instanceof URI) {
 				graphs.add(GraphFactory.createJUNGGraph(testSet.getSubGraph((URI) triple.getSubject(), 2, true)));
 			}
+		}
+		
+		List<String> bl = new ArrayList<String>();
+		bl.add("http://swrc.ontoware.org/ontology#affiliation");
+		
+		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
+			Graphs.removeVerticesAndEdges(graph, null, bl);
 		}
 		
 //				

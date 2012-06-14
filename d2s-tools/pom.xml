@@ -10,6 +10,20 @@
 		<id>openrdf.org</id>
 		<url>http://repo.aduna-software.org/maven2/releases</url>
   	</repository>
+  		<repository>
+		<id>dev.davidsoergel.com releases</id>
+		<url>http://dev.davidsoergel.com/artifactory/repo</url>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+	</repository>
+	<repository>
+		<id>dev.davidsoergel.com snapshots</id>
+		<url>http://dev.davidsoergel.com/artifactory/repo</url>
+		<releases>
+			<enabled>false</enabled>
+		</releases>
+	</repository>
   </repositories>
   <dependencies>
  	<dependency>
@@ -58,5 +72,10 @@
   		<artifactId>jung-visualization</artifactId>
   		<version>2.0.1</version>
   	</dependency>
+  	<dependency>
+		<groupId>edu.berkeley.compbio</groupId>
+		<artifactId>jlibsvm</artifactId>
+		<version>0.902</version>
+	</dependency>
   </dependencies>
 </project>

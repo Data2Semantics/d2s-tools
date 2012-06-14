@@ -6,6 +6,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -118,7 +119,7 @@ public class Graphs
 	 * @param vBlackList list of regular expressions
 	 * @param eBlackList list of regular expressions
 	 */	
-	public void removeVerticesAndEdges(DirectedGraph<Vertex<String>, Edge<String>> graph, List<String> vBlackList, List<String> eBlackList) {
+	public static void removeVerticesAndEdges(DirectedGraph<Vertex<String>, Edge<String>> graph, List<String> vBlackList, List<String> eBlackList) {
 		
 		List<Pattern> vertexBlackList = null;
 		
@@ -138,11 +139,13 @@ public class Graphs
 		}
 		
 		if (edgeBlackList != null) {
-			for (Edge<String> edge : graph.getEdges()) {
+			List<Edge<String>> toRemove = new ArrayList<Edge<String>>();
+						
+			for (Edge<String> edge : graph.getEdges()) {		
 				if(matches(edge.getLabel(), edgeBlackList)) {
 					Vertex<String> v1 = graph.getSource(edge);
 					Vertex<String> v2 = graph.getDest(edge);	
-					graph.removeEdge(edge);
+					toRemove.add(edge);					
 					
 					if (graph.degree(v1) == 0) {
 						graph.removeVertex(v1);
@@ -152,13 +155,23 @@ public class Graphs
 					}
 				}						
 			}
+			
+			for (Edge<String> edge : toRemove) {
+				graph.removeEdge(edge);
+			}		
 		}
 		
 		if (vertexBlackList != null) {
+			List<Vertex<String>> toRemove = new ArrayList<Vertex<String>>();
+			
 			for (Vertex<String> vertex : graph.getVertices()) {
 				if(matches(vertex.getLabel(), vertexBlackList)) {
-					graph.removeVertex(vertex);
+					toRemove.add(vertex);
 				}
+			}
+			
+			for (Vertex<String> vertex : toRemove) {
+				graph.removeVertex(vertex);
 			}
 		}
 		
