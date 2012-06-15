@@ -123,6 +123,9 @@ public class WLSubTreeKernelTest {
 //			System.out.println(fv);
 //		}
 		
+		
+		
+		
 		double[][] matrix = kernel.getKernel();
 		
 		for (int i = 0; i < matrix.length; i++) {
