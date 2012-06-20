@@ -76,7 +76,7 @@ public class GraphFactory {
 				graph.addVertex(node2);
 			}			
 							
-			graph.addEdge(new Edge<String>(statement.getPredicate().toString()), node1, node2, EdgeType.DIRECTED);			
+			graph.addEdge(new Edge<String>(statement.getPredicate().toString()), node1, node2, EdgeType.DIRECTED);
 		}	
 		
 		return graph;

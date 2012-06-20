@@ -4,12 +4,15 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
 import org.data2semantics.tools.graphs.Vertex;
+import org.data2semantics.tools.libsvm.LibSVMWrapper;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.junit.Test;
@@ -26,18 +29,21 @@ public class WLSubTreeKernelTest {
 	@Test
 	public void test() {
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
+		List<String> labels = new ArrayList<String>();
 		
 		
 		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
-		List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);	
+		List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, false);	
 		for (Statement triple : triples) {
 			if (triple.getSubject() instanceof URI) {
 				graphs.add(GraphFactory.createJUNGGraph(testSet.getSubGraph((URI) triple.getSubject(), 2, true)));
+				labels.add(triple.getObject().toString());
 			}
 		}
 		
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
+		bl.add("http://swrc.ontoware.org/ontology#employs");
 		
 		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
 			Graphs.removeVerticesAndEdges(graph, null, bl);
@@ -114,23 +120,26 @@ public class WLSubTreeKernelTest {
 //		graphs.add(graphB);		
 //		graphs.add(graphC);	
 //		
+	
 		
 		WLSubTreeKernel kernel = new WLSubTreeKernel(graphs);
 		kernel.compute();
 		kernel.normalize();
 		
-//		for (List<Double> fv : kernel.getFeatureVectors()) {
-//			System.out.println(fv);
-//		}
-		
-		
-		
-		
 		double[][] matrix = kernel.getKernel();
+		double[] target = LibSVMWrapper.createTargets(labels);	
+		double[] prediction = LibSVMWrapper.crossValidate(matrix, target, 1);
 		
-		for (int i = 0; i < matrix.length; i++) {
-			System.out.println(Arrays.toString(matrix[i]));
-		}
+		System.out.println("Overall Accuracy:  " + LibSVMWrapper.computeAccuracy(target, prediction));
+		System.out.println("Mean Accuracy:     " + LibSVMWrapper.computeMeanAccuracy(target, prediction));
+		System.out.println("Target Counts:     " + LibSVMWrapper.computeClassCounts(target));
+		System.out.println("Prediction Counts: " + LibSVMWrapper.computeClassCounts(prediction));
+		
+		
+				
+//		for (int i = 0; i < matrix.length; i++) {
+//			System.out.println(Arrays.toString(matrix[i]));
+//		}
 		
 	}
 

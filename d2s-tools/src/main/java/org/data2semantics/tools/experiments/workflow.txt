@@ -1,0 +1,17 @@
+Experimental workflow
+
+1. Extract dataset from RDFDataSet, using getStatements & getSubGraph
+
+	Parameters: depth of subgraph, include inverse relations, allow RDFS inference, include schema information
+	
+2. Extract and remove labels from dataset
+	
+	Parameters: ?
+	
+3. Compute Kernel(s) on dataset
+
+	Parameters: parameters of the kernel, e.g. depth for WLSubTree
+	
+4. Perform cross-validation experiment, optimize C-parameter internally
+
+	Parameters: 
