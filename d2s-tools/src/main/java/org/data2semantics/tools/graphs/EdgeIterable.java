@@ -69,6 +69,8 @@ public class EdgeIterable<V, E> implements Iterable<EdgeIterable.Line<V, E>>
 	
 	public static interface LineParser<V, E>
 	{
+		public boolean skip(String line);
+		
 		public Line<V, E> parse(String line);
 	}
 
@@ -98,13 +100,15 @@ public class EdgeIterable<V, E> implements Iterable<EdgeIterable.Line<V, E>>
 		
 		private void read()
 		{
-			try
-			{
-				line = reader.readLine();
-			} catch (IOException e)
-			{
-				throw new RuntimeException(e); 
-			}
+			do {
+				try
+				{
+					line = reader.readLine();
+				} catch (IOException e)
+				{
+					throw new RuntimeException(e); 
+				}
+			} while(parser.skip(line));
 		}
 
 		public boolean hasNext()
@@ -120,13 +124,12 @@ public class EdgeIterable<V, E> implements Iterable<EdgeIterable.Line<V, E>>
 			String r = line;
 			read();
 			
-			return parser.parse(line);
+			return parser.parse(r);
 		}
 
 		public void remove()
 		{
-			// TODO Auto-generated method stub
-			
+			throw new UnsupportedOperationException();
 		}
 	}
 	
@@ -174,6 +177,20 @@ public class EdgeIterable<V, E> implements Iterable<EdgeIterable.Line<V, E>>
 					return null;
 					
 				return Integer.parseInt(raw);
+			}
+
+			public boolean skip(String line)
+			{
+				if(line == null)
+					return false;
+				
+				if(line.trim().length() == 0)
+					return true;
+				
+				if(line.startsWith("#"))
+					return true;
+				
+				return false;
 			}
 
 		});
