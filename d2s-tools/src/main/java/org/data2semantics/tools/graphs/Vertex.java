@@ -17,6 +17,12 @@ public class Vertex<Label>
 		this.label = label;
 	}
 	
+	/**
+	 * Produces a new Vertex which is a copy of the Vertex v.
+	 * The Label label is shallow copied
+	 * 
+	 * @param v Vertex to copy
+	 */
 	public Vertex(Vertex<Label> v) {
 		this.label = v.label;
 	}

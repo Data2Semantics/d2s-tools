@@ -82,13 +82,18 @@ public class GraphFactory {
 		return graph;
 	}
 	
-	public static DirectedGraph<Vertex<String>, Edge<String>> copyDirectedGraph(DirectedGraph<Vertex<String>, Edge<String>> graph) {
-		DirectedGraph<Vertex<String>, Edge<String>> newGraph = new DirectedSparseMultigraph<Vertex<String>, Edge<String>>();
+	public static <L> DirectedGraph<Vertex<L>, Edge<L>> copyDirectedGraph(DirectedGraph<Vertex<L>, Edge<L>> graph) {
+		DirectedGraph<Vertex<L>, Edge<L>> newGraph = new DirectedSparseMultigraph<Vertex<L>, Edge<L>>();
 		
-		for (Vertex<String> vertex : graph.getVertices()) {
-			;
-		}
+		Map<Vertex<L>, Vertex<L>> nodes = new HashMap<Vertex<L>, Vertex<L>>();
+		
+		for (Vertex<L> vertex : graph.getVertices()) {
+			nodes.put(vertex, new Vertex<L>(vertex));
+			newGraph.addVertex(nodes.get(vertex));
+		}		
+		for (Edge<L> edge : graph.getEdges()) {
+			newGraph.addEdge(new Edge<L>(edge), nodes.get(graph.getSource(edge)), nodes.get(graph.getDest(edge)), EdgeType.DIRECTED);
+		}	
 		return newGraph;
 	}
-
 }

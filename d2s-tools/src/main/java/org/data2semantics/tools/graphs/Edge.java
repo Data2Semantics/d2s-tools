@@ -7,6 +7,13 @@ public class Edge<Label> {
 		this.label = label;
 	}
 
+	
+	/**
+	 * Produces a new Edge which is a copy of the Edge e.
+	 * The Label label is shallow copied
+	 * 
+	 * @param e Edge to copy
+	 */
 	public Edge(Edge<Label> e) {
 		this.label = e.label;
 	}

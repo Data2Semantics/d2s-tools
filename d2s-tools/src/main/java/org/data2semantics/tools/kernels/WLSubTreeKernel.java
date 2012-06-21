@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.data2semantics.tools.graphs.Edge;
+import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Vertex;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -30,7 +31,17 @@ public class WLSubTreeKernel implements GraphKernel {
 		for (int i = 0; i < graphs.size(); i++) {
 			Arrays.fill(kernel[i], 0.0);
 		}
-		this.graphs = graphs;
+
+		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
+		for(DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
+			DirectedGraph<Vertex<String>, Edge<String>> graphCopy = GraphFactory.copyDirectedGraph(graph);
+			this.graphs.add(graphCopy);
+			
+			if (graph.getEdgeCount() != graphCopy.getEdgeCount() || graph.getVertexCount() != graphCopy.getVertexCount()) {
+				System.out.println("Graph copy fail!");
+			}				
+		}
+		
 		featureVectors = new double[graphs.size()][];
 		labelDict = new HashMap<String,String>();
 		startLabel = 0;
@@ -42,6 +53,8 @@ public class WLSubTreeKernel implements GraphKernel {
 		compressGraphLabels();
 		computeFeatureVectors();
 		computeKernelMatrix();
+		
+		System.out.println("One iteration?");
 		
 		for (int i = 0; i < iterations; i++) {
 			relabelGraphs2MultisetLabels();
@@ -66,11 +79,11 @@ public class WLSubTreeKernel implements GraphKernel {
 		for (DirectedGraph<Vertex<String>, Edge<String>> graph : this.graphs) {
 			// Add each edge source (i.e.) start vertex to the bucket of the edge label
 			for (Edge<String> edge : graph.getEdges()) {
-				bucketsV.get(edge.getLabel()).getContents().add(graph.getSource(edge));
+				bucketsV.get(edge.getLabel()).getContents().add(graph.getDest(edge));
 			}
 			// Add each incident edge to the bucket of the node label
 			for (Vertex<String> vertex : graph.getVertices()) {
-				bucketsE.get(vertex.getLabel()).getContents().addAll(graph.getIncidentEdges(vertex));
+				bucketsE.get(vertex.getLabel()).getContents().addAll(graph.getOutEdges(vertex));
 			}	
 		}
 		
