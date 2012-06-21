@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -349,5 +350,83 @@ public class Graphs
 		    new Dimension(width, height));
 		
 		return image;
+	}
+	/**
+	 * Remove vertices and edges from graph that have labels on the resp. black list
+	 * 
+	 * @param graph the graph to remove vertices/edges from
+	 * @param vBlackList list of regular expressions
+	 * @param eBlackList list of regular expressions
+	 */	
+	public static void removeVerticesAndEdges(DirectedGraph<Vertex<String>, Edge<String>> graph, List<String> vBlackList, List<String> eBlackList) {
+		
+		List<Pattern> vertexBlackList = null;
+		
+		if(vBlackList != null) 
+		{
+			vertexBlackList = new ArrayList<Pattern>(vBlackList.size());
+			for(String patternString : vBlackList)
+				vertexBlackList.add(Pattern.compile(patternString));
+		}
+		
+		List<Pattern> edgeBlackList = null;
+		if(eBlackList != null)
+		{
+			edgeBlackList = new ArrayList<Pattern>(eBlackList.size());
+			for(String patternString : eBlackList)
+				edgeBlackList.add(Pattern.compile(patternString));
+		}
+		
+		if (edgeBlackList != null) {
+			List<Edge<String>> toRemove = new ArrayList<Edge<String>>();
+						
+			for (Edge<String> edge : graph.getEdges()) {		
+				if(matches(edge.getLabel(), edgeBlackList)) {
+					Vertex<String> v1 = graph.getSource(edge);
+					Vertex<String> v2 = graph.getDest(edge);	
+					toRemove.add(edge);					
+					
+					if (graph.degree(v1) == 0) {
+						graph.removeVertex(v1);
+					}
+					if (graph.degree(v2) == 0) {
+						graph.removeVertex(v2);
+					}
+				}						
+			}
+			
+			for (Edge<String> edge : toRemove) {
+				graph.removeEdge(edge);
+			}		
+		}
+		
+		if (vertexBlackList != null) {
+			List<Vertex<String>> toRemove = new ArrayList<Vertex<String>>();
+			
+			for (Vertex<String> vertex : graph.getVertices()) {
+				if(matches(vertex.getLabel(), vertexBlackList)) {
+					toRemove.add(vertex);
+				}
+			}
+			
+			for (Vertex<String> vertex : toRemove) {
+				graph.removeVertex(vertex);
+			}
+		}
+		
+	}
+	
+	/** TODO move this to a proper Utility class/package
+	 * Returns true if the String matches one or more of the patterns in the list.
+	 * @param string
+	 * @param patterns
+	 * @return
+	 */
+	public static boolean matches(String string, List<Pattern> patterns)
+	{
+		for(Pattern pattern : patterns)
+			if(pattern.matcher(string).matches())
+				return true;
+		return false;
 	}
 }
