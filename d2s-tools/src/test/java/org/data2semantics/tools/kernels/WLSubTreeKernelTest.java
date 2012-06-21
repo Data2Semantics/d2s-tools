@@ -33,10 +33,12 @@ public class WLSubTreeKernelTest {
 		
 		
 		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_no_schema.n3", RDFFormat.N3);
+		
 		List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, false);	
 		for (Statement triple : triples) {
 			if (triple.getSubject() instanceof URI) {
-				graphs.add(GraphFactory.createJUNGGraph(testSet.getSubGraph((URI) triple.getSubject(), 2, true)));
+				graphs.add(GraphFactory.createDirectedGraph(testSet.getSubGraph((URI) triple.getSubject(), 2, false, true)));
 				labels.add(triple.getObject().toString());
 			}
 		}
@@ -47,6 +49,8 @@ public class WLSubTreeKernelTest {
 		
 		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
 			Graphs.removeVerticesAndEdges(graph, null, bl);
+			
+			System.out.println("Vertex count: " + graph.getVertexCount() + " Edge count: " + graph.getEdgeCount());
 		}
 		
 //				

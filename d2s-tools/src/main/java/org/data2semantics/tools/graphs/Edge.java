@@ -7,6 +7,10 @@ public class Edge<Label> {
 		this.label = label;
 	}
 
+	public Edge(Edge<Label> e) {
+		this.label = e.label;
+	}
+	
 	public Label getLabel() {
 		return label;
 	}

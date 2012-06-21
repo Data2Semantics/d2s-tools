@@ -10,17 +10,18 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 
 public class RDFFileDataSet extends RDFDataSet 
 {
 	
 	public RDFFileDataSet(String filename, RDFFormat fileFormat) {					
-			super(createRepository(new File(filename), fileFormat));	
+			super(createRepository(new File(filename), fileFormat), filename);	
 	}
 
 	public RDFFileDataSet(File file, RDFFormat fileFormat) {					
-		super(createRepository(file, fileFormat));	
+		super(createRepository(file, fileFormat), file.toString());	
 	}
 	
 
@@ -29,7 +30,7 @@ public class RDFFileDataSet extends RDFDataSet
 		Repository rdfRep = null;
 		
 		try {
-			rdfRep = new SailRepository(new MemoryStore());
+			rdfRep = new SailRepository(new ForwardChainingRDFSInferencer(new MemoryStore()));
 			rdfRep.initialize();
 			RepositoryConnection swrcRepCon = rdfRep.getConnection();
 			

@@ -17,6 +17,7 @@ import org.openrdf.rio.RDFFormat;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.graph.DirectedGraph;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
@@ -75,7 +76,7 @@ public class Graphs
 		//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
 		List<Statement> triples = testSet.getFullGraph();
 			
-		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = GraphFactory.createJUNGGraph(triples, vWhiteList, eWhiteList);
+		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = GraphFactory.createDirectedGraph(triples, vWhiteList, eWhiteList);
 				
 		return jungGraph;
 	}
@@ -190,4 +191,7 @@ public class Graphs
 				return true;
 		return false;
 	}
+	
+
+
 }

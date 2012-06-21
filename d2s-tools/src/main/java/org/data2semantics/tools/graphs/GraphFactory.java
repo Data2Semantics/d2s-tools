@@ -15,12 +15,12 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class GraphFactory {
 
-	public static DirectedGraph<Vertex<String>, Edge<String>> createJUNGGraph(List<Statement> sesameGraph) 
+	public static DirectedGraph<Vertex<String>, Edge<String>> createDirectedGraph(List<Statement> sesameGraph) 
 	{
-		return createJUNGGraph(sesameGraph, null, null);
+		return createDirectedGraph(sesameGraph, null, null);
 	}
 	
-	public static DirectedGraph<Vertex<String>, Edge<String>> createJUNGGraph(
+	public static DirectedGraph<Vertex<String>, Edge<String>> createDirectedGraph(
 			List<Statement> sesameGraph, 
 			List<String> vWhiteList,
 			List<String> eWhiteList)
@@ -80,6 +80,15 @@ public class GraphFactory {
 		}	
 		
 		return graph;
+	}
+	
+	public static DirectedGraph<Vertex<String>, Edge<String>> copyDirectedGraph(DirectedGraph<Vertex<String>, Edge<String>> graph) {
+		DirectedGraph<Vertex<String>, Edge<String>> newGraph = new DirectedSparseMultigraph<Vertex<String>, Edge<String>>();
+		
+		for (Vertex<String> vertex : graph.getVertices()) {
+			;
+		}
+		return newGraph;
 	}
 
 }

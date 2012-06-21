@@ -6,6 +6,10 @@ public class Vertex<Label> {
 	public Vertex(Label label) {
 		this.label = label;
 	}
+	
+	public Vertex(Vertex<Label> v) {
+		this.label = v.label;
+	}
 
 	public Label getLabel() {
 		return label;

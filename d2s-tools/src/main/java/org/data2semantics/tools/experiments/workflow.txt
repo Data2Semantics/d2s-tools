@@ -3,6 +3,7 @@ Experimental workflow
 1. Extract dataset from RDFDataSet, using getStatements & getSubGraph
 
 	Parameters: depth of subgraph, include inverse relations, allow RDFS inference, include schema information
+				Edges as s,p,o
 	
 2. Extract and remove labels from dataset
 	
@@ -15,3 +16,11 @@ Experimental workflow
 4. Perform cross-validation experiment, optimize C-parameter internally
 
 	Parameters: 
+	
+	
+	Experiment class, implements runnable
+		- graph dataset
+		- kernel parameters
+		
+	DataSet class, which has a label string, and a list of graphs, and list of labels
+		

@@ -22,9 +22,11 @@ import org.openrdf.rio.RDFFormat;
 public class RDFDataSet
 {
 	private Repository rdfRep;
+	private String label;
 
-	public RDFDataSet(Repository rdfRep) {
+	public RDFDataSet(Repository rdfRep, String label) {
 		this.rdfRep = rdfRep;
+		this.label = label;
 	}
 
 	/*
@@ -191,4 +193,8 @@ public class RDFDataSet
 		return newNodes;		
 	}
 
+	public String getLabel() {
+		return this.label;
+	}
+	
 }

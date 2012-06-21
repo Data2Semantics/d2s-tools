@@ -20,7 +20,7 @@ public class GraphFactoryTest {
 		//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
 		List<Statement> triples = testSet.getFullGraph();
 			
-		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = GraphFactory.createJUNGGraph(triples);
+		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = GraphFactory.createDirectedGraph(triples);
 		
 		for (Edge<String> edge: jungGraph.getEdges()) {
 			System.out.println(jungGraph.getEndpoints(edge).getFirst() + " " + edge + " " + jungGraph.getEndpoints(edge).getSecond());
