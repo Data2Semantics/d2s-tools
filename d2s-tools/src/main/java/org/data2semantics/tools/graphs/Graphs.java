@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -81,6 +82,9 @@ public class Graphs
 		String line;
 		int i = 0;
 		int edges = 0;
+		
+		HashSet<Integer> set = new HashSet<Integer>();
+		
 		do
 		{
 			line = reader.readLine();
@@ -123,13 +127,15 @@ public class Graphs
 			edges++;		
 			Vertex<Integer> 
 				av = new Vertex<Integer>(a),
-				bv = new Vertex<Integer>(c == null ? b : c);
+				bv = new Vertex<Integer>(b);
 			
 			Edge<Integer> edge = new Edge<Integer>(c == null ? edges : c);
 			
 			if(((long)edges) > Integer.MAX_VALUE)
 				throw new IllegalStateException("Too many edges ("+edges+") to be represented as ints (from line "+i+", max = "+Integer.MAX_VALUE+")");
 					
+			set.add(a); set.add(b);
+			
 			graph.addEdge(new Edge<Integer>(edges), av, bv);
 			
 			if(edges % 100000 == 0)		
@@ -137,6 +143,13 @@ public class Graphs
 		} while(line != null);
 		
 		System.out.println("\nFinished. Read " + edges + "edges");
+		System.out.println("Encountered "+set.size()+" vertices");
+		
+		HashSet<Integer> all = new HashSet<Integer>();
+		for(int j = 1; j < 307; j++)
+			all.add(j);
+		System.out.println(all.removeAll(set));
+		System.out.println(all);
 	}
 
 	/**
