@@ -16,36 +16,23 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 // TODO rewrite featureVectors using arrays, and do kernel computation add each step
 
-public class WLSubTreeKernel implements GraphKernel {
-	private double[][] kernel;
-	private List<DirectedGraph<Vertex<String>, Edge<String>>> graphs;
+public class WLSubTreeKernel extends GraphKernel {
 	private double[][] featureVectors;	
 	private Map<String, String> labelDict;
 	private int startLabel, currentLabel;
 	private int iterations = 2;
 	
 	
-	
-	public WLSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
-		kernel = new double[graphs.size()][graphs.size()];
-		for (int i = 0; i < graphs.size(); i++) {
-			Arrays.fill(kernel[i], 0.0);
-		}
-
-		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
-		for(DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
-			DirectedGraph<Vertex<String>, Edge<String>> graphCopy = GraphFactory.copyDirectedGraph(graph);
-			this.graphs.add(graphCopy);
-			
-			if (graph.getEdgeCount() != graphCopy.getEdgeCount() || graph.getVertexCount() != graphCopy.getVertexCount()) {
-				System.out.println("Graph copy fail!");
-			}				
-		}
+	public WLSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int iterations) {
+		super(graphs);
 		
 		featureVectors = new double[graphs.size()][];
 		labelDict = new HashMap<String,String>();
 		startLabel = 0;
 		currentLabel = 0;
+		this.iterations = iterations;
+		
+		this.label = "WL SubTree Kernel " + iterations;
 	}
 
 	public void compute() {
@@ -53,8 +40,6 @@ public class WLSubTreeKernel implements GraphKernel {
 		compressGraphLabels();
 		computeFeatureVectors();
 		computeKernelMatrix();
-		
-		System.out.println("One iteration?");
 		
 		for (int i = 0; i < iterations; i++) {
 			relabelGraphs2MultisetLabels();
@@ -199,11 +184,6 @@ public class WLSubTreeKernel implements GraphKernel {
 				kernel[j][i] = kernel[i][j];
 			}
 		}
-	}
-	
-
-	public double[][] getKernel() {
-		return kernel;
 	}
 	
 	

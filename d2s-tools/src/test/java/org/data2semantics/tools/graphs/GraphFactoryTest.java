@@ -113,11 +113,6 @@ public class GraphFactoryTest {
 		System.out.println(GraphFactory.copyDirectedGraph(graphB));
 		System.out.println(graphC);
 		System.out.println(GraphFactory.copyDirectedGraph(graphC));
-
 		
-		
-		
-	}
-	
-	
+	}		
 }
