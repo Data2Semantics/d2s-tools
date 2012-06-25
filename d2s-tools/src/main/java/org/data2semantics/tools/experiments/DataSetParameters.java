@@ -11,11 +11,10 @@ public class DataSetParameters {
 	private int depth;
 	private boolean includeInverse;
 	private boolean includeInference;
-	private long seed;
 	
 	public DataSetParameters(RDFDataSet rdfDataSet, String property,
 			List<String> blackList, int depth, boolean includeInverse,
-			boolean includeInference, long seed) {
+			boolean includeInference) {
 		super();
 		this.rdfDataSet = rdfDataSet;
 		this.property = property;
@@ -23,7 +22,6 @@ public class DataSetParameters {
 		this.depth = depth;
 		this.includeInverse = includeInverse;
 		this.includeInference = includeInference;
-		this.seed = seed;
 	}
 
 	public RDFDataSet getRdfDataSet() {
@@ -73,15 +71,4 @@ public class DataSetParameters {
 	public void setIncludeInference(boolean includeInference) {
 		this.includeInference = includeInference;
 	}
-
-	public long getSeed() {
-		return seed;
-	}
-
-	public void setSeed(long seed) {
-		this.seed = seed;
-	}
-	
-	
-
 }

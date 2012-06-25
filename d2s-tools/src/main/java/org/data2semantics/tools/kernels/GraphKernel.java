@@ -2,7 +2,9 @@ package org.data2semantics.tools.kernels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
@@ -57,4 +59,13 @@ public abstract class GraphKernel {
 			this.graphs.add(GraphFactory.copyDirectedGraph(graph));				
 		}
 	}
+	
+	public void shuffle(long seed) {
+		Collections.shuffle(Arrays.asList(kernel), new Random(seed));
+		
+		for (int i = 0; i < kernel.length; i++) {
+			Collections.shuffle(Arrays.asList(kernel[i]), new Random(seed));
+		}
+	}
+	
 }

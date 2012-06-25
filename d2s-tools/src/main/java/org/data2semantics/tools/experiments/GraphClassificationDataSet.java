@@ -1,6 +1,8 @@
 package org.data2semantics.tools.experiments;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
@@ -10,8 +12,7 @@ import edu.uci.ics.jung.graph.DirectedGraph;
 public class GraphClassificationDataSet {
 	private String label;
 	private List<DirectedGraph<Vertex<String>, Edge<String>>> graphs;
-	private List<String> labels;
-	
+	private List<String> labels;	
 	
 	public GraphClassificationDataSet(String label,
 			List<DirectedGraph<Vertex<String>, Edge<String>>> graphs,
@@ -35,5 +36,11 @@ public class GraphClassificationDataSet {
 
 	public List<String> getLabels() {
 		return labels;
-	}	
+	}
+		
+	public void shuffle(long seed) {
+		Collections.shuffle(graphs, new Random(seed));
+		Collections.shuffle(labels, new Random(seed));
+		
+	}
 }
