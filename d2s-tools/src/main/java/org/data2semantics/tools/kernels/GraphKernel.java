@@ -60,12 +60,35 @@ public abstract class GraphKernel {
 		}
 	}
 	
-	public void shuffle(long seed) {
-		Collections.shuffle(Arrays.asList(kernel), new Random(seed));
+	public void shuffle(long seed) {		
+		Double[][] kernelDouble = convert2DoubleObjects(kernel);		
+		for (int i = 0; i < kernel.length; i++) {
+			Collections.shuffle(Arrays.asList(kernelDouble[i]), new Random(seed));
+		}
+		Collections.shuffle(Arrays.asList(kernelDouble), new Random(seed));
+		kernel = convert2DoublePrimitives(kernelDouble);
+	}
+	
+	private Double[][] convert2DoubleObjects(double[][] kernel) {
+		Double[][] kernelDouble = new Double[kernel.length][kernel[0].length];
 		
 		for (int i = 0; i < kernel.length; i++) {
-			Collections.shuffle(Arrays.asList(kernel[i]), new Random(seed));
+			for (int j = 0; j < kernel[i].length; j++) {
+				kernelDouble[i][j] = new Double(kernel[i][j]);
+			}
 		}
+		return kernelDouble;
+	}
+	
+	private double[][] convert2DoublePrimitives(Double[][] kernelDouble) {
+		double[][] kernel = new double[kernelDouble.length][kernelDouble[0].length];
+		
+		for (int i = 0; i < kernelDouble.length; i++) {
+			for (int j = 0; j < kernelDouble[i].length; j++) {
+				kernel[i][j] = kernelDouble[i][j].doubleValue();
+			}
+		}
+		return kernel;
 	}
 	
 }

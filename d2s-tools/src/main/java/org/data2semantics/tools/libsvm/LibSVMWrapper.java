@@ -116,14 +116,35 @@ public class LibSVMWrapper {
 		
 		for (double label : targetCounts.keySet()) {
 			for (int i = 0; i < prediction.length; i++) {
-				if (prediction[i] == label && target[i] == label) {
+				if ((prediction[i] == label && target[i] == label) || (prediction[i] != label && target[i] != label)) {
 					accTemp += 1;
 				}
 			}
-			acc += (accTemp / targetCounts.get(label));
+			acc += (accTemp / target.length);
 			accTemp = 0;
 		}	
 		return acc / ((double) targetCounts.size());
+	}
+	
+	public static double computeF1(double[] target, double[] prediction) {
+		Map<Double, Double> targetCounts = computeClassCounts(target);
+		double f1 = 0, temp1 = 0, temp2 = 0;
+		
+		for (double label : targetCounts.keySet()) {
+			for (int i = 0; i < prediction.length; i++) {
+				if ((prediction[i] == label && target[i] == label)) {
+					temp1 += 1;
+				}
+				if ((prediction[i] == label || target[i] == label)) {
+					temp2 += 1;
+				}
+			}
+			f1 += temp1 / temp2;
+			temp1 = 0;
+			temp2 = 0;
+		}	
+		return f1 / ((double) targetCounts.size());
+		
 	}
 	
 	public static Map<Double, Double> computeClassCounts(double[] target) {

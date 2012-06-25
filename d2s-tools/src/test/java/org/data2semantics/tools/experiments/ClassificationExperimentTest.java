@@ -26,38 +26,50 @@ public class ClassificationExperimentTest {
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 		
-		long[] seeds = {11}; //,21,31,41,51,61,71,81,91,101};
+		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
-		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
+		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, true));
 		
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, false));
-		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, false));
+		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, true));
 		
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
-		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
+		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, true));
 		
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, false));
-		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, false));
+		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, true));
 		
 		GraphClassificationDataSet dataset;
 		ClassificationExperiment exp;
 		
+		double[][] results = new double[dataSetsParams.size()][3];
+		
+		int j = 0;
 		for (DataSetParameters params : dataSetsParams) {
 			for (int i = 0; i < 3; i++) {
 				dataset = DataSetFactory.createClassificationDataSet(params);
 				exp = new ClassificationExperiment(dataset, new WLSubTreeKernel(dataset.getGraphs(), i), seeds);
 				exp.run();
-			}			
-		}					
+				results[j][i] = exp.getAccuracy();
+			}
+			j++;
+		}
+		
+		for (int i = 0; i < results.length; i++) {
+			for (int k = 0; k < results[i].length; k++) {
+				System.out.print(Math.round(results[i][k] * 100) + " ");
+			}
+			System.out.println("");
+		}
 	}
 
 }

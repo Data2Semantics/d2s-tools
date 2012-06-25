@@ -118,9 +118,17 @@ public class WLSubTreeKernelTest {
 		
 		WLSubTreeKernel kernel = new WLSubTreeKernel(dataSet.getGraphs(), 2);
 		kernel.compute();
-		kernel.normalize();
+		kernel.normalize();		
+		kernel.shuffle(11);
 		
 		double[][] matrix = kernel.getKernel();
+		
+		for (int i = 0; i < matrix.length; i++) {
+			System.out.println(Arrays.toString(matrix[i]));
+		}
+		
+		
+		/*
 		double[] target = LibSVMWrapper.createTargets(dataSet.getLabels());	
 		
 		//LibSVMWrapper.createTrainFold(matrix, 10, 10);
@@ -133,6 +141,7 @@ public class WLSubTreeKernelTest {
 		System.out.println("Mean Accuracy:     " + LibSVMWrapper.computeMeanAccuracy(target, prediction));
 		System.out.println("Target Counts:     " + LibSVMWrapper.computeClassCounts(target));
 		System.out.println("Prediction Counts: " + LibSVMWrapper.computeClassCounts(prediction));
+		*/
 		
 		
 				
