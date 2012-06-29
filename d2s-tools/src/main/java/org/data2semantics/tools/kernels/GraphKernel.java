@@ -22,7 +22,7 @@ public abstract class GraphKernel {
 		for (int i = 0; i < graphs.size(); i++) {
 			Arrays.fill(kernel[i], 0.0);
 		}
-		setGraphs(graphs);
+		this.graphs = graphs;
 		this.label = "Graph Kernel";
 	}
 	
@@ -51,13 +51,6 @@ public abstract class GraphKernel {
 	
 	public String getLabel() {
 		return label;
-	}
-
-	private void setGraphs(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
-		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
-		for(DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
-			this.graphs.add(GraphFactory.copyDirectedGraph(graph));				
-		}
 	}
 	
 	public void shuffle(long seed) {		

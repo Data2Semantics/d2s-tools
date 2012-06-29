@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.data2semantics.tools.kernels.IntersectionPartialSubTreeKernel;
+import org.data2semantics.tools.kernels.IntersectionSubTreeKernel;
 import org.data2semantics.tools.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -18,8 +20,8 @@ public class ClassificationExperimentTest {
 		
 		List<DataSetParameters> dataSetsParams = new ArrayList<DataSetParameters>();
 		
-		RDFDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
-		RDFDataSet testSetB = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_no_schema.n3", RDFFormat.N3);
+		RDFDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\datasets\\aifb\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		RDFDataSet testSetB = new RDFFileDataSet("D:\\workspaces\\datasets\\aifb\\aifb-fixed_no_schema.n3", RDFFormat.N3);
 		
 		
 		List<String> bl = new ArrayList<String>();
@@ -27,6 +29,7 @@ public class ClassificationExperimentTest {
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 		
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
+		double[] cs = {0.01, 0.1, 1, 10, 100};	
 		
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
@@ -57,7 +60,9 @@ public class ClassificationExperimentTest {
 		for (DataSetParameters params : dataSetsParams) {
 			for (int i = 0; i < 3; i++) {
 				dataset = DataSetFactory.createClassificationDataSet(params);
-				exp = new ClassificationExperiment(dataset, new WLSubTreeKernel(dataset.getGraphs(), i), seeds);
+				//exp = new ClassificationExperiment(dataset, new WLSubTreeKernel(dataset.getGraphs(), i), seeds, cs);
+				exp = new ClassificationExperiment(dataset, new IntersectionSubTreeKernel(dataset.getGraphs(), dataset.getRootVertices(), i, 1), seeds, cs);
+				
 				exp.run();
 				results[j][i] = exp.getAccuracy();
 			}

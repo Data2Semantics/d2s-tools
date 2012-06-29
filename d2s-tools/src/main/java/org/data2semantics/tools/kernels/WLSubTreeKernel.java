@@ -25,6 +25,7 @@ public class WLSubTreeKernel extends GraphKernel {
 	
 	public WLSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int iterations) {
 		super(graphs);
+		copyGraphs();
 		
 		featureVectors = new double[graphs.size()][];
 		labelDict = new HashMap<String,String>();
@@ -32,7 +33,7 @@ public class WLSubTreeKernel extends GraphKernel {
 		currentLabel = 0;
 		this.iterations = iterations;
 		
-		this.label = "WL SubTree Kernel " + iterations;
+		this.label = "WL SubTree Kernel, it=" + iterations;
 	}
 
 	public void compute() {
@@ -169,20 +170,13 @@ public class WLSubTreeKernel extends GraphKernel {
 			sum += fv1[i] * fv2[i];
 		}	
 		return sum;
-	}
+	}	
 	
-	public void normalize() {
-		double[] ss = new double[kernel.length];
-		
-		for (int i = 0; i < ss.length; i++) {
-			ss[i] = kernel[i][i];
-		}
-			
-		for (int i = 0; i < kernel.length; i++) {
-			for (int j = i; j < kernel[i].length; j++) {
-				kernel[i][j] /= Math.sqrt(ss[i] * ss[j]);
-				kernel[j][i] = kernel[i][j];
-			}
+	private void copyGraphs() {
+		List<DirectedGraph<Vertex<String>, Edge<String>>> oldGraphs = this.graphs;
+		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
+		for(DirectedGraph<Vertex<String>, Edge<String>> graph : oldGraphs) {
+			this.graphs.add(GraphFactory.copyDirectedGraph(graph));				
 		}
 	}
 	

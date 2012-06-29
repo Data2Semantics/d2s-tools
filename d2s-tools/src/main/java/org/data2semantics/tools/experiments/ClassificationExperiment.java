@@ -1,5 +1,8 @@
 package org.data2semantics.tools.experiments;
 
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
 import org.data2semantics.tools.kernels.GraphKernel;
 import org.data2semantics.tools.libsvm.LibSVMWrapper;
 
@@ -10,14 +13,23 @@ public class ClassificationExperiment implements Runnable {
 	private GraphClassificationDataSet dataSet;
 	private GraphKernel kernel;
 	private long[] seeds;
+	private double[] cs;
 	private double accuracy;
 	private double meanAccuracy;
 	private double f1;
-
-	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds) {
+	private PrintWriter output;
+	
+	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs) {
+		this(dataSet, kernel, seeds,  cs, System.out);
+	}
+	
+	
+	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, OutputStream outputStream) {
 		this.dataSet = dataSet;
 		this.kernel = kernel;
 		this.seeds = seeds;
+		this.cs = cs;
+		output = new PrintWriter(outputStream);
 	}
 
 
@@ -25,11 +37,7 @@ public class ClassificationExperiment implements Runnable {
 		double acc = 0, meanAcc = 0, f = 0;
 		
 		kernel.compute();
-		kernel.normalize();
-		
-		//double[] cs = {0.01, 0.1, 1, 10, 100};	
-		double[] cs = {1};
-		
+		kernel.normalize();	
 
 		for (int i = 0; i < seeds.length; i++) {
 			kernel.shuffle(seeds[i]);
@@ -48,13 +56,13 @@ public class ClassificationExperiment implements Runnable {
 		meanAccuracy = meanAcc / seeds.length;
 		f1 = f / seeds.length;
 		
-		System.out.println(dataSet.getLabel());
-		System.out.println(kernel.getLabel() + ", Seeds: " + Arrays.toString(seeds) + ", C chosen from: " + Arrays.toString(cs));
-		System.out.println("Overall Accuracy:  " + accuracy);
-		System.out.println("Mean Accuracy:     " + meanAccuracy);
-		System.out.println("F1:                " + f1);
-		
-		System.out.println("");
+		output.println(dataSet.getLabel());
+		output.println(kernel.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));
+		output.print("Overall Accuracy: " + accuracy);
+		//output.print(", Mean Accuracy:     " + meanAccuracy);
+		output.print(", Average F1: " + f1);
+		output.println("");
+		output.flush();
 
 	}
 
