@@ -72,7 +72,7 @@ public class GraphFactory {
 			
 			if (node2 == null) {
 				node2 = new Vertex<String>(statement.getObject().toString());
-				nodes.put(node2.getLabel(), node1);
+				nodes.put(node2.getLabel(), node2);
 				graph.addVertex(node2);
 			}			
 							

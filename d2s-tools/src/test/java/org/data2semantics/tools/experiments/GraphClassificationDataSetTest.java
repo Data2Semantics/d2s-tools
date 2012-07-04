@@ -15,13 +15,15 @@ public class GraphClassificationDataSetTest {
 	@Test
 	public void test() {
 		
-		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		RDFDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		RDFDataSet testSetB = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_no_schema.n3", RDFFormat.N3);
+		
 		
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 				
-		System.out.println(DataSetFactory.createClassificationDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false).getLabel());
+		System.out.println(DataSetFactory.createClassificationDataSet(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false).getLabel());
 	}
 
 }

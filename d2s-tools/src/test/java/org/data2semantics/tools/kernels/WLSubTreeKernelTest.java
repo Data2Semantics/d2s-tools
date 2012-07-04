@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.tools.experiments.DataSetFactory;
+import org.data2semantics.tools.experiments.GraphClassificationDataSet;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
@@ -28,31 +30,19 @@ public class WLSubTreeKernelTest {
 
 	@Test
 	public void test() {
-		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
-		List<String> labels = new ArrayList<String>();
-		
-		
+	
 		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 		RDFDataSet testSet = new RDFFileDataSet("/Users/Peter/Documents/datasets/graphs/aifb/aifb-fixed_complete.owl", RDFFormat.RDFXML);
-		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_no_schema.n3", RDFFormat.N3);
-		
-		List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, false);	
-		for (Statement triple : triples) {
-			if (triple.getSubject() instanceof URI) {
-				graphs.add(GraphFactory.createDirectedGraph(testSet.getSubGraph((URI) triple.getSubject(), 2, false, true)));
-				labels.add(triple.getObject().toString());
-			}
-		}
 		
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
+				
+		GraphClassificationDataSet dataSet = DataSetFactory.createClassificationDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false); 
 		
-		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
-			Graphs.removeVerticesAndEdges(graph, null, bl);
-			
-			System.out.println("Vertex count: " + graph.getVertexCount() + " Edge count: " + graph.getEdgeCount());
-		}
+		System.out.println(dataSet.getLabel());
+	
+		
 		
 //				
 //		DirectedGraph<Vertex<String>, Edge<String>> graphA, graphB, graphC;
@@ -127,18 +117,32 @@ public class WLSubTreeKernelTest {
 //		
 	
 		
-		WLSubTreeKernel kernel = new WLSubTreeKernel(graphs);
+		WLSubTreeKernel kernel = new WLSubTreeKernel(dataSet.getGraphs(), 2);
 		kernel.compute();
-		kernel.normalize();
+		kernel.normalize();		
+		kernel.shuffle(11);
 		
 		double[][] matrix = kernel.getKernel();
-		double[] target = LibSVMWrapper.createTargets(labels);	
-		double[] prediction = LibSVMWrapper.crossValidate(matrix, target, 1);
+		
+		for (int i = 0; i < matrix.length; i++) {
+			System.out.println(Arrays.toString(matrix[i]));
+		}
+		
+		
+		/*
+		double[] target = LibSVMWrapper.createTargets(dataSet.getLabels());	
+		
+		//LibSVMWrapper.createTrainFold(matrix, 10, 10);
+		//LibSVMWrapper.createTestFold(matrix, 10, 10);
+		
+		double[] cs = {0.01, 0.1, 1, 10, 100};	
+		double[] prediction = LibSVMWrapper.crossValidate(matrix, target, 10, cs);
 		
 		System.out.println("Overall Accuracy:  " + LibSVMWrapper.computeAccuracy(target, prediction));
 		System.out.println("Mean Accuracy:     " + LibSVMWrapper.computeMeanAccuracy(target, prediction));
 		System.out.println("Target Counts:     " + LibSVMWrapper.computeClassCounts(target));
 		System.out.println("Prediction Counts: " + LibSVMWrapper.computeClassCounts(prediction));
+		*/
 		
 		
 				
