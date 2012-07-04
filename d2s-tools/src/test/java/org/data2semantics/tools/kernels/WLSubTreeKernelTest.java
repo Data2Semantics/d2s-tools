@@ -32,7 +32,8 @@ public class WLSubTreeKernelTest {
 		List<String> labels = new ArrayList<String>();
 		
 		
-		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		RDFDataSet testSet = new RDFFileDataSet("/Users/Peter/Documents/datasets/graphs/aifb/aifb-fixed_complete.owl", RDFFormat.RDFXML);
 		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_no_schema.n3", RDFFormat.N3);
 		
 		List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, false);	

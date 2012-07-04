@@ -5,13 +5,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.UndirectedGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
@@ -40,18 +44,35 @@ public class GML
 		private LinkedList<String> buffer = new LinkedList<String>();
 		
 		private Graph<LVertex, Edge<String>> graph;
+		private boolean directed;
 		
 		public Reader(File file) throws IOException
 		{
 			reader = new BufferedReader(new FileReader(file));
-			graph = new UndirectedSparseGraph<GML.LVertex, Edge<String>>();
+			graph = new DirectedSparseGraph<GML.LVertex, Edge<String>>();
 			
 			start();
 		}
 		
 		public Graph<LVertex, Edge<String>> graph()
 		{
-			return graph;
+			if(directed)
+				return graph;
+			
+			UndirectedGraph<GML.LVertex, Edge<String>> other = 
+					new UndirectedSparseGraph<GML.LVertex, Edge<String>>();
+			for(Edge<String> edge : graph.getEdges())
+			{
+				Collection<LVertex> vertices = graph.getIncidentVertices(edge);
+				
+				Iterator<LVertex> it = vertices.iterator();
+				LVertex first = it.next();
+				LVertex second = it.next();
+				
+				other.addEdge(edge, first, second);
+			}
+			
+			return other;
 		}
 		
 		private void read()
@@ -96,7 +117,6 @@ public class GML
 		    Matcher m = tokenizer.matcher(bf);
 		    while(m.find())
 				buffer.add(m.group());
-
 		}
 		
 		private String pop()
@@ -141,6 +161,9 @@ public class GML
 			{
 				String next = pop();
 				
+				if(next.toLowerCase().equals("directed"))
+					readDirected();
+				
 				if(next.toLowerCase().equals("node"))
 					readNode();
 				
@@ -150,6 +173,19 @@ public class GML
 				if(next.equals("]"))
 					break;
 			}
+		}
+		
+		private void readDirected()
+		{
+			String next = pop();
+
+			if(next.equals("1"))
+				directed = true;
+			else if(next.equals("0"))
+				directed = false;
+			else
+				throw new RuntimeException("Could not read 'directed' statement. Should have been '1' or '0', was '"+next+"'.,");
+			
 		}
 		
 		private String label;
