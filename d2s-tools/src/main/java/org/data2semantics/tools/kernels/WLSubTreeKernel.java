@@ -77,21 +77,10 @@ public class WLSubTreeKernel extends GraphKernel {
 			for (Edge<String> edge : graph.getEdges()) {
 				bucketsV.get(edge.getLabel()).getContents().add(graph.getDest(edge));
 			}
-			
-			Map<Vertex<String>, String> map = new HashMap<Vertex<String>, String>();
-			for (Vertex<String> vertex : graph.getVertices()) 
-				map.put(vertex, null);
-			
-			for (Vertex<String> vertex : graph.getVertices()) 
-				System.out.println(vertex.getLabel() + " " + vertex.hashCode() + " " + map.containsKey(vertex) + " " + graph.containsVertex(vertex));
-			
+						
 			// Add each incident edge to the bucket of the node label
-			for (Vertex<String> vertex : graph.getVertices()) 
-			{
-				
+			for (Vertex<String> vertex : graph.getVertices()) {			
 				Collection<Edge<String>> v2 = graph.getOutEdges(vertex);
-				if(v2 == null)
-					System.out.println('!');
 				bucketsE.get(vertex.getLabel()).getContents().addAll(v2);
 			}	
 		}
@@ -147,7 +136,7 @@ public class WLSubTreeKernel extends GraphKernel {
 					currentLabel++;
 					labelDict.put(vertex.getLabel(), label);
 				}
-				// vertex.setLabel(label);
+				vertex.setLabel(label);
 			}
 		}		
 	}
@@ -160,13 +149,7 @@ public class WLSubTreeKernel extends GraphKernel {
 
 			// for each vertex, use the label as index into the feature vector and do a + 1,
 			for (Vertex<String> vertex : graphs.get(i).getVertices()) {
-				index = Integer.parseInt(vertex.getLabel()) - startLabel;
-				
-				if (index < 0) {
-					System.out.println("Label: " + vertex.getLabel());
-					System.out.println("start: " + startLabel);
-				}
-				
+				index = Integer.parseInt(vertex.getLabel()) - startLabel;				
 				featureVectors[i][index] += 1.0;
 			}
 			
