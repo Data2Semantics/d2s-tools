@@ -22,18 +22,20 @@ public class WLSubTreeKernel extends GraphKernel {
 	private int startLabel, currentLabel;
 	private int iterations = 2;
 	
+	public WLSubTreeKernel(int iterations) {
+		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), iterations);
+	}
 	
 	public WLSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int iterations) {
 		super(graphs);
 		copyGraphs();
-		
 		featureVectors = new double[graphs.size()][];
 		labelDict = new HashMap<String,String>();
+		
+		this.label = "WL SubTree Kernel, it=" + iterations;
 		startLabel = 0;
 		currentLabel = 0;
 		this.iterations = iterations;
-		
-		this.label = "WL SubTree Kernel, it=" + iterations;
 	}
 
 	public void compute() {
@@ -48,6 +50,14 @@ public class WLSubTreeKernel extends GraphKernel {
 			computeFeatureVectors();
 			computeKernelMatrix();
 		}
+	}
+	
+	public void setGraphs(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
+		this.graphs = graphs;
+		copyGraphs();
+		initMatrix();
+		featureVectors = new double[graphs.size()][];
+		labelDict = new HashMap<String,String>();
 	}
 	
 	
@@ -179,7 +189,7 @@ public class WLSubTreeKernel extends GraphKernel {
 			this.graphs.add(GraphFactory.copyDirectedGraph(graph));				
 		}
 	}
-	
+
 	
 	private class Bucket<T> {
 		private String label;

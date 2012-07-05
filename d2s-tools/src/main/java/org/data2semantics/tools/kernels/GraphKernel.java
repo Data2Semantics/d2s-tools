@@ -17,13 +17,14 @@ public abstract class GraphKernel {
 	protected List<DirectedGraph<Vertex<String>, Edge<String>>> graphs;
 	protected String label;
 	
-	public GraphKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
-		kernel = new double[graphs.size()][graphs.size()];
-		for (int i = 0; i < graphs.size(); i++) {
-			Arrays.fill(kernel[i], 0.0);
-		}
-		this.graphs = graphs;
+	public GraphKernel() {
 		this.label = "Graph Kernel";
+	}
+	
+	public GraphKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
+		this();
+		this.graphs = graphs;
+		initMatrix();
 	}
 	
 	
@@ -83,5 +84,18 @@ public abstract class GraphKernel {
 		}
 		return kernel;
 	}
+	
+	public void setGraphs(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
+		this.graphs = graphs;
+		initMatrix();
+	}
+	
+	protected void initMatrix() {
+		kernel = new double[graphs.size()][graphs.size()];
+		for (int i = 0; i < graphs.size(); i++) {
+			Arrays.fill(kernel[i], 0.0);
+		}
+	}
+	
 	
 }
