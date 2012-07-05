@@ -15,9 +15,9 @@ public class ClassificationExperiment implements Runnable {
 	private long[] seeds;
 	private double[] cs;
 	private double accuracy;
-	private double meanAccuracy;
 	private double f1;
 	private PrintWriter output;
+	private ExperimentResults results;
 	
 	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs) {
 		this(dataSet, kernel, seeds,  cs, System.out);
@@ -30,6 +30,7 @@ public class ClassificationExperiment implements Runnable {
 		this.seeds = seeds;
 		this.cs = cs;
 		output = new PrintWriter(outputStream);
+		results = new ExperimentResults();
 	}
 
 
@@ -48,34 +49,34 @@ public class ClassificationExperiment implements Runnable {
 			double[] prediction = LibSVMWrapper.crossValidate(matrix, target, 10, cs);
 			
 			acc += LibSVMWrapper.computeAccuracy(target, prediction);
-			meanAcc += LibSVMWrapper.computeMeanAccuracy(target, prediction);
 			f +=  LibSVMWrapper.computeF1(target, prediction);
 		}
 		
 		accuracy = acc / seeds.length;
-		meanAccuracy = meanAcc / seeds.length;
 		f1 = f / seeds.length;
 		
 		output.println(dataSet.getLabel());
 		output.println(kernel.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));
 		output.print("Overall Accuracy: " + accuracy);
-		//output.print(", Mean Accuracy:     " + meanAccuracy);
 		output.print(", Average F1: " + f1);
 		output.println("");
 		output.flush();
+		
+		results.setLabel(dataSet.getLabel() + " " + kernel.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));
+		results.setAccuracy(accuracy);
+		results.setF1(f1);
 
 	}
-
 
 	public double getAccuracy() {
 		return accuracy;
-	}
-	
-	public double getMeanAccuracy() {
-		return meanAccuracy;
 	}
 
 	public double getF1() {
 		return f1;
 	}
+
+	public ExperimentResults getResults() {
+		return results;
+	}	
 }
