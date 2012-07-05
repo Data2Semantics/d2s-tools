@@ -332,7 +332,7 @@ public class Graphs
 		});
 		vis.getRenderContext().setVertexShapeTransformer(new Transformer<V, Shape>()
 		{
-			double r = 5.0;
+			double r = 3.0;
 			Shape e = new Ellipse2D.Double(0.0, 0.0, r, r);
 			
 			public Shape transform(V input)

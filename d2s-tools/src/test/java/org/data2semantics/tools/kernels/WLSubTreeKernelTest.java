@@ -31,7 +31,8 @@ public class WLSubTreeKernelTest {
 	@Test
 	public void test() {
 	
-		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		RDFDataSet testSet = new RDFFileDataSet("/Users/Peter/Documents/datasets/graphs/aifb/aifb-fixed_complete.owl", RDFFormat.RDFXML);
 		
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");

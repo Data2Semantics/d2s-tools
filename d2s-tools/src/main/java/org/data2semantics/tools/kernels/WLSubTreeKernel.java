@@ -77,9 +77,22 @@ public class WLSubTreeKernel extends GraphKernel {
 			for (Edge<String> edge : graph.getEdges()) {
 				bucketsV.get(edge.getLabel()).getContents().add(graph.getDest(edge));
 			}
+			
+			Map<Vertex<String>, String> map = new HashMap<Vertex<String>, String>();
+			for (Vertex<String> vertex : graph.getVertices()) 
+				map.put(vertex, null);
+			
+			for (Vertex<String> vertex : graph.getVertices()) 
+				System.out.println(vertex.getLabel() + " " + vertex.hashCode() + " " + map.containsKey(vertex) + " " + graph.containsVertex(vertex));
+			
 			// Add each incident edge to the bucket of the node label
-			for (Vertex<String> vertex : graph.getVertices()) {
-				bucketsE.get(vertex.getLabel()).getContents().addAll(graph.getOutEdges(vertex));
+			for (Vertex<String> vertex : graph.getVertices()) 
+			{
+				
+				Collection<Edge<String>> v2 = graph.getOutEdges(vertex);
+				if(v2 == null)
+					System.out.println('!');
+				bucketsE.get(vertex.getLabel()).getContents().addAll(v2);
 			}	
 		}
 		
@@ -134,7 +147,7 @@ public class WLSubTreeKernel extends GraphKernel {
 					currentLabel++;
 					labelDict.put(vertex.getLabel(), label);
 				}
-				vertex.setLabel(label);
+				// vertex.setLabel(label);
 			}
 		}		
 	}
