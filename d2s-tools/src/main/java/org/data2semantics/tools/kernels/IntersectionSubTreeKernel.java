@@ -35,7 +35,7 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 
 	public void compute() {
 		Tree<Vertex<String>, Edge<String>> tree;
-		
+
 		for (int i = 0; i < graphs.size(); i++) {
 			for (int j = i; j < graphs.size(); j++) {				
 				tree = computeIntersectionTree(graphs.get(i), graphs.get(j), rootVertices.get(i), rootVertices.get(j), depth);
@@ -57,13 +57,13 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 		searchFront.add(newRoot);
 		vertexMap.put(newRoot, new Pair<Vertex<String>>(rootA, rootB));
 		iTree.addVertex(newRoot);
-		
+
 		for (int i = 0; i < depth; i++) {
 			newSearchFront = new ArrayList<Vertex<String>>();
 			for (Vertex<String> vertex : searchFront) {
 				childTemp = findCommonChildren(graphA, graphB, vertexMap.get(vertex).getFirst(), vertexMap.get(vertex).getSecond(), rootA, rootB);	
 				vertexMap.putAll(childTemp);
-				
+
 				for (Vertex<String> newV : childTemp.keySet()) {
 					newSearchFront.add(newV);
 					iTree.addEdge(new Edge<String>(""), vertex, newV, EdgeType.DIRECTED);
@@ -73,29 +73,29 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 		}
 		return iTree;
 	}
-	
+
 	private Map<Vertex<String>, Pair<Vertex<String>>> findCommonChildren(DirectedGraph<Vertex<String>, Edge<String>> graphA, DirectedGraph<Vertex<String>, Edge<String>> graphB, Vertex<String> vertexA, Vertex<String> vertexB, Vertex<String> rootA, Vertex<String> rootB) {
 		Map<Vertex<String>, Pair<Vertex<String>>> children = new HashMap<Vertex<String>, Pair<Vertex<String>>>();		
-		
+
 		List<String> evA = new ArrayList<String>();
 		List<String> evB = new ArrayList<String>();
 		Map<String, Edge<String>> eMapA = new HashMap<String, Edge<String>>();
 		Map<String, Edge<String>> eMapB = new HashMap<String, Edge<String>>();
 		List<String> edgeLabels = new ArrayList<String>();
-		
+
 		for (Edge<String> edgeA : graphA.getOutEdges(vertexA)) {
 			evA.add(edgeA.getLabel() + graphA.getDest(edgeA).getLabel());
 			eMapA.put(edgeA.getLabel() + graphA.getDest(edgeA).getLabel(), edgeA);
-			
+
 			if (vertexA == rootA && graphA.getDest(edgeA).getLabel().equals(rootB.getLabel())) {
 				edgeLabels.add(edgeA.getLabel());
 			}
 		}
-		
+
 		for (Edge<String> edgeB : graphB.getOutEdges(vertexB)) {
 			evB.add(edgeB.getLabel() + graphB.getDest(edgeB).getLabel());
 			eMapB.put(edgeB.getLabel() + graphB.getDest(edgeB).getLabel(), edgeB);
-			
+
 			// Special case of roots have an equivalence-like relation with each other
 			if (vertexB == rootB && graphB.getDest(edgeB).getLabel().equals(rootA.getLabel())) {
 				if (edgeLabels.contains(edgeB.getLabel())) {
@@ -103,13 +103,13 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 				}
 			}
 		}
-		
+
 		Collections.sort(evA);
 		Collections.sort(evB);	
-		
+
 		Iterator<String> itA = evA.iterator();
 		Iterator<String> itB = evB.iterator();
-			
+
 		int comparison = 0;
 		String edgeA = null;
 		String edgeB = null;
@@ -125,9 +125,9 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 			} else {
 				stop = true;
 			}
-			
+
 			if (!stop) {
-			comparison = edgeA.compareTo(edgeB);
+				comparison = edgeA.compareTo(edgeB);
 				if (comparison == 0) {
 					if(graphA.getDest(eMapA.get(edgeA)) == rootA) {
 						children.put(new Vertex<String>(ROOTID), new Pair<Vertex<String>>(rootA, rootB));
@@ -137,10 +137,10 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 				} 
 			}
 		}
-				
+
 		return children;
 	}
-	
+
 	public double subTreeScore(Tree<Vertex<String>, Edge<String>> tree, Vertex<String> currentVertex, double discountFactor) {
 		// Base case of recursion
 		if (tree.getSuccessors(currentVertex).isEmpty()) {

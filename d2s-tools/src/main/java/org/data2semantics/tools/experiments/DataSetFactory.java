@@ -55,7 +55,7 @@ public class DataSetFactory {
 			}
 		}
 
-		return new GraphClassificationDataSet(label.toString(), graphs, labels, rootVertices);
+		return new GraphClassificationDataSet(label.toString(), graphs, labels, Collections.unmodifiableList(rootVertices));
 	}
 
 	

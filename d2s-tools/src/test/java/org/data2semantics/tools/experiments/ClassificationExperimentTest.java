@@ -75,11 +75,12 @@ public class ClassificationExperimentTest {
 
 		int j = 0;
 		for (DataSetParameters params : dataSetsParams) {
+			dataset = DataSetFactory.createClassificationDataSet(params);
+			dataset.removeSmallClasses(5);
+			
 			for (int i = 0; i < 3; i++) {
 
 				if (experimenter.hasSpace()) {
-					dataset = DataSetFactory.createClassificationDataSet(params);
-					dataset.removeSmallClasses(5);
 					
 					int fileId = (int) (Math.random() * 10000000);
 					
@@ -87,7 +88,7 @@ public class ClassificationExperimentTest {
 					//file.mkdirs();
 					
 					try {
-						exp = new ClassificationExperiment(dataset, new WLSubTreeKernel(dataset.getGraphs(), i), seeds, cs, new FileOutputStream(file));
+						exp = new ClassificationExperiment(dataset, new IntersectionSubTreeKernel(dataset.getGraphs(), dataset.getRootVertices(), i, 1), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						results.add(exp.getResults());
 

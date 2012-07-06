@@ -178,6 +178,7 @@ public class WLSubTreeKernel extends GraphKernel {
 		return sum;
 	}	
 	
+
 	private void copyGraphs() {
 		List<DirectedGraph<Vertex<String>, Edge<String>>> oldGraphs = this.graphs;
 		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
@@ -185,7 +186,6 @@ public class WLSubTreeKernel extends GraphKernel {
 			this.graphs.add(GraphFactory.copyDirectedGraph(graph));				
 		}
 	}
-
 	
 	private class Bucket<T> {
 		private String label;

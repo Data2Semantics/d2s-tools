@@ -28,6 +28,13 @@ public class GraphClassificationDataSet {
 		this.rootVertices = rootVertices;
 	}
 
+	public GraphClassificationDataSet(GraphClassificationDataSet set) {
+		this.label = new String(set.getLabel());
+		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(set.getGraphs());
+		this.labels = new ArrayList<String>(set.getLabels());
+		this.rootVertices = new ArrayList<Vertex<String>>(set.getRootVertices());
+	}
+	
 
 	public String getLabel() {
 		return label;

@@ -96,6 +96,5 @@ public abstract class GraphKernel {
 			Arrays.fill(kernel[i], 0.0);
 		}
 	}
-	
-	
+
 }

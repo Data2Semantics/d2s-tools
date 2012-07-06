@@ -74,7 +74,8 @@ public class AffiliationPredictionExperiment {
 			for (DataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createClassificationDataSet(params);
 				dataset.removeSmallClasses(5);
-
+				
+				
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -85,7 +86,9 @@ public class AffiliationPredictionExperiment {
 					}
 				}
 				
+				
 				for (int i = 0; i < 3; i++) {
+					
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionFullSubTree" + "_" + i + ".txt");
@@ -94,6 +97,7 @@ public class AffiliationPredictionExperiment {
 						results.add(exp.getResults());
 					}
 				}
+				
 				
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
@@ -124,6 +128,7 @@ public class AffiliationPredictionExperiment {
 						results.add(exp.getResults());
 					}
 				}
+				
 			
 			}
 		} catch (Exception e) {
