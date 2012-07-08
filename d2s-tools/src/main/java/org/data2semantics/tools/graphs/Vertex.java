@@ -40,22 +40,21 @@ public class Vertex<Label>
 	}
 
 	
-	/*
 	@Override
 	public int hashCode()
 	{
 		
-		//final int prime = 31;
-		//int result = 1;
-		//result = prime * result + ((label == null) ? 0 : label.hashCode());
-		//return result;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		return result;
 		
-		return label.hashCode();
+		//return label.hashCode();
 	}
-	*/
+
 	
 
-	/*
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -74,7 +73,6 @@ public class Vertex<Label>
 			return false;
 		return true;
 	}
-	*/
 	
 	
 }

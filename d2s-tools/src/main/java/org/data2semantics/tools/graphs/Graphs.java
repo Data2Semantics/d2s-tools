@@ -59,6 +59,29 @@ public class Graphs
 {
 	
 	/**
+	 * Reads a graph from a text file with a single line per edge. Each line 
+	 * contains a sequence of integers, separated by whitespace. The first 
+	 * integer is the node ID, the integers following it (if any) are the nodes
+	 * it connects to.
+	 * 
+	 * Empty lines are allowed and line starting with a hash (#) are ignored.
+	 * 
+	 * @param tsFile
+	 * @return
+	 * @throws FileNotFoundException 
+	 */
+	public static UndirectedGraph<Integer, Integer> singLine(File file)
+			throws IOException
+	{
+		UndirectedSparseGraph<Integer, Integer> graph = 
+				new UndirectedSparseGraph<Integer, Integer>();
+		
+		readSingleLine(graph, file);
+			
+		return graph;
+	}
+	
+	/**
 	 * Reads a graph from a basic tab-separated value file. The file can contain 
 	 * comments on lines that start with a '#', and edges in the form of two tab 
 	 * separated integers. Empty lines are ignored.
@@ -75,6 +98,51 @@ public class Graphs
 		read(graph, file);
 		
 		return graph;
+	}
+	
+	private static void readSingleLine(Graph<Integer, Integer> graph, File file)
+			throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+				
+		String line;
+		int i = 0;
+		int edges = 0;
+				
+		do
+		{
+			line = reader.readLine();
+			i++;
+			
+			if(line == null)
+				continue;
+			if(line.trim().isEmpty())
+				continue;
+			if(line.trim().startsWith("#"))
+				continue;
+			
+			String[] split = line.trim().split("\\s");
+			//System.out.println("!!!!!!!!!!!" + Arrays.toString( split));
+			
+			Integer node = parse(split[0], i);
+			graph.addVertex(node);
+			
+			for(int v = 1; v < split.length; v++)
+				graph.addEdge(edges++, node, parse(split[v], i));
+		} while(line != null);
+		
+		System.out.println("\nFinished. Read " + edges + "edges");
+		System.out.println("Encountered "+graph.getVertexCount()+" vertices");
+	}	
+	
+	private static int parse(String in, int line)
+	{
+		try {
+			return Integer.parseInt(in);
+		} catch(NumberFormatException e)
+		{
+			throw new RuntimeException("Could not parse '"+in+"' to integer (line "+line+")", e);
+		}
 	}
 	
 	private static void read(Graph<Vertex<Integer>, Edge<Integer>> graph, File file)
