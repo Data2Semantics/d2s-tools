@@ -26,8 +26,8 @@ public class LinkPredictionDataSet {
 		this.label = new String(set.getLabel());
 		this.graphsA = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(set.getGraphsA());
 		this.graphsB = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(set.getGraphsB());
-		this.rootVerticesA = new ArrayList<Vertex<String>>(rootVerticesA);
-		this.rootVerticesB = new ArrayList<Vertex<String>>(rootVerticesB);
+		this.rootVerticesA = new ArrayList<Vertex<String>>(set.getRootVerticesA());
+		this.rootVerticesB = new ArrayList<Vertex<String>>(set.getRootVerticesB());
 		this.labels = new HashMap<Pair<DirectedGraph<Vertex<String>, Edge<String>>>, Boolean>(set.getLabels());
 	}
 		
