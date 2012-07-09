@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -500,6 +501,62 @@ public class Graphs
 		return false;
 	}
 	
+	public static <V, E> UndirectedGraph<V, E> undirectedSubgraph(Graph<V, E> sup, Collection<V> nodes)
+	{
+		UndirectedGraph<V, E> sub = new UndirectedSparseGraph<V, E>();
+		List<V> nList = new ArrayList<V> (nodes);
+		
+		
+		for (int i = 0; i < nList.size(); i++)
+			for (int j = i + 1; j < nList.size(); j++)
+				if (sup.isNeighbor(nList.get(i), nList.get(j)))
+						sub.addEdge(getEdge(sup, nList.get(i), nList.get(j)),
+								nList.get(i), nList.get(j));
+				
+		return sub;
+	}
 
-
+	public static <V, E> E getEdge(Graph<V, E> graph, V v1, V v2)
+	{
+		Collection<E> edges = graph.getIncidentEdges(v1);
+		for(E edge : edges)
+			if(graph.isIncident(v2, edge))
+				return edge;
+		
+		return null;
+	}
+	
+	public static <V, E> double clusteringCoefficient(Graph<V, E> graph)
+	{
+		long numPaths = 0, numClosed = 0;
+		
+		List<V> path = new ArrayList<V>(2);
+		for(V one : graph.getVertices())
+		{
+			path.clear();
+			path.add(null);
+			path.add(null);
+			path.add(null);
+			
+			path.set(0, one);
+			
+			for(V two : graph.getNeighbors(one))
+			{
+				path.set(1, two);
+				for(V three : graph.getNeighbors(two))
+				{
+					if(!three.equals(one))
+					{
+						path.set(2, three);
+						
+						numPaths ++;
+						if(graph.isNeighbor(one, three))
+							numClosed++;
+					}
+				}
+			}
+		}
+	
+		return numClosed / (double) numPaths;
+	}
 }
