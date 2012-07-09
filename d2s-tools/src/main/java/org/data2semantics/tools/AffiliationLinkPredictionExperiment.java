@@ -83,7 +83,7 @@ public class AffiliationLinkPredictionExperiment {
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
+						File file = new File(DATA_DIR + "_" + "WL" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new WLSubTreeKernel(i), new WLSubTreeKernel(i), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsWL.add(exp.getResults());
@@ -95,7 +95,7 @@ public class AffiliationLinkPredictionExperiment {
 					
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "IntersectionFullSubTree" + "_" + i + ".txt");
+						File file = new File(DATA_DIR + "_" + "IntersectionFullSubTree" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionSubTreeKernel(i,1), new IntersectionSubTreeKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsSTF.add(exp.getResults());
@@ -106,7 +106,7 @@ public class AffiliationLinkPredictionExperiment {
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");
+						File file = new File(DATA_DIR + "_" + "IntersectionPartialSubTree" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionPartialSubTreeKernel(i,0.01), new IntersectionPartialSubTreeKernel(i,0.01), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
 						resultsSTP.add(exp.getResults());
@@ -116,7 +116,7 @@ public class AffiliationLinkPredictionExperiment {
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
+						File file = new File(DATA_DIR + "_" + "IntersectionGraphWalk" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionGraphWalkKernel(i,1), new IntersectionGraphWalkKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
 						resultsIGW.add(exp.getResults());
@@ -126,7 +126,7 @@ public class AffiliationLinkPredictionExperiment {
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
+						File file = new File(DATA_DIR + "_" + "IntersectionGraphPath" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionGraphPathKernel(i,1), new IntersectionGraphPathKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
 						resultsIGP.add(exp.getResults());
