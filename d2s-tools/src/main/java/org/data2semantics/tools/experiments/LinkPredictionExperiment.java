@@ -10,6 +10,7 @@ import java.util.Random;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.kernels.GraphKernel;
+import org.data2semantics.tools.kernels.IntersectionSubTreeKernel;
 import org.data2semantics.tools.libsvm.LibSVMWrapper;
 
 import cern.colt.Arrays;
@@ -23,12 +24,15 @@ public class LinkPredictionExperiment implements Runnable {
 	private double weightA, weightB;
 	private List<DirectedGraph<Vertex<String>,Edge<String>>> graphsA;
 	private List<DirectedGraph<Vertex<String>,Edge<String>>> graphsB;
+	private List<Vertex<String>> rootVerticesA;
+	private List<Vertex<String>> rootVerticesB;
 	private List<Pair<DirectedGraph<Vertex<String>,Edge<String>>>> subSet;
 	private long[] seeds;
 	private double[] cs;
 	private double accuracy;
 	private double f1;
 	private PrintWriter output;
+	private ExperimentResults results;
 
 
 	public LinkPredictionExperiment(LinkPredictionDataSet dataSet,
@@ -49,8 +53,13 @@ public class LinkPredictionExperiment implements Runnable {
 		this.seeds = seeds;
 		this.cs = cs;
 		output = new PrintWriter(outputStream);
+		results = new ExperimentResults();
 	}
 
+	
+	public ExperimentResults getResults() {
+		return results;
+	}	
 
 	@Override
 	public void run() {
@@ -62,6 +71,15 @@ public class LinkPredictionExperiment implements Runnable {
 			
 			kernelA.setGraphs(graphsA);
 			kernelB.setGraphs(graphsB);
+			
+			if (kernelA instanceof IntersectionSubTreeKernel) {
+				((IntersectionSubTreeKernel) kernelA).setRootVertices(rootVerticesA);
+			}
+			if (kernelB instanceof IntersectionSubTreeKernel) {
+				((IntersectionSubTreeKernel) kernelB).setRootVertices(rootVerticesB);
+			}
+			
+			
 			kernelA.compute();
 			kernelA.normalize();
 			kernelB.compute();
@@ -119,6 +137,8 @@ public class LinkPredictionExperiment implements Runnable {
 		subSet = new ArrayList<Pair<DirectedGraph<Vertex<String>,Edge<String>>>>();
 		graphsA = new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>();
 		graphsB = new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>();
+		rootVerticesA = new ArrayList<Vertex<String>>();
+		rootVerticesB = new ArrayList<Vertex<String>>();
 
 		Random rand = new Random(seed);
 		int index = 0;
@@ -132,9 +152,12 @@ public class LinkPredictionExperiment implements Runnable {
 				posClass.add(allPairs.get(index));
 				if (!graphsA.contains(allPairs.get(index).getFirst())) {
 					graphsA.add(allPairs.get(index).getFirst());
+					rootVerticesA.add(dataSet.getRootVerticesA().get(dataSet.getGraphsA().indexOf(allPairs.get(index).getFirst())));
+					
 				}
 				if (!graphsB.contains(allPairs.get(index).getSecond())) {
 					graphsB.add(allPairs.get(index).getSecond());
+					rootVerticesB.add(dataSet.getRootVerticesB().get(dataSet.getGraphsB().indexOf(allPairs.get(index).getSecond())));
 				}
 
 			}
@@ -143,9 +166,11 @@ public class LinkPredictionExperiment implements Runnable {
 				negClass.add(allPairs.get(index));
 				if (!graphsA.contains(allPairs.get(index).getFirst())) {
 					graphsA.add(allPairs.get(index).getFirst());
+					rootVerticesA.add(dataSet.getRootVerticesA().get(dataSet.getGraphsA().indexOf(allPairs.get(index).getFirst())));
 				}
 				if (!graphsB.contains(allPairs.get(index).getSecond())) {
 					graphsB.add(allPairs.get(index).getSecond());
+					rootVerticesB.add(dataSet.getRootVerticesB().get(dataSet.getGraphsB().indexOf(allPairs.get(index).getSecond())));
 				}
 			}
 		}

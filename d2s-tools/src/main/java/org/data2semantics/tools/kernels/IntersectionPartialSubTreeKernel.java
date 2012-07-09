@@ -1,5 +1,6 @@
 package org.data2semantics.tools.kernels;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.data2semantics.tools.graphs.Edge;
@@ -10,6 +11,10 @@ import edu.uci.ics.jung.graph.Tree;
 
 public class IntersectionPartialSubTreeKernel extends IntersectionSubTreeKernel {
 
+	public IntersectionPartialSubTreeKernel(int depth, double discountFactor) {
+		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), new ArrayList<Vertex<String>>(), depth, discountFactor);
+	}
+	
 	public IntersectionPartialSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, List<Vertex<String>> rootVertices, int depth, double discountFactor) {
 		super(graphs, rootVertices, depth, discountFactor);
 		this.label = "Intersection Partial SubTree Kernel, depth=" + depth + ", lambda=" + discountFactor;

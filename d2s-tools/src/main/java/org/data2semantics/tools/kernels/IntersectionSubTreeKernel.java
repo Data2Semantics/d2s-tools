@@ -19,11 +19,14 @@ import edu.uci.ics.jung.graph.util.Pair;
 public class IntersectionSubTreeKernel extends GraphKernel {
 	private static final String ROOTID = "ROOT1337";
 
-	private List<Vertex<String>> rootVertices;
+	protected List<Vertex<String>> rootVertices;
 	private int depth;
 	private double discountFactor;
 
 
+	public IntersectionSubTreeKernel(int depth, double discountFactor) {
+		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), new ArrayList<Vertex<String>>(), depth, discountFactor);
+	}
 
 	public IntersectionSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, List<Vertex<String>> rootVertices, int depth, double discountFactor) {
 		super(graphs);
@@ -152,5 +155,9 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 			}
 			return 1 + (discountFactor * score);
 		}
+	}
+	
+	public void setRootVertices(List<Vertex<String>> rootVertices) {
+		this.rootVertices = rootVertices;
 	}
 }

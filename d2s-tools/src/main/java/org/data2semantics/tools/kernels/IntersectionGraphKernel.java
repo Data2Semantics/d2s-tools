@@ -22,6 +22,10 @@ public class IntersectionGraphKernel extends GraphKernel {
 	private int maxLength;
 	private double discountFactor;
 	
+	public IntersectionGraphKernel(int maxLength, double discountFactor) {
+		this(new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>(), maxLength, discountFactor);
+	}
+	
 	public IntersectionGraphKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int maxLength, double discountFactor) {
 		super(graphs);
 		this.label = "Intersection Graph Kernel, maxLength=" + maxLength + ", lambda=" + discountFactor;

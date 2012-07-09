@@ -80,7 +80,7 @@ public class WLSubTreeKernel extends GraphKernel {
 						
 			// Add each incident edge to the bucket of the node label
 			for (Vertex<String> vertex : graph.getVertices()) {			
-				Collection<Edge<String>> v2 = graph.getOutEdges(vertex);
+				Collection<Edge<String>> v2 = graph.getOutEdges(vertex);	
 				bucketsE.get(vertex.getLabel()).getContents().addAll(v2);
 			}	
 		}

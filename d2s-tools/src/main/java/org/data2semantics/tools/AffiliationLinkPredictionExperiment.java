@@ -5,12 +5,12 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.data2semantics.tools.experiments.ClassificationExperiment;
 import org.data2semantics.tools.experiments.DataSetFactory;
 import org.data2semantics.tools.experiments.DataSetParameters;
 import org.data2semantics.tools.experiments.ExperimentResults;
 import org.data2semantics.tools.experiments.Experimenter;
-import org.data2semantics.tools.experiments.GraphClassificationDataSet;
+import org.data2semantics.tools.experiments.LinkPredictionDataSet;
+import org.data2semantics.tools.experiments.LinkPredictionExperiment;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
 import org.data2semantics.tools.kernels.IntersectionPartialSubTreeKernel;
@@ -20,12 +20,13 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
-public class AffiliationPredictionExperiment {
+public class AffiliationLinkPredictionExperiment {
 	private final static String DATA_DIR = "D:\\workspaces\\datasets\\aifb\\";
 	private final static int NUMBER_OF_PROC = 6;
 
-
-
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		RDFDataSet testSetA = new RDFFileDataSet(DATA_DIR + "aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 		RDFDataSet testSetB = new RDFFileDataSet(DATA_DIR + "aifb-fixed_no_schema.n3", RDFFormat.N3);
@@ -37,7 +38,7 @@ public class AffiliationPredictionExperiment {
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.01, 0.1, 1, 10, 100};	
-
+		
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
 		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
@@ -57,34 +58,33 @@ public class AffiliationPredictionExperiment {
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, false));
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new DataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, true));
-
-		GraphClassificationDataSet dataset;
-		ClassificationExperiment exp;
+		
+		LinkPredictionDataSet dataset;
+		LinkPredictionExperiment exp;
 
 		List<ExperimentResults> resultsWL = new ArrayList<ExperimentResults>();
 		List<ExperimentResults> resultsSTF = new ArrayList<ExperimentResults>();
 		List<ExperimentResults> resultsSTP = new ArrayList<ExperimentResults>();
 		List<ExperimentResults> resultsIGW = new ArrayList<ExperimentResults>();
 		List<ExperimentResults> resultsIGP = new ArrayList<ExperimentResults>();
-
+		
 		Experimenter experimenter = new Experimenter(NUMBER_OF_PROC);
 		Thread expT = new Thread(experimenter);
 		expT.setDaemon(true);
 		expT.start();
-
+		
 
 
 		try {
 			for (DataSetParameters params : dataSetsParams) {
-				dataset = DataSetFactory.createClassificationDataSet(params);
-				dataset.removeSmallClasses(5);
-				
+				dataset = DataSetFactory.createLinkPredictonDataSet(params);
+				//dataset.removeSmallClasses(5);
 				
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
-						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new WLSubTreeKernel(dataset.getGraphs(), i), seeds, cs, new FileOutputStream(file));
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new WLSubTreeKernel(i), new WLSubTreeKernel(i), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsWL.add(exp.getResults());
 					}
@@ -96,7 +96,7 @@ public class AffiliationPredictionExperiment {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionFullSubTree" + "_" + i + ".txt");
-						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionSubTreeKernel(dataset.getGraphs(), dataset.getRootVertices(), i, 1), seeds, cs, new FileOutputStream(file));
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionSubTreeKernel(i,1), new IntersectionSubTreeKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsSTF.add(exp.getResults());
 					}
@@ -107,7 +107,7 @@ public class AffiliationPredictionExperiment {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");
-						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionPartialSubTreeKernel(dataset.getGraphs(), dataset.getRootVertices(), i, 0.01), seeds, cs, new FileOutputStream(file));
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionPartialSubTreeKernel(i,0.01), new IntersectionPartialSubTreeKernel(i,0.01), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
 						resultsSTP.add(exp.getResults());
 					}
@@ -116,20 +116,20 @@ public class AffiliationPredictionExperiment {
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
-						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionGraphPathKernel(dataset.getGraphs(), i, 1), seeds, cs, new FileOutputStream(file));
+						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionGraphWalkKernel(i,1), new IntersectionGraphWalkKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
-						resultsIGP.add(exp.getResults());
+						resultsIGW.add(exp.getResults());
 					}
 				}				
 				
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
-						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
-						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionGraphWalkKernel(dataset.getGraphs(), i, 1), seeds, cs, new FileOutputStream(file));
+						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionGraphPathKernel(i,1), new IntersectionGraphPathKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
-						resultsIGW.add(exp.getResults());
+						resultsIGP.add(exp.getResults());
 					}
 				}
 				
@@ -168,12 +168,6 @@ public class AffiliationPredictionExperiment {
 		for (ExperimentResults res : resultsIGP) {
 			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
 		}
-
-
-
-
 	}
 
 }
-
-

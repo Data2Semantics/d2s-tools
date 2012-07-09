@@ -25,7 +25,7 @@ public class ClassificationExperiment implements Runnable {
 	
 	
 	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, OutputStream outputStream) {
-		this.dataSet = new GraphClassificationDataSet(dataSet);
+		this.dataSet = dataSet;
 		this.kernel = kernel;
 		this.seeds = seeds;
 		this.cs = cs;

@@ -1,6 +1,8 @@
 package org.data2semantics.tools.experiments;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -19,6 +21,15 @@ public class LinkPredictionDataSet {
 	private List<Vertex<String>> rootVerticesB;
 	private Map<Pair<DirectedGraph<Vertex<String>,Edge<String>>>, Boolean> labels;
 	
+	
+	public LinkPredictionDataSet(LinkPredictionDataSet set) {
+		this.label = new String(set.getLabel());
+		this.graphsA = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(set.getGraphsA());
+		this.graphsB = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(set.getGraphsB());
+		this.rootVerticesA = new ArrayList<Vertex<String>>(rootVerticesA);
+		this.rootVerticesB = new ArrayList<Vertex<String>>(rootVerticesB);
+		this.labels = new HashMap<Pair<DirectedGraph<Vertex<String>, Edge<String>>>, Boolean>(set.getLabels());
+	}
 		
 	public LinkPredictionDataSet(
 			String label,
