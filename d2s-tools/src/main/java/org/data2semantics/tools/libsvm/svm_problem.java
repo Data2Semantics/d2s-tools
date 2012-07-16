@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.data2semantics.tools.libsvm;
 
-public class svm_problem implements java.io.Serializable
+class svm_problem implements java.io.Serializable
 {
 	public int l;
 	public double[] y;

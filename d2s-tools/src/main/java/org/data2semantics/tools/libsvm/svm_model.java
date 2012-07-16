@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 package org.data2semantics.tools.libsvm;
 
-public class svm_model implements java.io.Serializable
+class svm_model implements java.io.Serializable
 {
 	public svm_parameter param;	// parameter
 	public int nr_class;		// number of classes, = 2 in regression/one class svm

@@ -11,7 +11,7 @@ import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.kernels.GraphKernel;
 import org.data2semantics.tools.kernels.IntersectionSubTreeKernel;
-import org.data2semantics.tools.libsvm.LibSVMWrapper;
+import org.data2semantics.tools.libsvm.LibSVM;
 
 import cern.colt.Arrays;
 
@@ -94,12 +94,12 @@ public class LinkPredictionExperiment implements Runnable {
 					labels.add("false");
 				}
 			}
-			double[] target = LibSVMWrapper.createTargets(labels);
+			double[] target = LibSVM.createTargets(labels);
 			double[][] matrix = combineKernels();
-			double[] prediction = LibSVMWrapper.crossValidate(matrix, target, 10, cs);
+			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
 			
-			acc += LibSVMWrapper.computeAccuracy(target, prediction);
-			f +=  LibSVMWrapper.computeF1(target, prediction);
+			acc += LibSVM.computeAccuracy(target, prediction);
+			f   += LibSVM.computeF1(target, prediction);
 		}
 		
 		acc = acc / seeds.length;

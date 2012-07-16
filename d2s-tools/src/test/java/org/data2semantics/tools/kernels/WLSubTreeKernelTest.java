@@ -14,7 +14,7 @@ import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
 import org.data2semantics.tools.graphs.Vertex;
-import org.data2semantics.tools.libsvm.LibSVMWrapper;
+import org.data2semantics.tools.libsvm.LibSVM;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.junit.Test;

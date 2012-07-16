@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.data2semantics.tools.libsvm;
 
-public interface svm_print_interface
+interface svm_print_interface
 {
 	public void print(String s);
 }

@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.data2semantics.tools.libsvm;
 
-public class svm_parameter implements Cloneable,java.io.Serializable
+class svm_parameter implements Cloneable,java.io.Serializable
 {
 	/* svm_type */
 	public static final int C_SVC = 0;

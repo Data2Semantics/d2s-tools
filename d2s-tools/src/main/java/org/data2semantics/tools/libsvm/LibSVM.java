@@ -1,14 +1,93 @@
+/*
+ * Currently this wrapper provides basic functionality to perform cross validation classification experiments
+ * However, if an experiment does not fit this framework then it is not supported. 
+ * Moreover it cannot be used as a classifier in an actual application.
+ * 
+ * Thus, rewrite for more generic usability
+ * 
+ * - Function to train SVM classification model, either C-SVC or One Class
+ * - Function to classify new instance(s) given model
+ * 
+ * - Wrapping class for SVM model
+ * - Wrapping class for SVM prediction
+ *  	- class label
+ *  	- prob?
+ *  	- decision value / distance to hyperplane
+ *  
+ *  - Wrapping for the parameters struct
+ *  
+ * 
+ * - utility methods for splitting kernel/target matrices (they are private methods now).
+ * 
+ * - make the original libsvm methods/classes package visibility
+ * 
+ */
+ 
+
 package org.data2semantics.tools.libsvm;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import cern.colt.Arrays;
 
-public class LibSVMWrapper {
-
+public class LibSVM {
+	
+	public static LibSVMModel trainSVMModel(double[][] kernel, double[] target, LibSVMParameters params) {
+		if (!params.isVerbose()) {
+			setNoOutput();
+		}
+		
+		double[] prediction = new double[target.length];
+		svm_parameter svmParams = params.getParams();
+		
+		double score, bestScore = 0, bestC = 1;
+		for (double c : params.getCs()) {
+			svmParams.C = c;
+			svm.svm_cross_validation(createSVMProblem(kernel, target), svmParams, 10, prediction);
+			score = computeAccuracy(target, prediction);
+			
+			if (score > bestScore) {
+				bestC = c;
+				bestScore = score;
+			}
+		}
+		svmParams.C = bestC;			
+		return new LibSVMModel(svm.svm_train(createSVMProblem(kernel, target), svmParams));
+	}
+	
+	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, double[][] kernel) {
+		svm_node[][] testNodes = createTestProblem(kernel);
+		LibSVMPrediction[] pred = new LibSVMPrediction[testNodes.length];
+		double[] decVal = new double[model.getModel().nr_class*(model.getModel().nr_class-1)/2];
+		
+		for (int i = 0 ; i < testNodes.length; i++) {
+			pred[i] = new LibSVMPrediction(svm.svm_predict_values(model.getModel(), testNodes[i], decVal));
+			pred[i].setDecisionValue(decVal);
+		}
+		return pred;
+	}
+	
+	public static LibSVMPrediction[] crossValidate(double[][] kernel, double[] target, LibSVMParameters params,  int numberOfFolds) {
+		LibSVMPrediction[] pred = new LibSVMPrediction[target.length];
+		
+		for (int fold = 1; fold <= numberOfFolds; fold++) {
+			double[][] trainKernel = createTrainFold(kernel, numberOfFolds, fold);
+			double[][] testKernel  = createTestFold(kernel, numberOfFolds, fold);
+			double[] trainTarget  = createTargetTrainFold(target, numberOfFolds, fold);
+			
+			pred = addFold2Prediction(testSVMModel(trainSVMModel(trainKernel, trainTarget, params), testKernel), pred, numberOfFolds, fold);
+		}		
+		return pred;
+	}
+	
+	public static double[] crossValidate(double[][] kernel, double[] target, int numberOfFolds, double[] c) {
+		return extractLabels(crossValidate(kernel, target, new LibSVMParameters(c), numberOfFolds));
+	}
+	
+	
+	/*
+	
 	public static double[] crossValidate(double[][] kernel, double[] target, int numberOfFolds, double[] c) {
 		
 		// New print interface, print nothing, i.e. unverbose
@@ -82,6 +161,7 @@ public class LibSVMWrapper {
 		return prediction;
 	}
 	
+	*/
 
 	public static double[] createTargets(List<String> labels) {
 		Map<String, Integer> labelMap = new TreeMap<String, Integer>();
@@ -158,6 +238,15 @@ public class LibSVMWrapper {
 			}
 		}
 		return counts;
+	}
+	
+	public static double[] extractLabels(LibSVMPrediction[] pred) {
+		double[] predLabels = new double[pred.length];
+		
+		for (int i = 0; i < pred.length; i++) {
+			predLabels[i] = pred[i].getLabel();
+		}
+		return predLabels;
 	}
 	
 	
@@ -310,6 +399,29 @@ public class LibSVMWrapper {
 			pred[i] = foldPred[i - foldStart];
 		}
 		return pred;
+	}
+	
+	private static LibSVMPrediction[] addFold2Prediction(LibSVMPrediction[] foldPred, LibSVMPrediction[] pred, int numberOfFolds, int fold) {
+		int foldStart = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold - 1));
+		int foldEnd   = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold));
+		
+		for (int i = foldStart; i < foldEnd; i++) {
+			pred[i] = foldPred[i - foldStart];
+		}
+		return pred;
+	}
+	
+	
+	private static void setNoOutput() {
+		// New print interface, print nothing, i.e. unverbose
+		svm.svm_set_print_string_function(new svm_print_interface()
+		{
+			public void print(String s)
+			{
+				; 
+			}
+		}
+		);
 	}
 	
 }

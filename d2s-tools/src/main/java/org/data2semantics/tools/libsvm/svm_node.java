@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.data2semantics.tools.libsvm;
 
-public class svm_node implements java.io.Serializable
+class svm_node implements java.io.Serializable
 {
 	public int index;
 	public double value;

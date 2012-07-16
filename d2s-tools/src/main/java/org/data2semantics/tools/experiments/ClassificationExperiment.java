@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.data2semantics.tools.kernels.GraphKernel;
-import org.data2semantics.tools.libsvm.LibSVMWrapper;
+import org.data2semantics.tools.libsvm.LibSVM;
 
 import cern.colt.Arrays;
 
@@ -45,11 +45,11 @@ public class ClassificationExperiment implements Runnable {
 			dataSet.shuffle(seeds[i]);
 			
 			double[][] matrix = kernel.getKernel();
-			double[] target = LibSVMWrapper.createTargets(dataSet.getLabels());	
-			double[] prediction = LibSVMWrapper.crossValidate(matrix, target, 10, cs);
+			double[] target = LibSVM.createTargets(dataSet.getLabels());	
+			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
 			
-			acc += LibSVMWrapper.computeAccuracy(target, prediction);
-			f +=  LibSVMWrapper.computeF1(target, prediction);
+			acc += LibSVM.computeAccuracy(target, prediction);
+			f +=  LibSVM.computeF1(target, prediction);
 		}
 		
 		accuracy = acc / seeds.length;
@@ -62,7 +62,7 @@ public class ClassificationExperiment implements Runnable {
 		output.println("");
 		output.flush();
 		
-		results.setLabel(dataSet.getLabel() + " " + kernel.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));
+		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernel.getLabel() );
 		results.setAccuracy(accuracy);
 		results.setF1(f1);
 
