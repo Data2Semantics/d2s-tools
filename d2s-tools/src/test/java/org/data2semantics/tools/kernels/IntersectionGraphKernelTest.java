@@ -81,11 +81,9 @@ public class IntersectionGraphKernelTest {
 		rootV.add(v1);
 		rootV.add(v1B);
 
-		IntersectionGraphKernel kernel = new IntersectionGraphPathKernel(graphs, 2, 1);
+		IntersectionGraphKernel kernel = new IntersectionGraphPathKernel(2, 1);
 		
-		kernel.compute();
-		kernel.normalize();
-		double[][] matrix = kernel.getKernel();
+		double[][] matrix = kernel.compute(graphs);
 		
 		System.out.println(Arrays.toString(matrix[0]));
 		System.out.println(Arrays.toString(matrix[1]));

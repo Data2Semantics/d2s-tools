@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
@@ -28,10 +29,9 @@ public class DataSetFactory {
 
 
 	public static GraphClassificationDataSet createClassificationDataSet(RDFDataSet rdfDataSet, String property, List<String> blackList, int depth, boolean includeInverse, boolean includeInference) {
-		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
+		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
 		List<String> labels = new ArrayList<String>();
-		List<Vertex<String>> rootVertices = new ArrayList<Vertex<String>>();
-		StringBuffer label = new StringBuffer();
+			StringBuffer label = new StringBuffer();
 
 		label.append(rdfDataSet.getLabel());
 		label.append(", ");
@@ -47,15 +47,15 @@ public class DataSetFactory {
 
 		for (Statement triple : triples) {
 			if (triple.getSubject() instanceof URI) {
-				DirectedGraph<Vertex<String>, Edge<String>> graph = GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference));
+				DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference)));
 				graphs.add(graph);
 				labels.add(triple.getObject().toString());
-				rootVertices.add(findVertex(graph, triple.getSubject().toString()));
+				graph.setRootVertex((findVertex(graph, triple.getSubject().toString())));
 				Graphs.removeVerticesAndEdges(graph, null, blackList);
 			}
 		}
 
-		return new GraphClassificationDataSet(label.toString(), graphs, labels, Collections.unmodifiableList(rootVertices));
+		return new GraphClassificationDataSet(label.toString(), graphs, labels);
 	}
 
 	

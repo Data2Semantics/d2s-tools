@@ -3,10 +3,14 @@ package org.data2semantics.tools.experiments;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
+import org.data2semantics.tools.graphs.Edge;
+import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.kernels.GraphKernel;
 import org.data2semantics.tools.libsvm.LibSVM;
 
 import cern.colt.Arrays;
+import edu.uci.ics.jung.graph.DirectedGraph;
 
 
 public class ClassificationExperiment implements Runnable {
@@ -37,14 +41,13 @@ public class ClassificationExperiment implements Runnable {
 	public void run() {			
 		double acc = 0, meanAcc = 0, f = 0;
 		
-		kernel.compute();
-		kernel.normalize();	
+		double[][] matrix = kernel.compute(dataSet.getGraphs());
+		
 
 		for (int i = 0; i < seeds.length; i++) {
-			kernel.shuffle(seeds[i]);
+			kernel.shuffle(matrix, seeds[i]);
 			dataSet.shuffle(seeds[i]);
-			
-			double[][] matrix = kernel.getKernel();
+
 			double[] target = LibSVM.createTargets(dataSet.getLabels());	
 			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
 			

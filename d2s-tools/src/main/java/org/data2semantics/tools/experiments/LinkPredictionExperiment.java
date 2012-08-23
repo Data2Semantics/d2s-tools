@@ -69,21 +69,8 @@ public class LinkPredictionExperiment implements Runnable {
 		for (int i = 0; i < seeds.length; i++) {
 			createRandomSubSet(50, seeds[i]);
 			
-			kernelA.setGraphs(graphsA);
-			kernelB.setGraphs(graphsB);
-			
-			if (kernelA instanceof IntersectionSubTreeKernel) {
-				((IntersectionSubTreeKernel) kernelA).setRootVertices(rootVerticesA);
-			}
-			if (kernelB instanceof IntersectionSubTreeKernel) {
-				((IntersectionSubTreeKernel) kernelB).setRootVertices(rootVerticesB);
-			}
-			
-			
-			kernelA.compute();
-			kernelA.normalize();
-			kernelB.compute();
-			kernelB.normalize();
+			double[][] matrixA = kernelA.compute(graphsA);
+			double[][] matrixB = kernelB.compute(graphsB);
 			
 			Collections.shuffle(subSet, new Random(seeds[i]));
 			labels = new ArrayList<String>();
@@ -95,7 +82,7 @@ public class LinkPredictionExperiment implements Runnable {
 				}
 			}
 			double[] target = LibSVM.createTargets(labels);
-			double[][] matrix = combineKernels();
+			double[][] matrix = combineKernels(matrixA, matrixB);
 			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
 			
 			acc += LibSVM.computeAccuracy(target, prediction);
@@ -114,7 +101,7 @@ public class LinkPredictionExperiment implements Runnable {
 	}
 	
 	
-	private double[][] combineKernels() {
+	private double[][] combineKernels(double[][] matrixA, double[][] matrixB) {
 		double[][] matrix = new double[subSet.size()][subSet.size()];
 		Pair<DirectedGraph<Vertex<String>, Edge<String>>> pairA, pairB;
 		
@@ -122,8 +109,8 @@ public class LinkPredictionExperiment implements Runnable {
 			pairA = subSet.get(i);
 			for (int j = i; j < subSet.size(); j++) {
 				pairB = subSet.get(j);
-				matrix[i][j] = weightA * kernelA.getKernel()[graphsA.indexOf(pairA.getFirst())][graphsA.indexOf(pairB.getFirst())] +
-							   weightB * kernelB.getKernel()[graphsB.indexOf(pairA.getSecond())][graphsB.indexOf(pairB.getSecond())];
+				matrix[i][j] = weightA * matrixA[graphsA.indexOf(pairA.getFirst())][graphsA.indexOf(pairB.getFirst())] +
+							   weightB * matrixB[graphsB.indexOf(pairA.getSecond())][graphsB.indexOf(pairB.getSecond())];
 				matrix[j][i] = matrix[i][j];
 			}
 		}

@@ -12,11 +12,11 @@ import edu.uci.ics.jung.graph.Tree;
 public class IntersectionPartialSubTreeKernel extends IntersectionSubTreeKernel {
 
 	public IntersectionPartialSubTreeKernel(int depth, double discountFactor) {
-		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), new ArrayList<Vertex<String>>(), depth, discountFactor);
+		this(depth, discountFactor, true);
 	}
 	
-	public IntersectionPartialSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, List<Vertex<String>> rootVertices, int depth, double discountFactor) {
-		super(graphs, rootVertices, depth, discountFactor);
+	public IntersectionPartialSubTreeKernel(int depth, double discountFactor, boolean normalize) {
+		super(depth, discountFactor, normalize);
 		this.label = "Intersection Partial SubTree Kernel, depth=" + depth + ", lambda=" + discountFactor;
 	}
 

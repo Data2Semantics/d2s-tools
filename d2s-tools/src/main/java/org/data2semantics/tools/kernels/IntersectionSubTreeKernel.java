@@ -1,12 +1,14 @@
 package org.data2semantics.tools.kernels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 
@@ -16,18 +18,28 @@ import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class IntersectionSubTreeKernel extends GraphKernel {
+public class IntersectionSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> {
 	private static final String ROOTID = "ROOT1337";
 
-	protected List<Vertex<String>> rootVertices;
 	private int depth;
 	private double discountFactor;
 
 
-	public IntersectionSubTreeKernel(int depth, double discountFactor) {
-		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), new ArrayList<Vertex<String>>(), depth, discountFactor);
+	public IntersectionSubTreeKernel(int depth, double discountFactor, boolean normalize) {
+		super(normalize);
+		this.depth = depth;
+		this.discountFactor = discountFactor;
+		this.label = "Intersection Full SubTree Kernel, depth=" + depth + ", lambda=" + discountFactor;
+
+		//		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), new ArrayList<Vertex<String>>(), depth, discountFactor);
 	}
 
+
+	public IntersectionSubTreeKernel(int depth, double discountFactor) {
+		this(depth, discountFactor, true);
+	}
+
+	/*
 	public IntersectionSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, List<Vertex<String>> rootVertices, int depth, double discountFactor) {
 		super(graphs);
 		this.rootVertices = rootVertices;
@@ -35,7 +47,9 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 		this.discountFactor = discountFactor;
 		this.label = "Intersection Full SubTree Kernel, depth=" + depth + ", lambda=" + discountFactor;
 	}
+	 */
 
+	/*
 	public void compute() {
 		Tree<Vertex<String>, Edge<String>> tree;
 
@@ -47,7 +61,67 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 			}
 		}
 	}
+	 */
 
+
+
+
+	@Override
+	public double[][] compute(
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
+
+		double[][] kernel = initMatrix(trainGraphs.size(), trainGraphs.size());
+		Tree<Vertex<String>, Edge<String>> tree;
+
+		for (int i = 0; i < trainGraphs.size(); i++) {
+			for (int j = i; j < trainGraphs.size(); j++) {				
+				tree = computeIntersectionTree(trainGraphs.get(i), trainGraphs.get(j), trainGraphs.get(i).getRootVertex(), trainGraphs.get(j).getRootVertex(), depth);
+				kernel[i][j] = subTreeScore(tree, tree.getRoot(), discountFactor);
+				kernel[j][i] = kernel[i][j];
+			}
+		}
+
+		if (normalize) {
+			return normalize(kernel);
+		} else {		
+			return kernel;
+		}
+	}
+
+
+
+	@Override
+	public double[][] compute(
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
+
+		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
+		double[] ssTest = new double[testGraphs.size()];
+		double[] ssTrain = new double[trainGraphs.size()];
+		
+		Tree<Vertex<String>, Edge<String>> tree;
+
+		for (int i = 0; i < testGraphs.size(); i++) {
+			for (int j = 0; j < trainGraphs.size(); j++) {				
+				tree = computeIntersectionTree(testGraphs.get(i), trainGraphs.get(j), testGraphs.get(i).getRootVertex(), trainGraphs.get(j).getRootVertex(), depth);
+				kernel[i][j] = subTreeScore(tree, tree.getRoot(), discountFactor);
+			}
+		}
+		for (int i = 0; i < testGraphs.size(); i++) {
+			tree = computeIntersectionTree(testGraphs.get(i), testGraphs.get(i), testGraphs.get(i).getRootVertex(), testGraphs.get(i).getRootVertex(), depth);
+			ssTest[i] = subTreeScore(tree, tree.getRoot(), discountFactor);
+		}
+		for (int i = 0; i < trainGraphs.size(); i++) {
+			tree = computeIntersectionTree(trainGraphs.get(i), trainGraphs.get(i), trainGraphs.get(i).getRootVertex(), trainGraphs.get(i).getRootVertex(), depth);
+			ssTrain[i] = subTreeScore(tree, tree.getRoot(), discountFactor);
+		}		
+		
+		if (normalize) {	
+			return normalize(kernel, ssTrain, ssTest);		
+		} else {		
+			return kernel;
+		}
+	}
 
 	public Tree<Vertex<String>, Edge<String>> computeIntersectionTree(DirectedGraph<Vertex<String>, Edge<String>> graphA, DirectedGraph<Vertex<String>, Edge<String>> graphB, Vertex<String> rootA, Vertex<String> rootB, int depth) {
 		Vertex<String> newRoot = new Vertex<String>(ROOTID);
@@ -155,9 +229,5 @@ public class IntersectionSubTreeKernel extends GraphKernel {
 			}
 			return 1 + (discountFactor * score);
 		}
-	}
-	
-	public void setRootVertices(List<Vertex<String>> rootVertices) {
-		this.rootVertices = rootVertices;
 	}
 }

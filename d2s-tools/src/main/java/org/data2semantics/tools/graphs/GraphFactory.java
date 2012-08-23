@@ -96,4 +96,19 @@ public class GraphFactory {
 		}	
 		return newGraph;
 	}
+	
+	public static <L> DirectedMultigraphWithRoot<Vertex<L>, Edge<L>> copyDirectedGraph2GraphWithRoot(DirectedGraph<Vertex<L>, Edge<L>> graph) {
+		DirectedMultigraphWithRoot<Vertex<L>, Edge<L>> newGraph = new DirectedMultigraphWithRoot<Vertex<L>, Edge<L>>();
+		
+		Map<Vertex<L>, Vertex<L>> nodes = new HashMap<Vertex<L>, Vertex<L>>();
+		
+		for (Vertex<L> vertex : graph.getVertices()) {
+			nodes.put(vertex, new Vertex<L>(vertex));
+			newGraph.addVertex(nodes.get(vertex));
+		}		
+		for (Edge<L> edge : graph.getEdges()) {
+			newGraph.addEdge(new Edge<L>(edge), nodes.get(graph.getSource(edge)), nodes.get(graph.getDest(edge)), EdgeType.DIRECTED);
+		}	
+		return newGraph;
+	}
 }

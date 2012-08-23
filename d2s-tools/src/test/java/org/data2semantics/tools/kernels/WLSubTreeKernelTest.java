@@ -31,8 +31,8 @@ public class WLSubTreeKernelTest {
 	@Test
 	public void test() {
 	
-		//RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
-		RDFDataSet testSet = new RDFFileDataSet("/Users/Peter/Documents/datasets/graphs/aifb/aifb-fixed_complete.owl", RDFFormat.RDFXML);
+		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\datasets\\aifb\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		//RDFDataSet testSet = new RDFFileDataSet("/Users/Peter/Documents/datasets/graphs/aifb/aifb-fixed_complete.owl", RDFFormat.RDFXML);
 		
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
@@ -117,12 +117,8 @@ public class WLSubTreeKernelTest {
 //		
 	
 		
-		WLSubTreeKernel kernel = new WLSubTreeKernel(dataSet.getGraphs(), 2);
-		kernel.compute();
-		kernel.normalize();		
-		kernel.shuffle(11);
-		
-		double[][] matrix = kernel.getKernel();
+		WLSubTreeKernel kernel = new WLSubTreeKernel(2);
+		double[][] matrix = kernel.compute(dataSet.getGraphs());
 		
 		for (int i = 0; i < matrix.length; i++) {
 			System.out.println(Arrays.toString(matrix[i]));

@@ -18,31 +18,73 @@ import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class IntersectionGraphKernel extends GraphKernel {
+public class IntersectionGraphKernel extends GraphKernel<DirectedGraph<Vertex<String>, Edge<String>>> {
 	private int maxLength;
 	private double discountFactor;
 	
 	public IntersectionGraphKernel(int maxLength, double discountFactor) {
-		this(new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>(), maxLength, discountFactor);
+		this(maxLength, discountFactor, true);
 	}
 	
-	public IntersectionGraphKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int maxLength, double discountFactor) {
-		super(graphs);
+	public IntersectionGraphKernel(int maxLength, double discountFactor, boolean normalize) {
+		super(normalize);
 		this.label = "Intersection Graph Kernel, maxLength=" + maxLength + ", lambda=" + discountFactor;
 		this.maxLength = maxLength;
 		this.discountFactor = discountFactor;
 	}
 
 	@Override
-	public void compute() {
+	public double[][] compute(
+			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs) {
+		double[][] kernel = initMatrix(trainGraphs.size(), trainGraphs.size());
 		DirectedGraph<Vertex<String>, Edge<String>> graph;
-
-		for (int i = 0; i < graphs.size(); i++) {
-			for (int j = i; j < graphs.size(); j++) {				
-				graph = computeIntersectionGraph(graphs.get(i), graphs.get(j));
+		
+		for (int i = 0; i < trainGraphs.size(); i++) {
+			for (int j = i; j < trainGraphs.size(); j++) {				
+				graph = computeIntersectionGraph(trainGraphs.get(i), trainGraphs.get(j));
 				kernel[i][j] = subGraphCount(graph, maxLength, discountFactor);
 				kernel[j][i] = kernel[i][j];
 			}
+		}
+		
+		if (normalize) {
+			return normalize(kernel);
+		} else {
+			return kernel;
+		}
+	}
+
+	@Override
+	public double[][] compute(
+			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs,
+			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs) {
+		
+		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
+		DirectedGraph<Vertex<String>, Edge<String>> graph;
+		double[] ssTest = new double[testGraphs.size()];
+		double[] ssTrain = new double[trainGraphs.size()];
+		
+		for (int i = 0; i < testGraphs.size(); i++) {
+			for (int j = 0; j < trainGraphs.size(); j++) {				
+				graph = computeIntersectionGraph(testGraphs.get(i), trainGraphs.get(j));
+				kernel[i][j] = subGraphCount(graph, maxLength, discountFactor);
+			}
+		}
+		
+		for (int i = 0; i < testGraphs.size(); i++) {
+			graph = computeIntersectionGraph(testGraphs.get(i), testGraphs.get(i));
+			ssTest[i] = subGraphCount(graph, maxLength, discountFactor);
+		}
+		
+		for (int i = 0; i < trainGraphs.size(); i++) {
+			graph = computeIntersectionGraph(trainGraphs.get(i), trainGraphs.get(i));
+			ssTrain[i] = subGraphCount(graph, maxLength, discountFactor);
+		}
+			
+		if (normalize) {	
+			return normalize(kernel, ssTrain, ssTest);		
+		} else {		
+			return kernel;
 		}
 	}
 

@@ -90,7 +90,8 @@ public class ClassificationExperimentTest {
 					//file.mkdirs();
 					
 					try {
-						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionGraphPathKernel(dataset.getGraphs(), i, 1), seeds, cs, new FileOutputStream(file));
+						exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionSubTreeKernel(i, 1), seeds, cs);
+						//exp = new ClassificationExperiment(new GraphClassificationDataSet(dataset), new IntersectionGraphPathKernel(i, 1), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						results.add(exp.getResults());
 

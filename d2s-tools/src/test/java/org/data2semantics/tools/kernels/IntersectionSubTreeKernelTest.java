@@ -130,17 +130,16 @@ public class IntersectionSubTreeKernelTest {
 		
 		dataset = DataSetFactory.createClassificationDataSet(dataSetsParams.get(0));
 		
-		IntersectionSubTreeKernel kernel = new IntersectionSubTreeKernel(dataset.getGraphs().subList(0,4), dataset.getRootVertices().subList(0,4), 1, 1);
+		IntersectionSubTreeKernel kernel = new IntersectionSubTreeKernel(1, 1);
 		
-		kernel.compute();
-		kernel.normalize();
-		double[][] matrix = kernel.getKernel();
+		double[][] matrix = kernel.compute(dataset.getGraphs());
 		
 		System.out.println(Arrays.toString(matrix[0]));
 		System.out.println(Arrays.toString(matrix[1]));
 		System.out.println(Arrays.toString(matrix[2]));
 		System.out.println(Arrays.toString(matrix[3]));
 		
+		/*
 		System.out.println("-----");
 		
 		dataset = DataSetFactory.createClassificationDataSet(dataSetsParams.get(1));
@@ -155,6 +154,8 @@ public class IntersectionSubTreeKernelTest {
 		System.out.println(Arrays.toString(matrix[1]));
 		System.out.println(Arrays.toString(matrix[2]));
 		System.out.println(Arrays.toString(matrix[3]));
+		
+		*/
 	}
 
 }

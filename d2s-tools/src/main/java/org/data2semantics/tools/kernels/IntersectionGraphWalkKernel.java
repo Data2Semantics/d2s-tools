@@ -13,11 +13,11 @@ import edu.uci.ics.jung.graph.DirectedGraph;
 public class IntersectionGraphWalkKernel extends IntersectionGraphKernel {
 	
 	public IntersectionGraphWalkKernel(int maxLength, double discountFactor) {
-		this(new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>(), maxLength, discountFactor);
+		this(maxLength, discountFactor, true);
 	}
 	
-	public IntersectionGraphWalkKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int maxLength, double discountFactor) {
-		super(graphs, maxLength, discountFactor);
+	public IntersectionGraphWalkKernel(int maxLength, double discountFactor, boolean normalize) {
+		super(maxLength, discountFactor, normalize);
 		this.label = "Intersection Graph Walk Kernel, maxLength=" + maxLength + ", lambda=" + discountFactor;
 	}
 

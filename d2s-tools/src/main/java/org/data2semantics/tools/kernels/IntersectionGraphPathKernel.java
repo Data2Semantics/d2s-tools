@@ -13,11 +13,11 @@ import edu.uci.ics.jung.graph.DirectedGraph;
 public class IntersectionGraphPathKernel extends IntersectionGraphKernel {
 
 	public IntersectionGraphPathKernel(int maxLength, double discountFactor) {
-		this(new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>(), maxLength, discountFactor);
+		this(maxLength, discountFactor, true);
 	}
 	
-	public IntersectionGraphPathKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int maxLength, double discountFactor) {
-		super(graphs, maxLength, discountFactor);
+	public IntersectionGraphPathKernel(int maxLength, double discountFactor, boolean normalize) {
+		super(maxLength, discountFactor, normalize);
 		this.label = "Intersection Graph Path Kernel, maxLength=" + maxLength + ", lambda=" + discountFactor;
 	}
 

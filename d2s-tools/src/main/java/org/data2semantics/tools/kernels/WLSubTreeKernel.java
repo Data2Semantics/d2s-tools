@@ -16,16 +16,26 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 // TODO rewrite featureVectors using arrays, and do kernel computation add each step
 
-public class WLSubTreeKernel extends GraphKernel {
-	private double[][] featureVectors;	
-	private Map<String, String> labelDict;
-	private int startLabel, currentLabel;
+public class WLSubTreeKernel extends GraphKernel<DirectedGraph<Vertex<String>, Edge<String>>> {
+	//private double[][] featureVectors;	
+	//private Map<String, String> labelDict;
+	//private int startLabel, currentLabel;
 	private int iterations = 2;
 	
+	
+	public WLSubTreeKernel(int iterations, boolean normalize) {
+		super(normalize);
+		this.iterations = iterations;
+		this.label = "WL SubTree Kernel, it=" + iterations;
+		
+		//this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), iterations);
+	}	
+	
 	public WLSubTreeKernel(int iterations) {
-		this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), iterations);
+		this(iterations, true);
 	}
 	
+	/*
 	public WLSubTreeKernel(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int iterations) {
 		super(graphs);
 		copyGraphs();
@@ -38,7 +48,11 @@ public class WLSubTreeKernel extends GraphKernel {
 		this.iterations = iterations;
 	}
 
+	*/
+	
 	public void compute() {
+		;
+		/*
 		// Change original labels to numeric labels and setup the first part of the feature vectors
 		compressGraphLabels();
 		computeFeatureVectors();
@@ -50,8 +64,79 @@ public class WLSubTreeKernel extends GraphKernel {
 			computeFeatureVectors();
 			computeKernelMatrix();
 		}
+		*/
 	}
 	
+
+		
+	@Override
+	public double[][] compute(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs) {
+		
+		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = copyGraphs(trainGraphs);
+		double[][] featureVectors = new double[graphs.size()][];
+		Map<String, String> labelDict = new HashMap<String,String>();
+		double[][] kernel = initMatrix(graphs.size(), graphs.size());
+		
+		int startLabel = 0;
+		int currentLabel = 0;
+		
+		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
+		computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
+		computeKernelMatrix(graphs, featureVectors, kernel);
+		
+		for (int i = 0; i < this.iterations; i++) {
+			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
+			startLabel = currentLabel;
+			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
+			computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
+			computeKernelMatrix(graphs, featureVectors, kernel);	
+		}
+		
+		if (normalize) {
+			return normalize(kernel);
+		} else {		
+			return kernel;
+		}
+	}
+
+	@Override
+	public double[][] compute(
+			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs,
+			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs) {
+		
+		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = copyGraphs(testGraphs);
+		graphs.addAll(copyGraphs(trainGraphs));
+		double[][] featureVectors = new double[graphs.size()][];
+		Map<String, String> labelDict = new HashMap<String,String>();
+		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
+		double[] ss = new double[testGraphs.size() + trainGraphs.size()];
+		
+		int startLabel = 0;
+		int currentLabel = 0;
+		
+		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
+		computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
+		computeKernelMatrix(trainGraphs, testGraphs, featureVectors, kernel, ss);
+		
+		for (int i = 0; i < this.iterations; i++) {
+			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
+			startLabel = currentLabel;
+			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
+			computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
+			computeKernelMatrix(trainGraphs, testGraphs, featureVectors, kernel, ss);	
+		}
+		
+		if (normalize) {
+			double[] ssTest = Arrays.copyOfRange(ss, 0, testGraphs.size());
+			double[] ssTrain = Arrays.copyOfRange(ss, testGraphs.size(), ss.length);			
+			return normalize(kernel, ssTrain, ssTest);
+			
+		} else {		
+			return kernel;
+		}
+	}
+
+	/*
 	public void setGraphs(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs) {
 		this.graphs = graphs;
 		copyGraphs();
@@ -59,9 +144,10 @@ public class WLSubTreeKernel extends GraphKernel {
 		featureVectors = new double[graphs.size()][];
 		labelDict = new HashMap<String,String>();
 	}
+	*/
 	
 	
-	private void relabelGraphs2MultisetLabels() {
+	private void relabelGraphs2MultisetLabels(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, int startLabel, int currentLabel) {
 		Map<String, Bucket<Vertex<String>>> bucketsV = new HashMap<String, Bucket<Vertex<String>>>();
 		Map<String, Bucket<Edge<String>>> bucketsE   = new HashMap<String, Bucket<Edge<String>>>();
 		
@@ -72,7 +158,7 @@ public class WLSubTreeKernel extends GraphKernel {
 		}
 		
 		// 1. Fill buckets 
-		for (DirectedGraph<Vertex<String>, Edge<String>> graph : this.graphs) {
+		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
 			// Add each edge source (i.e.) start vertex to the bucket of the edge label
 			for (Edge<String> edge : graph.getEdges()) {
 				bucketsV.get(edge.getLabel()).getContents().add(graph.getDest(edge));
@@ -87,7 +173,7 @@ public class WLSubTreeKernel extends GraphKernel {
 		
 		// 2. add bucket labels to existing labels
 		// Change the original label to a prefix label
-		for (DirectedGraph<Vertex<String>, Edge<String>> graph : this.graphs) {
+		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
 			for (Edge<String> edge : graph.getEdges()) {
 				edge.setLabel(edge.getLabel() + "_");
 			}
@@ -113,11 +199,10 @@ public class WLSubTreeKernel extends GraphKernel {
 
 	}
 	
-	private void compressGraphLabels() {
+	private int compressGraphLabels(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, Map<String, String> labelDict, int currentLabel) {
 		String label;
-		startLabel = currentLabel;
-		
-		for (DirectedGraph<Vertex<String>, Edge<String>> graph : this.graphs) {
+				
+		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
 			
 			for (Edge<String> edge : graph.getEdges()) {
 				label = labelDict.get(edge.getLabel());						
@@ -138,10 +223,11 @@ public class WLSubTreeKernel extends GraphKernel {
 				}
 				vertex.setLabel(label);
 			}
-		}		
+		}
+		return currentLabel;
 	}
 	
-	private void computeFeatureVectors() {
+	private void computeFeatureVectors(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, double[][] featureVectors, int startLabel, int currentLabel) {
 		int index;
 		for (int i = 0; i < graphs.size(); i++) {
 			featureVectors[i] = new double[currentLabel - startLabel];		
@@ -161,13 +247,26 @@ public class WLSubTreeKernel extends GraphKernel {
 	}
 
 	
-	private void computeKernelMatrix() {
+	private void computeKernelMatrix(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, double[][] featureVectors, double[][] kernel) {
 		for (int i = 0; i < graphs.size(); i++) {
 			for (int j = i; j < graphs.size(); j++) {
 				kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j]);
 				kernel[j][i] = kernel[i][j];
 			}
 		}
+	}
+	
+	
+	private void computeKernelMatrix(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs, List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs, double[][] featureVectors, double[][] kernel, double[] ss) {
+		for (int i = 0; i < testGraphs.size(); i++) {
+			for (int j = 0; j < trainGraphs.size(); j++) {
+				kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j + testGraphs.size()]); 
+			}
+		}
+		for (int i = 0; i < testGraphs.size() + trainGraphs.size(); i++) {
+			ss[i] += dotProduct(featureVectors[i], featureVectors[i]);
+		}
+		
 	}
 	
 	private double dotProduct(double[] fv1, double[] fv2) {
@@ -179,12 +278,12 @@ public class WLSubTreeKernel extends GraphKernel {
 	}	
 	
 
-	private void copyGraphs() {
-		List<DirectedGraph<Vertex<String>, Edge<String>>> oldGraphs = this.graphs;
-		this.graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
+	private List<DirectedGraph<Vertex<String>, Edge<String>>> copyGraphs(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> oldGraphs) {
+		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
 		for(DirectedGraph<Vertex<String>, Edge<String>> graph : oldGraphs) {
-			this.graphs.add(GraphFactory.copyDirectedGraph(graph));				
+			graphs.add(GraphFactory.copyDirectedGraph(graph));				
 		}
+		return graphs;
 	}
 	
 	private class Bucket<T> {
