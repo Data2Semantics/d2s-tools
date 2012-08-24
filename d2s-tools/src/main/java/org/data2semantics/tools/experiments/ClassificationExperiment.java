@@ -45,7 +45,7 @@ public class ClassificationExperiment implements Runnable {
 		
 
 		for (int i = 0; i < seeds.length; i++) {
-			kernel.shuffle(matrix, seeds[i]);
+			matrix = kernel.shuffle(matrix, seeds[i]);
 			dataSet.shuffle(seeds[i]);
 
 			double[] target = LibSVM.createTargets(dataSet.getLabels());	

@@ -115,13 +115,13 @@ public abstract class GraphKernel<G extends DirectedGraph<Vertex<String>, Edge<S
 	}
 	*/
 	
-	public void shuffle(double[][] kernel, long seed) {		
+	public double[][] shuffle(double[][] kernel, long seed) {		
 		Double[][] kernelDouble = convert2DoubleObjects(kernel);		
 		for (int i = 0; i < kernel.length; i++) {
 			Collections.shuffle(Arrays.asList(kernelDouble[i]), new Random(seed));
 		}
 		Collections.shuffle(Arrays.asList(kernelDouble), new Random(seed));
-		kernel = convert2DoublePrimitives(kernelDouble);
+		return convert2DoublePrimitives(kernelDouble);
 	}
 	
 	private Double[][] convert2DoubleObjects(double[][] kernel) {

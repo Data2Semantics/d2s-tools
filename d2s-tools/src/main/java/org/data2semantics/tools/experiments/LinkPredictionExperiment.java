@@ -117,6 +117,17 @@ public class LinkPredictionExperiment implements Runnable {
 		return matrix;
 	}
 			
+	/*
+	 * Randomly walk through all pairs, by shuffling all pairs. if pos & train_set not filled -> trainset
+	 * 																   & train_set filled & test set not filled -> testset
+	 * 
+	 * 															if neg & train_set not filled -> trainset
+	 * 																   & trainset filled & testset not filled -> testset
+	 * 
+	 * Parameters: trainset size or posclass size, test set size (which given label ratio leads to test set class sizes)
+	 * 
+	 */
+	
 	private void createRandomSubSet(int classSize, long seed) {
 		List<Pair<DirectedGraph<Vertex<String>,Edge<String>>>> posClass = new ArrayList<Pair<DirectedGraph<Vertex<String>,Edge<String>>>>();
 		List<Pair<DirectedGraph<Vertex<String>,Edge<String>>>> negClass = new ArrayList<Pair<DirectedGraph<Vertex<String>,Edge<String>>>>();

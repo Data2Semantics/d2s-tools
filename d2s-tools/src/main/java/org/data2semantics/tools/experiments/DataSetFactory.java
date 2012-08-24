@@ -31,7 +31,7 @@ public class DataSetFactory {
 	public static GraphClassificationDataSet createClassificationDataSet(RDFDataSet rdfDataSet, String property, List<String> blackList, int depth, boolean includeInverse, boolean includeInference) {
 		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
 		List<String> labels = new ArrayList<String>();
-			StringBuffer label = new StringBuffer();
+		StringBuffer label = new StringBuffer();
 
 		label.append(rdfDataSet.getLabel());
 		label.append(", ");
