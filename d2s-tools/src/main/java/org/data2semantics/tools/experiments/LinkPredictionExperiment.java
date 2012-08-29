@@ -135,7 +135,7 @@ public class LinkPredictionExperiment implements Runnable {
 		rPrec = rPrec / seeds.length;
 		
 		
-		
+		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernelA.getLabel() + ", " + kernelB.getLabel());
 		results.setAccuracy(acc);
 		results.setF1(f);
 		results.setAveragePrecision(map);
