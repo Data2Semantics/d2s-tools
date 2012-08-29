@@ -150,23 +150,23 @@ public class AffiliationLinkPredictionExperiment {
 		}
 
 		for (ExperimentResults res : resultsWL) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
+			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1() + " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
 		}
 		
 		for (ExperimentResults res : resultsSTF) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
+			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
 		}
 
 		for (ExperimentResults res : resultsSTP) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
+			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
 		}
 
 		for (ExperimentResults res : resultsIGW) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
+			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
 		}
 
 		for (ExperimentResults res : resultsIGP) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
+			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
 		}
 	}
 

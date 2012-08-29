@@ -10,5 +10,9 @@ public class LibSVMModel {
 	svm_model getModel() {
 		return model;
 	}
+	
+	public double[] getRho() {
+		return model.rho;
+	}
 
 }

@@ -26,9 +26,11 @@
 
 package org.data2semantics.tools.libsvm;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 
 
 public class LibSVM {
@@ -59,10 +61,10 @@ public class LibSVM {
 	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, double[][] kernel) {
 		svm_node[][] testNodes = createTestProblem(kernel);
 		LibSVMPrediction[] pred = new LibSVMPrediction[testNodes.length];
-		double[] decVal = new double[model.getModel().nr_class*(model.getModel().nr_class-1)/2];
-		
+				
 		for (int i = 0 ; i < testNodes.length; i++) {
-			pred[i] = new LibSVMPrediction(svm.svm_predict_values(model.getModel(), testNodes[i], decVal));
+			double[] decVal = new double[model.getModel().nr_class*(model.getModel().nr_class-1)/2];
+			pred[i] = new LibSVMPrediction(svm.svm_predict_values(model.getModel(), testNodes[i], decVal), i);
 			pred[i].setDecisionValue(decVal);
 		}
 		return pred;
@@ -165,6 +167,10 @@ public class LibSVM {
 
 	public static double[] createTargets(List<String> labels) {
 		Map<String, Integer> labelMap = new TreeMap<String, Integer>();
+		return createTargets(labels, labelMap);
+	}
+	
+	public static double[] createTargets(List<String> labels, Map<String, Integer> labelMap) {
 		double[] targets = new double[labels.size()];
 		int t = 0;
 		int i = 0;
@@ -179,6 +185,7 @@ public class LibSVM {
 		}	
 		return targets;
 	}
+	
 	
 	public static double computeAccuracy(double[] target, double[] prediction) {
 		double correct = 0;	
@@ -247,6 +254,53 @@ public class LibSVM {
 			predLabels[i] = pred[i].getLabel();
 		}
 		return predLabels;
+	}
+	
+	public static int[] computeRanking(LibSVMPrediction[] pred) {
+		Arrays.sort(pred);
+		int[] ranking = new int[pred.length];
+		
+		for (int i = 0; i < ranking.length; i++) {
+			ranking[i] = pred[(ranking.length - i) - 1].getIndex();
+		}
+				
+		return ranking;
+	}
+	
+	public static double computePrecisionAt(double[] target, int[] ranking, int at, double label) {
+		double precision = 0;
+		for (int i = 0; i < at; i++) {
+			if (target[ranking[i]] == label) {
+				precision += 1;
+			}
+		}
+		return precision / (double) at;
+	}
+	
+	public static double computeRPrecision(double[] target, int[] ranking, double label) {
+		int count = 0;
+		for (double t : target) {
+			if (t == label) {
+				count++;
+			}
+		}
+		
+		return computePrecisionAt(target, ranking, count, label);
+	}
+	
+	public static double computeAveragePrecision(double[] target, int[] ranking, double label) {
+		double posClass = 0;
+		double map = 0;
+		
+		for (int i = 0; i < ranking.length; i++) {
+			if (target[ranking[i]] == label) {
+				posClass++;
+				map += posClass / ((double) i + 1);
+			}
+		}
+		
+		map /= posClass;
+		return map;
 	}
 	
 	

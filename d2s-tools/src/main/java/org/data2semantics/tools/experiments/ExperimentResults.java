@@ -4,6 +4,8 @@ public class ExperimentResults {
 	private String label;
 	private double accuracy;
 	private double f1;
+	private double averagePrecision;
+	private double rPrecision;
 	
 	public ExperimentResults() {
 		super();
@@ -32,6 +34,21 @@ public class ExperimentResults {
 	public void setF1(double f1) {
 		this.f1 = f1;
 	}
-	
+
+	public double getAveragePrecision() {
+		return averagePrecision;
+	}
+
+	public void setAveragePrecision(double averagePrecision) {
+		this.averagePrecision = averagePrecision;
+	}
+
+	public double getrPrecision() {
+		return rPrecision;
+	}
+
+	public void setrPrecision(double rPrecision) {
+		this.rPrecision = rPrecision;
+	}	
 	
 }

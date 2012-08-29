@@ -1,12 +1,14 @@
 package org.data2semantics.tools.libsvm;
 
-public class LibSVMPrediction {
+public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
 	private double label;
 	private double[] decisionValue;
 	private double probability;
+	private int index;
 	
-	public LibSVMPrediction(double label) {
+	public LibSVMPrediction(double label, int index) {
 		this.label = label;
+		this.index = index;
 	}
 	
 	public double getLabel() {
@@ -28,7 +30,30 @@ public class LibSVMPrediction {
 		this.probability = probability;
 	}
 	
+	public String toString() {
+		return "Test index: " + index + ", " + label + ", " + decisionValue;
+	}
 	
-	
+	public int getIndex() {
+		return index;
+	}
 
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	/*
+	 *  Compare two predictions so that they can be sorted on decision values.
+	 *  Using this sort a ranking for a binary classification problem can be computed.
+	 *  However, the sign of the decision value is arbitrary. Thus we assume that the two class labels are +1 and -1, 
+	 *  and that positive classes should be ranked higher.
+	 *  
+	 * (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(LibSVMPrediction arg0) {
+		return Double.compare(-1 * decisionValue[0] * label, -1 * arg0.getDecisionValue()[0] * arg0.getLabel());
+	}
+	
+	
 }
