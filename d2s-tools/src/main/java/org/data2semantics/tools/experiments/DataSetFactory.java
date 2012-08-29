@@ -65,11 +65,11 @@ public class DataSetFactory {
 	
 
 	public static LinkPredictionDataSet createLinkPredictonDataSet(RDFDataSet rdfDataSet, String classA, String classB, String property, List<String> blackList, int depth, boolean includeInverse, boolean includeInference) {
-		List<DirectedGraph<Vertex<String>, Edge<String>>> graphsA = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
-		List<DirectedGraph<Vertex<String>, Edge<String>>> graphsB = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
+		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphsA = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
+		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphsB = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
 		List<Vertex<String>> rootVerticesA = new ArrayList<Vertex<String>>();
 		List<Vertex<String>> rootVerticesB = new ArrayList<Vertex<String>>();
-		Map<Pair<DirectedGraph<Vertex<String>,Edge<String>>>, Boolean> labels = new HashMap<Pair<DirectedGraph<Vertex<String>,Edge<String>>>, Boolean>();
+		Map<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>, Boolean> labels = new HashMap<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>, Boolean>();
 		
 		StringBuffer label = new StringBuffer();
 		label.append(rdfDataSet.getLabel());
@@ -85,16 +85,18 @@ public class DataSetFactory {
 
 		List<Statement> triples = rdfDataSet.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", classA, false);	
 		for (Statement triple : triples) {
-			DirectedGraph<Vertex<String>, Edge<String>> graph = GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference));
+			DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference)));
 			graphsA.add(graph);
+			graph.setRootVertex((findVertex(graph, triple.getSubject().toString())));
 			rootVerticesA.add(findVertex(graph, triple.getSubject().toString()));
 			Graphs.removeVerticesAndEdges(graph, null, blackList);
 		}
 		
 		triples = rdfDataSet.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", classB, false);	
 		for (Statement triple : triples) {
-			DirectedGraph<Vertex<String>, Edge<String>> graph = GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference));
+			DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference)));
 			graphsB.add(graph);
+			graph.setRootVertex((findVertex(graph, triple.getSubject().toString())));
 			rootVerticesB.add(findVertex(graph, triple.getSubject().toString()));
 			Graphs.removeVerticesAndEdges(graph, null, blackList);
 		}
@@ -102,16 +104,16 @@ public class DataSetFactory {
 		for (int i = 0; i < rootVerticesA.size(); i++) {
 			for (int j = 0; j < rootVerticesB.size(); j++) {
 				List<Statement> triples3 = rdfDataSet.getStatementsFromStrings(rootVerticesA.get(i).getLabel(), null, rootVerticesB.get(j).getLabel(), false);
-				labels.put(new Pair<DirectedGraph<Vertex<String>, Edge<String>>>(graphsA.get(i), graphsB.get(j)), false);
+				labels.put(new Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>(graphsA.get(i), graphsB.get(j)), false);
 				for (Statement triple : triples3) {
 					if (triple.getPredicate().toString().equals(property)) {
-						labels.put(new Pair<DirectedGraph<Vertex<String>, Edge<String>>>(graphsA.get(i), graphsB.get(j)), true);
+						labels.put(new Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>(graphsA.get(i), graphsB.get(j)), true);
 					}
 				}
 			}
 		}
 
-		return new LinkPredictionDataSet(label.toString(), graphsA, graphsB, rootVerticesA, rootVerticesB, labels);
+		return new LinkPredictionDataSet(label.toString(), graphsA, graphsB, labels);
 	}
 
 

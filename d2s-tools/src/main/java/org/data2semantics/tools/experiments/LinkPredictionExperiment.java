@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.kernels.GraphKernel;
@@ -27,12 +28,12 @@ public class LinkPredictionExperiment implements Runnable {
 	private LinkPredictionDataSet dataSet;
 	private GraphKernel kernelA, kernelB;
 	private double weightA, weightB;
-	private List<DirectedGraph<Vertex<String>,Edge<String>>> trainGraphsA;
-	private List<DirectedGraph<Vertex<String>,Edge<String>>> trainGraphsB;
-	private List<DirectedGraph<Vertex<String>,Edge<String>>> testGraphsA;
-	private List<DirectedGraph<Vertex<String>,Edge<String>>> testGraphsB;
-	private List<Pair<DirectedGraph<Vertex<String>,Edge<String>>>> trainSet;
-	private List<Pair<DirectedGraph<Vertex<String>,Edge<String>>>> testSet;
+	private List<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> trainGraphsA;
+	private List<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> trainGraphsB;
+	private List<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> testGraphsA;
+	private List<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> testGraphsB;
+	private List<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>> trainSet;
+	private List<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>> testSet;
 	private long[] seeds;
 	private double[] cs;
 	private PrintWriter output;
@@ -86,7 +87,7 @@ public class LinkPredictionExperiment implements Runnable {
 			Collections.shuffle(trainSet, new Random(seeds[i]));
 			
 			labels = new ArrayList<String>();
-			for (Pair<DirectedGraph<Vertex<String>, Edge<String>>> pair : trainSet) {
+			for (Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> pair : trainSet) {
 				if (dataSet.getLabels().get(pair)) {
 					labels.add("true");
 				} else {
@@ -104,7 +105,7 @@ public class LinkPredictionExperiment implements Runnable {
 			double[][] testMatrix = combineTestKernels(testMatrixA, testMatrixB);
 						
 			labels = new ArrayList<String>();
-			for (Pair<DirectedGraph<Vertex<String>, Edge<String>>> pair : testSet) {
+			for (Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> pair : testSet) {
 				if (dataSet.getLabels().get(pair)) {
 					labels.add("true");
 				} else {
@@ -156,7 +157,7 @@ public class LinkPredictionExperiment implements Runnable {
 	
 	private double[][] combineTrainKernels(double[][] matrixA, double[][] matrixB) {
 		double[][] matrix = new double[trainSet.size()][trainSet.size()];
-		Pair<DirectedGraph<Vertex<String>, Edge<String>>> pairA, pairB;
+		Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> pairA, pairB;
 		
 		for (int i = 0; i < trainSet.size(); i++) {
 			pairA = trainSet.get(i);
@@ -172,7 +173,7 @@ public class LinkPredictionExperiment implements Runnable {
 	
 	private double[][] combineTestKernels(double[][] matrixA, double[][] matrixB) {
 		double[][] matrix = new double[testSet.size()][trainSet.size()];
-		Pair<DirectedGraph<Vertex<String>, Edge<String>>> pairA, pairB;
+		Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> pairA, pairB;
 		
 		for (int i = 0; i < testSet.size(); i++) {
 			pairA = testSet.get(i);
@@ -186,13 +187,13 @@ public class LinkPredictionExperiment implements Runnable {
 	}
 	
 	private void createRandomSubSet(int trainSetSize, int testSetSize, long seed) {
-		List<Pair<DirectedGraph<Vertex<String>,Edge<String>>>> allPairs = new ArrayList<Pair<DirectedGraph<Vertex<String>,Edge<String>>>>(dataSet.getLabels().keySet());
-		trainGraphsA = new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>();
-		trainGraphsB = new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>();
-		testGraphsA = new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>();
-		testGraphsB = new ArrayList<DirectedGraph<Vertex<String>,Edge<String>>>();
-		trainSet = new ArrayList<Pair<DirectedGraph<Vertex<String>,Edge<String>>>>();
-		testSet = new ArrayList<Pair<DirectedGraph<Vertex<String>,Edge<String>>>>();
+		List<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>> allPairs = new ArrayList<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>>(dataSet.getLabels().keySet());
+		trainGraphsA = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>();
+		trainGraphsB = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>();
+		testGraphsA = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>();
+		testGraphsB = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>();
+		trainSet = new ArrayList<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>>();
+		testSet = new ArrayList<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>>();
 		
 		
 		Collections.shuffle(allPairs, new Random(seed));
@@ -201,7 +202,7 @@ public class LinkPredictionExperiment implements Runnable {
 		int negClass = 0, testNegClass = 0;
 		
 		int totalPos = 0;
-		for (Pair<DirectedGraph<Vertex<String>,Edge<String>>> pair : allPairs) {
+		for (Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> pair : allPairs) {
 			if (dataSet.getLabels().get(pair)) {
 				totalPos++;
 			}
@@ -210,7 +211,7 @@ public class LinkPredictionExperiment implements Runnable {
 		long testPosSize = Math.round(((double) totalPos / (double) allPairs.size()) * ((double) testSetSize));
 		long testNegSize = Math.round(((double) (allPairs.size() - totalPos) / (double) allPairs.size()) * ((double) testSetSize));	
 		
-		for (Pair<DirectedGraph<Vertex<String>,Edge<String>>> pair : allPairs) {
+		for (Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> pair : allPairs) {
 			classLabel = dataSet.getLabels().get(pair);
 			
 			if (classLabel) {
