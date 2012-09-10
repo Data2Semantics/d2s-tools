@@ -4,38 +4,21 @@ import java.util.List;
 
 import org.data2semantics.tools.rdf.RDFDataSet;
 
-public class DataSetParameters {
+public class PropertyPredictionDataSetParameters {
 	private RDFDataSet rdfDataSet;
 	private String property;
 	private String invProperty;
-	private List<String> blackList;
 	private int depth;
 	private boolean includeInverse;
 	private boolean includeInference;
-	private String classA;
-	private String classB;
 	
-	public DataSetParameters(RDFDataSet rdfDataSet, String property,
+	public PropertyPredictionDataSetParameters(RDFDataSet rdfDataSet, String property,
 			String invProperty, int depth, boolean includeInverse,
 			boolean includeInference) {
 		super();
 		this.rdfDataSet = rdfDataSet;
 		this.property = property;
 		this.invProperty = invProperty;
-		this.depth = depth;
-		this.includeInverse = includeInverse;
-		this.includeInference = includeInference;
-	}
-	
-	public DataSetParameters(RDFDataSet rdfDataSet, String classA, String classB, String property,
-			List<String> blackList, int depth, boolean includeInverse,
-			boolean includeInference) {
-		super();
-		this.rdfDataSet = rdfDataSet;
-		this.classA = classA;
-		this.classB = classB;
-		this.property = property;
-		this.blackList = blackList;
 		this.depth = depth;
 		this.includeInverse = includeInverse;
 		this.includeInference = includeInference;
@@ -56,14 +39,6 @@ public class DataSetParameters {
 
 	public void setProperty(String property) {
 		this.property = property;
-	}
-
-	public List<String> getBlackList() {
-		return blackList;
-	}
-
-	public void setBlackList(List<String> blackList) {
-		this.blackList = blackList;
 	}
 
 	public int getDepth() {
@@ -90,30 +65,11 @@ public class DataSetParameters {
 		this.includeInference = includeInference;
 	}
 
-	public String getClassA() {
-		return classA;
-	}
-
-	public void setClassA(String classA) {
-		this.classA = classA;
-	}
-
-	public String getClassB() {
-		return classB;
-	}
-
-	public void setClassB(String classB) {
-		this.classB = classB;
-	}
-
 	public String getInvProperty() {
 		return invProperty;
 	}
 
 	public void setInvProperty(String invProperty) {
 		this.invProperty = invProperty;
-	}
-	
-	
-	
+	}	
 }

@@ -13,14 +13,14 @@ import org.data2semantics.tools.graphs.Vertex;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 
-public class GraphClassificationDataSet {
+public class PropertyPredictionDataSet {
 	private static final String BLANK_VERTEX_LABEL = "blank_vertex_1337";
 	private static final String BLANK_EDGE_LABEL   = "blank_edge_1337";
 	private String label;
 	private List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs;
 	private List<String> labels;
 	
-	public GraphClassificationDataSet(String label,
+	public PropertyPredictionDataSet(String label,
 			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs,
 			List<String> labels) {
 		super();
@@ -29,7 +29,7 @@ public class GraphClassificationDataSet {
 		this.labels = labels;
 	}
 
-	public GraphClassificationDataSet(GraphClassificationDataSet set) {
+	public PropertyPredictionDataSet(PropertyPredictionDataSet set) {
 		this.label = new String(set.getLabel());
 		this.graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>(set.getGraphs());
 		this.labels = new ArrayList<String>(set.getLabels());

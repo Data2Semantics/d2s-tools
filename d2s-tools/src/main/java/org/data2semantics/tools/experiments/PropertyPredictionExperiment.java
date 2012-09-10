@@ -13,8 +13,8 @@ import cern.colt.Arrays;
 import edu.uci.ics.jung.graph.DirectedGraph;
 
 
-public class ClassificationExperiment implements Runnable {
-	private GraphClassificationDataSet dataSet;
+public class PropertyPredictionExperiment implements Runnable {
+	private PropertyPredictionDataSet dataSet;
 	private GraphKernel kernel;
 	private long[] seeds;
 	private double[] cs;
@@ -23,12 +23,12 @@ public class ClassificationExperiment implements Runnable {
 	private PrintWriter output;
 	private ExperimentResults results;
 	
-	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs) {
+	public PropertyPredictionExperiment(PropertyPredictionDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs) {
 		this(dataSet, kernel, seeds,  cs, System.out);
 	}
 	
 	
-	public ClassificationExperiment(GraphClassificationDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, OutputStream outputStream) {
+	public PropertyPredictionExperiment(PropertyPredictionDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, OutputStream outputStream) {
 		this.dataSet = dataSet;
 		this.kernel = kernel;
 		this.seeds = seeds;

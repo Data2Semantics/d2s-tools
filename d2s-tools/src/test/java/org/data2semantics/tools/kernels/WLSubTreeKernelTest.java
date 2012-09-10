@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.data2semantics.tools.experiments.DataSetFactory;
-import org.data2semantics.tools.experiments.GraphClassificationDataSet;
+import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
@@ -38,7 +38,7 @@ public class WLSubTreeKernelTest {
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 				
-		GraphClassificationDataSet dataSet = DataSetFactory.createClassificationDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false); 
+		PropertyPredictionDataSet dataSet = DataSetFactory.createPropertyPredictionDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false); 
 		
 		System.out.println(dataSet.getLabel());
 	

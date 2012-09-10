@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.data2semantics.tools.experiments.DataSetFactory;
-import org.data2semantics.tools.experiments.DataSetParameters;
-import org.data2semantics.tools.experiments.GraphClassificationDataSet;
+import org.data2semantics.tools.experiments.PropertyPredictionDataSetParameters;
+import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
@@ -113,7 +113,7 @@ public class IntersectionSubTreeKernelTest {
 		
 		
 		
-		List<DataSetParameters> dataSetsParams = new ArrayList<DataSetParameters>();
+		List<PropertyPredictionDataSetParameters> dataSetsParams = new ArrayList<PropertyPredictionDataSetParameters>();
 		
 		RDFDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\datasets\\aifb\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 		RDFDataSet testSetB = new RDFFileDataSet("D:\\workspaces\\datasets\\aifb\\aifb-fixed_no_schema.n3", RDFFormat.N3);
@@ -122,13 +122,13 @@ public class IntersectionSubTreeKernelTest {
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 		
-		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
-		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
+		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
+		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 		
-		GraphClassificationDataSet dataset;
+		PropertyPredictionDataSet dataset;
 		
 		
-		dataset = DataSetFactory.createClassificationDataSet(dataSetsParams.get(0));
+		dataset = DataSetFactory.createPropertyPredictionDataSet(dataSetsParams.get(0));
 		
 		IntersectionSubTreeKernel kernel = new IntersectionSubTreeKernel(1, 1);
 		
