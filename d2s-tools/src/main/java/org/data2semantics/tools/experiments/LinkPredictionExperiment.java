@@ -71,10 +71,11 @@ public class LinkPredictionExperiment implements Runnable {
 		double acc = 0, f = 0;
 		double p5 = 0, p10 = 0, p20 = 0;
 		double map = 0, rPrec = 0;
+		double ndcg = 0;
 		List<String> labels;
 		
 		for (int i = 0; i < seeds.length; i++) {
-			createRandomSubSet(200, 200, seeds[i]);
+			createRandomSubSet(100, 100, seeds[i], true);
 			
 			double[][] matrixA = kernelA.compute(trainGraphsA);
 			double[][] matrixB = kernelB.compute(trainGraphsB);
@@ -96,14 +97,21 @@ public class LinkPredictionExperiment implements Runnable {
 			}
 			
 			Map<String, Integer> labelMap = new TreeMap<String, Integer>();
-			labelMap.put("true", 1);
-			labelMap.put("false", -1);
+			labelMap.put("true", -1);
+			labelMap.put("false", 1);
 			
+			LibSVMParameters param = new LibSVMParameters(cs, false);
+			//param.setVerbose(true);
+			int[] weightLabels = {-1, 1};
+			double[] weights = {1,1};
+			param.setWeightLabels(weightLabels);
+			param.setWeights(weights);
 				
-			LibSVMModel model = LibSVM.trainSVMModel(matrix, LibSVM.createTargets(labels, labelMap), new LibSVMParameters(cs));
+			LibSVMModel model = LibSVM.trainSVMModel(matrix, LibSVM.createTargets(labels, labelMap), param);
 			
 			double[][] testMatrix = combineTestKernels(testMatrixA, testMatrixB);
-						
+			//double[][] testMatrix = matrix;	
+			
 			labels = new ArrayList<String>();
 			for (Pair<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> pair : testSet) {
 				if (dataSet.getLabels().get(pair)) {
@@ -113,17 +121,29 @@ public class LinkPredictionExperiment implements Runnable {
 				}
 			}
 			
+					
 			LibSVMPrediction[] pred = LibSVM.testSVMModel(model, testMatrix);	
 						
 			double[] target = LibSVM.createTargets(labels, labelMap);
 			
+			/*
+			int[] ranking = LibSVM.computeRanking(pred);
+			for (int j = 0; j < 20; j++) {
+				System.out.print(ranking[j] + "->" + target[ranking[j]] + ", ");
+			}
+			System.out.println("");
+			System.out.println(LibSVM.computeClassCounts(target));
+			System.out.println(Arrays.toString(pred));
+			*/
+			
 			acc  += LibSVM.computeAccuracy(target, LibSVM.extractLabels(pred));
 			f    += LibSVM.computeF1(target, LibSVM.extractLabels(pred));
-			p5   += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 5, 1);
-			p10  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 10, 1);
-			p20  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 20, 1);	
-			map  += LibSVM.computeAveragePrecision(target, LibSVM.computeRanking(pred), 1);
-			rPrec += LibSVM.computeRPrecision(target, LibSVM.computeRanking(pred), 1);		
+			p5   += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 5, -1);
+			p10  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 10, -1);
+			p20  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 20, -1);	
+			map  += LibSVM.computeAveragePrecision(target, LibSVM.computeRanking(pred), -1);
+			rPrec += LibSVM.computeRPrecision(target, LibSVM.computeRanking(pred), -1);
+			ndcg += LibSVM.computeNDCG(target, LibSVM.computeRanking(pred), target.length, -1);
 		}
 		
 		acc = acc / seeds.length;
@@ -133,6 +153,7 @@ public class LinkPredictionExperiment implements Runnable {
 		p20 = p20 / seeds.length;
 		map = map / seeds.length;
 		rPrec = rPrec / seeds.length;
+		ndcg = ndcg / seeds.length;
 		
 		
 		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernelA.getLabel() + ", " + kernelB.getLabel());
@@ -150,6 +171,7 @@ public class LinkPredictionExperiment implements Runnable {
 		output.print(", Average P20: " + p20);
 		output.print(", Average AP: " + map);
 		output.print(", Average R-prec: " + rPrec);
+		output.print(", Average NDCG: " + ndcg);
 		output.println("");
 		output.flush();
 	}
@@ -186,7 +208,7 @@ public class LinkPredictionExperiment implements Runnable {
 		return matrix;
 	}
 	
-	private void createRandomSubSet(int trainSetSize, int testSetSize, long seed) {
+	private void createRandomSubSet(int trainSetSize, int testSetSize, long seed, boolean equalSize) {
 		List<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>> allPairs = new ArrayList<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>>(dataSet.getLabels().keySet());
 		trainGraphsA = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>();
 		trainGraphsB = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>();
@@ -208,6 +230,16 @@ public class LinkPredictionExperiment implements Runnable {
 			}
 		}
 		
+		long trainPosSize, trainNegSize;
+		if (!equalSize) {
+			trainPosSize = Math.round(((double) totalPos / (double) allPairs.size()) * ((double) trainSetSize));
+			trainNegSize = Math.round(((double) (allPairs.size() - totalPos) / (double) allPairs.size()) * ((double) trainSetSize));	
+		} else {
+			trainPosSize = trainSetSize / 2;
+			trainNegSize = trainSetSize / 2;
+		}
+		
+		
 		long testPosSize = Math.round(((double) totalPos / (double) allPairs.size()) * ((double) testSetSize));
 		long testNegSize = Math.round(((double) (allPairs.size() - totalPos) / (double) allPairs.size()) * ((double) testSetSize));	
 		
@@ -215,7 +247,7 @@ public class LinkPredictionExperiment implements Runnable {
 			classLabel = dataSet.getLabels().get(pair);
 			
 			if (classLabel) {
-				if (posClass < trainSetSize / 2) {
+				if (posClass < trainPosSize) {
 					trainSet.add(pair);
 					posClass++;				
 					if (!trainGraphsA.contains(pair.getFirst())) {
@@ -235,7 +267,7 @@ public class LinkPredictionExperiment implements Runnable {
 					}
 				} 
 			} else {
-				if (negClass < trainSetSize / 2) {
+				if (negClass < trainNegSize) {
 					trainSet.add(pair);
 					negClass++;	
 					if (!trainGraphsA.contains(pair.getFirst())) {
@@ -255,7 +287,7 @@ public class LinkPredictionExperiment implements Runnable {
 					}
 				}
 				
-				if (posClass == trainSetSize / 2 && negClass == trainSetSize / 2 && testPosClass == testPosSize && testNegClass == testNegSize) {
+				if (posClass == trainPosSize && negClass == trainNegSize && testPosClass == testPosSize && testNegClass == testNegSize) {
 					break;
 				}
 				

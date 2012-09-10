@@ -6,21 +6,31 @@ public class LibSVMParameters {
 	private double[] nus;
 	private boolean verbose;
 		
-	public LibSVMParameters(double[] optValues) {
-		this();
+	public LibSVMParameters(double[] optValues, boolean oneClass) {
+		this(oneClass);
 		this.cs = optValues;
 		this.nus = optValues;
 	}	
 	
-	public LibSVMParameters() {
+	public LibSVMParameters(double[] optValues) {
+		this(optValues, false);
+	}	
+	
+	public LibSVMParameters(boolean oneClass) {
 		params = new svm_parameter();
 		params.kernel_type = params.PRECOMPUTED;
-		params.svm_type = params.C_SVC;
 		params.nr_weight = 0;
 		params.eps = 0.0001;
-		params.shrinking = 1;
+		params.shrinking = 0;
 		params.probability = 0;
+		params.cache_size = 300;
 		verbose = false;
+		
+		if (oneClass) {
+			params.svm_type = params.ONE_CLASS;
+		} else {
+			params.svm_type = params.C_SVC;
+		}
 	}
 	
 	svm_parameter getParams() {
@@ -42,5 +52,23 @@ public class LibSVMParameters {
 	public boolean isVerbose() {
 		return verbose;
 	}
+
+	public void setOneClass(boolean oneClass) {
+		
+		if (oneClass) {
+			params.svm_type = params.ONE_CLASS;
+		} else {
+			params.svm_type = params.C_SVC;
+		}
+	}	
 	
+	public void setWeightLabels(int[] labels) {
+		params.weight_label = labels;
+		params.nr_weight = labels.length;
+	}
+	
+	public void setWeights(double[] weight) {
+		params.weight = weight;
+		params.nr_weight = weight.length;
+	}
 }

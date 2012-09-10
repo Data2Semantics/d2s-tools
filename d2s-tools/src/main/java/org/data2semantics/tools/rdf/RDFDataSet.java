@@ -136,22 +136,22 @@ public class RDFDataSet
 	}
 
 	public List<Statement> getSubGraph(String startNode, int depth, boolean includeInverse) {
-		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse, false);
+		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse, false, null);
 	}
 
-	public List<Statement> getSubGraph(String startNode, int depth, boolean includeInverse, boolean allowInference) {
-		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse, allowInference);
+	public List<Statement> getSubGraph(String startNode, int depth, boolean includeInverse, boolean allowInference, List<Statement> bl) {
+		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse, allowInference, bl);
 	}
 
 	public List<Statement> getSubGraph(URI startNode, int depth, boolean includeInverse) {
-		return getSubGraph(startNode, depth, includeInverse, false);	
+		return getSubGraph(startNode, depth, includeInverse, false, null);	
 	}
 
-	public List<Statement> getSubGraph(URI startNode, int depth, boolean includeInverse, boolean allowInference) {
+	public List<Statement> getSubGraph(URI startNode, int depth, boolean includeInverse, boolean allowInference, List<Statement> bl) {
 		Set<Statement> graph = new HashSet<Statement>();
 		List<Statement> result;
 		List<Resource> queryNodes = new ArrayList<Resource>();
-		List<Resource> newQueryNodes;
+		List<Resource> newQueryNodes;	
 
 		queryNodes.add(startNode);
 
@@ -160,11 +160,17 @@ public class RDFDataSet
 
 			for (Resource queryNode : queryNodes) {
 				result = getStatements(queryNode, null, null, allowInference);
+				if (bl != null) {					
+					result.removeAll(bl);
+				}
 				graph.addAll(result);
 				newQueryNodes.addAll(getEndNodes(result, false));
 
 				if (includeInverse) {
 					result = getStatements(null, null, queryNode, allowInference);
+					if (bl != null) {
+						result.removeAll(bl);
+					}
 					graph.addAll(result);
 					newQueryNodes.addAll(getEndNodes(result, true));
 				}
@@ -195,6 +201,14 @@ public class RDFDataSet
 
 	public String getLabel() {
 		return this.label;
+	}
+	
+	public Statement createStatement(URI subject, URI predicate, URI object) {
+		return rdfRep.getValueFactory().createStatement(subject, predicate, object, null);
+	}
+	
+	public URI createURI(String uri) {
+		return rdfRep.getValueFactory().createURI(uri);
 	}
 	
 }

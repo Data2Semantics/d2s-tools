@@ -38,7 +38,7 @@ public class WLSubTreeKernelTest {
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 				
-		GraphClassificationDataSet dataSet = DataSetFactory.createClassificationDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false); 
+		GraphClassificationDataSet dataSet = DataSetFactory.createClassificationDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false); 
 		
 		System.out.println(dataSet.getLabel());
 	

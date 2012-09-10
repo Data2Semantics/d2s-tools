@@ -14,6 +14,8 @@ import org.data2semantics.tools.graphs.Vertex;
 import edu.uci.ics.jung.graph.DirectedGraph;
 
 public class GraphClassificationDataSet {
+	private static final String BLANK_VERTEX_LABEL = "blank_vertex_1337";
+	private static final String BLANK_EDGE_LABEL   = "blank_edge_1337";
 	private String label;
 	private List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs;
 	private List<String> labels;
@@ -70,6 +72,17 @@ public class GraphClassificationDataSet {
 		
 		graphs = newGraphs;
 		labels = newLabels;
+	}
+	
+	public void removeVertexAndEdgeLabels() {
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : graphs) {
+			for (Vertex<String> vertex : graph.getVertices()) {
+				vertex.setLabel(BLANK_VERTEX_LABEL);
+			}
+			for (Edge<String> edge : graph.getEdges()) {
+				edge.setLabel(BLANK_EDGE_LABEL);
+			}
+		}
 	}
 	
 	

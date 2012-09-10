@@ -122,8 +122,8 @@ public class IntersectionSubTreeKernelTest {
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 		
-		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
-		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
+		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
+		dataSetsParams.add(new DataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 		
 		GraphClassificationDataSet dataset;
 		

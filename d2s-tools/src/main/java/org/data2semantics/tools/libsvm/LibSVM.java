@@ -42,11 +42,26 @@ public class LibSVM {
 		
 		double[] prediction = new double[target.length];
 		svm_parameter svmParams = params.getParams();
+		svm_problem svmProb = createSVMProblem(kernel, target);
+		
+		//System.out.println("Parameter check: " + svm.svm_check_parameter(svmProb, svmParams));
 		
 		double score, bestScore = 0, bestC = 1;
-		for (double c : params.getCs()) {
-			svmParams.C = c;
-			svm.svm_cross_validation(createSVMProblem(kernel, target), svmParams, 10, prediction);
+		double[] itParams;
+		
+		if (svmParams.svm_type == svmParams.C_SVC) {
+			itParams = params.getCs();
+		} else {
+			itParams = params.getNus();
+		}
+		
+		for (double c : itParams) {
+			if (svmParams.svm_type == svmParams.C_SVC) {
+				svmParams.C = c;
+			} else {
+				svmParams.nu = c;
+			}
+			svm.svm_cross_validation(svmProb, svmParams, 10, prediction);
 			score = computeAccuracy(target, prediction);
 			
 			if (score > bestScore) {
@@ -55,7 +70,7 @@ public class LibSVM {
 			}
 		}
 		svmParams.C = bestC;			
-		return new LibSVMModel(svm.svm_train(createSVMProblem(kernel, target), svmParams));
+		return new LibSVMModel(svm.svm_train(svmProb, svmParams));
 	}
 	
 	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, double[][] kernel) {
@@ -256,12 +271,14 @@ public class LibSVM {
 		return predLabels;
 	}
 	
+	// The outlying, highest ranking class is -1
 	public static int[] computeRanking(LibSVMPrediction[] pred) {
 		Arrays.sort(pred);
 		int[] ranking = new int[pred.length];
 		
 		for (int i = 0; i < ranking.length; i++) {
-			ranking[i] = pred[(ranking.length - i) - 1].getIndex();
+			//ranking[i] = pred[(ranking.length - i) - 1].getIndex();
+			ranking[i] = pred[i].getIndex();
 		}
 				
 		return ranking;
@@ -301,6 +318,28 @@ public class LibSVM {
 		
 		map /= posClass;
 		return map;
+	}
+	
+	public static double computeNDCG(double[] target, int[] ranking, int p, double label) {
+		double dcg = 0, idcg = 0;
+		int count = 0;
+		for (double t : target) {
+			if (t == label) {
+				count++;
+			}
+		}
+		
+		for (int i = 0; i < p && i < count; i++) {
+			idcg += 1 / (Math.log(i+2) / Math.log(2));
+		}
+		
+		for (int i = 0; i < p; i++) {
+			if (label == target[ranking[i]]) {
+				dcg += 1 / (Math.log(i+2) / Math.log(2));
+			}
+		}
+		
+		return dcg / idcg;		
 	}
 	
 	

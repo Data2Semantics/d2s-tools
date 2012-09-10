@@ -7,6 +7,7 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 public class DataSetParameters {
 	private RDFDataSet rdfDataSet;
 	private String property;
+	private String invProperty;
 	private List<String> blackList;
 	private int depth;
 	private boolean includeInverse;
@@ -15,12 +16,12 @@ public class DataSetParameters {
 	private String classB;
 	
 	public DataSetParameters(RDFDataSet rdfDataSet, String property,
-			List<String> blackList, int depth, boolean includeInverse,
+			String invProperty, int depth, boolean includeInverse,
 			boolean includeInference) {
 		super();
 		this.rdfDataSet = rdfDataSet;
 		this.property = property;
-		this.blackList = blackList;
+		this.invProperty = invProperty;
 		this.depth = depth;
 		this.includeInverse = includeInverse;
 		this.includeInference = includeInference;
@@ -104,6 +105,15 @@ public class DataSetParameters {
 	public void setClassB(String classB) {
 		this.classB = classB;
 	}
+
+	public String getInvProperty() {
+		return invProperty;
+	}
+
+	public void setInvProperty(String invProperty) {
+		this.invProperty = invProperty;
+	}
+	
 	
 	
 }

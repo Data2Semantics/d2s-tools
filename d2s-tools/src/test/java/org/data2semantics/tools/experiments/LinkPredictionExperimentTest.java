@@ -21,6 +21,8 @@ public class LinkPredictionExperimentTest {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		//long[] seeds = {11};
 		double[] cs = {0.01, 0.1, 1, 10, 100};	
+		//double[] cs = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};	
+		//double[] cs = {0.1};
 		//double[] cs = {1};	
 		
 		List<String> bl = new ArrayList<String>();

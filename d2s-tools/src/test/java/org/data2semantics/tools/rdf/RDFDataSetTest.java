@@ -13,11 +13,15 @@ import org.openrdf.rio.RDFFormat;
 
 public class RDFDataSetTest {
 
-	@Ignore
+	@Test
 	public void testRDFDataSet() {
-		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
+		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\datasets\\eswc-2012-complete.rdf", RDFFormat.RDFXML);
 
-		List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
+		
+		
+		//List<Statement> triples = testSet.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", true);
+		List<Statement> triples = testSet.getStatementsFromStrings("http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://data.semanticweb.org/ns/swc/ontology#heldBy", null, false);
+		//List<Statement> triples = testSet.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
 		
 		System.out.println("----- Triple test ----- #: " + triples.size());
 		
@@ -26,7 +30,7 @@ public class RDFDataSetTest {
 		}	
 	}
 	
-	@Test
+	@Ignore
 	public void testGetSubGraph() {
 		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
 

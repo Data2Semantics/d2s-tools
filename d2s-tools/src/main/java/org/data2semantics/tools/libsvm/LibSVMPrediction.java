@@ -31,7 +31,7 @@ public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
 	}
 	
 	public String toString() {
-		return "Test index: " + index + ", " + label + ", " + decisionValue;
+		return "Test index: " + index + ", " + label + ", " + decisionValue[0];
 	}
 	
 	public int getIndex() {
