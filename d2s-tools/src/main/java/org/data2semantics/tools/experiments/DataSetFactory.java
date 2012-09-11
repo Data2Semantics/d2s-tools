@@ -73,7 +73,17 @@ public class DataSetFactory {
 				}
 			}
 		}
-		return new PropertyPredictionDataSet(label.toString(), graphs, labels);
+		
+		PropertyPredictionDataSet dataSet = new PropertyPredictionDataSet(label.toString(), graphs, labels);
+		
+		label.append(", average vertex count: ");
+		label.append(dataSet.averageVertexCount());
+		label.append(", average edge count: ");
+		label.append(dataSet.averageEdgeCount());
+		
+		dataSet.setLabel(label.toString());
+				
+		return dataSet;
 	}
 
 	
@@ -132,7 +142,16 @@ public class DataSetFactory {
 			}
 		}
 
-		return new PropertyPredictionDataSet(label.toString(), graphs, labels);
+		PropertyPredictionDataSet dataSet = new PropertyPredictionDataSet(label.toString(), graphs, labels);
+		
+		label.append(", average vertex count: ");
+		label.append(dataSet.averageVertexCount());
+		label.append(", average edge count: ");
+		label.append(dataSet.averageEdgeCount());
+		
+		dataSet.setLabel(label.toString());
+		
+		return dataSet;
 	}
 
 	

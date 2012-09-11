@@ -68,7 +68,7 @@ public class CommitteeMemberPredictionExperiment {
 			for (BinaryPropertyPredictionDataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createPropertyPredictionDataSet(params);
 				dataset.removeSmallClasses(5);
-				dataset.removeVertexAndEdgeLabels();
+				//dataset.removeVertexAndEdgeLabels();
 				
 				
 				for (int i = 0; i < 3; i++) {

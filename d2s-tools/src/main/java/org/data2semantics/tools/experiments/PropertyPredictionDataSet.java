@@ -40,6 +40,9 @@ public class PropertyPredictionDataSet {
 		return label;
 	}
 
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
 	public List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> getGraphs() {
 		return graphs;
@@ -99,4 +102,23 @@ public class PropertyPredictionDataSet {
 		}
 		return counts;
 	}
+	
+	public int averageVertexCount() {
+		long total = 0;
+		
+		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
+			total += graph.getVertexCount();
+		}
+		return (int) (total / graphs.size());
+	}
+	
+	public int averageEdgeCount() {
+		long total = 0;
+		
+		for (DirectedGraph<Vertex<String>, Edge<String>> graph : graphs) {
+			total += graph.getEdgeCount();
+		}
+		return (int) (total / graphs.size());
+	}
+	
 }
