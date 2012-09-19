@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Vertex;
@@ -13,7 +14,9 @@ import org.data2semantics.tools.graphs.Vertex;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
-public abstract class GraphKernel<G extends DirectedGraph<Vertex<String>, Edge<String>>> {
+public abstract class GraphKernel<G extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> {
+	protected static final String ROOTID = "ROOT1337";
+	
 	//protected double[][] kernel;
 	//protected List<DirectedGraph<Vertex<String>, Edge<String>>> graphs;
 	protected String label;

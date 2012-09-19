@@ -83,8 +83,9 @@ public class IntersectionGraphKernelTest {
 
 		IntersectionGraphKernel kernel = new IntersectionGraphPathKernel(2, 1);
 		
-		double[][] matrix = kernel.compute(graphs);
+		//double[][] matrix = kernel.compute(graphs);
 		
+		/*
 		System.out.println(Arrays.toString(matrix[0]));
 		System.out.println(Arrays.toString(matrix[1]));
 		
@@ -93,6 +94,7 @@ public class IntersectionGraphKernelTest {
 		System.out.println(graphB);
 		System.out.println(iTree);
 		System.out.println(kernel.subGraphCount(iTree, 2, 1));
+		*/
 		
 	}
 

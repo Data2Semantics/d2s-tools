@@ -2,10 +2,10 @@ package org.data2semantics.tools.experiments;
 
 public class ExperimentResults {
 	private String label;
-	private double accuracy;
-	private double f1;
-	private double averagePrecision;
-	private double rPrecision;
+	private Result accuracy;
+	private Result f1;
+	private Result averagePrecision;
+	private Result rPrecision;
 	
 	public ExperimentResults() {
 		super();
@@ -15,40 +15,43 @@ public class ExperimentResults {
 		return label;
 	}
 
-	public double getAccuracy() {
-		return accuracy;
-	}
-
-	public double getF1() {
-		return f1;
-	}
 
 	public void setLabel(String label) {
 		this.label = label;
 	}
 
-	public void setAccuracy(double accuracy) {
+	public Result getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(Result accuracy) {
 		this.accuracy = accuracy;
 	}
 
-	public void setF1(double f1) {
+	public Result getF1() {
+		return f1;
+	}
+
+	public void setF1(Result f1) {
 		this.f1 = f1;
 	}
 
-	public double getAveragePrecision() {
+	public Result getAveragePrecision() {
 		return averagePrecision;
 	}
 
-	public void setAveragePrecision(double averagePrecision) {
+	public void setAveragePrecision(Result averagePrecision) {
 		this.averagePrecision = averagePrecision;
 	}
 
-	public double getrPrecision() {
+	public Result getrPrecision() {
 		return rPrecision;
 	}
 
-	public void setrPrecision(double rPrecision) {
+	public void setrPrecision(Result rPrecision) {
 		this.rPrecision = rPrecision;
-	}	
+	}
+
+	
 	
 }

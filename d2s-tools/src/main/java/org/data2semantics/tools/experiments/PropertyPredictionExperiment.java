@@ -18,8 +18,6 @@ public class PropertyPredictionExperiment implements Runnable {
 	private GraphKernel kernel;
 	private long[] seeds;
 	private double[] cs;
-	private double accuracy;
-	private double f1;
 	private PrintWriter output;
 	private ExperimentResults results;
 	
@@ -35,11 +33,15 @@ public class PropertyPredictionExperiment implements Runnable {
 		this.cs = cs;
 		output = new PrintWriter(outputStream);
 		results = new ExperimentResults();
+		results.setAccuracy(new Result());
+		results.setF1(new Result());
 	}
 
 
 	public void run() {			
-		double acc = 0, meanAcc = 0, f = 0;
+		
+		double[] accScores = new double[seeds.length];
+		double[] fScores = new double[seeds.length];		
 		
 		double[][] matrix = kernel.compute(dataSet.getGraphs());
 		
@@ -51,33 +53,30 @@ public class PropertyPredictionExperiment implements Runnable {
 			double[] target = LibSVM.createTargets(dataSet.getLabels());	
 			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
 			
-			acc += LibSVM.computeAccuracy(target, prediction);
-			f +=  LibSVM.computeF1(target, prediction);
+			accScores[i] = LibSVM.computeAccuracy(target, prediction);
+			fScores[i]   =  LibSVM.computeF1(target, prediction);		
 		}
 		
-		accuracy = acc / seeds.length;
-		f1 = f / seeds.length;
+		Result accRes = results.getAccuracy();
+		Result fRes   = results.getF1();
+		accRes.setLabel("acc");
+		fRes.setLabel("f1");
+		accRes.setScores(accScores);
+		fRes.setScores(fScores);
 		
 		output.println(dataSet.getLabel());
 		output.println(kernel.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));
-		output.print("Overall Accuracy: " + accuracy);
-		output.print(", Average F1: " + f1);
+		output.print("Overall Accuracy: " + accRes.getScore());
+		output.print(", Average F1: " + fRes.getScore());
 		output.println("");
 		output.flush();
 		
 		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernel.getLabel() );
-		results.setAccuracy(accuracy);
-		results.setF1(f1);
+		results.setAccuracy(accRes);
+		results.setF1(fRes);
 
 	}
 
-	public double getAccuracy() {
-		return accuracy;
-	}
-
-	public double getF1() {
-		return f1;
-	}
 
 	public ExperimentResults getResults() {
 		return results;

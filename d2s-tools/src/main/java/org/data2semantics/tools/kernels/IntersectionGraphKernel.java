@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 
@@ -18,7 +19,7 @@ import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class IntersectionGraphKernel extends GraphKernel<DirectedGraph<Vertex<String>, Edge<String>>> {
+public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> {
 	private int maxLength;
 	private double discountFactor;
 	
@@ -35,7 +36,7 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedGraph<Vertex<St
 
 	@Override
 	public double[][] compute(
-			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs) {
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
 		double[][] kernel = initMatrix(trainGraphs.size(), trainGraphs.size());
 		DirectedGraph<Vertex<String>, Edge<String>> graph;
 		
@@ -56,8 +57,8 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedGraph<Vertex<St
 
 	@Override
 	public double[][] compute(
-			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs,
-			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs) {
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
 		
 		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
 		DirectedGraph<Vertex<String>, Edge<String>> graph;

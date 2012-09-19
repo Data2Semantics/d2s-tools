@@ -12,6 +12,7 @@ import org.data2semantics.tools.experiments.ExperimentResults;
 import org.data2semantics.tools.experiments.Experimenter;
 import org.data2semantics.tools.experiments.LinkPredictionDataSet;
 import org.data2semantics.tools.experiments.LinkPredictionExperiment;
+import org.data2semantics.tools.experiments.ResultsTable;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
 import org.data2semantics.tools.kernels.IntersectionPartialSubTreeKernel;
@@ -50,6 +51,7 @@ public class AffiliationLinkPredictionExperiment {
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, true));
 
+		/*
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
@@ -59,15 +61,16 @@ public class AffiliationLinkPredictionExperiment {
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, true));
+		*/
 		
 		LinkPredictionDataSet dataset;
 		LinkPredictionExperiment exp;
 
-		List<ExperimentResults> resultsWL = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsSTF = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsSTP = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsIGW = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsIGP = new ArrayList<ExperimentResults>();
+		ResultsTable resultsWL  = new ResultsTable();
+		ResultsTable resultsSTF = new ResultsTable();
+		ResultsTable resultsSTP = new ResultsTable();
+		ResultsTable resultsIGW = new ResultsTable();
+		ResultsTable resultsIGP = new ResultsTable();
 		
 		Experimenter experimenter = new Experimenter(NUMBER_OF_PROC);
 		Thread expT = new Thread(experimenter);
@@ -87,7 +90,8 @@ public class AffiliationLinkPredictionExperiment {
 						File file = new File(DATA_DIR + "_" + "WL" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new WLSubTreeKernel(i), new WLSubTreeKernel(i), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsWL.add(exp.getResults());
+						resultsWL.addResult(exp.getResults().getAccuracy());
+						resultsWL.addResult(exp.getResults().getF1());
 					}
 				}
 				
@@ -99,7 +103,8 @@ public class AffiliationLinkPredictionExperiment {
 						File file = new File(DATA_DIR + "_" + "IntersectionFullSubTree" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionSubTreeKernel(i,1), new IntersectionSubTreeKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsSTF.add(exp.getResults());
+						resultsSTF.addResult(exp.getResults().getAccuracy());
+						resultsSTF.addResult(exp.getResults().getF1());
 					}
 				}
 				
@@ -110,7 +115,8 @@ public class AffiliationLinkPredictionExperiment {
 						File file = new File(DATA_DIR + "_" + "IntersectionPartialSubTree" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionPartialSubTreeKernel(i,0.01), new IntersectionPartialSubTreeKernel(i,0.01), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
-						resultsSTP.add(exp.getResults());
+						resultsSTP.addResult(exp.getResults().getAccuracy());
+						resultsSTP.addResult(exp.getResults().getF1());
 					}
 				}
 				
@@ -120,7 +126,8 @@ public class AffiliationLinkPredictionExperiment {
 						File file = new File(DATA_DIR + "_" + "IntersectionGraphWalk" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionGraphWalkKernel(i,1), new IntersectionGraphWalkKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
-						resultsIGW.add(exp.getResults());
+						resultsIGW.addResult(exp.getResults().getAccuracy());
+						resultsIGW.addResult(exp.getResults().getF1());
 					}
 				}				
 				
@@ -130,7 +137,8 @@ public class AffiliationLinkPredictionExperiment {
 						File file = new File(DATA_DIR + "_" + "IntersectionGraphPath" + fileId + "_" + i + ".txt");
 						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionGraphPathKernel(i,1), new IntersectionGraphPathKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
-						resultsIGP.add(exp.getResults());
+						resultsIGP.addResult(exp.getResults().getAccuracy());
+						resultsIGP.addResult(exp.getResults().getF1());
 					}
 				}
 				
@@ -150,25 +158,11 @@ public class AffiliationLinkPredictionExperiment {
 			}
 		}
 
-		for (ExperimentResults res : resultsWL) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1() + " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
-		}
-		
-		for (ExperimentResults res : resultsSTF) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
-		}
-
-		for (ExperimentResults res : resultsSTP) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
-		}
-
-		for (ExperimentResults res : resultsIGW) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
-		}
-
-		for (ExperimentResults res : resultsIGP) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1()+ " AP=" + res.getAveragePrecision() + " R-Prec=" + res.getrPrecision());
-		}
+		System.out.println(resultsWL);
+		System.out.println(resultsSTF);
+		System.out.println(resultsSTP);
+		System.out.println(resultsIGW);
+		System.out.println(resultsIGP);
 	}
 
 }

@@ -59,6 +59,10 @@ public class LinkPredictionExperiment implements Runnable {
 		this.cs = cs;
 		output = new PrintWriter(outputStream);
 		results = new ExperimentResults();
+		results.setAccuracy(new Result());
+		results.setF1(new Result());
+		results.setAveragePrecision(new Result());
+		results.setrPrecision(new Result());
 	}
 
 	
@@ -72,6 +76,12 @@ public class LinkPredictionExperiment implements Runnable {
 		double p5 = 0, p10 = 0, p20 = 0;
 		double map = 0, rPrec = 0;
 		double ndcg = 0;
+		
+		double[] accScores = new double[seeds.length];
+		double[] fScores = new double[seeds.length];
+		double[] mapScores = new double[seeds.length];
+		double[] rPrecScores = new double[seeds.length];
+		
 		List<String> labels;
 		
 		for (int i = 0; i < seeds.length; i++) {
@@ -136,13 +146,13 @@ public class LinkPredictionExperiment implements Runnable {
 			System.out.println(Arrays.toString(pred));
 			*/
 			
-			acc  += LibSVM.computeAccuracy(target, LibSVM.extractLabels(pred));
-			f    += LibSVM.computeF1(target, LibSVM.extractLabels(pred));
+			accScores[i] = LibSVM.computeAccuracy(target, LibSVM.extractLabels(pred));
+			fScores[i]   = LibSVM.computeF1(target, LibSVM.extractLabels(pred));
 			p5   += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 5, -1);
 			p10  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 10, -1);
 			p20  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 20, -1);	
-			map  += LibSVM.computeAveragePrecision(target, LibSVM.computeRanking(pred), -1);
-			rPrec += LibSVM.computeRPrecision(target, LibSVM.computeRanking(pred), -1);
+			mapScores[i] = LibSVM.computeAveragePrecision(target, LibSVM.computeRanking(pred), -1);
+			rPrecScores[i] = LibSVM.computeRPrecision(target, LibSVM.computeRanking(pred), -1);
 			ndcg += LibSVM.computeNDCG(target, LibSVM.computeRanking(pred), target.length, -1);
 		}
 		
@@ -157,10 +167,14 @@ public class LinkPredictionExperiment implements Runnable {
 		
 		
 		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernelA.getLabel() + ", " + kernelB.getLabel());
-		results.setAccuracy(acc);
-		results.setF1(f);
-		results.setAveragePrecision(map);
-		results.setrPrecision(rPrec);
+		results.getAccuracy().setLabel("acc");
+		results.getAccuracy().setScores(accScores);
+		results.getF1().setLabel("f1");
+		results.getF1().setScores(fScores);
+		results.getAveragePrecision().setLabel("map");
+		results.getAveragePrecision().setScores(mapScores);
+		results.getrPrecision().setLabel("R-prec");
+		results.getrPrecision().setScores(rPrecScores);
 
 		output.println(dataSet.getLabel());
 		output.println(kernelA.getLabel() + " " + weightA + " AND " + kernelB.getLabel() + " " + weightB + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));

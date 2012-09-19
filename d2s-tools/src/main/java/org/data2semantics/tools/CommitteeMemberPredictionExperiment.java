@@ -12,10 +12,12 @@ import org.data2semantics.tools.experiments.PropertyPredictionDataSetParameters;
 import org.data2semantics.tools.experiments.ExperimentResults;
 import org.data2semantics.tools.experiments.Experimenter;
 import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
+import org.data2semantics.tools.experiments.ResultsTable;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
 import org.data2semantics.tools.kernels.IntersectionPartialSubTreeKernel;
 import org.data2semantics.tools.kernels.IntersectionSubTreeKernel;
+import org.data2semantics.tools.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -36,26 +38,34 @@ public class CommitteeMemberPredictionExperiment {
 		///*
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 1, false, false));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 2, false, false));
+		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 3, false, false));
+		
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 1, false, true));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 2, false, true));
+		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 3, false, true));
+		
 		//*/
 
 		///*
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 1, true, false));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 2, true, false));
+		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 3, true, false));
+		
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 1, true, true));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 2, true, true));
+		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 3, true, true));
+		
 		//*/
 
 
 		PropertyPredictionDataSet dataset;
 		PropertyPredictionExperiment exp;
 
-		List<ExperimentResults> resultsWL = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsSTF = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsSTP = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsIGW = new ArrayList<ExperimentResults>();
-		List<ExperimentResults> resultsIGP = new ArrayList<ExperimentResults>();
+		ResultsTable resultsWL  = new ResultsTable();
+		ResultsTable resultsSTF = new ResultsTable();
+		ResultsTable resultsSTP = new ResultsTable();
+		ResultsTable resultsIGW = new ResultsTable();
+		ResultsTable resultsIGP = new ResultsTable();
 
 		Experimenter experimenter = new Experimenter(NUMBER_OF_PROC);
 		Thread expT = new Thread(experimenter);
@@ -70,18 +80,20 @@ public class CommitteeMemberPredictionExperiment {
 				dataset.removeSmallClasses(5);
 				//dataset.removeVertexAndEdgeLabels();
 				
-				
-				for (int i = 0; i < 3; i++) {
+				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new WLSubTreeKernel(i), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsWL.add(exp.getResults());
+						resultsWL.addResult(exp.getResults().getAccuracy());
+						resultsWL.addResult(exp.getResults().getF1());
 					}
 				}
 				
-				
+				/*
+				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTree");
 				for (int i = 0; i < 3; i++) {
 					
 					if (experimenter.hasSpace()) {		
@@ -89,40 +101,47 @@ public class CommitteeMemberPredictionExperiment {
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionFullSubTree" + "_" + i + ".txt");
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new IntersectionSubTreeKernel(i, 1), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsSTF.add(exp.getResults());
+						resultsSTF.addResult(exp.getResults().getAccuracy());
+						resultsSTF.addResult(exp.getResults().getF1());
 					}
 				}
 				
-				
+				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTree");
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new IntersectionPartialSubTreeKernel(i, 0.01), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsSTP.add(exp.getResults());
+						resultsSTP.addResult(exp.getResults().getAccuracy());
+						resultsSTP.addResult(exp.getResults().getF1());
 					}
 				}
 				
+				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPath");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new IntersectionGraphPathKernel(i, 1), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsIGP.add(exp.getResults());
+						resultsIGP.addResult(exp.getResults().getAccuracy());
+						resultsIGP.addResult(exp.getResults().getF1());
 					}
 				}				
 				
+				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalk");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new IntersectionGraphWalkKernel(i, 1), seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
-						resultsIGW.add(exp.getResults());
+						resultsIGW.addResult(exp.getResults().getAccuracy());
+						resultsIGW.addResult(exp.getResults().getF1());
 					}
 				}
+				*/
 				
 			
 			}
@@ -140,25 +159,11 @@ public class CommitteeMemberPredictionExperiment {
 			}
 		}
 
-		for (ExperimentResults res : resultsWL) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
-		}
-		
-		for (ExperimentResults res : resultsSTF) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
-		}
-
-		for (ExperimentResults res : resultsSTP) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
-		}
-
-		for (ExperimentResults res : resultsIGW) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
-		}
-
-		for (ExperimentResults res : resultsIGP) {
-			System.out.println(res.getLabel() + " acc=" + res.getAccuracy() + " f1=" + res.getF1());
-		}
+		System.out.println(resultsWL);
+		//System.out.println(resultsSTF);
+		//System.out.println(resultsSTP);
+		//System.out.println(resultsIGW);
+		//System.out.println(resultsIGP);
 
 
 

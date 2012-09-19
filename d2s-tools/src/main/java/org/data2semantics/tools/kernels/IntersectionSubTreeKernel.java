@@ -19,7 +19,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
 public class IntersectionSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> {
-	private static final String ROOTID = "ROOT1337";
+	//private static final String ROOTID = "ROOT1337";
 
 	private int depth;
 	private double discountFactor;

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Vertex;
@@ -16,17 +17,24 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 // TODO rewrite featureVectors using arrays, and do kernel computation add each step
 
-public class WLSubTreeKernel extends GraphKernel<DirectedGraph<Vertex<String>, Edge<String>>> {
+public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> {
 	//private double[][] featureVectors;	
 	//private Map<String, String> labelDict;
 	//private int startLabel, currentLabel;
 	private int iterations = 2;
+	private boolean skipFirst;
 	
+	
+	public WLSubTreeKernel(int iterations, boolean normalize, boolean skipFirst) {
+		this(iterations, normalize);
+		this.skipFirst = skipFirst;
+	}
 	
 	public WLSubTreeKernel(int iterations, boolean normalize) {
 		super(normalize);
 		this.iterations = iterations;
 		this.label = "WL SubTree Kernel, it=" + iterations;
+		skipFirst = false;
 		
 		//this(new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>(), iterations);
 	}	
@@ -70,7 +78,7 @@ public class WLSubTreeKernel extends GraphKernel<DirectedGraph<Vertex<String>, E
 
 		
 	@Override
-	public double[][] compute(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs) {
+	public double[][] compute(List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
 		
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = copyGraphs(trainGraphs);
 		double[][] featureVectors = new double[graphs.size()][];
@@ -80,9 +88,16 @@ public class WLSubTreeKernel extends GraphKernel<DirectedGraph<Vertex<String>, E
 		int startLabel = 0;
 		int currentLabel = 0;
 		
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : trainGraphs) {
+			graph.getRootVertex().setLabel(ROOTID);
+		}
+		
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
-		computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
-		computeKernelMatrix(graphs, featureVectors, kernel);
+		
+		if (!skipFirst) {
+			computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
+			computeKernelMatrix(graphs, featureVectors, kernel);
+		}
 		
 		for (int i = 0; i < this.iterations; i++) {
 			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
@@ -101,8 +116,8 @@ public class WLSubTreeKernel extends GraphKernel<DirectedGraph<Vertex<String>, E
 
 	@Override
 	public double[][] compute(
-			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs,
-			List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs) {
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
+			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
 		
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = copyGraphs(testGraphs);
 		graphs.addAll(copyGraphs(trainGraphs));
@@ -114,9 +129,19 @@ public class WLSubTreeKernel extends GraphKernel<DirectedGraph<Vertex<String>, E
 		int startLabel = 0;
 		int currentLabel = 0;
 		
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : trainGraphs) {
+			graph.getRootVertex().setLabel(ROOTID);
+		}
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : testGraphs) {
+			graph.getRootVertex().setLabel(ROOTID);
+		}
+		
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
-		computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
-		computeKernelMatrix(trainGraphs, testGraphs, featureVectors, kernel, ss);
+		
+		if (!skipFirst) {
+			computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
+			computeKernelMatrix(trainGraphs, testGraphs, featureVectors, kernel, ss);
+		}
 		
 		for (int i = 0; i < this.iterations; i++) {
 			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
