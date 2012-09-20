@@ -92,6 +92,8 @@ public class AffiliationLinkPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsWL.addResult(exp.getResults().getAccuracy());
 						resultsWL.addResult(exp.getResults().getF1());
+						resultsWL.addResult(exp.getResults().getrPrecision());
+						resultsWL.addResult(exp.getResults().getAveragePrecision());
 					}
 				}
 				
@@ -105,6 +107,8 @@ public class AffiliationLinkPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsSTF.addResult(exp.getResults().getAccuracy());
 						resultsSTF.addResult(exp.getResults().getF1());
+						resultsSTF.addResult(exp.getResults().getrPrecision());
+						resultsSTF.addResult(exp.getResults().getAveragePrecision());
 					}
 				}
 				
@@ -117,6 +121,8 @@ public class AffiliationLinkPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsSTP.addResult(exp.getResults().getAccuracy());
 						resultsSTP.addResult(exp.getResults().getF1());
+						resultsSTP.addResult(exp.getResults().getrPrecision());
+						resultsSTP.addResult(exp.getResults().getAveragePrecision());
 					}
 				}
 				
@@ -128,6 +134,8 @@ public class AffiliationLinkPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsIGW.addResult(exp.getResults().getAccuracy());
 						resultsIGW.addResult(exp.getResults().getF1());
+						resultsIGW.addResult(exp.getResults().getrPrecision());
+						resultsIGW.addResult(exp.getResults().getAveragePrecision());
 					}
 				}				
 				
@@ -139,6 +147,8 @@ public class AffiliationLinkPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsIGP.addResult(exp.getResults().getAccuracy());
 						resultsIGP.addResult(exp.getResults().getF1());
+						resultsIGP.addResult(exp.getResults().getrPrecision());
+						resultsIGP.addResult(exp.getResults().getAveragePrecision());
 					}
 				}
 				
