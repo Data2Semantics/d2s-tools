@@ -84,6 +84,7 @@ public class AffiliationLinkPredictionExperiment {
 				dataset = DataSetFactory.createLinkPredictonDataSet(params);
 				//dataset.removeSmallClasses(5);
 				
+				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -98,6 +99,7 @@ public class AffiliationLinkPredictionExperiment {
 				}
 				
 				
+				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTreeKernel");
 				for (int i = 0; i < 3; i++) {
 					
 					if (experimenter.hasSpace()) {		
@@ -112,7 +114,7 @@ public class AffiliationLinkPredictionExperiment {
 					}
 				}
 				
-				
+				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTreeKernel");
 				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -126,6 +128,7 @@ public class AffiliationLinkPredictionExperiment {
 					}
 				}
 				
+				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalkKernel");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -139,6 +142,7 @@ public class AffiliationLinkPredictionExperiment {
 					}
 				}				
 				
+				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPathKernel");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
