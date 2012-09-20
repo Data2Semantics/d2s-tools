@@ -173,7 +173,7 @@ public class LinkPredictionExperiment implements Runnable {
 		results.getF1().setScores(fScores);
 		results.getAveragePrecision().setLabel("map");
 		results.getAveragePrecision().setScores(mapScores);
-		results.getrPrecision().setLabel("R-prec");
+		results.getrPrecision().setLabel("Rpr");
 		results.getrPrecision().setScores(rPrecScores);
 
 		output.println(dataSet.getLabel());
