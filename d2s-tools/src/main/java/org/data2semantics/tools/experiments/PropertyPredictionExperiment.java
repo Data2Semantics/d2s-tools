@@ -42,19 +42,22 @@ public class PropertyPredictionExperiment implements Runnable {
 		
 		double[] accScores = new double[seeds.length];
 		double[] fScores = new double[seeds.length];		
-		
-		double[][] matrix = kernel.compute(dataSet.getGraphs());
-		
+				
 
 		for (int i = 0; i < seeds.length; i++) {
-			matrix = kernel.shuffle(matrix, seeds[i]);
-			dataSet.shuffle(seeds[i]);
-
-			double[] target = LibSVM.createTargets(dataSet.getLabels());	
+			PropertyPredictionDataSet subset = dataSet.getSubSet(50, seeds[i]);
+			
+			//matrix = kernel.shuffle(matrix, seeds[i]);
+			//dataSet.shuffle(seeds[i]);
+		
+			double[][] matrix = kernel.compute(subset.getGraphs());
+			
+			
+			double[] target = LibSVM.createTargets(subset.getLabels());	
 			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
 			
 			accScores[i] = LibSVM.computeAccuracy(target, prediction);
-			fScores[i]   =  LibSVM.computeF1(target, prediction);		
+			fScores[i]   = LibSVM.computeF1(target, prediction);		
 		}
 		
 		Result accRes = results.getAccuracy();

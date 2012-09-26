@@ -24,7 +24,14 @@ public class RDFFileDataSet extends RDFDataSet
 		super(createRepository(file, fileFormat), file.toString());	
 	}
 	
-
+	public void addFile(String filename, RDFFormat fileFormat) {
+		try {
+			this.rdfRep.getConnection().add(new File(filename), null, fileFormat);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	private static Repository createRepository(File file, RDFFormat fileFormat) {	
 		Repository rdfRep = null;

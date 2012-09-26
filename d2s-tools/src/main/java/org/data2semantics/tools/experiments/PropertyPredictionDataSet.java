@@ -2,6 +2,7 @@ package org.data2semantics.tools.experiments;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -53,7 +54,9 @@ public class PropertyPredictionDataSet {
 		return labels;
 	}
 	
-	
+	public void setLabels(List<String> labels) {
+		this.labels = labels;
+	}
 
 
 	public void shuffle(long seed) {
@@ -119,6 +122,28 @@ public class PropertyPredictionDataSet {
 			total += graph.getEdgeCount();
 		}
 		return (int) (total / graphs.size());
+	}
+	
+	
+	public PropertyPredictionDataSet getSubSet(int classSize, long seed) {
+		this.shuffle(seed);
+		Map<String, Integer> classCounts = new HashMap<String, Integer>();
+		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> newGraphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
+		List<String> newLabels = new ArrayList<String>();
+		
+		for (int i = 0; i < labels.size(); i++) {
+			if (!classCounts.containsKey(labels.get(i))) {
+				classCounts.put(labels.get(i), 0);
+			}
+			
+			if (classCounts.get(labels.get(i)) < classSize) {
+				newGraphs.add(graphs.get(i));
+				newLabels.add(labels.get(i));				
+				classCounts.put(labels.get(i), classCounts.get(labels.get(i)) + 1);
+			}
+			
+		}				
+		return new PropertyPredictionDataSet(this.label, newGraphs, newLabels);
 	}
 	
 }

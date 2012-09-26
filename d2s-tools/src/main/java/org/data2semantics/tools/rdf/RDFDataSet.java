@@ -21,7 +21,7 @@ import org.openrdf.rio.RDFFormat;
 
 public class RDFDataSet
 {
-	private Repository rdfRep;
+	protected Repository rdfRep;
 	private String label;
 
 	public RDFDataSet(Repository rdfRep, String label) {

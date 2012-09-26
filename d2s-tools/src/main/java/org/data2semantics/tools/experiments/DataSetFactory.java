@@ -22,13 +22,17 @@ import edu.uci.ics.jung.graph.util.Pair;
 
 // TODO add random seed to dataset initialization
 public class DataSetFactory {
-	
+
 	
 	public static PropertyPredictionDataSet createPropertyPredictionDataSet(BinaryPropertyPredictionDataSetParameters params) {
-		return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getProperty(), params.getInvProperty(), params.getClassObject(), params.getInstanceProperty(), params.getInstanceObject(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
-	}	
+		if (params.getInstances() != null) {
+			return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getProperty(), params.getInvProperty(), params.getClassObject(), params.getInstances(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
+		} else {
+			return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getProperty(), params.getInvProperty(), params.getClassObject(), params.getInstanceProperty(), params.getInstanceObject(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
+		}
+	}
 	
-	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, String classPredicate, String classInvPredicate, String classObject, String instancePredicate, String instanceObject, int depth, boolean includeInverse, boolean includeInference) {
+	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, String classPredicate, String classInvPredicate, String classObject, List<URI> instances, int depth, boolean includeInverse, boolean includeInference) {
 		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
 		List<String> labels = new ArrayList<String>();
 		StringBuffer label = new StringBuffer();
@@ -43,56 +47,67 @@ public class DataSetFactory {
 		label.append(", Inference=");
 		label.append(includeInference);
 
-		List<Statement> triples = rdfDataSet.getStatementsFromStrings(null, instancePredicate, instanceObject, false);	
 		List<Statement> blackList;
-		
-		for (Statement triple : triples) {
-			if (triple.getSubject() instanceof URI) {
-				blackList = new ArrayList<Statement>();
-				blackList.add(rdfDataSet.createStatement((URI) triple.getSubject(), rdfDataSet.createURI(classPredicate), rdfDataSet.createURI(classObject))); 
-				blackList.add(rdfDataSet.createStatement(rdfDataSet.createURI(classObject), rdfDataSet.createURI(classInvPredicate), (URI) triple.getSubject())); 	
-											
-				DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference, blackList)));
-				graphs.add(graph);
-				if (rdfDataSet.getStatementsFromStrings(triple.getSubject().toString(), classPredicate, classObject, false).size() > 0) {
-					labels.add("true");
-				} else {
-					labels.add("false");
-				}
-				graph.setRootVertex((findVertex(graph, triple.getSubject().toString())));
-				
-				for (Vertex<String> vertex : graph.getVertices()) {
-					if(vertex.getLabel().equals(classObject)) {
-						for (Edge<String> edge : graph.getInEdges(vertex)) {
-							if (graph.getSource(edge).getLabel().equals(classPredicate)) {
-								System.out.println("To learn relation in graph");
-								System.out.println(triple);
-							}
-						}					
-					}
+
+		for (URI instance : instances) {
+			blackList = new ArrayList<Statement>();
+			blackList.add(rdfDataSet.createStatement(instance, rdfDataSet.createURI(classPredicate), rdfDataSet.createURI(classObject))); 
+			blackList.add(rdfDataSet.createStatement(rdfDataSet.createURI(classObject), rdfDataSet.createURI(classInvPredicate), instance)); 	
+
+			DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph(instance, depth, includeInverse, includeInference, blackList)));
+			graphs.add(graph);
+			if (rdfDataSet.getStatementsFromStrings(instance.toString(), classPredicate, classObject, false).size() > 0) {
+				labels.add("true");
+			} else {
+				labels.add("false");
+			}
+			graph.setRootVertex((findVertex(graph, instance.toString())));
+
+			for (Vertex<String> vertex : graph.getVertices()) {
+				if(vertex.getLabel().equals(classObject)) {
+					for (Edge<String> edge : graph.getInEdges(vertex)) {
+						if (graph.getSource(edge).getLabel().equals(classPredicate)) {
+							System.out.println("To learn relation in graph");
+							System.out.println(instance);
+						}
+					}					
 				}
 			}
 		}
-		
+
 		PropertyPredictionDataSet dataSet = new PropertyPredictionDataSet(label.toString(), graphs, labels);
-		
+
 		label.append(", average vertex count: ");
 		label.append(dataSet.averageVertexCount());
 		label.append(", average edge count: ");
 		label.append(dataSet.averageEdgeCount());
-		
+
 		dataSet.setLabel(label.toString());
-				
+
 		return dataSet;
 	}
 
-	
-	
-	
+
+	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, String classPredicate, String classInvPredicate, String classObject, String instancePredicate, String instanceObject, int depth, boolean includeInverse, boolean includeInference) {
+		List<Statement> triples = rdfDataSet.getStatementsFromStrings(null, instancePredicate, instanceObject, false);	
+		List<URI> instances = new ArrayList<URI>();
+		
+		for (Statement triple : triples) {
+			if (triple.getSubject() instanceof URI) {
+				instances.add((URI) triple.getSubject());
+			}	
+		}
+		
+		return createPropertyPredictionDataSet(rdfDataSet, classPredicate, classInvPredicate, classObject, instances, depth, includeInverse, includeInference);
+	}
+
+
+
+
 	public static PropertyPredictionDataSet createPropertyPredictionDataSet(PropertyPredictionDataSetParameters params) {
 		return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getProperty(), params.getInvProperty(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
 	}
-	
+
 	/**
 	 * Factory method to create a classification dataset based on a property/predicate relation and its inverse property. Where the instances are the subjects of the predicate and the classes the objects of the property.
 	 *  
@@ -117,19 +132,19 @@ public class DataSetFactory {
 		List<Statement> triples = rdfDataSet.getStatementsFromStrings(null, property, null, false);	
 
 		List<Statement> blackList;
-		
+
 		for (Statement triple : triples) {
 			if (triple.getSubject() instanceof URI) {
 				blackList = new ArrayList<Statement>();
 				blackList.add(rdfDataSet.createStatement((URI) triple.getSubject(), rdfDataSet.createURI(property), rdfDataSet.createURI(triple.getObject().toString()))); 
 				blackList.add(rdfDataSet.createStatement(rdfDataSet.createURI(triple.getObject().toString()), rdfDataSet.createURI(invProperty), (URI) triple.getSubject())); 	
-								
+
 				DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference, blackList)));
 				graphs.add(graph);
 				labels.add(triple.getObject().toString());	
-				
+
 				graph.setRootVertex((findVertex(graph, triple.getSubject().toString())));
-			
+
 				for (Vertex<String> vertex : graph.getVertices()) {
 					if(vertex.getLabel().equals(triple.getObject().toString())) {
 						for (Edge<String> edge : graph.getInEdges(vertex)) {
@@ -143,22 +158,22 @@ public class DataSetFactory {
 		}
 
 		PropertyPredictionDataSet dataSet = new PropertyPredictionDataSet(label.toString(), graphs, labels);
-		
+
 		label.append(", average vertex count: ");
 		label.append(dataSet.averageVertexCount());
 		label.append(", average edge count: ");
 		label.append(dataSet.averageEdgeCount());
-		
+
 		dataSet.setLabel(label.toString());
-		
+
 		return dataSet;
 	}
 
-	
+
 	public static LinkPredictionDataSet createLinkPredictonDataSet(LinkPredictionDataSetParameters params) {
 		return createLinkPredictonDataSet(params.getRdfDataSet(), params.getClassA(), params.getClassB(), params.getProperty(), params.getBlackList(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
 	}
-	
+
 
 	public static LinkPredictionDataSet createLinkPredictonDataSet(RDFDataSet rdfDataSet, String classA, String classB, String property, List<String> blackList, int depth, boolean includeInverse, boolean includeInference) {
 		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphsA = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
@@ -166,7 +181,7 @@ public class DataSetFactory {
 		List<Vertex<String>> rootVerticesA = new ArrayList<Vertex<String>>();
 		List<Vertex<String>> rootVerticesB = new ArrayList<Vertex<String>>();
 		Map<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>, Boolean> labels = new HashMap<Pair<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>>, Boolean>();
-		
+
 		StringBuffer label = new StringBuffer();
 		label.append(rdfDataSet.getLabel());
 		label.append(", ");
@@ -177,7 +192,7 @@ public class DataSetFactory {
 		label.append(includeInverse);
 		label.append(", Inference=");
 		label.append(includeInference);
-		
+
 
 		List<Statement> triples = rdfDataSet.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", classA, false);	
 		for (Statement triple : triples) {
@@ -187,7 +202,7 @@ public class DataSetFactory {
 			rootVerticesA.add(findVertex(graph, triple.getSubject().toString()));
 			Graphs.removeVerticesAndEdges(graph, null, blackList);
 		}
-		
+
 		triples = rdfDataSet.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", classB, false);	
 		for (Statement triple : triples) {
 			DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph((URI) triple.getSubject(), depth, includeInverse, includeInference, null)));
@@ -196,7 +211,7 @@ public class DataSetFactory {
 			rootVerticesB.add(findVertex(graph, triple.getSubject().toString()));
 			Graphs.removeVerticesAndEdges(graph, null, blackList);
 		}
-		
+
 		for (int i = 0; i < rootVerticesA.size(); i++) {
 			for (int j = 0; j < rootVerticesB.size(); j++) {
 				List<Statement> triples3 = rdfDataSet.getStatementsFromStrings(rootVerticesA.get(i).getLabel(), null, rootVerticesB.get(j).getLabel(), false);

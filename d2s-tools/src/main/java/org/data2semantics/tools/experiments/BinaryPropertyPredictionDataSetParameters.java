@@ -3,6 +3,7 @@ package org.data2semantics.tools.experiments;
 import java.util.List;
 
 import org.data2semantics.tools.rdf.RDFDataSet;
+import org.openrdf.model.URI;
 
 public class BinaryPropertyPredictionDataSetParameters {
 	private RDFDataSet rdfDataSet;
@@ -14,6 +15,7 @@ public class BinaryPropertyPredictionDataSetParameters {
 	private int depth;
 	private boolean includeInverse;
 	private boolean includeInference;
+	private List<URI> instances;
 	
 	public BinaryPropertyPredictionDataSetParameters(RDFDataSet rdfDataSet,
 			String property, String invProperty, String classObject,
@@ -30,7 +32,23 @@ public class BinaryPropertyPredictionDataSetParameters {
 		this.includeInverse = includeInverse;
 		this.includeInference = includeInference;
 	}
-	
+		
+	public BinaryPropertyPredictionDataSetParameters(RDFDataSet rdfDataSet,
+			String property, String invProperty, String classObject, List<URI> instances, int depth,
+			boolean includeInverse, boolean includeInference) {
+		super();
+		this.rdfDataSet = rdfDataSet;
+		this.property = property;
+		this.invProperty = invProperty;
+		this.classObject = classObject;
+		this.depth = depth;
+		this.includeInverse = includeInverse;
+		this.includeInference = includeInference;
+		this.instances = instances;
+	}
+
+
+
 	public RDFDataSet getRdfDataSet() {
 		return rdfDataSet;
 	}
@@ -103,6 +121,11 @@ public class BinaryPropertyPredictionDataSetParameters {
 		this.includeInference = includeInference;
 	}
 
-	
-	
+	public List<URI> getInstances() {
+		return instances;
+	}
+
+	public void setInstances(List<URI> instances) {
+		this.instances = instances;
+	}
 }
