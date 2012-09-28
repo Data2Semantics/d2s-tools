@@ -63,6 +63,7 @@ public class LinkPredictionExperiment implements Runnable {
 		results.setF1(new Result());
 		results.setAveragePrecision(new Result());
 		results.setrPrecision(new Result());
+		results.setNdcg(new Result());
 	}
 
 	
