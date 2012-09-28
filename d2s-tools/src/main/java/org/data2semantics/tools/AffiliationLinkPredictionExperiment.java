@@ -39,7 +39,7 @@ public class AffiliationLinkPredictionExperiment {
 		bl.add("http://swrc.ontoware.org/ontology#employs");
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {0.01, 0.1, 1, 10, 100};	
+		double[] cs = {0.5};	
 		
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));

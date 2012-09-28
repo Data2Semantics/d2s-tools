@@ -1,22 +1,26 @@
 package org.data2semantics.tools.libsvm;
 
 public class LibSVMParameters {
+	public static final int ONE_CLASS = svm_parameter.ONE_CLASS;
+	public static final int C_SVC = svm_parameter.C_SVC;
+	public static final int NU_SVC = svm_parameter.NU_SVC;
+		
 	private svm_parameter params;
 	private double[] cs;
 	private double[] nus;
 	private boolean verbose;
 		
-	public LibSVMParameters(double[] optValues, boolean oneClass) {
-		this(oneClass);
+	public LibSVMParameters(double[] optValues, int algorithm) {
+		this(algorithm);
 		this.cs = optValues;
 		this.nus = optValues;
 	}	
 	
 	public LibSVMParameters(double[] optValues) {
-		this(optValues, false);
+		this(optValues, C_SVC);
 	}	
 	
-	public LibSVMParameters(boolean oneClass) {
+	public LibSVMParameters(int algorithm) {
 		params = new svm_parameter();
 		params.kernel_type = params.PRECOMPUTED;
 		params.nr_weight = 0;
@@ -24,13 +28,8 @@ public class LibSVMParameters {
 		params.shrinking = 0;
 		params.probability = 0;
 		params.cache_size = 300;
-		verbose = false;
-		
-		if (oneClass) {
-			params.svm_type = params.ONE_CLASS;
-		} else {
-			params.svm_type = params.C_SVC;
-		}
+		verbose = false;	
+		params.svm_type = algorithm;
 	}
 	
 	svm_parameter getParams() {

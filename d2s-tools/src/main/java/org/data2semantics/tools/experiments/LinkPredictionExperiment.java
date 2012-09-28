@@ -112,7 +112,7 @@ public class LinkPredictionExperiment implements Runnable {
 			labelMap.put("true", -1);
 			labelMap.put("false", 1);
 			
-			LibSVMParameters param = new LibSVMParameters(cs, false);
+			LibSVMParameters param = new LibSVMParameters(cs, LibSVMParameters.NU_SVC);
 			//param.setVerbose(true);
 			int[] weightLabels = {-1, 1};
 			double[] weights = {1,1};
