@@ -46,6 +46,7 @@ public class AffiliationLinkPredictionExperiment {
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, true));
 
+		/*
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
@@ -89,7 +90,7 @@ public class AffiliationLinkPredictionExperiment {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "WL" + fileId + "_" + i + ".txt");
-						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new WLSubTreeKernel(i), new WLSubTreeKernel(i), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new WLSubTreeKernel(i), new WLSubTreeKernel(i), 5/6, 1/6, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsWL.addResult(exp.getResults().getAccuracy());
 						resultsWL.addResult(exp.getResults().getF1());
@@ -105,7 +106,7 @@ public class AffiliationLinkPredictionExperiment {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "IntersectionFullSubTree" + fileId + "_" + i + ".txt");
-						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionSubTreeKernel(i,1), new IntersectionSubTreeKernel(i,1), 0.5, 0.5, seeds, cs, new FileOutputStream(file));
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionSubTreeKernel(i,1), new IntersectionSubTreeKernel(i,1), 5/6, 1/6, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsSTF.addResult(exp.getResults().getAccuracy());
 						resultsSTF.addResult(exp.getResults().getF1());
@@ -119,7 +120,7 @@ public class AffiliationLinkPredictionExperiment {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "IntersectionPartialSubTree" + fileId + "_" + i + ".txt");
-						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionPartialSubTreeKernel(i,0.01), new IntersectionPartialSubTreeKernel(i,0.01), 0.5, 0.5, seeds, cs, new FileOutputStream(file));	
+						exp = new LinkPredictionExperiment(new LinkPredictionDataSet(dataset), new IntersectionPartialSubTreeKernel(i,0.01), new IntersectionPartialSubTreeKernel(i,0.01), 5/6, 1/6, seeds, cs, new FileOutputStream(file));	
 						experimenter.addExperiment(exp);
 						resultsSTP.addResult(exp.getResults().getAccuracy());
 						resultsSTP.addResult(exp.getResults().getF1());
@@ -128,6 +129,7 @@ public class AffiliationLinkPredictionExperiment {
 					}
 				}
 				
+				/*
 				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalkKernel");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
@@ -156,6 +158,7 @@ public class AffiliationLinkPredictionExperiment {
 					}
 				}
 				
+				*/
 			
 			}
 		} catch (Exception e) {
@@ -175,8 +178,8 @@ public class AffiliationLinkPredictionExperiment {
 		System.out.println(resultsWL);
 		System.out.println(resultsSTF);
 		System.out.println(resultsSTP);
-		System.out.println(resultsIGW);
-		System.out.println(resultsIGP);
+		//System.out.println(resultsIGW);
+		//System.out.println(resultsIGP);
 	}
 
 }
