@@ -96,6 +96,7 @@ public class AffiliationLinkPredictionExperiment {
 						resultsWL.addResult(exp.getResults().getF1());
 						resultsWL.addResult(exp.getResults().getrPrecision());
 						resultsWL.addResult(exp.getResults().getAveragePrecision());
+						resultsWL.addResult(exp.getResults().getNdcg());
 					}
 				}
 				
@@ -112,6 +113,7 @@ public class AffiliationLinkPredictionExperiment {
 						resultsSTF.addResult(exp.getResults().getF1());
 						resultsSTF.addResult(exp.getResults().getrPrecision());
 						resultsSTF.addResult(exp.getResults().getAveragePrecision());
+						resultsSTF.addResult(exp.getResults().getNdcg());
 					}
 				}
 				
@@ -126,6 +128,7 @@ public class AffiliationLinkPredictionExperiment {
 						resultsSTP.addResult(exp.getResults().getF1());
 						resultsSTP.addResult(exp.getResults().getrPrecision());
 						resultsSTP.addResult(exp.getResults().getAveragePrecision());
+						resultsSTP.addResult(exp.getResults().getNdcg());
 					}
 				}
 				

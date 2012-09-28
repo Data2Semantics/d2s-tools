@@ -81,6 +81,7 @@ public class LinkPredictionExperiment implements Runnable {
 		double[] fScores = new double[seeds.length];
 		double[] mapScores = new double[seeds.length];
 		double[] rPrecScores = new double[seeds.length];
+		double[] ndcgScores = new double[seeds.length];
 		
 		List<String> labels;
 		
@@ -153,7 +154,7 @@ public class LinkPredictionExperiment implements Runnable {
 			p20  += LibSVM.computePrecisionAt(target, LibSVM.computeRanking(pred), 20, -1);	
 			mapScores[i] = LibSVM.computeAveragePrecision(target, LibSVM.computeRanking(pred), -1);
 			rPrecScores[i] = LibSVM.computeRPrecision(target, LibSVM.computeRanking(pred), -1);
-			ndcg += LibSVM.computeNDCG(target, LibSVM.computeRanking(pred), target.length, -1);
+			ndcgScores[i] = LibSVM.computeNDCG(target, LibSVM.computeRanking(pred), target.length, -1);
 		}
 		
 		acc = acc / seeds.length;
@@ -175,6 +176,8 @@ public class LinkPredictionExperiment implements Runnable {
 		results.getAveragePrecision().setScores(mapScores);
 		results.getrPrecision().setLabel("Rpr");
 		results.getrPrecision().setScores(rPrecScores);
+		results.getNdcg().setLabel("ndcg");
+		results.getNdcg().setScores(ndcgScores);
 
 		output.println(dataSet.getLabel());
 		output.println(kernelA.getLabel() + " " + weightA + " AND " + kernelB.getLabel() + " " + weightB + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs));

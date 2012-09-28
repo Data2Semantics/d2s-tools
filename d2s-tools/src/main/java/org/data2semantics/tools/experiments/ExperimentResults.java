@@ -6,6 +6,7 @@ public class ExperimentResults {
 	private Result f1;
 	private Result averagePrecision;
 	private Result rPrecision;
+	private Result ndcg;
 	
 	public ExperimentResults() {
 		super();
@@ -50,6 +51,14 @@ public class ExperimentResults {
 
 	public void setrPrecision(Result rPrecision) {
 		this.rPrecision = rPrecision;
+	}
+
+	public Result getNdcg() {
+		return ndcg;
+	}
+
+	public void setNdcg(Result ndcg) {
+		this.ndcg = ndcg;
 	}
 
 	
