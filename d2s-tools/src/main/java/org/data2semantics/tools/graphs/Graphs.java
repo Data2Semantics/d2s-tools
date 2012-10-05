@@ -18,9 +18,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.Transformer;
@@ -149,6 +151,8 @@ public class Graphs
 	private static void read(Graph<Vertex<Integer>, Edge<Integer>> graph, File file)
 			throws IOException
 	{
+		Map<Integer, Vertex<Integer>> map = new HashMap<Integer, Vertex<Integer>>();
+		
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 				
 		String line;
@@ -198,8 +202,8 @@ public class Graphs
 			
 			edges++;		
 			Vertex<Integer> 
-				av = new Vertex<Integer>(a),
-				bv = new Vertex<Integer>(b);
+				av = vertex(a, map),
+				bv = vertex(b, map);
 			
 			Edge<Integer> edge = new Edge<Integer>(c == null ? edges : c);
 			
@@ -222,6 +226,25 @@ public class Graphs
 			all.add(j);
 		System.out.println(all.removeAll(set));
 		System.out.println(all);
+	}
+	
+	/**
+	 * Retrieves the desired vertex from the map if it exists, creates and adds
+	 * it otherwise.
+	 * 
+	 * @param item
+	 * @param map
+	 * @return
+	 */
+	private static <T> Vertex<T> vertex(T item, Map<T, Vertex<T>> map)
+	{
+		if(map.containsKey(item))
+			return map.get(item);
+		
+		Vertex<T> vertex = new Vertex(item);
+		map.put(item, vertex);
+		
+		return vertex;
 	}
 
 	/**
@@ -257,6 +280,8 @@ public class Graphs
 	public static UndirectedGraph<Vertex<String>, Edge<String>> graphFromTSV(File file)
 			throws IOException
 	{
+		Map<String, Vertex<String>> map = new HashMap<String, Vertex<String>>();
+		
 		UndirectedSparseGraph<Vertex<String>, Edge<String>> graph = 
 			new UndirectedSparseGraph<Vertex<String>, Edge<String>>();
 		
@@ -287,8 +312,8 @@ public class Graphs
 				b = split[1];
 			
 			Vertex<String> 
-				av = new Vertex<String>(a),
-				bv = new Vertex<String>(b);
+				av = vertex(a, map),
+				bv = vertex(b, map);
 			
 			graph.addEdge(new Edge<String>("" + edges++), Arrays.asList(av, bv));
 			
