@@ -1,6 +1,7 @@
 package org.data2semantics.tools.experiments;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ResultsTable {
@@ -47,4 +48,25 @@ public class ResultsTable {
 		return tableStr.toString();		
 	}
 	
+	
+	public String allScoresToString() {
+		StringBuffer tableStr = new StringBuffer();		
+		List<Result> row1 = table.get(0);
+		
+		for(Result res : row1) {
+			tableStr.append(res.getLabel());
+			tableStr.append(" \t ");
+		}
+		tableStr.append("\n");
+		
+		for (int i = 0; i < table.size(); i++) {
+			for (Result res : table.get(i)) {
+				tableStr.append(Arrays.toString(res.getScores()));
+				tableStr.append(" \t ");
+			}
+			tableStr.append(rowLabels.get(i));
+			tableStr.append("\n");
+		}
+		return tableStr.toString();		
+	}
 }

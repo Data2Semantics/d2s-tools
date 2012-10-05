@@ -38,24 +38,38 @@ public class LinkPredictionExperiment implements Runnable {
 	private double[] cs;
 	private PrintWriter output;
 	private ExperimentResults results;
+	private int maxClassSize;
 
+	
 
 	public LinkPredictionExperiment(LinkPredictionDataSet dataSet,
-			GraphKernel kernelA, GraphKernel kernelB, double weightA, double weightB, long[] seeds,
+			GraphKernel kernelA, GraphKernel kernelB, double weightA, double weightB, long[] seeds, 
 			double[] cs) {
-		this(dataSet, kernelA, kernelB, weightA, weightB, seeds, cs, System.out);
+		this(dataSet, kernelA, kernelB, weightA, weightB, seeds, cs, 50, System.out);
+	}	
+	
+	public LinkPredictionExperiment(LinkPredictionDataSet dataSet,
+			GraphKernel kernelA, GraphKernel kernelB, double weightA, double weightB, long[] seeds, 
+			double[] cs, OutputStream outputStream) {
+		this(dataSet, kernelA, kernelB, weightA, weightB, seeds, cs, 50, outputStream);
+	}	
+	
+	public LinkPredictionExperiment(LinkPredictionDataSet dataSet,
+			GraphKernel kernelA, GraphKernel kernelB, double weightA, double weightB, long[] seeds, 
+			double[] cs, int maxClassSize) {
+		this(dataSet, kernelA, kernelB, weightA, weightB, seeds, cs, maxClassSize, System.out);
 	}
 
-
 	public LinkPredictionExperiment(LinkPredictionDataSet dataSet,
-			GraphKernel kernelA, GraphKernel kernelB, double weightA, double weightB, long[] seeds,
-			double[] cs, OutputStream outputStream) {
+			GraphKernel kernelA, GraphKernel kernelB, double weightA, double weightB, long[] seeds, 
+			double[] cs, int maxClassSize, OutputStream outputStream) {
 		this.dataSet = dataSet;
 		this.kernelA = kernelA;
 		this.kernelB = kernelB;
 		this.weightA = weightA;
 		this.weightB = weightB;
 		this.seeds = seeds;
+		this.maxClassSize = maxClassSize;
 		this.cs = cs;
 		output = new PrintWriter(outputStream);
 		results = new ExperimentResults();
@@ -87,7 +101,7 @@ public class LinkPredictionExperiment implements Runnable {
 		List<String> labels;
 		
 		for (int i = 0; i < seeds.length; i++) {
-			createRandomSubSet(100, 100, seeds[i], true);
+			createRandomSubSet(maxClassSize, maxClassSize, seeds[i], true);
 			
 			double[][] matrixA = kernelA.compute(trainGraphsA);
 			double[][] matrixB = kernelB.compute(trainGraphsB);
@@ -97,6 +111,7 @@ public class LinkPredictionExperiment implements Runnable {
 					
 			double[][] matrix = combineTrainKernels(matrixA, matrixB);
 			
+			// Shuffle the trainSet, else it is ordered too much
 			Collections.shuffle(trainSet, new Random(seeds[i]));
 			
 			labels = new ArrayList<String>();
@@ -190,6 +205,12 @@ public class LinkPredictionExperiment implements Runnable {
 		output.print(", Average AP: " + map);
 		output.print(", Average R-prec: " + rPrec);
 		output.print(", Average NDCG: " + ndcg);
+		output.println("");
+		output.print("All acc: " + Arrays.toString(accScores));
+		output.print(", All f1: " + Arrays.toString(fScores));
+		output.print(", All map: " + Arrays.toString(mapScores));
+		output.print(", All Rpr: " + Arrays.toString(rPrecScores));
+		output.print(", All ndcg: " + Arrays.toString(ndcgScores));
 		output.println("");
 		output.flush();
 	}

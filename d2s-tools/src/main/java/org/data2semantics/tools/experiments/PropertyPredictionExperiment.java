@@ -20,17 +20,28 @@ public class PropertyPredictionExperiment implements Runnable {
 	private double[] cs;
 	private PrintWriter output;
 	private ExperimentResults results;
+	private int maxClassSize;
+	
+	
 	
 	public PropertyPredictionExperiment(PropertyPredictionDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs) {
-		this(dataSet, kernel, seeds,  cs, System.out);
+		this(dataSet, kernel, seeds,  cs, 0, System.out);
 	}
 	
-	
+	public PropertyPredictionExperiment(PropertyPredictionDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, int maxClassSize) {
+		this(dataSet, kernel, seeds,  cs, maxClassSize, System.out);
+	}
+			
 	public PropertyPredictionExperiment(PropertyPredictionDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, OutputStream outputStream) {
+		this(dataSet, kernel, seeds,  cs, 0, outputStream);
+	}
+	
+	public PropertyPredictionExperiment(PropertyPredictionDataSet dataSet, GraphKernel kernel, long[] seeds, double[] cs, int maxClassSize, OutputStream outputStream) {
 		this.dataSet = dataSet;
 		this.kernel = kernel;
 		this.seeds = seeds;
 		this.cs = cs;
+		this.maxClassSize = maxClassSize;
 		output = new PrintWriter(outputStream);
 		results = new ExperimentResults();
 		results.setAccuracy(new Result());
@@ -42,20 +53,25 @@ public class PropertyPredictionExperiment implements Runnable {
 		
 		double[] accScores = new double[seeds.length];
 		double[] fScores = new double[seeds.length];		
-				
+		double[][] matrix = new double[1][1];	
+		double[] target;
+		
+		if (maxClassSize == 0) {
+			matrix = kernel.compute(dataSet.getGraphs());		
+		}
 
 		for (int i = 0; i < seeds.length; i++) {
-			PropertyPredictionDataSet subset = dataSet.getSubSet(50, seeds[i]);
-			
-			//matrix = kernel.shuffle(matrix, seeds[i]);
-			//dataSet.shuffle(seeds[i]);
-		
-			double[][] matrix = kernel.compute(subset.getGraphs());
-			
-			
-			double[] target = LibSVM.createTargets(subset.getLabels());	
+			if (maxClassSize == 0) {
+				matrix = kernel.shuffle(matrix, seeds[i]);
+				dataSet.shuffle(seeds[i]);
+				target = LibSVM.createTargets(dataSet.getLabels());
+			} else {
+				PropertyPredictionDataSet subset = dataSet.getSubSet(maxClassSize, seeds[i]);
+				matrix = kernel.compute(subset.getGraphs());
+				target = LibSVM.createTargets(subset.getLabels());
+			}
+					
 			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
-			
 			accScores[i] = LibSVM.computeAccuracy(target, prediction);
 			fScores[i]   = LibSVM.computeF1(target, prediction);		
 		}
@@ -72,6 +88,10 @@ public class PropertyPredictionExperiment implements Runnable {
 		output.print("Overall Accuracy: " + accRes.getScore());
 		output.print(", Average F1: " + fRes.getScore());
 		output.println("");
+		output.print("All acc: " + Arrays.toString(accScores));
+		output.print(", All f1: " + Arrays.toString(fScores));
+		output.println("");
+		
 		output.flush();
 		
 		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernel.getLabel() );
