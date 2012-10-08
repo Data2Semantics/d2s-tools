@@ -2,6 +2,7 @@ package org.data2semantics.tools;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -177,6 +178,23 @@ public class AffiliationPredictionExperiment {
 			}
 		}
 
+		try {
+		int fileId = (int) (Math.random() * 100000000);	
+		File file = new File(DATA_DIR + fileId + "_" + "all_results" + ".txt");
+		PrintWriter fileOut = new PrintWriter(new FileOutputStream(file));
+		
+		fileOut.println(resultsWL);
+		fileOut.println(resultsSTF);
+		fileOut.println(resultsSTP);
+		fileOut.println(resultsIGW);
+		fileOut.println(resultsIGP);
+		
+		fileOut.println(resultsWL.allScoresToString());
+		fileOut.println(resultsSTF.allScoresToString());
+		fileOut.println(resultsSTP.allScoresToString());
+		fileOut.println(resultsIGW.allScoresToString());
+		fileOut.println(resultsIGP.allScoresToString());
+		
 		System.out.println(resultsWL);
 		System.out.println(resultsSTF);
 		System.out.println(resultsSTP);
@@ -188,6 +206,11 @@ public class AffiliationPredictionExperiment {
 		System.out.println(resultsSTP.allScoresToString());
 		System.out.println(resultsIGW.allScoresToString());
 		System.out.println(resultsIGP.allScoresToString());
+
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
