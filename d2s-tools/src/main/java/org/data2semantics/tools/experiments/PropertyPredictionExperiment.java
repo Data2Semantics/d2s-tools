@@ -67,6 +67,8 @@ public class PropertyPredictionExperiment implements Runnable {
 				target = LibSVM.createTargets(dataSet.getLabels());
 			} else {
 				PropertyPredictionDataSet subset = dataSet.getSubSet(maxClassSize, seeds[i]);
+				// shuffle the subset, since the creation of the subset might result in a too ordered dataset
+				subset.shuffle(seeds[i]);
 				matrix = kernel.compute(subset.getGraphs());
 				target = LibSVM.createTargets(subset.getLabels());
 			}

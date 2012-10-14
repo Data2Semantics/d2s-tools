@@ -61,14 +61,14 @@ public class AffiliationPredictionExperiment {
 		//dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 3, true, true));
 		//*/
 
-		
+		/*
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, true));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, true));
 		//*/
 
-		
+		/*
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, true, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, true, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, true, true));
@@ -95,10 +95,10 @@ public class AffiliationPredictionExperiment {
 			for (PropertyPredictionDataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createPropertyPredictionDataSet(params);
 				dataset.removeSmallClasses(5);
-				//dataset.removeVertexAndEdgeLabels();
+				dataset.removeVertexAndEdgeLabels();
 				
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 10; i++) {
 					if (experimenter.hasSpace()) {	
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
@@ -112,7 +112,7 @@ public class AffiliationPredictionExperiment {
 				
 				
 				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTree");
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 4; i++) {
 					
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -126,7 +126,7 @@ public class AffiliationPredictionExperiment {
 				}
 				
 				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTree");
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");
@@ -136,6 +136,7 @@ public class AffiliationPredictionExperiment {
 						resultsSTP.addResult(exp.getResults().getF1());
 					}
 				}
+				
 				
 				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPath");
 				for (int i = 1; i < 3; i++) {
