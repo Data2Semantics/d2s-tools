@@ -71,7 +71,7 @@ public class CommitteeMemberPredictionExperiment {
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.01, 0.1, 1, 10, 100};	
-		int maxClassSize = 100;
+		int maxClassSize = 75;
 
 
 		///*

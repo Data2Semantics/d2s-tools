@@ -41,7 +41,7 @@ public class AffiliationLinkPredictionExperiment {
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.5};	
-		int maxClassSize = 100;
+		int maxClassSize = 50;
 
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
@@ -64,7 +64,7 @@ public class AffiliationLinkPredictionExperiment {
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, true));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, true, true));
-		 */
+		*/
 
 		LinkPredictionDataSet dataset;
 		LinkPredictionExperiment exp;
@@ -190,26 +190,26 @@ public class AffiliationLinkPredictionExperiment {
 			fileOut.println(resultsWL);
 			fileOut.println(resultsSTF);
 			fileOut.println(resultsSTP);
-			fileOut.println(resultsIGW);
-			fileOut.println(resultsIGP);
+			//fileOut.println(resultsIGW);
+			//fileOut.println(resultsIGP);
 
 			fileOut.println(resultsWL.allScoresToString());
 			fileOut.println(resultsSTF.allScoresToString());
 			fileOut.println(resultsSTP.allScoresToString());
-			fileOut.println(resultsIGW.allScoresToString());
-			fileOut.println(resultsIGP.allScoresToString());
+			//fileOut.println(resultsIGW.allScoresToString());
+			//fileOut.println(resultsIGP.allScoresToString());
 
 			System.out.println(resultsWL);
 			System.out.println(resultsSTF);
 			System.out.println(resultsSTP);
-			System.out.println(resultsIGW);
-			System.out.println(resultsIGP);
+			//System.out.println(resultsIGW);
+			//System.out.println(resultsIGP);
 
 			System.out.println(resultsWL.allScoresToString());
 			System.out.println(resultsSTF.allScoresToString());
 			System.out.println(resultsSTP.allScoresToString());
-			System.out.println(resultsIGW.allScoresToString());
-			System.out.println(resultsIGP.allScoresToString());
+			//System.out.println(resultsIGW.allScoresToString());
+			//System.out.println(resultsIGP.allScoresToString());
 
 
 		} catch (Exception e) {
