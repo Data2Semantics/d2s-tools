@@ -40,6 +40,10 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithR
 		double[][] kernel = initMatrix(trainGraphs.size(), trainGraphs.size());
 		DirectedGraph<Vertex<String>, Edge<String>> graph;
 		
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graphT : trainGraphs) {
+			graphT.getRootVertex().setLabel(ROOTID);
+		}
+		
 		for (int i = 0; i < trainGraphs.size(); i++) {
 			for (int j = i; j < trainGraphs.size(); j++) {				
 				graph = computeIntersectionGraph(trainGraphs.get(i), trainGraphs.get(j));
@@ -64,6 +68,13 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithR
 		DirectedGraph<Vertex<String>, Edge<String>> graph;
 		double[] ssTest = new double[testGraphs.size()];
 		double[] ssTrain = new double[trainGraphs.size()];
+		
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graphT : trainGraphs) {
+			graphT.getRootVertex().setLabel(ROOTID);
+		}
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graphT : testGraphs) {
+			graphT.getRootVertex().setLabel(ROOTID);
+		}
 		
 		for (int i = 0; i < testGraphs.size(); i++) {
 			for (int j = 0; j < trainGraphs.size(); j++) {				
