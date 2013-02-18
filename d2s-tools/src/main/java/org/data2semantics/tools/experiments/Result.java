@@ -5,6 +5,9 @@ public class Result {
 	private String label;
 	
 	public Result() {
+		this.scores = new double[1];
+		this.scores[0] = 0;
+		this.label = "Empty Result";
 		
 	}
 	
