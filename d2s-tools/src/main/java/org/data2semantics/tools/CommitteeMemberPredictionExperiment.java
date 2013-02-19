@@ -13,6 +13,7 @@ import org.data2semantics.tools.experiments.PropertyPredictionDataSetParameters;
 import org.data2semantics.tools.experiments.ExperimentResults;
 import org.data2semantics.tools.experiments.Experimenter;
 import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
+import org.data2semantics.tools.experiments.Result;
 import org.data2semantics.tools.experiments.ResultsTable;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
@@ -205,6 +206,21 @@ public class CommitteeMemberPredictionExperiment {
 			File file = new File(DATA_DIR + fileId + "_" + "all_results" + ".txt");
 			PrintWriter fileOut = new PrintWriter(new FileOutputStream(file));
 
+			List<Result> bestResults = new ArrayList<Result>();
+			
+			bestResults = resultsWL.getBestResults(bestResults);
+			bestResults = resultsSTF.getBestResults(bestResults);
+			bestResults = resultsSTP.getBestResults(bestResults);
+			bestResults = resultsIGW.getBestResults(bestResults);
+			bestResults = resultsIGP.getBestResults(bestResults);
+			
+			resultsWL.addCompResults(bestResults);
+			resultsSTF.addCompResults(bestResults);
+			resultsSTP.addCompResults(bestResults);
+			resultsIGW.addCompResults(bestResults);
+			resultsIGP.addCompResults(bestResults);
+						
+			
 			fileOut.println(resultsWL);
 			fileOut.println(resultsSTF);
 			fileOut.println(resultsSTP);
