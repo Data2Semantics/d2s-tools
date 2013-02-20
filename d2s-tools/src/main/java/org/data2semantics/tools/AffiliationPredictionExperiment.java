@@ -25,7 +25,7 @@ import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
 public class AffiliationPredictionExperiment {
-	private final static String DATA_DIR = "D:\\workspaces\\datasets\\aifb\\";
+	private final static String DATA_DIR = "C:\\eclipse\\workspace\\datasets\\aifb\\";
 	private final static int NUMBER_OF_PROC = 6;
 
 
@@ -87,6 +87,10 @@ public class AffiliationPredictionExperiment {
 	
 
 		try {
+			
+			/*
+	
+	
 			for (PropertyPredictionDataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createPropertyPredictionDataSet(params);
 				dataset.removeSmallClasses(5);
@@ -158,6 +162,8 @@ public class AffiliationPredictionExperiment {
 				}
 			}
 			
+			//*/
+			
 
 			/******
 			 * ADDITIONAL EXPERIMENTS
@@ -167,7 +173,9 @@ public class AffiliationPredictionExperiment {
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 3, false, false));
+			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 4, false, false));
 
+			
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, true));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, true));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 3, false, true));
@@ -180,7 +188,7 @@ public class AffiliationPredictionExperiment {
 				//dataset.removeVertexAndEdgeLabels();
 
 				resultsWLadd.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 7; i++) {
+				for (int i = 0; i < 5; i++) {
 					if (experimenter.hasSpace()) {	
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
@@ -194,7 +202,7 @@ public class AffiliationPredictionExperiment {
 
 				
 				resultsSTFadd.newRow(dataset.getLabel() + " IntersectionFullSubTree");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 5; i++) {
 
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -208,7 +216,7 @@ public class AffiliationPredictionExperiment {
 				}
 
 				resultsSTPadd.newRow(dataset.getLabel() + " IntersectionPartialSubTree");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 5; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");

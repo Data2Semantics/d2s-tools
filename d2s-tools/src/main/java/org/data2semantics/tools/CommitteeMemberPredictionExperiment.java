@@ -28,7 +28,7 @@ import org.openrdf.model.URI;
 import org.openrdf.rio.RDFFormat;
 
 public class CommitteeMemberPredictionExperiment {
-	private final static String DATA_DIR = "D:\\workspaces\\datasets\\";
+	private final static String DATA_DIR = "C:\\eclipse\\workspace\\datasets\\";
 	private final static int NUMBER_OF_PROC = 6;
 
 	public static void main(String[] args) {
@@ -71,7 +71,7 @@ public class CommitteeMemberPredictionExperiment {
 		List<BinaryPropertyPredictionDataSetParameters> dataSetsParams = new ArrayList<BinaryPropertyPredictionDataSetParameters>();
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {0.01, 0.1, 1, 10, 100};	
+		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 		int maxClassSize = 75;
 
 
