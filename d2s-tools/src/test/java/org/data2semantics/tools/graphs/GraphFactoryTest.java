@@ -19,20 +19,78 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class GraphFactoryTest {
 
-	@Ignore
+	@Test
 	public void test() {
-		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\eclipse_workspace\\rdfgraphlearning\\src\\main\\resources\\aifb-fixed_complete.rdf", RDFFormat.RDFXML);
-		//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
-		List<Statement> triples = testSet.getFullGraph();
-			
-		DirectedGraph<Vertex<String>, Edge<String>> jungGraph = GraphFactory.createDirectedGraph(triples);
+		RDFFileDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\datasets\\bible\\NTN-individuals.owl", RDFFormat.RDFXML);
+		testSetA.addFile("D:\\workspaces\\datasets\\bible\\NTNames.owl", RDFFormat.RDFXML);
 		
-		for (Edge<String> edge: jungGraph.getEdges()) {
-			System.out.println(jungGraph.getEndpoints(edge).getFirst() + " " + edge + " " + jungGraph.getEndpoints(edge).getSecond());
+			//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
+		List<Statement> triples = testSetA.getStatementsFromStrings("http://semanticbible.org/ns/2006/NTNames#Christianity", null,null, true);
+
+		for (Statement triple : triples) {
+			System.out.println(triple);
 		}
+		//System.out.println("Total humans: " + triples.size());
+		
+		
+		List<Statement> triples2 = testSetA.getStatementsFromStrings(null, "http://semanticbible.org/ns/2006/NTNames#ethnicity", "http://semanticbible.org/ns/2006/NTNames#Jewish", true);			
+		for (Statement triple2: triples2) {
+			//System.out.println(triple2.getSubject() + " " + triple2.getPredicate() + " " + triple2.getObject());
+			
+			List<Statement> triples3 = testSetA.getStatementsFromStrings(triple2.getSubject().toString(), "http://semanticbible.org/ns/2006/NTNames#religiousBelief", "http://semanticbible.org/ns/2006/NTNames#Christianity", true);
+			
+			for (Statement triple3 : triples3) {
+				System.out.println(triple3.getSubject() + " " + triple3.getPredicate() + " " + triple3.getObject());
+			}
+			
+		}
+		
+		/*
+		triples = testSetA.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type","http://semanticbible.org/ns/2006/NTNames#ReligiousBelief", true);
+
+		for (Statement triple : triples) {
+			System.out.println(triple.getSubject());
+		}
+		System.out.println("Total religions: " + triples.size());
+		
+		/*
+		triples = testSetA.getStatementsFromStrings(null, "http://semanticbible.org/ns/2006/NTNames#religiousBelief", null, true);
+
+		for (Statement triple : triples) {
+			System.out.println(triple.getSubject() + " -> " + triple.getObject());
+		}
+		System.out.println("Total humans with religious belief: " + triples.size());
+		*/
+		
+		/*
+		triples = testSetA.getStatementsFromStrings(null, "http://semanticbible.org/ns/2006/NTNames#ethnicity", null, true);
+
+		for (Statement triple : triples) {
+			System.out.println(triple.getSubject() + " -> " + triple.getObject());
+		}
+		System.out.println("Total humans member of: " + triples.size());
+		*/
+		
+		/*
+		
+		triples = testSetA.getStatementsFromStrings(null, null, "http://semanticbible.org/ns/2006/NTNames#GroupOfPeople", true);
+
+		for (Statement triple : triples) {
+			System.out.println(triple.getSubject() + " -> " + triple.getObject());
+		}
+		System.out.println("groups of people " + triples.size());
+		
+		/*
+		triples = testSetA.getStatementsFromStrings(null, null, null, false);
+
+		for (Statement triple : triples) {
+			System.out.println(triple.getSubject() + " " + triple.getPredicate() + " " + triple.getObject());
+		}
+		System.out.println("groups of people " + triples.size());
+		*/
 	}
 	
-	@Test
+	@Ignore
 	public void test2() {
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
 		

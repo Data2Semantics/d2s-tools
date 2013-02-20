@@ -24,6 +24,46 @@ import edu.uci.ics.jung.graph.util.Pair;
 public class DataSetFactory {
 
 	
+	public static PropertyPredictionDataSet createPropertyPredictionDataSet(GeneralPredictionDataSetParameters params) {
+		return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getBlacklists(), params.getInstances(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
+	}
+	
+	
+	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, Map<URI, List<Statement>> blacklists, List<URI> instances, int depth, boolean includeInverse, boolean includeInference) {
+		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
+		List<String> labels = new ArrayList<String>();
+		StringBuffer label = new StringBuffer();
+
+		label.append(rdfDataSet.getLabel());
+		label.append(", ");
+		label.append(" No Class ");
+		label.append(", depth=");
+		label.append(depth);
+		label.append(", Inverse=");
+		label.append(includeInverse);
+		label.append(", Inference=");
+		label.append(includeInference);
+		
+		for (URI instance : instances) {
+			DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph(instance, depth, includeInverse, includeInference, blacklists.get(instance))));
+			graphs.add(graph);
+			labels.add("temp");
+			graph.setRootVertex((findVertex(graph, instance.toString())));
+		}
+		
+		PropertyPredictionDataSet dataSet = new PropertyPredictionDataSet(label.toString(), graphs, labels);
+
+		label.append(", average vertex count: ");
+		label.append(dataSet.averageVertexCount());
+		label.append(", average edge count: ");
+		label.append(dataSet.averageEdgeCount());
+
+		dataSet.setLabel(label.toString());
+
+		return dataSet;
+
+	}
+	
 	public static PropertyPredictionDataSet createPropertyPredictionDataSet(BinaryPropertyPredictionDataSetParameters params) {
 		if (params.getInstances() != null) {
 			return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getProperty(), params.getInvProperty(), params.getClassObject(), params.getInstances(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
@@ -31,6 +71,7 @@ public class DataSetFactory {
 			return createPropertyPredictionDataSet(params.getRdfDataSet(), params.getProperty(), params.getInvProperty(), params.getClassObject(), params.getInstanceProperty(), params.getInstanceObject(), params.getDepth(), params.isIncludeInverse(), params.isIncludeInference());
 		}
 	}
+	
 	
 	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, String classPredicate, String classInvPredicate, String classObject, List<URI> instances, int depth, boolean includeInverse, boolean includeInference) {
 		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
