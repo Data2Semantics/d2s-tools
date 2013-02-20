@@ -233,7 +233,7 @@ public class AffiliationPredictionExperiment {
 					}
 				}				
 
-				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalk");
+				resultsIGWadd.newRow(dataset.getLabel() + " IntersectionGraphWalk");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	

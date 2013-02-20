@@ -32,7 +32,7 @@ import org.openrdf.rio.RDFFormat;
 
 public class BibleReligionPredictionExperiment {
 	private final static String DATA_DIR = "D:\\workspaces\\datasets\\bible\\";
-	private final static int NUMBER_OF_PROC = 3;
+	private final static int NUMBER_OF_PROC = 4;
 
 	public static void main(String[] args) {
 		RDFFileDataSet testSetA = new RDFFileDataSet(DATA_DIR + "NTN-individuals.owl", RDFFormat.RDFXML);
@@ -96,9 +96,9 @@ public class BibleReligionPredictionExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 1, false, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, false, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 3, false, false));
-		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 4, false, false));
+		//dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 4, false, false));
 		
-		/*
+		
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 3, false, true));
@@ -107,7 +107,7 @@ public class BibleReligionPredictionExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, true, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 1, true, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, true, true));
-		*/
+		
 		
 
 
@@ -137,9 +137,9 @@ public class BibleReligionPredictionExperiment {
 				//dataset.removeVertexAndEdgeLabels();
 
 				
-				/*
+				
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 7; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
@@ -153,7 +153,7 @@ public class BibleReligionPredictionExperiment {
 
 				
 				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTree");
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 4; i++) {
 
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -166,7 +166,7 @@ public class BibleReligionPredictionExperiment {
 				}
 
 				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTree");
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");
@@ -182,7 +182,7 @@ public class BibleReligionPredictionExperiment {
 
 				
 				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPath");
-				for (int i = 1; i < 5; i++) {
+				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
@@ -194,7 +194,7 @@ public class BibleReligionPredictionExperiment {
 				}				
 
 				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalk");
-				for (int i = 1; i < 5; i++) {
+				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
