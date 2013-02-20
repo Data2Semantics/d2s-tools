@@ -32,7 +32,7 @@ public class AffiliationLinkPredictionExperiment {
 	 */
 	public static void main(String[] args) {
 		RDFDataSet testSetA = new RDFFileDataSet(DATA_DIR + "aifb-fixed_complete.rdf", RDFFormat.RDFXML);
-		RDFDataSet testSetB = new RDFFileDataSet(DATA_DIR + "aifb-fixed_no_schema.n3", RDFFormat.N3);
+		//RDFDataSet testSetB = new RDFFileDataSet(DATA_DIR + "aifb-fixed_no_schema.n3", RDFFormat.N3);
 
 		List<LinkPredictionDataSetParameters> dataSetsParams = new ArrayList<LinkPredictionDataSetParameters>();
 		List<String> bl = new ArrayList<String>();
@@ -45,8 +45,11 @@ public class AffiliationLinkPredictionExperiment {
 
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
+		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 3, false, false));
+		
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, true));
+		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 3, false, true));
 
 		
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, false));
@@ -88,7 +91,7 @@ public class AffiliationLinkPredictionExperiment {
 				//dataset.removeSmallClasses(5);
 
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "WL" + fileId + "_" + i + ".txt");
@@ -99,12 +102,14 @@ public class AffiliationLinkPredictionExperiment {
 						resultsWL.addResult(exp.getResults().getrPrecision());
 						resultsWL.addResult(exp.getResults().getAveragePrecision());
 						resultsWL.addResult(exp.getResults().getNdcg());
+						
+						System.out.println("Running WL, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
 
 				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTreeKernel");
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 4; i++) {
 
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -116,11 +121,13 @@ public class AffiliationLinkPredictionExperiment {
 						resultsSTF.addResult(exp.getResults().getrPrecision());
 						resultsSTF.addResult(exp.getResults().getAveragePrecision());
 						resultsSTF.addResult(exp.getResults().getNdcg());
+						
+						System.out.println("Running STF, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
 				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTreeKernel");
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "IntersectionPartialSubTree" + fileId + "_" + i + ".txt");
@@ -131,6 +138,8 @@ public class AffiliationLinkPredictionExperiment {
 						resultsSTP.addResult(exp.getResults().getrPrecision());
 						resultsSTP.addResult(exp.getResults().getAveragePrecision());
 						resultsSTP.addResult(exp.getResults().getNdcg());
+						
+						System.out.println("Running STP, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
@@ -147,6 +156,8 @@ public class AffiliationLinkPredictionExperiment {
 						resultsIGW.addResult(exp.getResults().getrPrecision());
 						resultsIGW.addResult(exp.getResults().getAveragePrecision());
 						resultsIGW.addResult(exp.getResults().getNdcg());
+						
+						System.out.println("Running IGW, it " + i + " on " + dataset.getLabel());
 					}
 				}				
 
@@ -162,6 +173,8 @@ public class AffiliationLinkPredictionExperiment {
 						resultsIGP.addResult(exp.getResults().getrPrecision());
 						resultsIGP.addResult(exp.getResults().getAveragePrecision());
 						resultsIGP.addResult(exp.getResults().getNdcg());
+						
+						System.out.println("Running IGP, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
@@ -190,26 +203,26 @@ public class AffiliationLinkPredictionExperiment {
 			fileOut.println(resultsWL);
 			fileOut.println(resultsSTF);
 			fileOut.println(resultsSTP);
-			//fileOut.println(resultsIGW);
-			//fileOut.println(resultsIGP);
+			fileOut.println(resultsIGW);
+			fileOut.println(resultsIGP);
 
 			fileOut.println(resultsWL.allScoresToString());
 			fileOut.println(resultsSTF.allScoresToString());
 			fileOut.println(resultsSTP.allScoresToString());
-			//fileOut.println(resultsIGW.allScoresToString());
-			//fileOut.println(resultsIGP.allScoresToString());
+			fileOut.println(resultsIGW.allScoresToString());
+			fileOut.println(resultsIGP.allScoresToString());
 
 			System.out.println(resultsWL);
 			System.out.println(resultsSTF);
 			System.out.println(resultsSTP);
-			//System.out.println(resultsIGW);
-			//System.out.println(resultsIGP);
+			System.out.println(resultsIGW);
+			System.out.println(resultsIGP);
 
 			System.out.println(resultsWL.allScoresToString());
 			System.out.println(resultsSTF.allScoresToString());
 			System.out.println(resultsSTP.allScoresToString());
-			//System.out.println(resultsIGW.allScoresToString());
-			//System.out.println(resultsIGP.allScoresToString());
+			System.out.println(resultsIGW.allScoresToString());
+			System.out.println(resultsIGP.allScoresToString());
 
 
 		} catch (Exception e) {
