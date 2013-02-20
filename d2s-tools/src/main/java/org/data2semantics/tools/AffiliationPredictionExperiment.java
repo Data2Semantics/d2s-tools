@@ -74,6 +74,7 @@ public class AffiliationPredictionExperiment {
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, true, true));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, true, true));
 		
+		/*
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, true));
@@ -83,14 +84,14 @@ public class AffiliationPredictionExperiment {
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, true, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, true, true));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, true, true));
-		
+		//*/
 		
 		
 	
 
 		try {
 			
-			/*
+			
 	
 	
 			for (PropertyPredictionDataSetParameters params : dataSetsParams) {
@@ -241,7 +242,7 @@ public class AffiliationPredictionExperiment {
 					}
 				}				
 
-				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalk");
+				resultsIGWadd.newRow(dataset.getLabel() + " IntersectionGraphWalk");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
