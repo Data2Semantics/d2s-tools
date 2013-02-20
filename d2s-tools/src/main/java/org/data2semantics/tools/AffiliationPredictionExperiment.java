@@ -54,6 +54,8 @@ public class AffiliationPredictionExperiment {
 		ResultsTable resultsWLadd = new ResultsTable();
 		ResultsTable resultsSTFadd = new ResultsTable();
 		ResultsTable resultsSTPadd = new ResultsTable();
+		ResultsTable resultsIGWadd = new ResultsTable();
+		ResultsTable resultsIGPadd = new ResultsTable();
 
 		
 		/**  
@@ -226,6 +228,32 @@ public class AffiliationPredictionExperiment {
 						resultsSTPadd.addResult(exp.getResults().getF1());
 					}
 				}
+				
+				resultsIGPadd.newRow(dataset.getLabel() + " IntersectionGraphPath");
+				for (int i = 1; i < 3; i++) {
+					if (experimenter.hasSpace()) {		
+						int fileId = (int) (Math.random() * 100000000);	
+						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
+						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new IntersectionGraphPathKernel(i, 1), seeds, cs, new FileOutputStream(file));
+						experimenter.addExperiment(exp);
+						resultsIGPadd.addResult(exp.getResults().getAccuracy());
+						resultsIGPadd.addResult(exp.getResults().getF1());
+					}
+				}				
+
+				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalk");
+				for (int i = 1; i < 3; i++) {
+					if (experimenter.hasSpace()) {		
+						int fileId = (int) (Math.random() * 100000000);	
+						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
+						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), new IntersectionGraphWalkKernel(i, 1), seeds, cs, new FileOutputStream(file));
+						experimenter.addExperiment(exp);
+						resultsIGWadd.addResult(exp.getResults().getAccuracy());
+						resultsIGWadd.addResult(exp.getResults().getF1());
+					}
+				}
+	
+				
 			}
 
 			
@@ -270,6 +298,8 @@ public class AffiliationPredictionExperiment {
 			bestResults = resultsWLadd.getBestResults(bestResults);
 			bestResults = resultsSTFadd.getBestResults(bestResults);
 			bestResults = resultsSTPadd.getBestResults(bestResults);
+			bestResults = resultsIGWadd.getBestResults(bestResults);
+			bestResults = resultsIGPadd.getBestResults(bestResults);
 			
 			
 			resultsWL.addCompResults(bestResults);
@@ -281,6 +311,8 @@ public class AffiliationPredictionExperiment {
 			resultsWLadd.addCompResults(bestResults);
 			resultsSTFadd.addCompResults(bestResults);
 			resultsSTPadd.addCompResults(bestResults);
+			resultsIGWadd.addCompResults(bestResults);
+			resultsIGPadd.addCompResults(bestResults);
 			
 			
 			fileOut.println(resultsWL);
@@ -292,6 +324,8 @@ public class AffiliationPredictionExperiment {
 			fileOut.println(resultsWLadd);
 			fileOut.println(resultsSTFadd);
 			fileOut.println(resultsSTPadd);
+			fileOut.println(resultsIGWadd);
+			fileOut.println(resultsIGPadd);
 			
 			
 			fileOut.println(resultsWL.allScoresToString());
@@ -303,6 +337,8 @@ public class AffiliationPredictionExperiment {
 			fileOut.println(resultsWLadd.allScoresToString());
 			fileOut.println(resultsSTFadd.allScoresToString());
 			fileOut.println(resultsSTPadd.allScoresToString());
+			fileOut.println(resultsIGWadd.allScoresToString());
+			fileOut.println(resultsIGPadd.allScoresToString());
 			
 			
 			fileOut.close();
@@ -315,7 +351,9 @@ public class AffiliationPredictionExperiment {
 
 			System.out.println(resultsWLadd);
 			System.out.println(resultsSTFadd);
-			System.out.println(resultsSTPadd);			
+			System.out.println(resultsSTPadd);
+			System.out.println(resultsIGWadd);
+			System.out.println(resultsIGPadd);
 			
 			System.out.println(resultsWL.allScoresToString());
 			System.out.println(resultsSTF.allScoresToString());
@@ -326,6 +364,8 @@ public class AffiliationPredictionExperiment {
 			System.out.println(resultsWLadd.allScoresToString());
 			System.out.println(resultsSTFadd.allScoresToString());
 			System.out.println(resultsSTPadd.allScoresToString());
+			System.out.println(resultsIGWadd.allScoresToString());
+			System.out.println(resultsIGPadd.allScoresToString());
 			
 
 		} catch (Exception e) {
