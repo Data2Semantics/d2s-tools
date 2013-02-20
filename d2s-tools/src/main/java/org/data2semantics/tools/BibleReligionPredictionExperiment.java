@@ -32,7 +32,7 @@ import org.openrdf.rio.RDFFormat;
 
 public class BibleReligionPredictionExperiment {
 	private final static String DATA_DIR = "D:\\workspaces\\datasets\\bible\\";
-	private final static int NUMBER_OF_PROC = 6;
+	private final static int NUMBER_OF_PROC = 3;
 
 	public static void main(String[] args) {
 		RDFFileDataSet testSetA = new RDFFileDataSet(DATA_DIR + "NTN-individuals.owl", RDFFormat.RDFXML);
@@ -50,7 +50,7 @@ public class BibleReligionPredictionExperiment {
 			
 			if (triples2.size() == 0) {
 				instancesJ.add((URI)triple.getSubject());
-				labels.add("Jew");
+				labels.add("J");
 				
 				List<Statement> bl = testSetA.getStatementsFromStrings(triple.getSubject().toString(), "http://semanticbible.org/ns/2006/NTNames#ethnicity", null, true);
 				bl.addAll(testSetA.getStatementsFromStrings(triple.getSubject().toString(), "http://semanticbible.org/ns/2006/NTNames#religiousBelief", null, true));
@@ -66,7 +66,7 @@ public class BibleReligionPredictionExperiment {
 			
 			if (triples2.size() == 0) {
 				instancesC.add((URI)triple.getSubject());
-				labels.add("Christian");
+				labels.add("C");
 				
 				List<Statement> bl = testSetA.getStatementsFromStrings(triple.getSubject().toString(), "http://semanticbible.org/ns/2006/NTNames#ethnicity", null, true);
 				bl.addAll(testSetA.getStatementsFromStrings(triple.getSubject().toString(), "http://semanticbible.org/ns/2006/NTNames#religiousBelief", null, true));
@@ -80,7 +80,7 @@ public class BibleReligionPredictionExperiment {
 		instances.addAll(instancesJ);
 		instances.addAll(instancesC);
 		
-		System.out.println("Jew and Chris: " + instancesJ.size() + " " + instancesC.size());
+		System.out.println("J and C: " + instancesJ.size() + " " + instancesC.size());
 		
 
 
@@ -98,6 +98,7 @@ public class BibleReligionPredictionExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 3, false, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 4, false, false));
 		
+		/*
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 3, false, true));
@@ -106,6 +107,7 @@ public class BibleReligionPredictionExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, true, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 1, true, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(testSetA, blacklists, instances, 2, true, true));
+		*/
 		
 
 
@@ -130,10 +132,12 @@ public class BibleReligionPredictionExperiment {
 		try {
 			for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createPropertyPredictionDataSet(params);
-				dataset.removeSmallClasses(5);
+				//dataset.removeSmallClasses(5);
 				dataset.setLabels(labels);
 				//dataset.removeVertexAndEdgeLabels();
 
+				
+				/*
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
 				for (int i = 0; i < 7; i++) {
 					if (experimenter.hasSpace()) {		
@@ -173,10 +177,12 @@ public class BibleReligionPredictionExperiment {
 					}
 				}
 
+				//*/
 
-				/*
+
+				
 				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPath");
-				for (int i = 1; i < 3; i++) {
+				for (int i = 1; i < 5; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphPath" + "_" + i + ".txt");
@@ -188,7 +194,7 @@ public class BibleReligionPredictionExperiment {
 				}				
 
 				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalk");
-				for (int i = 1; i < 3; i++) {
+				for (int i = 1; i < 5; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionGraphWalk" + "_" + i + ".txt");
