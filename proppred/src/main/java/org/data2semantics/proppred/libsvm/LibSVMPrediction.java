@@ -1,4 +1,4 @@
-package org.data2semantics.tools.libsvm;
+package org.data2semantics.proppred.libsvm;
 
 public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
 	private double label;
@@ -42,13 +42,13 @@ public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
 		this.index = index;
 	}
 
-	/**
+	/*
 	 *  Compare two predictions so that they can be sorted on decision values.
 	 *  Using this sort a ranking for a binary classification problem can be computed.
 	 *  However, the sign of the decision value is arbitrary. Thus we assume that the two class labels are +1 and -1, 
 	 *  and that positive classes should be ranked higher.
 	 *  
-	 *
+	 * (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(LibSVMPrediction arg0) {
