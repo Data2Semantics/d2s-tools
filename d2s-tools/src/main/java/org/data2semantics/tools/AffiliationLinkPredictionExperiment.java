@@ -25,6 +25,7 @@ import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
 public class AffiliationLinkPredictionExperiment {
+
 	private final static String DATA_DIR = "C:\\eclipse\\workspace\\datasets\\aifb\\";
 	private final static int NUMBER_OF_PROC = 6;
 
@@ -216,6 +217,7 @@ public class AffiliationLinkPredictionExperiment {
 			resultsSTP.addCompResults(bestResults);
 			resultsIGW.addCompResults(bestResults);
 			resultsIGP.addCompResults(bestResults);
+
 			
 			fileOut.println(resultsWL);
 			fileOut.println(resultsSTF);

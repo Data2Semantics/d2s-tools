@@ -25,6 +25,7 @@ import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
 public class AffiliationPredictionExperiment {
+
 	private final static String DATA_DIR = "C:\\eclipse\\workspace\\datasets\\aifb\\";
 	private final static int NUMBER_OF_PROC = 6;
 
@@ -64,6 +65,7 @@ public class AffiliationPredictionExperiment {
 		 */		
 		List<PropertyPredictionDataSetParameters> dataSetsParams = new ArrayList<PropertyPredictionDataSetParameters>();
 
+		
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, true));
@@ -84,9 +86,7 @@ public class AffiliationPredictionExperiment {
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, true, false));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, true, true));
 		dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetB, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, true, true));
-		//*/
-		
-		
+		//*/		
 	
 
 		try {
@@ -146,6 +146,7 @@ public class AffiliationPredictionExperiment {
 				}
 
 
+				
 				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPath");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
@@ -173,6 +174,7 @@ public class AffiliationPredictionExperiment {
 						System.out.println("Running IGW, it " + i + " on " + dataset.getLabel());
 					}
 				}
+				
 			}
 			
 			//*/
@@ -182,6 +184,8 @@ public class AffiliationPredictionExperiment {
 			 * ADDITIONAL EXPERIMENTS
 			 */
 			dataSetsParams = new ArrayList<PropertyPredictionDataSetParameters>();
+			
+			
 			
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
@@ -273,9 +277,8 @@ public class AffiliationPredictionExperiment {
 						System.out.println("Running IGW, it " + i + " on " + dataset.getLabel());
 					}
 				}
-	
-				
 			}
+			
 
 			
 			

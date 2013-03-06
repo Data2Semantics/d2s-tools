@@ -31,6 +31,7 @@ public class CommitteeMemberPredictionExperiment {
 	private final static String DATA_DIR = "C:\\eclipse\\workspace\\datasets\\";
 	private final static int NUMBER_OF_PROC = 6;
 
+
 	public static void main(String[] args) {
 		RDFFileDataSet testSetA = new RDFFileDataSet(DATA_DIR + "eswc-2011-complete.rdf", RDFFormat.RDFXML);
 		testSetA.addFile(DATA_DIR + "eswc-2010-complete.rdf", RDFFormat.RDFXML);
@@ -89,6 +90,7 @@ public class CommitteeMemberPredictionExperiment {
 		//*/
 
 
+		
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 1, true, false));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 2, true, false));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person", 1, true, true));
@@ -121,7 +123,8 @@ public class CommitteeMemberPredictionExperiment {
 				//dataset.removeVertexAndEdgeLabels();
 
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 3; i++) {
+
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
@@ -134,7 +137,7 @@ public class CommitteeMemberPredictionExperiment {
 					}
 				}
 
-
+				
 				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTree");
 				for (int i = 0; i < 3; i++) {
 
@@ -165,6 +168,7 @@ public class CommitteeMemberPredictionExperiment {
 				}
 
 
+				
 				resultsIGP.newRow(dataset.getLabel() + " IntersectionGraphPath");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
