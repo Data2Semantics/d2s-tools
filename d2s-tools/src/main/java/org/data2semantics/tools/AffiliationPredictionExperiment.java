@@ -97,7 +97,7 @@ public class AffiliationPredictionExperiment {
 			for (PropertyPredictionDataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createPropertyPredictionDataSet(params);
 				dataset.removeSmallClasses(5);
-				//dataset.removeVertexAndEdgeLabels();
+				dataset.removeVertexAndEdgeLabels();
 
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
 				for (int i = 0; i < 3; i++) {
@@ -109,6 +109,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsWL.addResult(exp.getResults().getAccuracy());
 						resultsWL.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running WL, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
@@ -123,6 +125,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsSTF.addResult(exp.getResults().getAccuracy());
 						resultsSTF.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running STF, it " + i + " on " + dataset.getLabel());
 					}
 
 				}
@@ -136,6 +140,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsSTP.addResult(exp.getResults().getAccuracy());
 						resultsSTP.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running STP, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
@@ -149,6 +155,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsIGP.addResult(exp.getResults().getAccuracy());
 						resultsIGP.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running IGP, it " + i + " on " + dataset.getLabel());
 					}
 				}				
 
@@ -161,6 +169,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsIGW.addResult(exp.getResults().getAccuracy());
 						resultsIGW.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running IGW, it " + i + " on " + dataset.getLabel());
 					}
 				}
 			}
@@ -176,7 +186,7 @@ public class AffiliationPredictionExperiment {
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, false));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false));
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 3, false, false));
-			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 4, false, false));
+			//dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 4, false, false));
 
 			
 			dataSetsParams.add(new PropertyPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 1, false, true));
@@ -188,10 +198,10 @@ public class AffiliationPredictionExperiment {
 			for (PropertyPredictionDataSetParameters params : dataSetsParams) {
 				dataset = DataSetFactory.createPropertyPredictionDataSet(params);
 				dataset.removeSmallClasses(5);
-				//dataset.removeVertexAndEdgeLabels();
+				dataset.removeVertexAndEdgeLabels();
 
 				resultsWLadd.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {	
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
@@ -200,12 +210,14 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsWLadd.addResult(exp.getResults().getAccuracy());
 						resultsWLadd.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running WL, it " + i + " on " + dataset.getLabel());
 					}
 				}
 
 				
 				resultsSTFadd.newRow(dataset.getLabel() + " IntersectionFullSubTree");
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 4; i++) {
 
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -214,12 +226,14 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsSTFadd.addResult(exp.getResults().getAccuracy());
 						resultsSTFadd.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running STF, it " + i + " on " + dataset.getLabel());
 					}
 
 				}
 
 				resultsSTPadd.newRow(dataset.getLabel() + " IntersectionPartialSubTree");
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 4; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");
@@ -227,6 +241,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsSTPadd.addResult(exp.getResults().getAccuracy());
 						resultsSTPadd.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running STP, it " + i + " on " + dataset.getLabel());
 					}
 				}
 				
@@ -239,6 +255,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsIGPadd.addResult(exp.getResults().getAccuracy());
 						resultsIGPadd.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running IGP, it " + i + " on " + dataset.getLabel());
 					}
 				}				
 
@@ -251,6 +269,8 @@ public class AffiliationPredictionExperiment {
 						experimenter.addExperiment(exp);
 						resultsIGWadd.addResult(exp.getResults().getAccuracy());
 						resultsIGWadd.addResult(exp.getResults().getF1());
+						
+						System.out.println("Running IGW, it " + i + " on " + dataset.getLabel());
 					}
 				}
 	

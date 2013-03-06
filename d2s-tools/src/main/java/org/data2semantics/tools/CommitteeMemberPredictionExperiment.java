@@ -32,10 +32,10 @@ public class CommitteeMemberPredictionExperiment {
 	private final static int NUMBER_OF_PROC = 6;
 
 	public static void main(String[] args) {
-		RDFFileDataSet testSetA = new RDFFileDataSet(DATA_DIR + "iswc-2011-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile(DATA_DIR + "iswc-2010-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile(DATA_DIR + "eswc-2011-complete.rdf", RDFFormat.RDFXML);
+		RDFFileDataSet testSetA = new RDFFileDataSet(DATA_DIR + "eswc-2011-complete.rdf", RDFFormat.RDFXML);
 		testSetA.addFile(DATA_DIR + "eswc-2010-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile(DATA_DIR + "eswc-2011-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile(DATA_DIR + "eswc-2010-complete.rdf", RDFFormat.RDFXML);
 
 
 		RDFFileDataSet testSetB = new RDFFileDataSet(DATA_DIR + "eswc-2012-complete.rdf", RDFFormat.RDFXML);
@@ -72,19 +72,19 @@ public class CommitteeMemberPredictionExperiment {
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
-		int maxClassSize = 75;
+		int maxClassSize = 50;
 
 
 		///*
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 1, false, false));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 2, false, false));
-		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 3, false, false));
-		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 4, false, false));
+		//dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 3, false, false));
+		//dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 4, false, false));
 
 
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 1, false, true));
 		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 2, false, true));
-		dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 3, false, true));
+		//dataSetsParams.add(new BinaryPropertyPredictionDataSetParameters(testSetA, "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/ns/swc/ontology#heldBy", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", instancesB, 3, false, true));
 
 		//*/
 
@@ -121,7 +121,7 @@ public class CommitteeMemberPredictionExperiment {
 				//dataset.removeVertexAndEdgeLabels();
 
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
@@ -136,7 +136,7 @@ public class CommitteeMemberPredictionExperiment {
 
 
 				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTree");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 3; i++) {
 
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -151,7 +151,7 @@ public class CommitteeMemberPredictionExperiment {
 				}
 
 				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTree");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "IntersectionPartialSubTree" + "_" + i + ".txt");

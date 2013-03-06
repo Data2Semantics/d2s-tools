@@ -13,6 +13,7 @@ import org.data2semantics.tools.experiments.ExperimentResults;
 import org.data2semantics.tools.experiments.Experimenter;
 import org.data2semantics.tools.experiments.LinkPredictionDataSet;
 import org.data2semantics.tools.experiments.LinkPredictionExperiment;
+import org.data2semantics.tools.experiments.Result;
 import org.data2semantics.tools.experiments.ResultsTable;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
@@ -24,7 +25,7 @@ import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
 public class AffiliationLinkPredictionExperiment {
-	private final static String DATA_DIR = "D:\\workspaces\\datasets\\aifb\\";
+	private final static String DATA_DIR = "C:\\eclipse\\workspace\\datasets\\aifb\\";
 	private final static int NUMBER_OF_PROC = 6;
 
 	/**
@@ -41,15 +42,15 @@ public class AffiliationLinkPredictionExperiment {
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.5};	
-		int maxClassSize = 50;
+		int maxClassSize = 100;
 
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, false));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, false));
-		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 3, false, false));
+		//dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 3, false, false));
 		
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, false, true));
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 2, false, true));
-		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 3, false, true));
+		//dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 3, false, true));
 
 		
 		dataSetsParams.add(new LinkPredictionDataSetParameters(testSetA, "http://swrc.ontoware.org/ontology#Person", "http://swrc.ontoware.org/ontology#ResearchGroup", "http://swrc.ontoware.org/ontology#affiliation", bl, 1, true, false));
@@ -91,7 +92,7 @@ public class AffiliationLinkPredictionExperiment {
 				//dataset.removeSmallClasses(5);
 
 				resultsWL.newRow(dataset.getLabel() + " WLSubTreeKernel");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "WL" + fileId + "_" + i + ".txt");
@@ -109,7 +110,7 @@ public class AffiliationLinkPredictionExperiment {
 
 
 				resultsSTF.newRow(dataset.getLabel() + " IntersectionFullSubTreeKernel");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 3; i++) {
 
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
@@ -127,7 +128,7 @@ public class AffiliationLinkPredictionExperiment {
 				}
 
 				resultsSTP.newRow(dataset.getLabel() + " IntersectionPartialSubTreeKernel");
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + "_" + "IntersectionPartialSubTree" + fileId + "_" + i + ".txt");
@@ -144,6 +145,7 @@ public class AffiliationLinkPredictionExperiment {
 				}
 
 
+				/*
 				resultsIGW.newRow(dataset.getLabel() + " IntersectionGraphWalkKernel");
 				for (int i = 1; i < 3; i++) {
 					if (experimenter.hasSpace()) {		
@@ -200,6 +202,21 @@ public class AffiliationLinkPredictionExperiment {
 			File file = new File(DATA_DIR + fileId + "_" + "all_results" + ".txt");
 			PrintWriter fileOut = new PrintWriter(new FileOutputStream(file));
 
+			
+			List<Result> bestResults = new ArrayList<Result>();
+			
+			bestResults = resultsWL.getBestResults(bestResults);
+			bestResults = resultsSTF.getBestResults(bestResults);
+			bestResults = resultsSTP.getBestResults(bestResults);
+			bestResults = resultsIGW.getBestResults(bestResults);
+			bestResults = resultsIGP.getBestResults(bestResults);
+			
+			resultsWL.addCompResults(bestResults);
+			resultsSTF.addCompResults(bestResults);
+			resultsSTP.addCompResults(bestResults);
+			resultsIGW.addCompResults(bestResults);
+			resultsIGP.addCompResults(bestResults);
+			
 			fileOut.println(resultsWL);
 			fileOut.println(resultsSTF);
 			fileOut.println(resultsSTP);
