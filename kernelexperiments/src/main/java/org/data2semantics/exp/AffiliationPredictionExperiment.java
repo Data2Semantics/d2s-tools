@@ -1,4 +1,5 @@
-package org.data2semantics.tools;
+package org.data2semantics.exp;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -6,14 +7,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.data2semantics.tools.experiments.PropertyPredictionExperiment;
-import org.data2semantics.tools.experiments.DataSetFactory;
-import org.data2semantics.tools.experiments.PropertyPredictionDataSetParameters;
-import org.data2semantics.tools.experiments.ExperimentResults;
-import org.data2semantics.tools.experiments.Experimenter;
-import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
-import org.data2semantics.tools.experiments.Result;
-import org.data2semantics.tools.experiments.ResultsTable;
+import org.data2semantics.exp.experiments.PropertyPredictionExperiment;
+import org.data2semantics.exp.experiments.DataSetFactory;
+import org.data2semantics.exp.experiments.PropertyPredictionDataSetParameters;
+import org.data2semantics.exp.experiments.ExperimentResults;
+import org.data2semantics.exp.experiments.Experimenter;
+import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
+import org.data2semantics.exp.experiments.Result;
+import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
 import org.data2semantics.tools.kernels.IntersectionPartialSubTreeKernel;

@@ -1,4 +1,4 @@
-package org.data2semantics.tools.experiments;
+package org.data2semantics.exp.experiments;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,12 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.data2semantics.exp.experiments.DataSetFactory;
+import org.data2semantics.exp.experiments.ExperimentResults;
+import org.data2semantics.exp.experiments.Experimenter;
+import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
+import org.data2semantics.exp.experiments.PropertyPredictionDataSetParameters;
+import org.data2semantics.exp.experiments.PropertyPredictionExperiment;
 import org.data2semantics.tools.kernels.IntersectionGraphKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphPathKernel;
 import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;

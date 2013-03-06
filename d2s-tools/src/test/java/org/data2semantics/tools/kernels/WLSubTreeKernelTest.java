@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.data2semantics.tools.experiments.DataSetFactory;
-import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
@@ -37,10 +35,11 @@ public class WLSubTreeKernelTest {
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");
 		bl.add("http://swrc.ontoware.org/ontology#employs");
-				
-		PropertyPredictionDataSet dataSet = DataSetFactory.createPropertyPredictionDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false); 
 		
-		System.out.println(dataSet.getLabel());
+		
+		//PropertyPredictionDataSet dataSet = DataSetFactory.createPropertyPredictionDataSet(testSet, "http://swrc.ontoware.org/ontology#affiliation", "http://swrc.ontoware.org/ontology#employs", 2, false, false); 
+		
+		//System.out.println(dataSet.getLabel());
 	
 		
 		
@@ -116,7 +115,7 @@ public class WLSubTreeKernelTest {
 //		graphs.add(graphC);	
 //		
 	
-		
+		/*
 		WLSubTreeKernel kernel = new WLSubTreeKernel(2);
 		double[][] matrix = kernel.compute(dataSet.getGraphs());
 		
@@ -124,6 +123,7 @@ public class WLSubTreeKernelTest {
 			System.out.println(Arrays.toString(matrix[i]));
 		}
 		
+		*/
 		
 		/*
 		double[] target = LibSVMWrapper.createTargets(dataSet.getLabels());	

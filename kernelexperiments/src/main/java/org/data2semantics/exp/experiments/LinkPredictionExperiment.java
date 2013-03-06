@@ -1,4 +1,4 @@
-package org.data2semantics.tools.experiments;
+package org.data2semantics.exp.experiments;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -85,7 +85,6 @@ public class LinkPredictionExperiment implements Runnable {
 		return results;
 	}	
 
-	@Override
 	public void run() {
 		double acc = 0, f = 0;
 		double p5 = 0, p10 = 0, p20 = 0;

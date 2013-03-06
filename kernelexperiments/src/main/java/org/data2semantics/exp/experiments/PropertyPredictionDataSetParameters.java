@@ -1,35 +1,29 @@
-package org.data2semantics.tools.experiments;
+package org.data2semantics.exp.experiments;
 
 import java.util.List;
-import java.util.Map;
 
 import org.data2semantics.tools.rdf.RDFDataSet;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 
-public class GeneralPredictionDataSetParameters {
+public class PropertyPredictionDataSetParameters {
 	private RDFDataSet rdfDataSet;
+	private String property;
+	private String invProperty;
 	private int depth;
 	private boolean includeInverse;
 	private boolean includeInference;
-	private List<URI> instances;
-	private Map<URI, List<Statement>> blacklists;
 	
-
-		
-	public GeneralPredictionDataSetParameters(RDFDataSet rdfDataSet,
-			Map<URI, List<Statement>> blacklists, List<URI> instances, int depth,
-			boolean includeInverse, boolean includeInference) {
+	public PropertyPredictionDataSetParameters(RDFDataSet rdfDataSet, String property,
+			String invProperty, int depth, boolean includeInverse,
+			boolean includeInference) {
 		super();
 		this.rdfDataSet = rdfDataSet;
+		this.property = property;
+		this.invProperty = invProperty;
 		this.depth = depth;
 		this.includeInverse = includeInverse;
 		this.includeInference = includeInference;
-		this.instances = instances;
-		this.blacklists = blacklists;
 	}
-
-
+	
 
 	public RDFDataSet getRdfDataSet() {
 		return rdfDataSet;
@@ -37,6 +31,14 @@ public class GeneralPredictionDataSetParameters {
 
 	public void setRdfDataSet(RDFDataSet rdfDataSet) {
 		this.rdfDataSet = rdfDataSet;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
+	public void setProperty(String property) {
+		this.property = property;
 	}
 
 	public int getDepth() {
@@ -63,25 +65,11 @@ public class GeneralPredictionDataSetParameters {
 		this.includeInference = includeInference;
 	}
 
-	public List<URI> getInstances() {
-		return instances;
+	public String getInvProperty() {
+		return invProperty;
 	}
 
-	public void setInstances(List<URI> instances) {
-		this.instances = instances;
-	}
-
-
-
-	public Map<URI, List<Statement>> getBlacklists() {
-		return blacklists;
-	}
-
-
-
-	public void setBlacklists(Map<URI, List<Statement>> blacklists) {
-		this.blacklists = blacklists;
-	}
-	
-	
+	public void setInvProperty(String invProperty) {
+		this.invProperty = invProperty;
+	}	
 }

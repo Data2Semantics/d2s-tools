@@ -5,9 +5,6 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.data2semantics.tools.experiments.DataSetFactory;
-import org.data2semantics.tools.experiments.PropertyPredictionDataSetParameters;
-import org.data2semantics.tools.experiments.PropertyPredictionDataSet;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
@@ -112,6 +109,7 @@ public class IntersectionSubTreeKernelTest {
 		*/
 		
 		
+		/*
 		
 		List<PropertyPredictionDataSetParameters> dataSetsParams = new ArrayList<PropertyPredictionDataSetParameters>();
 		

@@ -1,4 +1,4 @@
-package org.data2semantics.tools.experiments;
+package org.data2semantics.exp.experiments;
 
 import static org.junit.Assert.*;
 

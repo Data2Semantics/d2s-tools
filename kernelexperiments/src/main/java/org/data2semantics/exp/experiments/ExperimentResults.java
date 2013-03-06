@@ -1,4 +1,4 @@
-package org.data2semantics.tools.experiments;
+package org.data2semantics.exp.experiments;
 
 public class ExperimentResults {
 	private String label;
