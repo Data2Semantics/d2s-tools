@@ -3,4 +3,11 @@
   <groupId>Data2Semantics</groupId>
   <artifactId>proppred</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<groupId>Data2Semantics</groupId>
+  		<artifactId>d2stools</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>

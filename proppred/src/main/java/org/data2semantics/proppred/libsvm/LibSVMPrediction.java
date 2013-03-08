@@ -1,5 +1,12 @@
 package org.data2semantics.proppred.libsvm;
 
+
+/**
+ * Wrapper class for LibSVM prediction, this class stores all the different possible predictions
+ * 
+ * @author Gerben
+ *
+ */
 public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
 	private double label;
 	private double[] decisionValue;

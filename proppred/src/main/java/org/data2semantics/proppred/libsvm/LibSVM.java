@@ -7,9 +7,9 @@ import java.util.TreeMap;
 
 
 /**
- * Wrapper class for the LibSVM library. This class provides methods to inferface with the libsvm library.
+ * Wrapper class for the LibSVM library. This class provides static methods to interface with the libsvm library.
  * Even though this library is Java, it is a very ugly literal translation of the C code. 
- * Currently the library is focussed on using kernels with LibSVM.
+ * Currently the library is focused on using precomputed kernels with LibSVM.
  * 
  * @author Gerben
  *
@@ -18,6 +18,9 @@ public class LibSVM {
 		
 	/** 
 	 * This function trains an SVM using a kernel matrix and outputs an LibSVMModel
+	 * Via the params object all the 5 svm types can be trained and either the C or nu parameter
+	 * can be optimized over with different performance functions, which can be set in the params object.
+	 * The C/nu settings to use during optimization have to be supplied in the params object.
 	 * 
 	 * @param kernel, a symmetric kernel matrix
 	 * @param target, an array of labels the same length of the height/width of the kernel matrix
@@ -35,25 +38,29 @@ public class LibSVM {
 		svm_parameter svmParams = params.getParams();
 		svm_problem svmProb = createSVMProblem(kernel, target);
 		
-		double score, bestScore = 0, bestC = 1;
-		double[] itParams;
-		
-		// If we use a C_SVC, we use the C's, else we use the Nu's 
-		if (svmParams.svm_type == svmParams.C_SVC) {
-			itParams = params.getCs();
-		} else {
-			itParams = params.getNus();
-		}
+		double score = 0, bestScore = 0, bestC = 1;
 		
 		// Parameter selection
-		for (double c : itParams) {
-			if (svmParams.svm_type == svmParams.C_SVC) {
+		for (double c : params.getItParams()) {
+			if (svmParams.svm_type == LibSVMParameters.C_SVC || svmParams.svm_type == LibSVMParameters.EPSILON_SVR) {
 				svmParams.C = c;
 			} else {
 				svmParams.nu = c;
 			}
 			svm.svm_cross_validation(svmProb, svmParams, 10, prediction);
-			score = computeAccuracy(target, prediction);
+			
+			if (params.getEvalFunction() == LibSVMParameters.ACCURACY) {
+				score = computeAccuracy(target, prediction);
+			}
+			if (params.getEvalFunction() == LibSVMParameters.F1) {
+				score = computeF1(target, prediction);
+			}
+			if (params.getEvalFunction() == LibSVMParameters.MSE) {
+				score = 1 / computeMeanSquaredError(target, prediction);
+			}
+			if (params.getEvalFunction() == LibSVMParameters.MAE) {
+				score = 1 / computeMeanAbsoluteError(target, prediction);
+			}
 			
 			if (score > bestScore) {
 				bestC = c;
@@ -122,10 +129,11 @@ public class LibSVM {
 	 * @param c
 	 * @return
 	 */
+	/*
 	public static double[] crossValidate(double[][] kernel, double[] target, int numberOfFolds, double[] c) {
 		return extractLabels(crossValidate(kernel, target, new LibSVMParameters(c), numberOfFolds));
 	}
-	
+	*/
 	
 	/**
 	 * Convert a list of String labels to an array of doubles
@@ -229,8 +237,38 @@ public class LibSVM {
 			temp2 = 0;
 		}	
 		return f1 / ((double) targetCounts.size());
-		
 	}
+	
+	/**
+	 * Compute the mean squared error for a prediction, useful for regression
+	 * 
+	 * @param target
+	 * @param prediction
+	 * @return
+	 */
+	public static double computeMeanSquaredError(double[] target, double[] prediction) {
+		double error = 0;
+		for (int i = 0; i < target.length; i++) {
+			error += (target[i] - prediction[i]) * (target[i] - prediction[i]);
+		}
+		return error / ((double) target.length);
+	}
+	
+	/**
+	 * compute the mean absolute error for a prediction, for regression
+	 * 
+	 * @param target
+	 * @param prediction
+	 * @return
+	 */
+	public static double computeMeanAbsoluteError(double[] target, double[] prediction) {
+		double error = 0;
+		for (int i = 0; i < target.length; i++) {
+			error += Math.abs(target[i] - prediction[i]);
+		}
+		return error / ((double) target.length);
+	}
+	
 	
 	/**
 	 * Compute how many times each class occurs in the target array. Useful if you want to know the distribution of the different labels
@@ -432,18 +470,6 @@ public class LibSVM {
 	}
 	
 	
-	// NOTE - replace svm_predict with svm_predict_values if we want to look at decision values
-	private static double[] testKernel(svm_model model, double[][] testKernel) {
-		svm_node[][] testNodes = createTestProblem(testKernel);
-		double[] pred = new double[testNodes.length];
-		
-		for (int i = 0 ; i < testNodes.length; i++) {
-			pred[i] = svm.svm_predict(model, testNodes[i]);
-		}
-		return pred;		
-	}
-	
-	
 	
 	private static double[][] createTrainFold(double[][] kernel, int numberOfFolds, int fold) {
 		int foldStart = Math.round((kernel.length / ((float) numberOfFolds)) * ((float) fold - 1));
@@ -514,6 +540,8 @@ public class LibSVM {
 		return trainTargets;
 	}
 	
+	/* 
+	 // Not yet needed, maybe in the future
 	private static double[] createTargetTestFold(double[] target, int numberOfFolds, int fold) {
 		int foldStart = Math.round((target.length / ((float) numberOfFolds)) * ((float) fold - 1));
 		int foldEnd   = Math.round((target.length / ((float) numberOfFolds)) * ((float) fold));
@@ -526,16 +554,8 @@ public class LibSVM {
 		}			
 		return testTargets;
 	}
+	*/
 	
-	private static double[] addFold2Prediction(double[] foldPred, double[] pred, int numberOfFolds, int fold) {
-		int foldStart = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold - 1));
-		int foldEnd   = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold));
-		
-		for (int i = foldStart; i < foldEnd; i++) {
-			pred[i] = foldPred[i - foldStart];
-		}
-		return pred;
-	}
 	
 	private static LibSVMPrediction[] addFold2Prediction(LibSVMPrediction[] foldPred, LibSVMPrediction[] pred, int numberOfFolds, int fold) {
 		int foldStart = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold - 1));

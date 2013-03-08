@@ -1,5 +1,11 @@
 package org.data2semantics.proppred.libsvm;
 
+/**
+ * Very simple wrapper for the svm_model class, this just stores the model.
+ * 
+ * @author Gerben
+ *
+ */
 public class LibSVMModel {
 	private svm_model model;
 	
