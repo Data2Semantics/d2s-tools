@@ -1,12 +1,9 @@
 package org.data2semantics.tools.rdf;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -17,35 +14,92 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.RDFFormat;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
+import org.openrdf.sail.memory.MemoryStore;
 
 public class RDFDataSet
 {
 	protected Repository rdfRep;
 	private String label;
 
+	public RDFDataSet() {
+		try {
+			rdfRep = new SailRepository(new ForwardChainingRDFSInferencer(new MemoryStore()));
+			rdfRep.initialize();
+			
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public RDFDataSet(String label) {
+		this();
+		this.label = label;
+	}
+	
 	public RDFDataSet(Repository rdfRep, String label) {
 		this.rdfRep = rdfRep;
 		this.label = label;
 	}
 
-	/*
-	 * 
-	 * @param file
-	 * @param fileFormat
-	 * @param edgeWhiteList A list of regular expressions. Only edges that match one or more of these are included
-	 * @param vertexWhiteList A list of regular expressions. Only vertices that one or more of these are included
-	 */
-	//	public RDFDataSet(Repository rdfRep, List<String> vertexWhiteList, List<String> edgeWhiteList)
-	//	{
-	//		this(rdfRep);
-	//	}	
-	//
+	public String getLabel() {
+		return this.label;
+	}
+	
+	
+	public Statement createStatement(URI subject, URI predicate, URI object) {
+		return rdfRep.getValueFactory().createStatement(subject, predicate, object, null);
+	}
+	
+	public URI createURI(String uri) {
+		return rdfRep.getValueFactory().createURI(uri);
+	}
+	
+	public void addStatements(List<Statement> stmts) {
+		try {
+			this.rdfRep.getConnection().add(stmts, (Resource) null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 
+	public List<Statement> getFullGraph() 
+	{	
+		return getStatements(null, null, null, true);
+	}
+	
+	public List<Statement> sparqlQuery(String sparqlQuery) {
+		List<Statement> graph = new ArrayList<Statement>();
+
+		try {
+			RepositoryConnection repCon = rdfRep.getConnection();
+			try {
+				GraphQueryResult graphResult = repCon.prepareGraphQuery(QueryLanguage.SPARQL, sparqlQuery).evaluate();
+
+				try {
+					while (graphResult.hasNext()) {
+						graph.add(graphResult.next());
+					}					
+				} finally {
+					graphResult.close();
+				}							
+			} finally {
+				repCon.close();
+			}			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return graph;
+	}
+	
+	
 	public List<Statement> getStatements(Resource subject, URI predicate, Value object) {
 		return getStatements(subject, predicate, object, false);
 	}
-
 
 	/**
 	 * Wrapper for the Sesame connection getStatements, to avoid try-catch statements. 
@@ -76,10 +130,6 @@ public class RDFDataSet
 		return resGraph;		
 	}
 
-	public List<Statement> getFullGraph() 
-	{	
-		return getStatements(null, null, null, true);
-	}
 
 
 
@@ -108,33 +158,49 @@ public class RDFDataSet
 		return getStatements(querySub, queryPred, queryObj, allowInference);
 	}
 
+	
+	public void removeStatementsFromStrings(String subject, String predicate, String object) {
+		
+		URI querySub = null;
+		URI queryPred = null;
+		URI queryObj = null;
 
-	public List<Statement> sparqlQuery(String sparqlQuery) {
-		List<Statement> graph = new ArrayList<Statement>();
+		if (subject != null) {
+			querySub = rdfRep.getValueFactory().createURI(subject);
+		}
 
+		if (predicate != null) {
+			queryPred = rdfRep.getValueFactory().createURI(predicate);
+		}		
+
+		if (object != null) {
+			queryObj = rdfRep.getValueFactory().createURI(object);
+		}
+		removeStatements(querySub, queryPred, queryObj);		
+	}
+	
+	
+	public void removeStatements(Resource subject, URI predicate, Value object) {
 		try {
 			RepositoryConnection repCon = rdfRep.getConnection();
-			try {
-				GraphQueryResult graphResult = repCon.prepareGraphQuery(QueryLanguage.SPARQL, sparqlQuery).evaluate();
 
-				try {
-					while (graphResult.hasNext()) {
-						graph.add(graphResult.next());
-					}					
-				} finally {
-					graphResult.close();
-				}							
+			try {
+				repCon.remove(subject, predicate, object);
 			} finally {
 				repCon.close();
-			}			
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		return graph;
+		}	
 	}
+	
+	
 
+	/**
+	 * SubGraph Extraction Functions
+	 * 
+	 */	
 	public List<Statement> getSubGraph(String startNode, int depth, boolean includeInverse) {
 		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse, false, null);
 	}
@@ -143,11 +209,11 @@ public class RDFDataSet
 		return getSubGraph(rdfRep.getValueFactory().createURI(startNode), depth, includeInverse, allowInference, bl);
 	}
 
-	public List<Statement> getSubGraph(URI startNode, int depth, boolean includeInverse) {
+	public List<Statement> getSubGraph(Resource startNode, int depth, boolean includeInverse) {
 		return getSubGraph(startNode, depth, includeInverse, false, null);	
 	}
 
-	public List<Statement> getSubGraph(URI startNode, int depth, boolean includeInverse, boolean allowInference, List<Statement> bl) {
+	public List<Statement> getSubGraph(Resource startNode, int depth, boolean includeInverse, boolean allowInference, List<Statement> bl) {
 		Set<Statement> graph = new HashSet<Statement>();
 		List<Statement> result;
 		List<Resource> queryNodes = new ArrayList<Resource>();
@@ -185,7 +251,7 @@ public class RDFDataSet
 		
 		return graphRet;
 	}
-
+	
 	private List<Resource> getEndNodes(List<Statement> statements, boolean fromObject) {
 		List<Resource> newNodes = new ArrayList<Resource>();
 
@@ -199,16 +265,5 @@ public class RDFDataSet
 		return newNodes;		
 	}
 
-	public String getLabel() {
-		return this.label;
-	}
-	
-	public Statement createStatement(URI subject, URI predicate, URI object) {
-		return rdfRep.getValueFactory().createStatement(subject, predicate, object, null);
-	}
-	
-	public URI createURI(String uri) {
-		return rdfRep.getValueFactory().createURI(uri);
-	}
-	
+			
 }

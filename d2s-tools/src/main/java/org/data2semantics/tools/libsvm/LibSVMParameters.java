@@ -20,6 +20,8 @@ public class LibSVMParameters {
 		this(optValues, C_SVC);
 	}	
 	
+	
+
 	public LibSVMParameters(int algorithm) {
 		params = new svm_parameter();
 		params.kernel_type = params.PRECOMPUTED;

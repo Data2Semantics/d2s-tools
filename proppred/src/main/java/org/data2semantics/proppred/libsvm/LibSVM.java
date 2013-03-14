@@ -136,31 +136,31 @@ public class LibSVM {
 	*/
 	
 	/**
-	 * Convert a list of String labels to an array of doubles
+	 * Convert a list of label Objects to an array of doubles
 	 * 
 	 * @param labels
 	 * @return
 	 */
-	public static double[] createTargets(List<String> labels) {
-		Map<String, Integer> labelMap = new TreeMap<String, Integer>();
+	public static <L> double[] createTargets(List<L> labels) {
+		Map<L, Integer> labelMap = new TreeMap<L, Integer>();
 		return createTargets(labels, labelMap);
 	}
 	
 	
 	/**
-	 * Convert a list of String labels to an array of doubles, given a Map between strings and integers.
+	 * Convert a list of label objects to an array of doubles, given a Map between label objects of type L and integers.
 	 * This function is useful if you want to test on a separate test set (i.e. no cross-validation).
 	 * 
 	 * @param labels
 	 * @param labelMap
 	 * @return
 	 */
-	public static double[] createTargets(List<String> labels, Map<String, Integer> labelMap) {
+	public static <L> double[] createTargets(List<L> labels, Map<L, Integer> labelMap) {
 		double[] targets = new double[labels.size()];
 		int t = 0;
 		int i = 0;
 		
-		for (String label : labels) {
+		for (L label : labels) {
 			if (!labelMap.containsKey(label)) {
 				t += 1;
 				labelMap.put(label, t);
@@ -170,6 +170,23 @@ public class LibSVM {
 		}	
 		return targets;
 	}
+	
+	/**
+	 * This function reverses the labelMap created with createTargets. Useful if we want to transform a prediction back to the original label Objects.
+	 * This works because the mapping from objects to labels is bijective.
+	 * 
+	 * @param labelMap
+	 * @return
+	 */
+	public static <L> Map<Integer, L> reverseLabelMap(Map<L, Integer> labelMap) {
+		Map<Integer, L> reverseMap = new TreeMap<Integer, L>();
+		
+		for (L label : labelMap.keySet()) {
+			reverseMap.put(labelMap.get(label), label);
+		}
+		return reverseMap;
+	}
+	
 	
 	/**
 	 * Compute the accuracy of a prediction
