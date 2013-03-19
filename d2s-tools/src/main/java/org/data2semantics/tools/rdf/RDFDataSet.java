@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -54,6 +55,10 @@ public class RDFDataSet
 	
 	public URI createURI(String uri) {
 		return rdfRep.getValueFactory().createURI(uri);
+	}
+	
+	public Literal createLiteral(String lit) {
+		return rdfRep.getValueFactory().createLiteral(lit);
 	}
 	
 	public void addStatements(List<Statement> stmts) {

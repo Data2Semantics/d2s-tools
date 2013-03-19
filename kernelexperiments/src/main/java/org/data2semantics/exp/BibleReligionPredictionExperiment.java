@@ -8,13 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-import org.data2semantics.exp.experiments.BinaryPropertyPredictionDataSetParameters;
 import org.data2semantics.exp.experiments.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.experiments.PropertyPredictionExperiment;
 import org.data2semantics.exp.experiments.DataSetFactory;
-import org.data2semantics.exp.experiments.PropertyPredictionDataSetParameters;
-import org.data2semantics.exp.experiments.ExperimentResults;
 import org.data2semantics.exp.experiments.Experimenter;
 import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
 import org.data2semantics.exp.experiments.Result;
@@ -24,15 +22,13 @@ import org.data2semantics.tools.kernels.IntersectionGraphWalkKernel;
 import org.data2semantics.tools.kernels.IntersectionPartialSubTreeKernel;
 import org.data2semantics.tools.kernels.IntersectionSubTreeKernel;
 import org.data2semantics.tools.kernels.WLSubTreeKernel;
-import org.data2semantics.tools.kernels.WLSubTreeKernel;
-import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.rio.RDFFormat;
 
 public class BibleReligionPredictionExperiment {
-	private final static String DATA_DIR = "D:\\workspaces\\datasets\\bible\\";
+	private final static String DATA_DIR = "datasets/";
 	private final static int NUMBER_OF_PROC = 4;
 
 	public static void main(String[] args) {
@@ -265,6 +261,8 @@ public class BibleReligionPredictionExperiment {
 			System.out.println(resultsSTP.allScoresToString());
 			System.out.println(resultsIGW.allScoresToString());
 			System.out.println(resultsIGP.allScoresToString());
+			
+			fileOut.close();
 
 
 		} catch (Exception e) {

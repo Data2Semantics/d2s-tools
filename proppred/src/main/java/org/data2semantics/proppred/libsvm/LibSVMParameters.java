@@ -46,15 +46,23 @@ public class LibSVMParameters {
 		// Weights, SVR epsilon, verbosity, evalFunction can be changed afterwards via setters
 		params.nr_weight = 0;
 		params.p = 0.1;
-		evalFunction = ACCURACY;
 		verbose = false;	
 
+		if (params.svm_type == EPSILON_SVR || params.svm_type == NU_SVR) {
+			evalFunction = MSE;
+		} else {
+			evalFunction = ACCURACY;
+		}
 	}
 
 	svm_parameter getParams() {
 		return params;
 	}
 
+	public int getAlgorithm() {
+		return params.svm_type;
+	}
+ 	
 	public void setItParams(double[] itParams) {
 		this.itParams = itParams;
 	}

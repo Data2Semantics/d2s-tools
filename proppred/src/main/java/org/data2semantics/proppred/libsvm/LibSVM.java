@@ -17,7 +17,7 @@ import java.util.TreeMap;
 public class LibSVM {
 		
 	/** 
-	 * This function trains an SVM using a kernel matrix and outputs an LibSVMModel
+	 * This function trains an SVM using a kernel matrix and outputs a LibSVMModel.
 	 * Via the params object all the 5 svm types can be trained and either the C or nu parameter
 	 * can be optimized over with different performance functions, which can be set in the params object.
 	 * The C/nu settings to use during optimization have to be supplied in the params object.
