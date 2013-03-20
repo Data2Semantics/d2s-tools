@@ -27,11 +27,23 @@ public class LibSVMParameters {
 	private int evalFunction;
 	private boolean verbose;
 
+	
+	/**
+	 * 
+	 * @param algorithm, one of the 5 algorithms
+	 * @param itParams, an array of doubles, which are the values to iterate over during training. For C-SVC and epsilon-SVR, these are possibilities for the C parameter, so ranges like 0.001, 0.01, 0.1, 1, 10, etc.
+	 * make sense. For the other 3 algorithms this is the nu parameter, which should be between 0 and 1.
+	 */
 	public LibSVMParameters(int algorithm, double[] itParams) {
 		this(algorithm);
 		this.itParams = itParams;
 	}
 	
+	/**
+	 * Note that the itParams have to be set manually when using this constructor.
+	 * 
+	 * @param algorithm, one of the 5 algorithms
+	 */
 	public LibSVMParameters(int algorithm) {
 		params = new svm_parameter();
 		params.svm_type = algorithm;
@@ -63,6 +75,11 @@ public class LibSVMParameters {
 		return params.svm_type;
 	}
  	
+	/**
+	 * Set the values to try for C (in case of C-SVC and epsilon-SVR) and nu in case of the other 3 algorithms.
+	 * 	 * 
+	 * @param itParams, range of values to try.
+	 */
 	public void setItParams(double[] itParams) {
 		this.itParams = itParams;
 	}
@@ -79,10 +96,20 @@ public class LibSVMParameters {
 		return verbose;
 	}
 
+	/**
+	 * To set the p parameter in epsilon-SVR
+	 * 
+	 * @param p
+	 */
 	public void setP(double p) {
 		this.params.p = p;
 	}	
 	
+	/**
+	 * Together with setWeights this controls the weights for the different classes, when we have a skewed distribution.
+	 * 	 * 
+	 * @param labels
+	 */
 	public void setWeightLabels(int[] labels) {
 		params.weight_label = labels;
 		params.nr_weight = labels.length;
@@ -93,6 +120,13 @@ public class LibSVMParameters {
 		params.nr_weight = weight.length;
 	}
 	
+	/**
+	 * Set the evaluation function used during the parameter optimization (e.g. C or nu).
+	 * This currently use 4 options, defined by constants.
+	 * By default this is ACCURACY for classification and one-class, and MSE for regression.
+	 * 
+	 * @param evalFunction, one of the 4 constant values
+	 */
 	public void setEvalFunction(int evalFunction) {
 		this.evalFunction = evalFunction;
 	}

@@ -23,15 +23,10 @@ import org.openrdf.model.Value;
 
 import cern.colt.Arrays;
 
-/* kernel, LibSVMParameters, extractionDepth (other extraction parameters maybe), class/regression
- * 
- * 
- */
-
 
 /**
- * This class is a Support Vector Machine and {@link org.data2semantics.proppred.kernels.GraphKernel} based implementation of the {@link PropertyPredictor} Interface.
- * 
+ * This class is a Support Vector Machine (using {@link libsvm.LibSVM}) and {@link org.data2semantics.proppred.kernels.GraphKernel} based implementation of the {@link PropertyPredictor} Interface.
+ * Classification, Regression and Outlier Detection (via One-Class SVM) are all supported.
  * 
  * @author Gerben
  *
@@ -45,29 +40,67 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 	private LibSVMModel trainedModel;
 
 	private LibSVMParameters params;
-	private double[] cs = { 0.001, 0.01, 0.1, 1.0, 10, 100, 1000 };
-	private int extractionDepth = 2;
+	private int extractionDepth;
 
+	
+	
+	/**
+	 * Construct the default SVMPropertyPredictor. A C-SVC support vector machine is used, with a WLSubtreeKernel and extraction depth 2. This setting is good to start with for a new classification task.
+	 * 
+	 */
 	public SVMPropertyPredictor() {
-		kernel = new WLSubTreeKernel(0, true);
-
+		this(new WLSubTreeKernel(2,true), 2);
+		this.setDefaultLibSVMParams();
+	}
+	
+	/**
+	 * Default C-SVM settings, but one can specify the graph kernel used.
+	 * 
+	 * @param kernel an instance of a GraphKernel
+	 */
+	public SVMPropertyPredictor(GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel) {
+		this(kernel, 2);
+	}
+	
+	/**
+	 * Default C-SVM settings.
+	 * 
+	 * @param kernel an instance of GraphKernel
+	 * @param extractionDepth the depth used in subgraph extraction
+	 */
+	public SVMPropertyPredictor(GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel, int extractionDepth) {
+		this.kernel = kernel;
+		this.extractionDepth = extractionDepth;	
+		this.setDefaultLibSVMParams();
+		
 		trainGraphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
 		trainLabels = new ArrayList<String>();
 		labelMap = new TreeMap<String, Integer>();
 		valueMap = new TreeMap<String, Value>();
-
-		params = new LibSVMParameters(LibSVMParameters.EPSILON_SVR);
-		params.setItParams(cs);
 	}
+	
 
-	/*
+	/**
+	 * Using the params object different algorithms from LibSVM can be chosen (C-SVC, nu-SVC for classification, nu-SVR, epsilon-SVR for regression and one-class for outlier detection).
 	 * 
-	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.data2semantics.proppred.PropertyPredictor#train(org.data2semantics
-	 * .tools.rdf.RDFDataSet, java.util.List, java.util.List)
+	 * @param kernel an instance of GraphKernel
+	 * @param extractionDepth depth used in subgraph extraction
+	 * @param params parameters for the LibSVM library. When using algorithms with the nu parameter (nu-SVC,nu-SVR and one-class) make sure the iteration parameters are set between 0 and 1.
 	 */
+	public SVMPropertyPredictor(GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel, int extractionDepth, LibSVMParameters params) {
+		this(kernel, extractionDepth);
+		this.params = params;
+	}
+	
+	private void setDefaultLibSVMParams() {
+		this.params = new LibSVMParameters(LibSVMParameters.C_SVC);
+		double[] cs = {0.001, 0.01, 0.1, 1.0, 10, 100, 1000};
+		this.params.setItParams(cs);
+	}
+	
+	
+
 	public void train(RDFDataSet dataset, List<Resource> instances,
 			List<Value> labels) {
 		Map<Resource, List<Statement>> dummyMap = new HashMap<Resource, List<Statement>>();
@@ -77,6 +110,12 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 		train(dataset, instances, labels, dummyMap);
 	}
 
+	
+	/**
+	 * Used to train an SVM model. For regression SVM models (nu-SVR,epsilon-SVR) the StringValue of the Value labels should be parseable to a double. 
+	 * For one-class SVM the labels do not matter, all instances are considered to be part of the class.	 * 
+	 * 
+	 */
 	public void train(RDFDataSet dataset, List<Resource> instances,
 			List<Value> labels, Map<Resource, List<Statement>> blackLists) {
 		DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> subGraph;
@@ -107,12 +146,9 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 			}
 			target = LibSVM.createTargets(trainLabels, labelMap);
 		}
-
-		System.out.println(labels);
-		System.out.println(Arrays.toString(target));
-		
-		LibSVMPrediction[] pred = LibSVM.crossValidate(kernelMatrix, target,
-				params, 10);
+	
+		// Just to indicate the performance of the predictor, we run cross-validation first
+		LibSVMPrediction[] pred = LibSVM.crossValidate(kernelMatrix, target, params, 10);
 		
 		if (params.getAlgorithm() == LibSVMParameters.EPSILON_SVR || params.getAlgorithm() == LibSVMParameters.NU_SVR) {
 			System.out.println("10-fold CV MSE: "
@@ -134,6 +170,12 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 		return predict(dataset, instances, dummyMap);
 	}
 
+	
+	/**
+	 * Predict for new instances using a trained SVM model. For regression SVMs the Value's contain a double (as String). 
+	 * For one-class the Values contain a String: "normal" for instances falling within the model and "outlier" for instances outside the model.
+	 * 
+	 */
 	public List<Value> predict(RDFDataSet dataset, List<Resource> instances,
 			Map<Resource, List<Statement>> blackLists) {
 		List<Value> predictions = new ArrayList<Value>();
@@ -166,7 +208,13 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 			for (double p : pred) {
 				if (params.getAlgorithm() == LibSVMParameters.EPSILON_SVR || params.getAlgorithm() == LibSVMParameters.NU_SVR) {
 					predictions.add(dataset.createLiteral(Double.toString(p)));
-				} else {	
+				} else if (params.getAlgorithm() == LibSVMParameters.ONE_CLASS) {
+					if (p == 1) {
+						predictions.add(dataset.createLiteral("normal"));
+					} else {
+						predictions.add(dataset.createLiteral("outlier"));
+					}
+				} else {
 					predictions.add(valueMap.get(revMap.get((int) p)));
 				}
 			}
