@@ -1,11 +1,9 @@
 package org.data2semantics.exp.experiments;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;

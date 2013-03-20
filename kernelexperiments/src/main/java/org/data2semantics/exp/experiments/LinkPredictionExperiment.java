@@ -9,19 +9,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import org.data2semantics.proppred.kernels.GraphKernel;
+import org.data2semantics.proppred.libsvm.LibSVM;
+import org.data2semantics.proppred.libsvm.LibSVMModel;
+import org.data2semantics.proppred.libsvm.LibSVMParameters;
+import org.data2semantics.proppred.libsvm.LibSVMPrediction;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
-import org.data2semantics.tools.kernels.GraphKernel;
-import org.data2semantics.tools.kernels.IntersectionSubTreeKernel;
-import org.data2semantics.tools.libsvm.LibSVM;
-import org.data2semantics.tools.libsvm.LibSVMModel;
-import org.data2semantics.tools.libsvm.LibSVMParameters;
-import org.data2semantics.tools.libsvm.LibSVMPrediction;
 
 import cern.colt.Arrays;
-
-import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.util.Pair;
 
 public class LinkPredictionExperiment implements Runnable {
@@ -126,7 +123,7 @@ public class LinkPredictionExperiment implements Runnable {
 			labelMap.put("true", -1);
 			labelMap.put("false", 1);
 			
-			LibSVMParameters param = new LibSVMParameters(cs, LibSVMParameters.NU_SVC);
+			LibSVMParameters param = new LibSVMParameters(LibSVMParameters.NU_SVC, cs);
 			//param.setVerbose(true);
 			int[] weightLabels = {-1, 1};
 			double[] weights = {1,1};

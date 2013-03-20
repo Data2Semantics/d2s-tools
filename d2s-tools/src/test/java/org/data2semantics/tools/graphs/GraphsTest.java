@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
@@ -19,7 +20,7 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 public class GraphsTest
 {
 
-	@Test
+	@Ignore
 	public void test()
 	{
 		File file = new File("/Users/Peter/Documents/datasets/rdf/aifb/aifb-fixed_complete.owl");

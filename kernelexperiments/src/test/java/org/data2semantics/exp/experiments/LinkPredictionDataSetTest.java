@@ -1,12 +1,8 @@
 package org.data2semantics.exp.experiments;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.data2semantics.exp.experiments.DataSetFactory;
-import org.data2semantics.exp.experiments.LinkPredictionDataSet;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.junit.Test;

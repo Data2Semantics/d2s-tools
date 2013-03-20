@@ -3,14 +3,11 @@ package org.data2semantics.exp.experiments;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
-import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
-import org.data2semantics.tools.graphs.Edge;
-import org.data2semantics.tools.graphs.Vertex;
-import org.data2semantics.tools.kernels.GraphKernel;
-import org.data2semantics.tools.libsvm.LibSVM;
+import org.data2semantics.proppred.kernels.GraphKernel;
+import org.data2semantics.proppred.libsvm.LibSVM;
+import org.data2semantics.proppred.libsvm.LibSVMParameters;
 
 import cern.colt.Arrays;
-import edu.uci.ics.jung.graph.DirectedGraph;
 
 
 public class PropertyPredictionExperiment implements Runnable {
@@ -71,9 +68,11 @@ public class PropertyPredictionExperiment implements Runnable {
 				subset.shuffle(seeds[i]);
 				matrix = kernel.compute(subset.getGraphs());
 				target = LibSVM.createTargets(subset.getLabels());
-			}
-					
-			double[] prediction = LibSVM.crossValidate(matrix, target, 10, cs);
+			}			
+				
+			LibSVMParameters params = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
+			double[] prediction = LibSVM.extractLabels(LibSVM.crossValidate(matrix, target, params, 10));
+			
 			accScores[i] = LibSVM.computeAccuracy(target, prediction);
 			fScores[i]   = LibSVM.computeF1(target, prediction);		
 		}
@@ -99,7 +98,6 @@ public class PropertyPredictionExperiment implements Runnable {
 		results.setLabel(dataSet.getLabel() + ", Seeds=" + Arrays.toString(seeds) + ", C=" + Arrays.toString(cs) + ", " + kernel.getLabel() );
 		results.setAccuracy(accRes);
 		results.setF1(fRes);
-
 	}
 
 

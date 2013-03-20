@@ -9,5 +9,10 @@
   		<artifactId>d2stools</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+  		<groupId>Data2Semantics</groupId>
+  		<artifactId>proppred</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
 </project>

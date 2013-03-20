@@ -19,7 +19,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class GraphFactoryTest {
 
-	@Test
+	@Ignore
 	public void test() {
 		RDFFileDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\datasets\\bible\\NTN-individuals.owl", RDFFormat.RDFXML);
 		testSetA.addFile("D:\\workspaces\\datasets\\bible\\NTNames.owl", RDFFormat.RDFXML);
@@ -90,7 +90,7 @@ public class GraphFactoryTest {
 		*/
 	}
 	
-	@Ignore
+	@Test
 	public void test2() {
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();
 		

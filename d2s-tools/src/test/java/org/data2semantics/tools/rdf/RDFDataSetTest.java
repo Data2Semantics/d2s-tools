@@ -13,7 +13,7 @@ import org.openrdf.rio.RDFFormat;
 
 public class RDFDataSetTest {
 
-	@Test
+	@Ignore
 	public void testRDFDataSet() {
 		RDFDataSet testSet = new RDFFileDataSet("D:\\workspaces\\datasets\\eswc-2012-complete.rdf", RDFFormat.RDFXML);
 

@@ -11,7 +11,6 @@ import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 
-import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.util.Pair;
 
 public class LinkPredictionDataSet {

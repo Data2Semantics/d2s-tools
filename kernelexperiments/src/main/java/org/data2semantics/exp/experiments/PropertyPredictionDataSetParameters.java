@@ -1,7 +1,5 @@
 package org.data2semantics.exp.experiments;
 
-import java.util.List;
-
 import org.data2semantics.tools.rdf.RDFDataSet;
 
 public class PropertyPredictionDataSetParameters {
