@@ -312,22 +312,4 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 		}
 		return graphs;
 	}
-	
-	private class Bucket<T> {
-		private String label;
-		private List<T> contents;
-		
-		public Bucket(String label) {
-			this.label = label;
-			contents = new ArrayList<T>();
-		}
-
-		public List<T> getContents() {
-			return contents;
-		}
-
-		public String getLabel() {
-			return label;
-		}
-	}
 }

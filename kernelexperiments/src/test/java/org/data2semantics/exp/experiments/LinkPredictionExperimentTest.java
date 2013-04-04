@@ -6,12 +6,13 @@ import java.util.List;
 import org.data2semantics.proppred.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.rio.RDFFormat;
 
 public class LinkPredictionExperimentTest {
 
-	@Test
+	@Ignore
 	public void test() {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		//long[] seeds = {11};

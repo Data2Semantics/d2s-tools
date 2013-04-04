@@ -1,12 +1,13 @@
 package org.data2semantics.exp.experiments;
 
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.rio.RDFFormat;
 
 public class GraphClassificationDataSetTest {
 
-	@Test
+	@Ignore
 	public void test() {
 		
 		RDFFileDataSet testSetA = new RDFFileDataSet("D:\\workspaces\\datasets\\bible\\NTN-individuals.owl", RDFFormat.RDFXML);

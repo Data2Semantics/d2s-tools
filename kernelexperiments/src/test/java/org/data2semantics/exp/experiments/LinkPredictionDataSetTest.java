@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.rio.RDFFormat;
 
 public class LinkPredictionDataSetTest {
 
-	@Test
+	@Ignore
 	public void test() {
 		List<String> bl = new ArrayList<String>();
 		bl.add("http://swrc.ontoware.org/ontology#affiliation");

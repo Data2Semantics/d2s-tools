@@ -7,12 +7,13 @@ import java.util.List;
 import org.data2semantics.proppred.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.rio.RDFFormat;
 
 public class ClassificationExperimentTest {
 
-	@Test
+	@Ignore
 	public void test() {
 
 		List<PropertyPredictionDataSetParameters> dataSetsParams = new ArrayList<PropertyPredictionDataSetParameters>();
