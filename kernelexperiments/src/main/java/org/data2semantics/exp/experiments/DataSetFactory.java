@@ -11,6 +11,7 @@ import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Graphs;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
@@ -27,7 +28,7 @@ public class DataSetFactory {
 	}
 	
 	
-	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, Map<URI, List<Statement>> blacklists, List<URI> instances, int depth, boolean includeInverse, boolean includeInference) {
+	public static PropertyPredictionDataSet createPropertyPredictionDataSet(RDFDataSet rdfDataSet, Map<Resource, List<Statement>> blacklists, List<Resource> instances, int depth, boolean includeInverse, boolean includeInference) {
 		List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>>();
 		List<String> labels = new ArrayList<String>();
 		StringBuffer label = new StringBuffer();
@@ -42,7 +43,7 @@ public class DataSetFactory {
 		label.append(", Inference=");
 		label.append(includeInference);
 		
-		for (URI instance : instances) {
+		for (Resource instance : instances) {
 			DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph = GraphFactory.copyDirectedGraph2GraphWithRoot(GraphFactory.createDirectedGraph(rdfDataSet.getSubGraph(instance, depth, includeInverse, includeInference, blacklists.get(instance))));
 			graphs.add(graph);
 			labels.add("temp");

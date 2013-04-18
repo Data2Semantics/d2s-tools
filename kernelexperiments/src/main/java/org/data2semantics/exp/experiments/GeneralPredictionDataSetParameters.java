@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.data2semantics.tools.rdf.RDFDataSet;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
@@ -12,13 +13,13 @@ public class GeneralPredictionDataSetParameters {
 	private int depth;
 	private boolean includeInverse;
 	private boolean includeInference;
-	private List<URI> instances;
-	private Map<URI, List<Statement>> blacklists;
+	private List<Resource> instances;
+	private Map<Resource, List<Statement>> blacklists;
 	
 
 		
 	public GeneralPredictionDataSetParameters(RDFDataSet rdfDataSet,
-			Map<URI, List<Statement>> blacklists, List<URI> instances, int depth,
+			Map<Resource, List<Statement>> blacklists, List<Resource> instances, int depth,
 			boolean includeInverse, boolean includeInference) {
 		super();
 		this.rdfDataSet = rdfDataSet;
@@ -63,23 +64,23 @@ public class GeneralPredictionDataSetParameters {
 		this.includeInference = includeInference;
 	}
 
-	public List<URI> getInstances() {
+	public List<Resource> getInstances() {
 		return instances;
 	}
 
-	public void setInstances(List<URI> instances) {
+	public void setInstances(List<Resource> instances) {
 		this.instances = instances;
 	}
 
 
 
-	public Map<URI, List<Statement>> getBlacklists() {
+	public Map<Resource, List<Statement>> getBlacklists() {
 		return blacklists;
 	}
 
 
 
-	public void setBlacklists(Map<URI, List<Statement>> blacklists) {
+	public void setBlacklists(Map<Resource, List<Statement>> blacklists) {
 		this.blacklists = blacklists;
 	}
 	

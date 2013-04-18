@@ -72,7 +72,7 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 		
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 		
-		if (!skipFirst) {
+		if (!skipFirst) {		
 			computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
 			computeKernelMatrix(graphs, featureVectors, kernel, 1);
 		}
@@ -82,7 +82,7 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 			startLabel = currentLabel;
 			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 			computeFeatureVectors(graphs, featureVectors, startLabel, currentLabel);
-			computeKernelMatrix(graphs, featureVectors, kernel, i+2);	
+			computeKernelMatrix(graphs, featureVectors, kernel, i+2);
 		}
 		
 		if (normalize) {
@@ -296,15 +296,6 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 		
 	}
 	
-	private double dotProduct(double[] fv1, double[] fv2) {
-		double sum = 0.0;		
-		for (int i = 0; i < fv1.length && i < fv2.length; i++) {
-			sum += fv1[i] * fv2[i];
-		}	
-		return sum;
-	}	
-	
-
 	private List<DirectedGraph<Vertex<String>, Edge<String>>> copyGraphs(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> oldGraphs) {
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = new ArrayList<DirectedGraph<Vertex<String>, Edge<String>>>();	
 		for(DirectedGraph<Vertex<String>, Edge<String>> graph : oldGraphs) {

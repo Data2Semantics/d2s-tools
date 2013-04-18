@@ -1,9 +1,10 @@
 package org.data2semantics.proppred.libsvm;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 
 /**
@@ -142,7 +143,7 @@ public class LibSVM {
 	 * @return
 	 */
 	public static <L> double[] createTargets(List<L> labels) {
-		Map<L, Integer> labelMap = new TreeMap<L, Integer>();
+		Map<L, Integer> labelMap = new HashMap<L, Integer>();
 		return createTargets(labels, labelMap);
 	}
 	
@@ -179,7 +180,7 @@ public class LibSVM {
 	 * @return
 	 */
 	public static <L> Map<Integer, L> reverseLabelMap(Map<L, Integer> labelMap) {
-		Map<Integer, L> reverseMap = new TreeMap<Integer, L>();
+		Map<Integer, L> reverseMap = new HashMap<Integer, L>();
 		
 		for (L label : labelMap.keySet()) {
 			reverseMap.put(labelMap.get(label), label);
@@ -230,7 +231,8 @@ public class LibSVM {
 	
 	
 	/**
-	 * Compute the F1 score for a prediction
+	 * Compute the F1 score for a prediction. 
+	 * It computes the F1 per class and returns the average of these F1's, this is called the macro F1
 	 * 
 	 * @param target
 	 * @param prediction
@@ -294,7 +296,7 @@ public class LibSVM {
 	 * @return
 	 */
 	public static Map<Double, Double> computeClassCounts(double[] target) {
-		Map<Double, Double> counts = new TreeMap<Double, Double>();
+		Map<Double, Double> counts = new HashMap<Double, Double>();
 
 		for (int i = 0; i < target.length; i++) {
 			if (!counts.containsKey(target[i])) {

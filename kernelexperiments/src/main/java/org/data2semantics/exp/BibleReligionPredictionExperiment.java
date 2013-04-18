@@ -22,6 +22,7 @@ import org.data2semantics.proppred.kernels.IntersectionPartialSubTreeKernel;
 import org.data2semantics.proppred.kernels.IntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.rio.RDFFormat;
@@ -37,7 +38,7 @@ public class BibleReligionPredictionExperiment {
 		List<URI> instancesJ = new ArrayList<URI>();
 		List<URI> instancesC = new ArrayList<URI>();
 		List<String> labels = new ArrayList<String>();
-		Map<URI, List<Statement>> blacklists = new HashMap<URI, List<Statement>>();
+		Map<Resource, List<Statement>> blacklists = new HashMap<Resource, List<Statement>>();
 		
 		
 		List<Statement> triples = testSetA.getStatementsFromStrings(null, "http://semanticbible.org/ns/2006/NTNames#ethnicity", "http://semanticbible.org/ns/2006/NTNames#Jewish", true);			
@@ -72,7 +73,7 @@ public class BibleReligionPredictionExperiment {
 			}
 		}
 		
-		List<URI> instances = new ArrayList<URI>();
+		List<Resource> instances = new ArrayList<Resource>();
 		instances.addAll(instancesJ);
 		instances.addAll(instancesC);
 		
