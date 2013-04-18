@@ -324,8 +324,8 @@ public class CompareExperiment {
 			}
 		}
 
-		//capClassSize(50, seed);
-		removeSmallClasses(5);
+		capClassSize(20, seed);
+		removeSmallClasses(1);
 		blackList = createBlackList();
 
 		Map<Value, Integer> labelMap = new HashMap<Value, Integer>();
