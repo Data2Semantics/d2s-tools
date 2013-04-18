@@ -133,12 +133,13 @@ public class CompareExperiment {
 	private static void geoExperiments() {
 		RDFFileDataSet ds = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 		//createGeoDataSet(1, ds);
-
+		//,61,71,81,91,101
+		
 		long[] seeds = {11,21,31,41,51};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int depth = 4;
-		int[] iterations = {0, 2, 4, 6, 8};
+		int depth = 3;
+		int[] iterations = {0, 2, 4, 6};
 
 		boolean inference = false;	
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
@@ -158,6 +159,8 @@ public class CompareExperiment {
 					seedsTemp[0] = seed;
 
 					createGeoDataSet(seed, ds);
+
+					
 					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seedsTemp, parms, dataset, instances, labels, blackList);
 					exp.run();
 					allRes.add(exp.getResults());
@@ -166,15 +169,39 @@ public class CompareExperiment {
 				for (Result res : Result.mergeResultLists(allRes)) {
 					resTable.addResult(res);
 				}
+			}
+		}
+		
+		inference = true;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
 
+			for (int it : iterations) {
+
+				List<List<Result>> allRes = new ArrayList<List<Result>>();
+				for (long seed : seeds) {
+					long[] seedsTemp = new long[1];
+					seedsTemp[0] = seed;
+
+					createGeoDataSet(seed, ds);
+
+					
+					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seedsTemp, parms, dataset, instances, labels, blackList);
+					exp.run();
+					allRes.add(exp.getResults());
+				}
+
+				for (Result res : Result.mergeResultLists(allRes)) {
+					resTable.addResult(res);
+				}
 			}
 		}
 		//*/
 
 
+		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
-
 
 			List<List<Result>> allRes = new ArrayList<List<Result>>();
 
@@ -193,13 +220,36 @@ public class CompareExperiment {
 			for (Result res : Result.mergeResultLists(allRes)) {
 				resTable.addResult(res);
 			}
+		}
+		
+		inference = true;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
 
+			List<List<Result>> allRes = new ArrayList<List<Result>>();
+
+			for (long seed : seeds) {
+				long[] seedsTemp = new long[1];
+				seedsTemp[0] = seed;
+
+				createGeoDataSet(seed, ds);
+
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 0.01, inference, true), seedsTemp, parms, dataset, instances, labels, blackList);
+
+				exp.run();
+				allRes.add(exp.getResults());
+			}
+
+			for (Result res : Result.mergeResultLists(allRes)) {
+				resTable.addResult(res);
+			}
 		}
 
 
 
 		//*/
-
+		
+		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 
 
@@ -300,8 +350,11 @@ public class CompareExperiment {
 		dataset = ds;
 		blackList = new ArrayList<Statement>();
 
+		// http://data.bgs.ac.uk/ref/Lexicon/hasRockUnitRank
+		// http://data.bgs.ac.uk/ref/Lexicon/hasTheme
+		
 		for(Statement stmt: stmts) {
-			List<Statement> stmts2 = ds.getStatementsFromStrings(stmt.getSubject().toString(), "http://data.bgs.ac.uk/ref/Lexicon/hasTheme", null);
+			List<Statement> stmts2 = ds.getStatementsFromStrings(stmt.getSubject().toString(), "http://data.bgs.ac.uk/ref/Lexicon/hasRockUnitRank", null);
 
 			if (stmts2.size() > 1) {
 				System.out.println("more than 1 Class");
@@ -309,7 +362,7 @@ public class CompareExperiment {
 
 			for (Statement stmt2 : stmts2) {
 
-				if (rand.nextDouble() >= 0.9) {
+				if (rand.nextDouble() >= 0) {
 					instances.add(stmt2.getSubject());
 
 					labels.add(stmt2.getObject());
@@ -324,8 +377,9 @@ public class CompareExperiment {
 			}
 		}
 
-		capClassSize(20, seed);
-		removeSmallClasses(1);
+
+		capClassSize(30, seed);
+		removeSmallClasses(30);
 		blackList = createBlackList();
 
 		Map<Value, Integer> labelMap = new HashMap<Value, Integer>();

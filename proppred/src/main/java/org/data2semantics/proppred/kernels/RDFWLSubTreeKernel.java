@@ -75,13 +75,13 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		DirectedGraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
 		toc = System.currentTimeMillis();
-		System.out.println("Subgraph extraction time: " + (toc-tic));
+		//System.out.println("Subgraph extraction time: " + (toc-tic));
 		
 		tic = System.currentTimeMillis();	
 		computeFeatureVectors(graph, instances, startLabel, featureVectors);
 		computeKernelMatrix(instances, featureVectors, kernel, 1);
 		toc = System.currentTimeMillis();
-		System.out.println("FV time: " + (toc-tic) + ", FV length: " + (labelCounter - startLabel));
+		//System.out.println("FV time: " + (toc-tic) + ", FV length: " + (labelCounter - startLabel));
 
 		for (int i = 0; i < iterations; i++) {
 			tic = System.currentTimeMillis();			
@@ -89,13 +89,13 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
 			toc = System.currentTimeMillis();
-			System.out.println("Relabel time: " + (toc-tic));
+			//System.out.println("Relabel time: " + (toc-tic));
 
 			tic = System.currentTimeMillis();	
 			computeFeatureVectors(graph, instances, startLabel, featureVectors);
 			computeKernelMatrix(instances, featureVectors, kernel, i+2);
 			toc = System.currentTimeMillis();
-			System.out.println("FV time: " + (toc-tic) + " FV length: " + (labelCounter - startLabel));
+			//System.out.println("FV time: " + (toc-tic) + " FV length: " + (labelCounter - startLabel));
 		}
 
 		if (this.normalize) {
