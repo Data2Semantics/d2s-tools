@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.experiments.DataSetFactory;
+import org.data2semantics.exp.experiments.Experimenter;
 import org.data2semantics.exp.experiments.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.experiments.GraphKernelExperiment;
 import org.data2semantics.exp.experiments.KernelExperiment;
@@ -35,23 +36,293 @@ public class GeoCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		lithogenesisExperiments();
+		//lithogenesisExperiments();
+		themeExperiments();
 	}
 
+	private static void lithogenesisRunningTimeExperiments() {
+double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
+		
+		double[] cs = {1};	// dummy, we don't care about the prediction scores
+		long[] seeds = {11,21,31,41,51,61,71,81,91,101};;
+		
+		int depth = 3;
+		int iteration = 6;
+		boolean inference = true;
+		
+		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
+		ResultsTable resTable = new ResultsTable();
+		
+		
+	}
 	
+	
+	private static void themeExperiments() {
+		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
+		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
+
+		int depth = 3;
+		int[] iterations = {0, 2, 4, 6};
+		
+		double fraction = 0.01;
+
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+
+		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
+
+		ResultsTable resTable = new ResultsTable();
+
+		
+		Experimenter experimenter = new Experimenter(4);
+		Thread expT = new Thread(experimenter);
+		expT.setDaemon(true);
+		expT.start();
+
+		
+
+		boolean inference = false;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
+			for (int it : iterations) {
+
+				List<List<Result>> res = new ArrayList<List<Result>>();
+				for (long seed : seeds) {
+					long[] s2 = new long[1];
+					s2[0] = seed;
+					createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), s2, parms, dataset, instances, labels, blackList);
+					res.add(exp.getResults());
+					
+					System.out.println("Running WL RDF: " + i + " " + it);
+					if (experimenter.hasSpace()) {
+						experimenter.addExperiment(exp);
+					}
+				
+					
+				}
+
+				try {
+					while (!experimenter.finished()) {
+						Thread.sleep(1000);
+					}
+					Thread.sleep(10000);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				for (Result res2 : Result.mergeResultLists(res)) {
+					resTable.addResult(res2);
+				}
+			}
+		}
+		saveResults(resTable, "geo_theme.ser");
+
+
+		inference = true;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
+			for (int it : iterations) {
+
+				List<List<Result>> res = new ArrayList<List<Result>>();
+				for (long seed : seeds) {
+					long[] s2 = new long[1];
+					s2[0] = seed;
+					createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), s2, parms, dataset, instances, labels, blackList);
+					res.add(exp.getResults());
+					
+					System.out.println("Running WL RDF: " + i + " " + it);
+					if (experimenter.hasSpace()) {
+						experimenter.addExperiment(exp);
+					}
+				
+				
+				}
+
+				try {
+					while (!experimenter.finished()) {
+						Thread.sleep(1000);
+					}
+					Thread.sleep(10000);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				for (Result res2 : Result.mergeResultLists(res)) {
+					resTable.addResult(res2);
+				}
+			}
+		}
+		saveResults(resTable, "geo_theme.ser");
+
+
+		inference = false;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
+
+			List<List<Result>> res = new ArrayList<List<Result>>();
+			for (long seed : seeds) {
+				long[] s2 = new long[1];
+				s2[0] = seed;
+				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, false), s2, parms, dataset, instances, labels, blackList);
+				res.add(exp.getResults());
+				
+				System.out.println("Running IST: " + i);
+				if (experimenter.hasSpace()) {
+					experimenter.addExperiment(exp);
+				}
+			}
+
+			try {
+				while (!experimenter.finished()) {
+					Thread.sleep(1000);
+				}
+				Thread.sleep(10000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			for (Result res2 : Result.mergeResultLists(res)) {
+				resTable.addResult(res2);
+			}
+		}
+		saveResults(resTable, "geo_theme.ser");
+
+
+		inference = true;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
+
+			List<List<Result>> res = new ArrayList<List<Result>>();
+			for (long seed : seeds) {
+				long[] s2 = new long[1];
+				s2[0] = seed;
+				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, false), s2, parms, dataset, instances, labels, blackList);
+				res.add(exp.getResults());
+				
+				
+				System.out.println("Running IST: " + i);
+				if (experimenter.hasSpace()) {
+					experimenter.addExperiment(exp);
+				}
+			
+			}
+
+			try {
+				while (!experimenter.finished()) {
+					Thread.sleep(1000);
+				}
+				Thread.sleep(10000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			for (Result res2 : Result.mergeResultLists(res)) {
+				resTable.addResult(res2);
+			}
+		}
+		saveResults(resTable, "geo_theme.ser");
+
+		
+		inference = false;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
+
+			List<List<Result>> res = new ArrayList<List<Result>>();
+			for (long seed : seeds) {
+				long[] s2 = new long[1];
+				s2[0] = seed;
+				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, false), s2, parms, dataset, instances, labels, blackList);
+				res.add(exp.getResults());
+				
+				System.out.println("Running IPST: " + i);
+				if (experimenter.hasSpace()) {
+					experimenter.addExperiment(exp);
+				}
+			}
+
+			try {
+				while (!experimenter.finished()) {
+					Thread.sleep(1000);
+				}
+				Thread.sleep(10000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			for (Result res2 : Result.mergeResultLists(res)) {
+				resTable.addResult(res2);
+			}
+		}
+		saveResults(resTable, "geo_theme.ser");
+
+
+		
+		inference = true;
+		for (int i = 1; i <= depth; i++) {
+			resTable.newRow("");
+
+			List<List<Result>> res = new ArrayList<List<Result>>();
+			for (long seed : seeds) {
+				long[] s2 = new long[1];
+				s2[0] = seed;
+				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, false), s2, parms, dataset, instances, labels, blackList);
+				res.add(exp.getResults());
+				
+				System.out.println("Running IPST: " + i);
+				if (experimenter.hasSpace()) {
+					experimenter.addExperiment(exp);
+				}
+			}
+
+			try {
+				while (!experimenter.finished()) {
+					Thread.sleep(1000);
+				}
+				Thread.sleep(10000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			for (Result res2 : Result.mergeResultLists(res)) {
+				resTable.addResult(res2);
+			}
+		}
+		saveResults(resTable, "geo_theme.ser");
+
+		experimenter.stop();
+
+		while (expT.isAlive()) {
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		
+		System.out.println(resTable);
+		saveResults(resTable.toString(), "geo_theme.txt");
+	}
+
+
 	private static void lithogenesisExperiments() {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
 		int depth = 3;
-		int[] iterations = {0, 1, 2, 3, 4, 5, 6};
-		
-		boolean blankLabels = false;
-		
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-		createGeoDataSet(1);
+		int[] iterations = {0, 2, 4, 6};
 
-			
+		boolean blankLabels = false;
+
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+
+
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		//parms.setEvalFunction(LibSVMParameters.F1);
 
@@ -62,7 +333,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 			resTable.newRow("");
 			for (int it : iterations) {
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
-				
+
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
 
@@ -72,15 +343,15 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
-	
+
+
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
-				
+
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
 
@@ -90,13 +361,13 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
+
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
-			
+
 			System.out.println("Running IST: " + i + " ");
 			exp.run();
 
@@ -105,12 +376,12 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
+
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
-			
+
 			System.out.println("Running IST: " + i + " ");
 			exp.run();
 
@@ -119,13 +390,13 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
+
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
-			
+
 			System.out.println("Running IPST: " + i + " ");
 			exp.run();
 
@@ -134,12 +405,12 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
+
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
-			
+
 			System.out.println("Running IPST: " + i + " ");
 			exp.run();
 
@@ -148,43 +419,43 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
-		
-		
+
+
+
 		List<GeneralPredictionDataSetParameters> dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
 
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, false));
-		
+
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-		
-	
+
+
 		int[] iterationsIG = {1,2};
 		long tic, toc;
-		
+
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
 			toc = System.currentTimeMillis();
-			
+
 			if (blankLabels) {
 				ds.removeVertexAndEdgeLabels();
 			}
-			
+
 			resTable.newRow("");
 			for (int it : iterations) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new WLSubTreeKernel(it), seeds, parms, ds.getGraphs(), labels);
-				
+
 				System.out.println("Running WL: " + it);
 				exp.run();
 
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
-				
+
 				double[] comps =  {0,0};
 				comps[0] = toc-tic;
 				comps[1] = toc-tic;
@@ -194,38 +465,38 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
+
 
 		/*
 		dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
 
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, false));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, false));
-		
+
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
-		*/
-		
+		 */
+
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
 			toc = System.currentTimeMillis();
-			
+
 			if (blankLabels) {
 				ds.removeVertexAndEdgeLabels();
 			}
-			
+
 			resTable.newRow("");
 			for (int it : iterationsIG) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
-				
+
 				System.out.println("Running IGP: " + it);
 				exp.run();
 
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
-				
+
 				double[] comps =  {0,0};
 				comps[0] = toc-tic;
 				comps[1] = toc-tic;
@@ -234,28 +505,28 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
-		
+
+
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
 			toc = System.currentTimeMillis();
-			
+
 			if (blankLabels) {
 				ds.removeVertexAndEdgeLabels();
 			}
-			
+
 			resTable.newRow("");
 			for (int it : iterationsIG) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
-				
+
 				System.out.println("Running IGW: " + it);
 				exp.run();
 
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
-				
+
 				double[] comps =  {0,0};
 				comps[0] = toc-tic;
 				comps[1] = toc-tic;
@@ -265,17 +536,17 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
-		
-		
+
+
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 		saveResults(resTable.toString(), "geo_litho.txt");
 
 	}
-	
-	
 
-	private static void createGeoDataSet(long seed) {
+
+
+	private static void createGeoDataSet(long seed, double fraction, String property) {
 		String majorityClass = "http://data.bgs.ac.uk/id/Lexicon/Class/LS";
 		Random rand = new Random(seed);
 
@@ -291,7 +562,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		// http://data.bgs.ac.uk/ref/Lexicon/hasTheme
 
 		for(Statement stmt: stmts) {
-			List<Statement> stmts2 = dataset.getStatementsFromStrings(stmt.getSubject().toString(), "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis", null);
+			List<Statement> stmts2 = dataset.getStatementsFromStrings(stmt.getSubject().toString(), property, null);
 
 			if (stmts2.size() > 1) {
 				System.out.println("more than 1 Class");
@@ -299,7 +570,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 			for (Statement stmt2 : stmts2) {
 
-				if (rand.nextDouble() >= 0) {
+				if (rand.nextDouble() <= fraction) {
 					instances.add(stmt2.getSubject());
 
 					labels.add(stmt2.getObject());
@@ -324,5 +595,5 @@ public class GeoCompareExperiment extends CompareExperiment {
 		System.out.println(LibSVM.computeClassCounts(LibSVM.createTargets(labels, labelMap)));
 		System.out.println(labelMap);
 	}
-	
+
 }

@@ -63,7 +63,7 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createAffiliationPredictionDataSet(1);
+			createAffiliationPredictionDataSet(frac);
 			
 			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
@@ -76,7 +76,7 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createAffiliationPredictionDataSet(1);
+			createAffiliationPredictionDataSet(frac);
 			
 			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
@@ -89,13 +89,15 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		
 		long tic, toc;
 		
-		tic = System.currentTimeMillis();
-		PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-		toc = System.currentTimeMillis();
 		
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
+			createAffiliationPredictionDataSet(frac);
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			
 			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running WL: " + frac);
@@ -112,6 +114,12 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
+			createAffiliationPredictionDataSet(frac);
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			
+			
 			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running IGP: " + frac);
@@ -128,6 +136,12 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
+			createAffiliationPredictionDataSet(frac);
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			
+			
 			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running IGW: " + frac);

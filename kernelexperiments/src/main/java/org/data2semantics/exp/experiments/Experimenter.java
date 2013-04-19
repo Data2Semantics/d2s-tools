@@ -55,7 +55,7 @@ public class Experimenter implements Runnable {
 		this.stop = true;
 	}
 
-	private boolean finished() {
+	public boolean finished() {
 		for (int i = 0; i < activeExp.length; i++) {
 			if (activeExp[i] != null && activeExp[i].isAlive()) {
 				return false;
