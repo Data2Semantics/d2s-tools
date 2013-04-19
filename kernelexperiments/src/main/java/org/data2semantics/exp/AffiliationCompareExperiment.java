@@ -34,15 +34,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class AffiliationCompareExperiment {
-	private static RDFDataSet dataset;
-	private static List<Resource> instances;
-	private static List<Value> labels;
-	private static List<Statement> blackList;
-	private static Map<Resource, List<Statement>> blackLists;
-	
+public class AffiliationCompareExperiment extends CompareExperiment {
 
-	
 
 	/**
 	 * @param args
@@ -78,7 +71,7 @@ public class AffiliationCompareExperiment {
 				}
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 	
 
@@ -96,7 +89,7 @@ public class AffiliationCompareExperiment {
 				}
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 
 		inference = false;
@@ -111,7 +104,7 @@ public class AffiliationCompareExperiment {
 				resTable.addResult(res);
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
@@ -125,7 +118,7 @@ public class AffiliationCompareExperiment {
 				resTable.addResult(res);
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 
 		inference = false;
@@ -140,7 +133,7 @@ public class AffiliationCompareExperiment {
 				resTable.addResult(res);
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
@@ -154,7 +147,7 @@ public class AffiliationCompareExperiment {
 				resTable.addResult(res);
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 		
 		
@@ -169,7 +162,7 @@ public class AffiliationCompareExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 		
 	
-		int[] iterationsIG = {1,2,3};
+		int[] iterationsIG = {1,2};
 		long tic, toc;
 		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
@@ -200,9 +193,9 @@ public class AffiliationCompareExperiment {
 
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
-
+		/*
 		dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
 
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, false));
@@ -210,7 +203,7 @@ public class AffiliationCompareExperiment {
 		
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
-
+		 */
 		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
@@ -239,7 +232,7 @@ public class AffiliationCompareExperiment {
 				resTable.addResult(resC);
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
@@ -270,11 +263,12 @@ public class AffiliationCompareExperiment {
 
 			}
 		}
-		saveResults(resTable);
+		saveResults(resTable, "affiliation.ser");
 		
 		
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
+		saveResults(resTable.toString(), "affiliation.txt");
 
 	}
 
@@ -320,72 +314,5 @@ public class AffiliationCompareExperiment {
 			blackLists.put(instance, blackList);
 		}
 
-	}
-	
-	private static void removeSmallClasses(int smallClassSize) {
-		Map<Value, Integer> counts = new HashMap<Value, Integer>();
-
-		for (int i = 0; i < labels.size(); i++) {
-			if (!counts.containsKey(labels.get(i))) {
-				counts.put(labels.get(i), 1);
-			} else {
-				counts.put(labels.get(i), counts.get(labels.get(i)) + 1);
-			}
-		}
-
-		List<Value> newLabels = new ArrayList<Value>();
-		List<Resource> newInstances = new ArrayList<Resource>();
-
-		for (int i = 0; i < labels.size(); i++) {
-			if (counts.get(labels.get(i)) >= smallClassSize) { 
-				newInstances.add(instances.get(i));
-				newLabels.add(labels.get(i));
-			}
-		}
-
-		instances = newInstances;
-		labels = newLabels;
-	}
-
-	private static void capClassSize(int classSizeCap, long seed) {
-		Map<Value, Integer> counts = new HashMap<Value, Integer>();
-		List<Value> newLabels = new ArrayList<Value>();
-		List<Resource> newInstances = new ArrayList<Resource>();
-
-		Collections.shuffle(instances, new Random(seed));
-		Collections.shuffle(labels, new Random(seed));
-
-		for (int i = 0; i < instances.size(); i++) {
-			if (counts.containsKey(labels.get(i))) {
-				if (counts.get(labels.get(i)) < classSizeCap) {
-					newInstances.add(instances.get(i));
-					newLabels.add(labels.get(i));
-					counts.put(labels.get(i), counts.get(labels.get(i)) + 1);
-				}
-
-			} else {
-				newInstances.add(instances.get(i));
-				newLabels.add(labels.get(i));
-				counts.put(labels.get(i), 1);
-			}
-		}
-
-		instances = newInstances;
-		labels = newLabels;	
-	}
-	
-	private static void saveResults(ResultsTable resTable) {
-		try
-		{
-			FileOutputStream fileOut =
-					new FileOutputStream("resTable.ser");
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(resTable);
-			out.close();
-			fileOut.close();
-		}catch(IOException i)
-		{
-			i.printStackTrace();
-		}
 	}
 }

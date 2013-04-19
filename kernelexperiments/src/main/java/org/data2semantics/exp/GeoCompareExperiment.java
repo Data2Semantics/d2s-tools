@@ -162,7 +162,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 		
 	
-		int[] iterationsIG = {1,2,3};
+		int[] iterationsIG = {1,2};
 		long tic, toc;
 		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
@@ -196,6 +196,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		saveResults(resTable, "geo_litho.ser");
 		
 
+		/*
 		dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
 
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, false));
@@ -203,7 +204,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
-
+		*/
 		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
@@ -298,7 +299,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 			for (Statement stmt2 : stmts2) {
 
-				if (rand.nextDouble() >= 0.7) {
+				if (rand.nextDouble() >= 0) {
 					instances.add(stmt2.getSubject());
 
 					labels.add(stmt2.getObject());
