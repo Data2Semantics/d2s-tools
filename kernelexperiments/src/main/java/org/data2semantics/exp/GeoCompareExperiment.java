@@ -36,12 +36,17 @@ public class GeoCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//lithogenesisExperiments();
-		themeExperiments();
+		lithogenesisExperiments();
+		lithogenesisRunningTimeExperiments();
+		themeExperiments(0.01);
+		themeExperiments(0.1);
 	}
 
 	private static void lithogenesisRunningTimeExperiments() {
-double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		
+		
+		double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		
 		double[] cs = {1};	// dummy, we don't care about the prediction scores
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};;
@@ -53,38 +58,131 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		ResultsTable resTable = new ResultsTable();
 		
+		resTable.newRow("");
+		for (double frac : fractions) {
+			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+			
+			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+
+			System.out.println("Running WL RDF: " + frac);
+			exp.run();
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+			
+		}
+		
+		resTable.newRow("");
+		for (double frac : fractions) {
+			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				
+			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+
+			System.out.println("Running IST: " + frac);
+			exp.run();
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+		}
+		
+		
+		long tic, toc;
+		
+		
+		
+		resTable.newRow("");
+		for (double frac : fractions) {
+			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			
+			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
+
+			System.out.println("Running WL: " + frac);
+			exp.run();
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+			
+			double[] comps =  {0,0};
+			comps[0] = toc-tic;
+			comps[1] = toc-tic;
+			Result resC = new Result(comps,"comp time 2");
+			resTable.addResult(resC);
+		}
+		
+		resTable.newRow("");
+		for (double frac : fractions) {
+			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			
+			
+			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+
+			System.out.println("Running IGP: " + frac);
+			exp.run();
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+			
+			double[] comps =  {0,0};
+			comps[0] = toc-tic;
+			comps[1] = toc-tic;
+			Result resC = new Result(comps,"comp time 2");
+			resTable.addResult(resC);
+		}
+		
+		resTable.newRow("");
+		for (double frac : fractions) {
+			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			
+			
+			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+
+			System.out.println("Running IGW: " + frac);
+			exp.run();
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+			
+			double[] comps =  {0,0};
+			comps[0] = toc-tic;
+			comps[1] = toc-tic;
+			Result resC = new Result(comps,"comp time 2");
+			resTable.addResult(resC);
+		}
+		
+		//resTable.addCompResults(resTable.getBestResults());
+		System.out.println(resTable);
+		saveResults(resTable.toString(), "lithogenesis_runningtime.txt");
+
 		
 	}
 	
 	
-	private static void themeExperiments() {
+	private static void themeExperiments(double fraction) {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
 		int depth = 3;
 		int[] iterations = {0, 2, 4, 6};
 		
-		double fraction = 0.01;
-
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 
 		ResultsTable resTable = new ResultsTable();
 
-		
-		Experimenter experimenter = new Experimenter(4);
-		Thread expT = new Thread(experimenter);
-		expT.setDaemon(true);
-		expT.start();
-
-		
-
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-
+				Experimenter experimenter = new Experimenter(4);
+				Thread expT = new Thread(experimenter);
+				expT.setDaemon(true);
+				expT.start();				
+				
 				List<List<Result>> res = new ArrayList<List<Result>>();
 				for (long seed : seeds) {
 					long[] s2 = new long[1];
@@ -101,11 +199,11 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 					
 				}
 
+				experimenter.stop();
 				try {
-					while (!experimenter.finished()) {
+					while (expT.isAlive()) {
 						Thread.sleep(1000);
 					}
-					Thread.sleep(10000);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -122,7 +220,12 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
+				Experimenter experimenter = new Experimenter(4);
+				Thread expT = new Thread(experimenter);
+				expT.setDaemon(true);
+				expT.start();
 
+				
 				List<List<Result>> res = new ArrayList<List<Result>>();
 				for (long seed : seeds) {
 					long[] s2 = new long[1];
@@ -139,13 +242,14 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 				
 				}
 
-				try {
-					while (!experimenter.finished()) {
+				experimenter.stop();
+
+				while (expT.isAlive()) {
+					try {
 						Thread.sleep(1000);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					Thread.sleep(10000);
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
 				
 				for (Result res2 : Result.mergeResultLists(res)) {
@@ -160,6 +264,11 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
+			Experimenter experimenter = new Experimenter(4);
+			Thread expT = new Thread(experimenter);
+			expT.setDaemon(true);
+			expT.start();
+
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
@@ -174,13 +283,14 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 				}
 			}
 
-			try {
-				while (!experimenter.finished()) {
+			experimenter.stop();
+
+			while (expT.isAlive()) {
+				try {
 					Thread.sleep(1000);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				Thread.sleep(10000);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			
 			for (Result res2 : Result.mergeResultLists(res)) {
@@ -194,6 +304,11 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
+			Experimenter experimenter = new Experimenter(4);
+			Thread expT = new Thread(experimenter);
+			expT.setDaemon(true);
+			expT.start();
+
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
@@ -210,13 +325,14 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 			
 			}
 
-			try {
-				while (!experimenter.finished()) {
+			experimenter.stop();
+
+			while (expT.isAlive()) {
+				try {
 					Thread.sleep(1000);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				Thread.sleep(10000);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			
 			for (Result res2 : Result.mergeResultLists(res)) {
@@ -230,6 +346,11 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
+			Experimenter experimenter = new Experimenter(4);
+			Thread expT = new Thread(experimenter);
+			expT.setDaemon(true);
+			expT.start();
+
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
@@ -244,13 +365,14 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 				}
 			}
 
-			try {
-				while (!experimenter.finished()) {
+			experimenter.stop();
+
+			while (expT.isAlive()) {
+				try {
 					Thread.sleep(1000);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				Thread.sleep(10000);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			
 			for (Result res2 : Result.mergeResultLists(res)) {
@@ -265,6 +387,11 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
+			Experimenter experimenter = new Experimenter(4);
+			Thread expT = new Thread(experimenter);
+			expT.setDaemon(true);
+			expT.start();
+
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
@@ -279,13 +406,14 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 				}
 			}
 
-			try {
-				while (!experimenter.finished()) {
+			experimenter.stop();
+
+			while (expT.isAlive()) {
+				try {
 					Thread.sleep(1000);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				Thread.sleep(10000);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			
 			for (Result res2 : Result.mergeResultLists(res)) {
@@ -294,19 +422,10 @@ double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 		}
 		saveResults(resTable, "geo_theme.ser");
 
-		experimenter.stop();
 
-		while (expT.isAlive()) {
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		
+		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
-		saveResults(resTable.toString(), "geo_theme.txt");
+		saveResults(resTable.toString(), "geo_theme" + fraction + ".txt");
 	}
 
 
