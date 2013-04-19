@@ -1,11 +1,12 @@
 package org.data2semantics.exp.experiments;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import cern.colt.Arrays;
 
-public class Result {
+public class Result implements Serializable {
 	private double[] scores;
 	private String label;
 

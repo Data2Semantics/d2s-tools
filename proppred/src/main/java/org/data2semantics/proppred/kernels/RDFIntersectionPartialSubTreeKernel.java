@@ -11,12 +11,16 @@ public class RDFIntersectionPartialSubTreeKernel extends
 		RDFIntersectionSubTreeKernel {
 	
 	public RDFIntersectionPartialSubTreeKernel() {
-		this(2, 0.01, false, true);
+		this(2, 0.01, false, true, false);
+	}
+
+	public RDFIntersectionPartialSubTreeKernel(int depth, double discountFactor, boolean inference, boolean normalize, boolean blankLabels) {
+		super(depth, discountFactor, inference, normalize, blankLabels);
+		this.label = "RDF Intersection Partial SubTree Kernel";
 	}
 	
 	public RDFIntersectionPartialSubTreeKernel(int depth, double discountFactor, boolean inference, boolean normalize) {
-		super(depth, discountFactor, inference, normalize);
-		this.label = "RDF Intersection Partial SubTree Kernel";
+		this(depth, discountFactor, inference, normalize, false);
 	}
 	
 	

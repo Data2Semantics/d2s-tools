@@ -1,12 +1,13 @@
 package org.data2semantics.exp.experiments;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.stat.inference.TTest;
 
-public class ResultsTable {
+public class ResultsTable implements Serializable {
 
 	private List<List<Result>> table;
 	private List<String> rowLabels;

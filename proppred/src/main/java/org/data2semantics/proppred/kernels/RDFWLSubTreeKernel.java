@@ -29,6 +29,9 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  *
  */
 public class RDFWLSubTreeKernel extends RDFGraphKernel {
+	private static final String BLANK_VERTEX_LABEL = "0";
+	private static final String BLANK_EDGE_LABEL   = "1";
+	
 
 	private Map<String, String> labelMap;
 	private Map<String, Vertex<Map<Integer,String>>> instanceVertices;
@@ -42,10 +45,19 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	private int depth;
 	private int iterations;
 	private boolean inference;
+	private boolean blankLabels;
+	
+	
+	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
+		this(iterations, depth, inference, normalize);
+		this.blankLabels = blankLabels;
+	
+	}
 
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize) {
 		super(normalize);
 		this.label = "RDF WL Kernel";
+		this.blankLabels = false;
 
 		labelMap = new HashMap<String, String>();
 		instanceVertices = new HashMap<String, Vertex<Map<Integer,String>>>();
@@ -76,6 +88,10 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		createInstanceIndexMaps(graph, instances);
 		toc = System.currentTimeMillis();
 		//System.out.println("Subgraph extraction time: " + (toc-tic));
+		
+		if (blankLabels) {
+			setBlankLabels(graph);
+		}
 		
 		tic = System.currentTimeMillis();	
 		computeFeatureVectors(graph, instances, startLabel, featureVectors);
@@ -441,6 +457,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	}
 	 */
 
+	
 
 	private void computeKernelMatrix(List<Resource> instances, double[][] featureVectors, double[][] kernel, int iteration) {
 		for (int i = 0; i < instances.size(); i++) {
@@ -451,6 +468,20 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		}
 	}
 
+	private void setBlankLabels(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph) {
+		for (Vertex<Map<Integer,String>> v : graph.getVertices()) {
+			for (int k : v.getLabel().keySet()) {
+				v.getLabel().put(k, BLANK_VERTEX_LABEL);
+			}
+		}
+		
+		for (Edge<Map<Integer,String>> e : graph.getEdges()) {
+			for (int k : e.getLabel().keySet()) {
+				e.getLabel().put(k, BLANK_EDGE_LABEL);
+			}
+		}	
+	}
+	
 
 	private class VertexIndexPair {
 		private Vertex<Map<Integer,String>> vertex;

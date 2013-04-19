@@ -8,6 +8,7 @@ import org.openrdf.model.Statement;
 
 public abstract class RDFGraphKernel extends Kernel {
 
+	
 	public RDFGraphKernel() {
 		super();
 	}

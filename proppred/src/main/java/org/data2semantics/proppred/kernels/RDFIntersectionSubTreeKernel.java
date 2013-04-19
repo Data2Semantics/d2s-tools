@@ -22,6 +22,9 @@ import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
+	private static final int BLANK_VERTEX_LABEL = 1337;
+	private static final int BLANK_EDGE_LABEL   = 1338;
+	
 	private Map<String, Integer> labelMap;
 	private Map<String, Vertex<Integer>> instanceVertices;
 	private int labelCounter;
@@ -29,16 +32,23 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 	private int depth;
 	private boolean inference;
 	private double discountFactor;
+	private boolean blankLabels;
 
 
 	public RDFIntersectionSubTreeKernel() {
 		this(2, 1, false, true);
 	}
 
+	public RDFIntersectionSubTreeKernel(int depth, double discountFactor, boolean inference, boolean normalize, boolean blankLabels) {
+		this(depth, discountFactor, inference, normalize);
+		this.blankLabels = blankLabels;
+	}
+	
 	
 	public RDFIntersectionSubTreeKernel(int depth, double discountFactor, boolean inference, boolean normalize) {
 		super(normalize);
 		this.label = "RDF Intersection SubTree Kernel";
+		this.blankLabels = false;
 		
 		labelMap = new HashMap<String, Integer>();
 		instanceVertices = new HashMap<String, Vertex<Integer>>();
@@ -56,6 +66,10 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 		Tree<Vertex<Integer>, Edge<Integer>> tree;
 		
 		DirectedGraph<Vertex<Integer>,Edge<Integer>> graph = createGraphFromRDF(dataset, instances, blackList);
+		
+		if (blankLabels) {
+			setBlankLabels(graph);
+		}
 
 		for (int i = 0; i < instances.size(); i++) {
 			for (int j = i; j < instances.size(); j++) {
@@ -258,6 +272,16 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 		}
 	}
 	
+	
+	private void setBlankLabels(DirectedGraph<Vertex<Integer>, Edge<Integer>> graph) {
+		for (Vertex<Integer> v : graph.getVertices()) {
+			v.setLabel(BLANK_VERTEX_LABEL);
+		}
+		
+		for (Edge<Integer> e : graph.getEdges()) {
+			e.setLabel(BLANK_EDGE_LABEL);
+		}	
+	}
 	
 
 	class VertexTracker {

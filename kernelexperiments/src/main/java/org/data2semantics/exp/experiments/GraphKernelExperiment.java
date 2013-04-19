@@ -6,37 +6,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.data2semantics.proppred.kernels.GraphKernel;
 import org.data2semantics.proppred.kernels.Kernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
 import org.data2semantics.proppred.libsvm.LibSVMPrediction;
+import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
+import org.data2semantics.tools.graphs.Edge;
+import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
-public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
+public class GraphKernelExperiment extends KernelExperiment<GraphKernel> {
 	private LibSVMParameters svmParms;
 	private List<Value> labels;
-	private RDFDataSet dataset;
-	private List<Resource> instances;
-	private List<Statement> blackList;
+	private List<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> dataset;
 	private Result accR;
 	private Result f1R;
 	private Result compR;
 
-
 	
-	public RDFKernelExperiment(RDFGraphKernel kernel, long[] seeds,
-			LibSVMParameters svmParms, RDFDataSet dataset,
-			List<Resource> instances,  List<Value> labels, List<Statement> blackList) {
+	public GraphKernelExperiment(GraphKernel kernel, long[] seeds,
+			LibSVMParameters svmParms, List<DirectedMultigraphWithRoot<Vertex<String>,Edge<String>>> dataset,
+		    List<Value> labels) {
 		super(kernel, seeds);
 		this.svmParms = svmParms;
 		this.labels = labels;
 		this.dataset = dataset;
-		this.instances = instances;
-		this.blackList = blackList;
 		
 		accR  = new Result();
 		f1R   = new Result();
@@ -56,13 +55,9 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 		tempLabels.addAll(labels);
 
 		tic = System.currentTimeMillis();
-		double[][] matrix = kernel.compute(dataset, instances, blackList);
+		double[][] matrix = kernel.compute(dataset);
 		toc = System.currentTimeMillis();
-		
-
-		
-
-		
+				
 		double[] acc = new double[seeds.length];
 		double[] f1 = new double[seeds.length];
 		
