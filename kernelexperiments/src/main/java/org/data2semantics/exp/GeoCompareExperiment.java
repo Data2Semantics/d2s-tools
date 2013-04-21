@@ -36,10 +36,10 @@ public class GeoCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		lithogenesisExperiments();
-		lithogenesisRunningTimeExperiments();
-		themeExperiments(0.01);
-		themeExperiments(0.1);
+		//lithogenesisExperiments();
+		//lithogenesisRunningTimeExperiments();
+		//themeExperiments(0.01);
+		themeExperiments(0.1, 50);
 	}
 
 	private static void lithogenesisRunningTimeExperiments() {
@@ -161,7 +161,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 	}
 	
 	
-	private static void themeExperiments(double fraction) {
+	private static void themeExperiments(double fraction, int minSize) {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
@@ -178,7 +178,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				Experimenter experimenter = new Experimenter(4);
+				Experimenter experimenter = new Experimenter(2);
 				Thread expT = new Thread(experimenter);
 				expT.setDaemon(true);
 				expT.start();				
@@ -187,7 +187,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 				for (long seed : seeds) {
 					long[] s2 = new long[1];
 					s2[0] = seed;
-					createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+					createGeoDataSet(seed, fraction, minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 					res.add(exp.getResults());
 					
@@ -220,7 +220,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				Experimenter experimenter = new Experimenter(4);
+				Experimenter experimenter = new Experimenter(2);
 				Thread expT = new Thread(experimenter);
 				expT.setDaemon(true);
 				expT.start();
@@ -230,7 +230,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 				for (long seed : seeds) {
 					long[] s2 = new long[1];
 					s2[0] = seed;
-					createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+					createGeoDataSet(seed, fraction, minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 					res.add(exp.getResults());
 					
@@ -264,7 +264,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
-			Experimenter experimenter = new Experimenter(4);
+			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
 			expT.setDaemon(true);
 			expT.start();
@@ -273,7 +273,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
 				s2[0] = seed;
-				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
 				
@@ -304,7 +304,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
-			Experimenter experimenter = new Experimenter(4);
+			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
 			expT.setDaemon(true);
 			expT.start();
@@ -313,7 +313,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
 				s2[0] = seed;
-				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
 				
@@ -346,7 +346,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
-			Experimenter experimenter = new Experimenter(4);
+			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
 			expT.setDaemon(true);
 			expT.start();
@@ -355,7 +355,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
 				s2[0] = seed;
-				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
 				
@@ -387,7 +387,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 
-			Experimenter experimenter = new Experimenter(4);
+			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
 			expT.setDaemon(true);
 			expT.start();
@@ -396,7 +396,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 			for (long seed : seeds) {
 				long[] s2 = new long[1];
 				s2[0] = seed;
-				createGeoDataSet(seed, fraction, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
 				
@@ -663,9 +663,11 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 	}
 
-
-
 	private static void createGeoDataSet(long seed, double fraction, String property) {
+		createGeoDataSet(seed, fraction, 10, property);
+	}
+
+	private static void createGeoDataSet(long seed, double fraction, int minSize, String property) {
 		String majorityClass = "http://data.bgs.ac.uk/id/Lexicon/Class/LS";
 		Random rand = new Random(seed);
 
@@ -706,7 +708,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 
 		//capClassSize(50, seed);
-		removeSmallClasses(10);
+		removeSmallClasses(minSize);
 		createBlackList();
 
 		Map<Value, Integer> labelMap = new HashMap<Value, Integer>();

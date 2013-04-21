@@ -41,8 +41,8 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		affiliationExperiment(false);
-		affiliationExperiment(true);
+		//affiliationExperiment(false);
+		//affiliationExperiment(true);
 		affiliationRunningTimeExperiment();
 		
 	}
