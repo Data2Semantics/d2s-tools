@@ -41,8 +41,8 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		affiliationExperiment(false);
-		affiliationExperiment(true);
+		//affiliationExperiment(false);
+		//affiliationExperiment(true);
 		affiliationRunningTimeExperiment();
 		
 	}
@@ -103,15 +103,15 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 			System.out.println("Running WL: " + frac);
 			exp.run();
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
-			
 			double[] comps =  {0,0};
 			comps[0] = toc-tic;
 			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");
-			resTable.addResult(resC);
+			Result resC = new Result(comps,"comp time 2");	
+			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+			
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 		}
-		
+		/*
 		resTable.newRow("");
 		for (double frac : fractions) {
 			createAffiliationPredictionDataSet(frac);
@@ -125,14 +125,14 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 			System.out.println("Running IGP: " + frac);
 			exp.run();
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
-			
 			double[] comps =  {0,0};
 			comps[0] = toc-tic;
 			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");
-			resTable.addResult(resC);
-		}
+			Result resC = new Result(comps,"comp time 2");	
+			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+			
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+		}*/
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
@@ -146,14 +146,14 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 
 			System.out.println("Running IGW: " + frac);
 			exp.run();
-
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 			
 			double[] comps =  {0,0};
 			comps[0] = toc-tic;
 			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");
-			resTable.addResult(resC);
+			Result resC = new Result(comps,"comp time 2");	
+			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 		}
 		
 		//resTable.addCompResults(resTable.getBestResults());
