@@ -7,6 +7,9 @@ import java.util.List;
 import cern.colt.Arrays;
 
 public class Result implements Serializable {
+	private static final long serialVersionUID = 1809158002144017691L;
+	
+	
 	private double[] scores;
 	private String label;
 

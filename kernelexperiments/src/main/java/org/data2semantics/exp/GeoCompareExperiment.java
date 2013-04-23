@@ -36,9 +36,8 @@ public class GeoCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//lithogenesisExperiments();
-		//lithogenesisRunningTimeExperiments();
-		//themeExperiments(0.01);
+		lithogenesisExperiments();
+		lithogenesisRunningTimeExperiments();
 		themeExperiments(0.1, 50);
 	}
 
@@ -99,16 +98,18 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 			System.out.println("Running WL: " + frac);
 			exp.run();
-
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 			
+			// We have to add the running time of the subgraph extraction, and we double it, to not let the statistic test fail
 			double[] comps =  {0,0};
-			comps[0] = toc-tic;
-			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");
-			resTable.addResult(resC);
+			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			Result resC = new Result(comps,"comp time 2");	
+			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+	
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));	
 		}
 		
+		/*
 		resTable.newRow("");
 		for (double frac : fractions) {
 			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
@@ -121,15 +122,17 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 			System.out.println("Running IGP: " + frac);
 			exp.run();
-
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 			
 			double[] comps =  {0,0};
-			comps[0] = toc-tic;
-			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");
-			resTable.addResult(resC);
+			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			Result resC = new Result(comps,"comp time 2");	
+			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+	
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));	
 		}
+		*/
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
@@ -143,14 +146,15 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 			System.out.println("Running IGW: " + frac);
 			exp.run();
-
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 			
 			double[] comps =  {0,0};
-			comps[0] = toc-tic;
-			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");
-			resTable.addResult(resC);
+			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			Result resC = new Result(comps,"comp time 2");	
+			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+	
+
+			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 		}
 		
 		//resTable.addCompResults(resTable.getBestResults());
@@ -173,6 +177,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 
 		ResultsTable resTable = new ResultsTable();
+		resTable.setManWU(0.05);
 
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {

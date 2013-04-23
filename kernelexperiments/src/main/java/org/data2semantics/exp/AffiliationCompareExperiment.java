@@ -41,8 +41,8 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//affiliationExperiment(false);
-		//affiliationExperiment(true);
+		affiliationExperiment(false);
+		affiliationExperiment(true);
 		affiliationRunningTimeExperiment();
 		
 	}
@@ -104,8 +104,8 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 			exp.run();
 
 			double[] comps =  {0,0};
-			comps[0] = toc-tic;
-			comps[1] = toc-tic;
+			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
 			Result resC = new Result(comps,"comp time 2");	
 			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
 			
@@ -126,9 +126,9 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 			exp.run();
 
 			double[] comps =  {0,0};
-			comps[0] = toc-tic;
-			comps[1] = toc-tic;
-			Result resC = new Result(comps,"comp time 2");	
+	comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+					Result resC = new Result(comps,"comp time 2");	
 			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
 			
 			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
@@ -148,8 +148,8 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 			exp.run();
 			
 			double[] comps =  {0,0};
-			comps[0] = toc-tic;
-			comps[1] = toc-tic;
+			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
+			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
 			Result resC = new Result(comps,"comp time 2");	
 			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
 

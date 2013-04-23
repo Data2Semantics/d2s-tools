@@ -5,19 +5,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
+import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 
 public class ResultsTable implements Serializable {
 
+	private static final long serialVersionUID = -22861721525531471L;
 	private List<List<Result>> table;
 	private List<String> rowLabels;
 	private List<Result> compRes;
+	private boolean doTTest;
+	private double pValue;
 
 
 	public ResultsTable() {
 		table = new ArrayList<List<Result>>();
 		rowLabels = new ArrayList<String>();
 		compRes = new ArrayList<Result>();
+		doTTest = true;
+		pValue = 0.05;
 	}
 
 	public void newRow(String rowLabel) {
@@ -47,7 +54,7 @@ public class ResultsTable implements Serializable {
 		if(table.size() > 0) {
 
 			List<Result> row1 = table.get(0);
-			TTest ttest = new TTest();
+
 			String signif = "";
 
 			for(Result res : row1) {
@@ -62,7 +69,7 @@ public class ResultsTable implements Serializable {
 					signif = "";
 					for (Result comp : compRes) {
 						if (comp.getLabel().equals(res.getLabel())) {
-							if (!ttest.tTest(comp.getScores(), res.getScores(), 0.05)) {
+							if (!signifTest(comp.getScores(), res.getScores())) {
 								signif = "+";
 							}
 						}
@@ -129,5 +136,26 @@ public class ResultsTable implements Serializable {
 			}
 		}
 		return bestResults;
+	}
+	
+	public void setTTest(double pValue) {
+		doTTest = true;
+		this.pValue = pValue;
+	}
+	
+	public void setManWU(double pValue) {
+		doTTest = false;
+		this.pValue = pValue;
+	}
+	
+	private boolean signifTest(double[] s1, double[] s2) {
+		if (doTTest) {
+			TTest ttest = new TTest();
+			return ttest.tTest(s1, s2, pValue);
+
+		} else {
+			MannWhitneyUTest mwuTest = new MannWhitneyUTest();
+			return mwuTest.mannWhitneyUTest(s1, s2) < pValue;
+		}
 	}
 }
