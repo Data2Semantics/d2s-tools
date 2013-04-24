@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class SparseVector {
-	private Map<Integer, Double> vector;
+	private TreeMap<Integer, Double> vector;
 	private int[] indices;
 	private double[] values;
 	private boolean converted;
@@ -43,14 +43,14 @@ public class SparseVector {
 		}
 		
 		while (i < indices.length && j < v2.indices.length) {
-			if (indices[i] == v2.indices[j]) {
+			if (indices[i] > v2.indices[j]) {
+				j++;
+			} else if (indices[i] < v2.indices[j]) {
+				i++;
+			} else {
 				ret += values[i] * v2.values[j];
 				i++;
 				j++;
-			} else if (indices[i] < v2.indices[j]) {
-				j++;
-			} else {
-				i++;
 			}		
 		}
 		return ret;
