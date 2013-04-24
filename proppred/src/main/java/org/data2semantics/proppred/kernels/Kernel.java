@@ -65,7 +65,7 @@ public abstract class Kernel {
 	protected double dotProduct(double[] fv1, double[] fv2) {
 		double sum = 0.0;		
 		for (int i = 0; i < fv1.length && i < fv2.length; i++) {
-			sum += fv1[i] * fv2[i];
+			sum += (fv1[i] != 0 && fv2[i] != 0) ? fv1[i] * fv2[i]: 0;
 		}	
 		return sum;
 	}

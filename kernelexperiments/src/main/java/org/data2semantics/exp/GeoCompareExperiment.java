@@ -42,7 +42,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 	}
 
 	private static void lithogenesisRunningTimeExperiments() {
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 		
 		
 		double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
@@ -172,7 +172,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		int depth = 3;
 		int[] iterations = {0, 2, 4, 6};
 		
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 
@@ -443,7 +443,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 		boolean blankLabels = false;
 
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 		createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 
