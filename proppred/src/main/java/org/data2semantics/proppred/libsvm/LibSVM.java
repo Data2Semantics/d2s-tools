@@ -16,7 +16,24 @@ import java.util.HashMap;
  *
  */
 public class LibSVM {
-		
+	
+	/**
+	 * This function trains an SVM using a feature vector of SparseVector's and outputs a LibSVMModel.
+	 * Via the params object all the 5 svm types can be trained and either the C or nu parameter
+	 * can be optimized over with different performance functions, which can be set in the params object.
+	 * The C/nu settings to use during optimization have to be supplied in the params object.
+	 * 
+	 * @param featureVectors, an array of SparseVector's
+	 * @param target, an array of labels, of the same length as featureVectors
+	 * @param params, a LibSVMParameters object, supplying the parameters for the SVM, note that this cannot be set to the precomputed kernel setting
+	 * @return
+	 */
+	public static LibSVMModel trainSVMModel(SparseVector[] featureVectors, double[] target, LibSVMParameters params) {
+		svm_problem svmProb = createSVMProblem(featureVectors, target);
+		return trainSVMModel(svmProb, target, params);
+	}
+	
+	
 	/** 
 	 * This function trains an SVM using a kernel matrix and outputs a LibSVMModel.
 	 * Via the params object all the 5 svm types can be trained and either the C or nu parameter
@@ -25,19 +42,25 @@ public class LibSVM {
 	 * 
 	 * @param kernel, a symmetric kernel matrix
 	 * @param target, an array of labels the same length of the height/width of the kernel matrix
-	 * @param params, a LibSVMParameters object, supplying the parameters for the SVM
+	 * @param params, a LibSVMParameters object, supplying the parameters for the SVM, not that this must be set to the precomputed kernel setting
 	 * 
 	 * @return a trained LibSVMModel
 	 *
 	 */
 	public static LibSVMModel trainSVMModel(double[][] kernel, double[] target, LibSVMParameters params) {
+		svm_problem svmProb = createSVMProblem(kernel, target);
+		return trainSVMModel(svmProb, target, params);
+		
+	}
+	
+	private static LibSVMModel trainSVMModel(svm_problem svmProb, double[] target, LibSVMParameters params) {	
 		if (!params.isVerbose()) {
 			setNoOutput();
 		}
 		
 		double[] prediction = new double[target.length];
 		svm_parameter svmParams = params.getParams();
-		svm_problem svmProb = createSVMProblem(kernel, target);
+		
 		
 		double score = 0, bestScore = 0, bestC = 1;
 		
@@ -77,15 +100,29 @@ public class LibSVM {
 	
 	/**
 	 * Use a trained LibSVMModel to generate a prediction for new instances.
-	 *
+	 * 
+	 * @param model
+	 * @param testVectors
+	 * @return
+	 */
+	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, SparseVector[] testVectors) {
+		return testSVMModel(model, createTestProblem(testVectors));
+	}
+	
+	
+	/**
+	 * Use a trained LibSVMModel to generate a prediction for new instances.
 	 * 
 	 * @param model, the trained model
 	 * @param kernel, a kernel matrix for the test instances, the rows (first index) in this matrix are the test instances and the columns (second index) the train instances
 	 * @return An array of LibSVMPrediction's 
-	 * 
 	 */
 	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, double[][] kernel) {
-		svm_node[][] testNodes = createTestProblem(kernel);
+		return testSVMModel(model, createTestProblem(kernel));
+	}
+	
+	
+	private static LibSVMPrediction[] testSVMModel(LibSVMModel model, svm_node[][] testNodes) {
 		LibSVMPrediction[] pred = new LibSVMPrediction[testNodes.length];
 				
 		for (int i = 0 ; i < testNodes.length; i++) {
@@ -93,6 +130,28 @@ public class LibSVM {
 			pred[i] = new LibSVMPrediction(svm.svm_predict_values(model.getModel(), testNodes[i], decVal), i);
 			pred[i].setDecisionValue(decVal);
 		}
+		return pred;
+	}
+	
+	/**
+	 * Convenience method to do a cross-validation experiment with feature vectors
+	 * 
+	 * @param featureVectors
+	 * @param target
+	 * @param params
+	 * @param numberOfFolds
+	 * @return
+	 */
+	public static LibSVMPrediction[] crossValidate(SparseVector[] featureVectors, double[] target, LibSVMParameters params,  int numberOfFolds) {
+		LibSVMPrediction[] pred = new LibSVMPrediction[target.length];
+		
+		for (int fold = 1; fold <= numberOfFolds; fold++) {
+			SparseVector[] trainFV = createFeatureVectorsTrainFold(featureVectors, numberOfFolds, fold);
+			SparseVector[] testFV  = createFeatureVectorsTestFold(featureVectors, numberOfFolds, fold);
+			double[] trainTarget  = createTargetTrainFold(target, numberOfFolds, fold);
+			
+			pred = addFold2Prediction(testSVMModel(trainSVMModel(trainFV, trainTarget, params), testFV), pred, numberOfFolds, fold);
+		}		
 		return pred;
 	}
 	
@@ -448,6 +507,21 @@ public class LibSVM {
 	***********************************************/
 	
 	
+	private static svm_problem createSVMProblem(SparseVector[] featureVectors, double[] target) {
+		svm_problem prob = new svm_problem();
+		svm_node[][] nodes = new svm_node[target.length][];
+		
+		prob.l = target.length;
+		prob.y = target;
+		prob.x = nodes;
+		
+		for (int i = 0; i < nodes.length; i++) {
+			nodes[i] = featureVectors[i].convert2svmNodes();
+		}		
+		return prob;		
+	}
+	
+	
 	private static svm_problem createSVMProblem(double[][] kernel, double[] target) {
 		svm_problem prob = new svm_problem();
 		svm_node[][] nodes = new svm_node[target.length][target.length + 1];
@@ -468,6 +542,15 @@ public class LibSVM {
 			}
 		}		
 		return prob;		
+	}
+	
+	private static svm_node[][] createTestProblem(SparseVector[] testVectors) {
+		svm_node[][] nodes = new svm_node[testVectors.length][];
+		
+		for (int i = 0; i < testVectors.length; i++) {
+			nodes[i] = testVectors[i].convert2svmNodes();
+		}
+		return nodes;
 	}
 	
 	private static svm_node[][] createTestProblem(double[][] testKernel) {
@@ -559,21 +642,34 @@ public class LibSVM {
 		return trainTargets;
 	}
 	
-	/* 
-	 // Not yet needed, maybe in the future
-	private static double[] createTargetTestFold(double[] target, int numberOfFolds, int fold) {
-		int foldStart = Math.round((target.length / ((float) numberOfFolds)) * ((float) fold - 1));
-		int foldEnd   = Math.round((target.length / ((float) numberOfFolds)) * ((float) fold));
+	private static SparseVector[] createFeatureVectorsTrainFold(SparseVector[] featureVectors, int numberOfFolds, int fold) {
+		int foldStart = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold - 1));
+		int foldEnd   = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold));
 		int foldLength = (foldEnd-foldStart);
 		
-		double[] testTargets = new double[foldLength];
+		SparseVector[] trainFV = new SparseVector[featureVectors.length - foldLength];
+		
+		for (int i = 0; i < foldStart; i++) {
+			trainFV[i] = featureVectors[i];
+		}	
+		for (int i = foldEnd; i < featureVectors.length; i++) {
+			trainFV[i - foldLength] = featureVectors[i];
+		}			
+		return trainFV;
+	}
+	
+	private static SparseVector[] createFeatureVectorsTestFold(SparseVector[] featureVectors, int numberOfFolds, int fold) {
+		int foldStart = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold - 1));
+		int foldEnd   = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold));
+		int foldLength = (foldEnd-foldStart);
+		
+		SparseVector[] testFV = new SparseVector[foldLength];
 		
 		for (int i = foldStart; i < foldEnd; i++) {
-			testTargets[i - foldStart] = target[i];
+			testFV[i - foldStart] = featureVectors[i];
 		}			
-		return testTargets;
+		return testFV;
 	}
-	*/
 	
 	
 	private static LibSVMPrediction[] addFold2Prediction(LibSVMPrediction[] foldPred, LibSVMPrediction[] pred, int numberOfFolds, int fold) {

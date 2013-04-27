@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
@@ -75,52 +76,45 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		this(2, 2, false, true);
 	}
 
-	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
-		//double[][] featureVectors = new double[instances.size()][];
+	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = new SparseVector[instances.size()];
-		double[][] kernel = initMatrix(instances.size(), instances.size());
-
+		for (int i = 0; i < featureVectors.length; i++) {
+			featureVectors[i] = new SparseVector();
+		}	
 		int startLabel = 0;
-
-		long tic, toc;
-
-		tic = System.currentTimeMillis();
+		
 		DirectedGraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
-		toc = System.currentTimeMillis();
-		//System.out.println("Subgraph extraction time: " + (toc-tic));
 		
 		if (blankLabels) {
 			setBlankLabels(graph);
 		}
 		
-		tic = System.currentTimeMillis();	
-		computeFeatureVectors(graph, instances, startLabel, featureVectors);
-		computeKernelMatrix(instances, featureVectors, kernel, 1);
-		toc = System.currentTimeMillis();
-		//System.out.println("FV time: " + (toc-tic) + ", FV length: " + (labelCounter - startLabel));
-
-		for (int i = 0; i < iterations; i++) {
-			tic = System.currentTimeMillis();			
+		computeFVs(graph, instances, 1, featureVectors);
+		
+		for (int i = 0; i < iterations; i++) {	
 			relabelGraph2MultisetLabels(graph, startLabel);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
-			toc = System.currentTimeMillis();
-			//System.out.println("Relabel time: " + (toc-tic));
-
-			tic = System.currentTimeMillis();	
-			computeFeatureVectors(graph, instances, startLabel, featureVectors);
-			computeKernelMatrix(instances, featureVectors, kernel, i+2);
-			toc = System.currentTimeMillis();
-			//System.out.println("FV time: " + (toc-tic) + " FV length: " + (labelCounter - startLabel));
+			computeFVs(graph, instances, 1, featureVectors);
 		}
-
+		if (this.normalize) {
+			featureVectors = Kernel.normalize(featureVectors);
+		}
+		
+		return featureVectors;
+	}
+	
+	
+	
+	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
+		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
+		double[][] kernel = initMatrix(instances.size(), instances.size());
+		computeKernelMatrix(instances, featureVectors, kernel, 1);
+	
 		if (this.normalize) {
 			kernel = normalize(kernel);
 		}
-
-
-
 		return kernel;
 	}
 
@@ -315,6 +309,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			for (int i : edge.getLabel().keySet()) {
 				edge.getLabel().put(i, edge.getLabel().get(i) + "_");
 			}
+			
 		}
 		for (Vertex<Map<Integer,String>> vertex : graph.getVertices()) {
 			for (int i : vertex.getLabel().keySet()) {
@@ -366,6 +361,40 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		}
 	}
 
+	
+	
+	/**
+	 * The computation of the feature vectors assumes that each edge and vertex is only processed once. We can encounter the same
+	 * vertex/edge on different depths during computation, this could lead to multiple counts of the same vertex, possibly of different
+	 * depth labels.
+	 * 
+	 * @param graph
+	 * @param instances
+	 * @param weight
+	 * @param featureVectors
+	 */
+	private void computeFVs(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances, double weight, SparseVector[] featureVectors) {
+		int index;
+		Map<Vertex<Map<Integer,String>>, Integer> vertexIndexMap;
+		Map<Edge<Map<Integer,String>>, Integer> edgeIndexMap;
+		
+		for (int i = 0; i < instances.size(); i++) {
+			
+			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
+			for (Vertex<Map<Integer,String>> vertex : vertexIndexMap.keySet()) {
+				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)));
+				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
+			}
+			edgeIndexMap = instanceEdgeIndexMap.get(instances.get(i).toString());
+			for (Edge<Map<Integer,String>> edge : edgeIndexMap.keySet()) {
+				index = Integer.parseInt(edge.getLabel().get(edgeIndexMap.get(edge)));
+				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
+			}
+		}
+	}
+	
+	
+	
 	/**
 	 * The computation of the feature vectors assumes that each edge and vertex is only processed once. We can encounter the same
 	 * vertex/edge on different depths during computation, this could lead to multiple counts of the same vertex, possibly of different
@@ -377,6 +406,8 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	 * @param startLabel
 	 * @param featureVectors
 	 */
+	
+	/*
 	private void computeFeatureVectors(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances, int startLabel, SparseVector[] featureVectors) {
 		int index;
 		Map<Vertex<Map<Integer,String>>, Integer> vertexIndexMap;
@@ -400,7 +431,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 				//featureVectors[i][index] += 1.0;
 			}
 		}
-	}
+	}*/
 
 
 	/*

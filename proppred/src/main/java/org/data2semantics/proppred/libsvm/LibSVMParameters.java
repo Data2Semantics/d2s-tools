@@ -120,6 +120,14 @@ public class LibSVMParameters {
 		params.nr_weight = weight.length;
 	}
 	
+	public void setLinear() {
+		params.kernel_type = params.LINEAR;
+	}
+	
+	public void setPrecomputedKernel() {
+		params.kernel_type = params.PRECOMPUTED;
+	}
+	
 	/**
 	 * Set the evaluation function used during the parameter optimization (e.g. C or nu).
 	 * This currently use 4 options, defined by constants.

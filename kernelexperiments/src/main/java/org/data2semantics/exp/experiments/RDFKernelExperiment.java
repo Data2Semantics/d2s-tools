@@ -67,6 +67,7 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 		double[] f1 = new double[seeds.length];
 		
 		accR.setLabel("acc");
+		
 		f1R.setLabel("f1");
 		compR.setLabel("kernel comp time");
 		
