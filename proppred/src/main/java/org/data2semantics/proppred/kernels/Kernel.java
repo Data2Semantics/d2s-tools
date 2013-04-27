@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
+import org.data2semantics.proppred.libsvm.SparseVector;
+
 
 /**
  * Abstract Kernel class, implements some functionality needed for all kernels. I.e. a shuffle method and normalisation methods.
@@ -29,7 +31,50 @@ public abstract class Kernel {
 		return label;
 	}
 	
-	protected double[][] normalize(double[][] kernel) {
+	
+	
+	
+	//-----------------------------------------------------------------------------------
+	// Static
+	public static double[][] shuffle(double[][] kernel, long seed) {		
+		Double[][] kernelDouble = convert2DoubleObjects(kernel);		
+		for (int i = 0; i < kernel.length; i++) {
+			Collections.shuffle(Arrays.asList(kernelDouble[i]), new Random(seed));
+		}
+		Collections.shuffle(Arrays.asList(kernelDouble), new Random(seed));
+		return convert2DoublePrimitives(kernelDouble);
+	}
+	
+	public static double[][] featureVectors2Kernel(SparseVector[] featureVectors, boolean normalize) {
+		double[][] kernel = initMatrix(featureVectors.length, featureVectors.length);
+	
+		for (int i = 0; i < featureVectors.length; i++) {
+			for (int j = i; j < featureVectors.length; j++) {
+				kernel[i][j] = featureVectors[i].dot(featureVectors[j]);
+				kernel[j][i] = kernel[i][j];
+			}
+		}
+		
+		if (normalize) {
+			kernel = normalize(kernel);
+		}
+		return kernel;
+	}
+	
+	protected static SparseVector[] normalize(SparseVector[] featureVectors) {
+		double norm = 0;
+		for (int i = 0; i < featureVectors.length; i++) {
+			norm = Math.sqrt(featureVectors[i].dot(featureVectors[i]));
+			
+			for (int index : featureVectors[i].getIndices()) {
+				featureVectors[i].setValue(index, featureVectors[i].getValue(index) / norm);
+			}
+		}
+		return featureVectors;
+	}
+	
+	
+	protected static double[][] normalize(double[][] kernel) {
 		double[] ss = new double[kernel.length];
 		
 		for (int i = 0; i < ss.length; i++) {
@@ -45,7 +90,7 @@ public abstract class Kernel {
 		return kernel;
 	}
 	
-	protected double[][] normalize(double[][] kernel, double[] trainSS, double[] testSS) {
+	protected static double[][] normalize(double[][] kernel, double[] trainSS, double[] testSS) {
 		for (int i = 0; i < kernel.length; i++) {
 			for (int j = 0; j < kernel[i].length; j++) {
 				kernel[i][j] /= Math.sqrt(testSS[i] * trainSS[j]);
@@ -54,7 +99,7 @@ public abstract class Kernel {
 		return kernel;
 	}
 	
-	protected double[][] initMatrix(int sizeRows, int sizeColumns) {
+	protected static double[][] initMatrix(int sizeRows, int sizeColumns) {
 		double[][] kernel = new double[sizeRows][sizeColumns];
 		for (int i = 0; i < sizeRows; i++) {
 			Arrays.fill(kernel[i], 0.0);
@@ -62,24 +107,12 @@ public abstract class Kernel {
 		return kernel;
 	}
 	
-	protected double dotProduct(double[] fv1, double[] fv2) {
+	protected static double dotProduct(double[] fv1, double[] fv2) {
 		double sum = 0.0;		
 		for (int i = 0; i < fv1.length && i < fv2.length; i++) {
 			sum += (fv1[i] != 0 && fv2[i] != 0) ? fv1[i] * fv2[i]: 0;
 		}	
 		return sum;
-	}
-	
-	
-	//-----------------------------------------------------------------------------------
-	// Static
-	public static double[][] shuffle(double[][] kernel, long seed) {		
-		Double[][] kernelDouble = convert2DoubleObjects(kernel);		
-		for (int i = 0; i < kernel.length; i++) {
-			Collections.shuffle(Arrays.asList(kernelDouble[i]), new Random(seed));
-		}
-		Collections.shuffle(Arrays.asList(kernelDouble), new Random(seed));
-		return convert2DoublePrimitives(kernelDouble);
 	}
 	
 	

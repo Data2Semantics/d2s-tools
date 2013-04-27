@@ -1,4 +1,4 @@
-package org.data2semantics.proppred.kernels;
+package org.data2semantics.proppred.libsvm;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,6 +10,7 @@ public class SparseVector {
 	private TreeMap<Integer, Double> vector;
 	private int[] indices;
 	private double[] values;
+	
 	private boolean converted;
 	
 	public SparseVector() {
@@ -29,6 +30,14 @@ public class SparseVector {
 		} else {
 			return 0;
 		}
+	}
+	
+	public Set<Integer> getIndices() {
+		return vector.keySet();
+	}
+	
+	public int size() {
+		return vector.size();
 	}
 	
 	public double dot(SparseVector v2) {
@@ -56,9 +65,10 @@ public class SparseVector {
 		return ret;
 	}	
 	
-	private void convert2Arrays() {
+	public void convert2Arrays() {
 		indices = new int[vector.size()];
 		values = new double[vector.size()];
+		
 		int i = 0;
 		for (int key : vector.keySet()) {
 			indices[i] = key;
@@ -66,5 +76,18 @@ public class SparseVector {
 			i++;
 		}
 		converted = true;
+	}
+	
+	svm_node[] convert2svmNodes() {
+		svm_node[] ret = new svm_node[vector.size()];
+		
+		int i = 0;
+		for (int key : vector.keySet()) {
+			ret[i] = new svm_node();
+			ret[i].index = key;
+			ret[i].value = vector.get(key);
+			i++;
+		}
+		return ret;
 	}
 }

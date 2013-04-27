@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
@@ -57,7 +58,8 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 	public double[][] compute(List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
 		
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = copyGraphs(trainGraphs);
-		double[][] featureVectors = new double[graphs.size()][];
+		SparseVector[] featureVectors = new SparseVector[graphs.size()];
+		//double[][] featureVectors = new double[graphs.size()][];
 		Map<String, String> labelDict = new HashMap<String,String>();
 		double[][] kernel = initMatrix(graphs.size(), graphs.size());
 		
@@ -99,7 +101,8 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 		
 		List<DirectedGraph<Vertex<String>, Edge<String>>> graphs = copyGraphs(testGraphs);
 		graphs.addAll(copyGraphs(trainGraphs));
-		double[][] featureVectors = new double[graphs.size()][];
+		SparseVector[] featureVectors = new SparseVector[graphs.size()];
+		//double[][] featureVectors = new double[graphs.size()][];
 		Map<String, String> labelDict = new HashMap<String,String>();
 		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
 		double[] ss = new double[testGraphs.size() + trainGraphs.size()];
@@ -245,21 +248,24 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 	 * @param startLabel
 	 * @param currentLabel
 	 */
-	private void computeFeatureVectors(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, double[][] featureVectors, int startLabel, int currentLabel) {
+	private void computeFeatureVectors(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, SparseVector[] featureVectors, int startLabel, int currentLabel) {
 		int index;
 		for (int i = 0; i < graphs.size(); i++) {
-			featureVectors[i] = new double[currentLabel - startLabel];		
-			Arrays.fill(featureVectors[i], 0.0);
+			featureVectors[i] = new SparseVector();
+			//featureVectors[i] = new double[currentLabel - startLabel];		
+			//Arrays.fill(featureVectors[i], 0.0);
 
 			// for each vertex, use the label as index into the feature vector and do a + 1,
 			for (Vertex<String> vertex : graphs.get(i).getVertices()) {
-				index = Integer.parseInt(vertex.getLabel()) - startLabel;				
-				featureVectors[i][index] += 1.0;
+				index = Integer.parseInt(vertex.getLabel()) - startLabel;	
+				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + 1);
+				//featureVectors[i][index] += 1.0;
 			}
 			
 			for (Edge<String> edge : graphs.get(i).getEdges()) {
 				index = Integer.parseInt(edge.getLabel()) - startLabel;
-				featureVectors[i][index] += 1.0;;
+				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + 1);
+				//featureVectors[i][index] += 1.0;;
 			}
 		}
 	}
@@ -274,24 +280,27 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 	 * @param kernel
 	 * @param iteration
 	 */
-	private void computeKernelMatrix(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, double[][] featureVectors, double[][] kernel, int iteration) {
+	private void computeKernelMatrix(List<DirectedGraph<Vertex<String>, Edge<String>>> graphs, SparseVector[] featureVectors, double[][] kernel, int iteration) {
 		for (int i = 0; i < graphs.size(); i++) {
 			for (int j = i; j < graphs.size(); j++) {
-				kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j]) * (((double) iteration) / ((double) this.iterations+1));
+				kernel[i][j] += featureVectors[i].dot(featureVectors[j]) * (((double) iteration) / ((double) this.iterations+1));
+				//kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j]) * (((double) iteration) / ((double) this.iterations+1));
 				kernel[j][i] = kernel[i][j];
 			}
 		}
 	}
 	
 	
-	private void computeKernelMatrix(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs, List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs, double[][] featureVectors, double[][] kernel, double[] ss, int iteration) {
+	private void computeKernelMatrix(List<? extends DirectedGraph<Vertex<String>, Edge<String>>> trainGraphs, List<? extends DirectedGraph<Vertex<String>, Edge<String>>> testGraphs, SparseVector[] featureVectors, double[][] kernel, double[] ss, int iteration) {
 		for (int i = 0; i < testGraphs.size(); i++) {
 			for (int j = 0; j < trainGraphs.size(); j++) {
-				kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j + testGraphs.size()]) * (((double) iteration) / ((double) this.iterations+1)); 
+				kernel[i][j] += featureVectors[i].dot(featureVectors[j + testGraphs.size()]) * (((double) iteration) / ((double) this.iterations+1));
+				//kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j + testGraphs.size()]) * (((double) iteration) / ((double) this.iterations+1)); 
 			}
 		}
 		for (int i = 0; i < testGraphs.size() + trainGraphs.size(); i++) {
-			ss[i] += dotProduct(featureVectors[i], featureVectors[i]) * (((double) iteration) / ((double) this.iterations+1));
+			ss[i] += featureVectors[i].dot(featureVectors[i]) * (((double) iteration) / ((double) this.iterations+1));
+			//ss[i] += dotProduct(featureVectors[i], featureVectors[i]) * (((double) iteration) / ((double) this.iterations+1));
 		}
 		
 	}
