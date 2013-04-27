@@ -56,7 +56,7 @@ public class SparseVector {
 		return ret;
 	}	
 	
-	public void convert2Arrays() {
+	private void convert2Arrays() {
 		indices = new int[vector.size()];
 		values = new double[vector.size()];
 		int i = 0;

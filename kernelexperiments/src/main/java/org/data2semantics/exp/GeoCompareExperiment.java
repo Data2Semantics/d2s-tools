@@ -36,8 +36,8 @@ public class GeoCompareExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		lithogenesisExperiments();
-		lithogenesisRunningTimeExperiments();
+		//lithogenesisExperiments();
+		//lithogenesisRunningTimeExperiments();
 		themeExperiments(0.1, 50);
 	}
 
