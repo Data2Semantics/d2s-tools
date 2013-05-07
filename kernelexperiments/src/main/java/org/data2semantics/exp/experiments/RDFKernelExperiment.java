@@ -91,9 +91,12 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 			
 			
 			
-			LibSVMPrediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
-			acc[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
-			f1[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
+			//LibSVMPrediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
+			acc[j] = 0;
+			f1[j]  = 0;
+			
+			//acc[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
+			//f1[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 		}
 		
 		accR.setScores(acc);

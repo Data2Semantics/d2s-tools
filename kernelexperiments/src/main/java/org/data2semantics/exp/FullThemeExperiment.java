@@ -35,16 +35,12 @@ public class FullThemeExperiment extends CompareExperiment {
 		int[] iterations = {0, 2, 4, 6};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-		createGeoDataSet(10, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+		createGeoDataSet(100, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 
 	
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
 		
-		Experimenter experimenter = new Experimenter(2);
-		Thread expT = new Thread(experimenter);
-		expT.setDaemon(true);
-		expT.start();	
 		
 		
 		boolean inference = false;
@@ -55,9 +51,7 @@ public class FullThemeExperiment extends CompareExperiment {
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 				
 				System.out.println("Running WL RDF: " + i + " " + it);
-				if (experimenter.hasSpace()) {
-					experimenter.addExperiment(exp);
-				}
+				exp.run();
 				
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
@@ -65,24 +59,14 @@ public class FullThemeExperiment extends CompareExperiment {
 			}
 		}
 		
-		experimenter.stop();
-		try {
-			while (expT.isAlive()) {
-				Thread.sleep(1000);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
 		saveResults(resTable, "geo_theme.ser");
 		
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 		saveResults(resTable.toString(), "geo_theme_full.txt");
-
-
-
 	}
+	
+	
 
 	private static void createGeoDataSet(int minSize, String property) {
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");
@@ -101,7 +85,7 @@ public class FullThemeExperiment extends CompareExperiment {
 			}
 
 			for (Statement stmt2 : stmts2) {
-				if (Math.random() < 0.01) {
+				if (Math.random() < 0.5) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());
 				}
