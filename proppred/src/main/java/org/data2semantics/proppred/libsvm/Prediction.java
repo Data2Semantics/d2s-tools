@@ -7,13 +7,13 @@ package org.data2semantics.proppred.libsvm;
  * @author Gerben
  *
  */
-public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
+public class Prediction implements Comparable<Prediction> {
 	private double label;
 	private double[] decisionValue;
 	private double probability;
 	private int index;
 	
-	public LibSVMPrediction(double label, int index) {
+	public Prediction(double label, int index) {
 		this.label = label;
 		this.index = index;
 	}
@@ -58,7 +58,7 @@ public class LibSVMPrediction implements Comparable<LibSVMPrediction> {
 	 * (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(LibSVMPrediction arg0) {
+	public int compareTo(Prediction arg0) {
 		return Double.compare(-1 * decisionValue[0] * label, -1 * arg0.getDecisionValue()[0] * arg0.getLabel());
 	}
 	

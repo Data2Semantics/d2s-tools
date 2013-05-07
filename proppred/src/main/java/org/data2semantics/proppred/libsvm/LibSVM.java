@@ -16,6 +16,12 @@ import java.util.HashMap;
  *
  */
 public class LibSVM {
+	public static final int ACCURACY = 1;
+	public static final int F1 = 2;
+	public static final int MSE = 3;
+	public static final int MAE = 4;
+	
+	
 	
 	/**
 	 * This function trains an SVM using a feature vector of SparseVector's and outputs a LibSVMModel.
@@ -73,16 +79,16 @@ public class LibSVM {
 			}
 			svm.svm_cross_validation(svmProb, svmParams, 10, prediction);
 			
-			if (params.getEvalFunction() == LibSVMParameters.ACCURACY) {
+			if (params.getEvalFunction() == LibSVM.ACCURACY) {
 				score = computeAccuracy(target, prediction);
 			}
-			if (params.getEvalFunction() == LibSVMParameters.F1) {
+			if (params.getEvalFunction() == LibSVM.F1) {
 				score = computeF1(target, prediction);
 			}
-			if (params.getEvalFunction() == LibSVMParameters.MSE) {
+			if (params.getEvalFunction() == LibSVM.MSE) {
 				score = 1 / computeMeanSquaredError(target, prediction);
 			}
-			if (params.getEvalFunction() == LibSVMParameters.MAE) {
+			if (params.getEvalFunction() == LibSVM.MAE) {
 				score = 1 / computeMeanAbsoluteError(target, prediction);
 			}
 			
@@ -105,7 +111,7 @@ public class LibSVM {
 	 * @param testVectors
 	 * @return
 	 */
-	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, SparseVector[] testVectors) {
+	public static Prediction[] testSVMModel(LibSVMModel model, SparseVector[] testVectors) {
 		return testSVMModel(model, createTestProblem(testVectors));
 	}
 	
@@ -117,17 +123,17 @@ public class LibSVM {
 	 * @param kernel, a kernel matrix for the test instances, the rows (first index) in this matrix are the test instances and the columns (second index) the train instances
 	 * @return An array of LibSVMPrediction's 
 	 */
-	public static LibSVMPrediction[] testSVMModel(LibSVMModel model, double[][] kernel) {
+	public static Prediction[] testSVMModel(LibSVMModel model, double[][] kernel) {
 		return testSVMModel(model, createTestProblem(kernel));
 	}
 	
 	
-	private static LibSVMPrediction[] testSVMModel(LibSVMModel model, svm_node[][] testNodes) {
-		LibSVMPrediction[] pred = new LibSVMPrediction[testNodes.length];
+	private static Prediction[] testSVMModel(LibSVMModel model, svm_node[][] testNodes) {
+		Prediction[] pred = new Prediction[testNodes.length];
 				
 		for (int i = 0 ; i < testNodes.length; i++) {
 			double[] decVal = new double[model.getModel().nr_class*(model.getModel().nr_class-1)/2];
-			pred[i] = new LibSVMPrediction(svm.svm_predict_values(model.getModel(), testNodes[i], decVal), i);
+			pred[i] = new Prediction(svm.svm_predict_values(model.getModel(), testNodes[i], decVal), i);
 			pred[i].setDecisionValue(decVal);
 		}
 		return pred;
@@ -142,8 +148,8 @@ public class LibSVM {
 	 * @param numberOfFolds
 	 * @return
 	 */
-	public static LibSVMPrediction[] crossValidate(SparseVector[] featureVectors, double[] target, LibSVMParameters params,  int numberOfFolds) {
-		LibSVMPrediction[] pred = new LibSVMPrediction[target.length];
+	public static Prediction[] crossValidate(SparseVector[] featureVectors, double[] target, LibSVMParameters params,  int numberOfFolds) {
+		Prediction[] pred = new Prediction[target.length];
 		
 		for (int fold = 1; fold <= numberOfFolds; fold++) {
 			SparseVector[] trainFV = createFeatureVectorsTrainFold(featureVectors, numberOfFolds, fold);
@@ -165,8 +171,8 @@ public class LibSVM {
 	 * @param numberOfFolds
 	 * @return An array of LibSVMPrediction's the length of the target
 	 */
-	public static LibSVMPrediction[] crossValidate(double[][] kernel, double[] target, LibSVMParameters params,  int numberOfFolds) {
-		LibSVMPrediction[] pred = new LibSVMPrediction[target.length];
+	public static Prediction[] crossValidate(double[][] kernel, double[] target, LibSVMParameters params,  int numberOfFolds) {
+		Prediction[] pred = new Prediction[target.length];
 		
 		for (int fold = 1; fold <= numberOfFolds; fold++) {
 			double[][] trainKernel = createTrainFold(kernel, numberOfFolds, fold);
@@ -373,7 +379,7 @@ public class LibSVM {
 	 * @param pred
 	 * @return
 	 */
-	public static double[] extractLabels(LibSVMPrediction[] pred) {
+	public static double[] extractLabels(Prediction[] pred) {
 		double[] predLabels = new double[pred.length];
 		
 		for (int i = 0; i < pred.length; i++) {
@@ -392,7 +398,7 @@ public class LibSVM {
 	 * @param pred
 	 * @return
 	 */
-	public static int[] computeRanking(LibSVMPrediction[] pred) {
+	public static int[] computeRanking(Prediction[] pred) {
 		Arrays.sort(pred);
 		int[] ranking = new int[pred.length];
 		
@@ -626,7 +632,7 @@ public class LibSVM {
 		return testKernel;
 	}
 	
-	private static double[] createTargetTrainFold(double[] target, int numberOfFolds, int fold) {
+	static double[] createTargetTrainFold(double[] target, int numberOfFolds, int fold) {
 		int foldStart = Math.round((target.length / ((float) numberOfFolds)) * ((float) fold - 1));
 		int foldEnd   = Math.round((target.length / ((float) numberOfFolds)) * ((float) fold));
 		int foldLength = (foldEnd-foldStart);
@@ -642,7 +648,7 @@ public class LibSVM {
 		return trainTargets;
 	}
 	
-	private static SparseVector[] createFeatureVectorsTrainFold(SparseVector[] featureVectors, int numberOfFolds, int fold) {
+	static SparseVector[] createFeatureVectorsTrainFold(SparseVector[] featureVectors, int numberOfFolds, int fold) {
 		int foldStart = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold - 1));
 		int foldEnd   = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold));
 		int foldLength = (foldEnd-foldStart);
@@ -658,7 +664,7 @@ public class LibSVM {
 		return trainFV;
 	}
 	
-	private static SparseVector[] createFeatureVectorsTestFold(SparseVector[] featureVectors, int numberOfFolds, int fold) {
+	static SparseVector[] createFeatureVectorsTestFold(SparseVector[] featureVectors, int numberOfFolds, int fold) {
 		int foldStart = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold - 1));
 		int foldEnd   = Math.round((featureVectors.length / ((float) numberOfFolds)) * ((float) fold));
 		int foldLength = (foldEnd-foldStart);
@@ -672,7 +678,7 @@ public class LibSVM {
 	}
 	
 	
-	private static LibSVMPrediction[] addFold2Prediction(LibSVMPrediction[] foldPred, LibSVMPrediction[] pred, int numberOfFolds, int fold) {
+	static Prediction[] addFold2Prediction(Prediction[] foldPred, Prediction[] pred, int numberOfFolds, int fold) {
 		int foldStart = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold - 1));
 		int foldEnd   = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold));
 		

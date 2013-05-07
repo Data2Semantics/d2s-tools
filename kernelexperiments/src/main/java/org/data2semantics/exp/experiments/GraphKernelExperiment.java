@@ -11,7 +11,7 @@ import org.data2semantics.proppred.kernels.Kernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
-import org.data2semantics.proppred.libsvm.LibSVMPrediction;
+import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
@@ -85,7 +85,7 @@ public class GraphKernelExperiment extends KernelExperiment<GraphKernel> {
 			
 			
 			
-			LibSVMPrediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
+			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
 			acc[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 			f1[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 		}

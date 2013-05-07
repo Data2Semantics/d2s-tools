@@ -63,8 +63,8 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 		Map<String, String> labelDict = new HashMap<String,String>();
 		double[][] kernel = initMatrix(graphs.size(), graphs.size());
 		
-		int startLabel = 0;
-		int currentLabel = 0;
+		int startLabel = 1;
+		int currentLabel = 1;
 		
 		// We change the original label of the root node of the graph to a generic label
 		// This rootlabel identifies the graph uniquely, and we don't want that
@@ -107,8 +107,8 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
 		double[] ss = new double[testGraphs.size() + trainGraphs.size()];
 		
-		int startLabel = 0;
-		int currentLabel = 0;
+		int startLabel = 1;
+		int currentLabel = 1;
 		
 		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : trainGraphs) {
 			graph.getRootVertex().setLabel(ROOTID);
@@ -257,13 +257,13 @@ public class WLSubTreeKernel extends GraphKernel<DirectedMultigraphWithRoot<Vert
 
 			// for each vertex, use the label as index into the feature vector and do a + 1,
 			for (Vertex<String> vertex : graphs.get(i).getVertices()) {
-				index = Integer.parseInt(vertex.getLabel()) - startLabel;	
+				index = Integer.parseInt(vertex.getLabel()) - startLabel + 1;	// Indices in SparseVector start at 1
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + 1);
 				//featureVectors[i][index] += 1.0;
 			}
 			
 			for (Edge<String> edge : graphs.get(i).getEdges()) {
-				index = Integer.parseInt(edge.getLabel()) - startLabel;
+				index = Integer.parseInt(edge.getLabel()) - startLabel + 1;
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + 1);
 				//featureVectors[i][index] += 1.0;;
 			}

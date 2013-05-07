@@ -8,12 +8,13 @@ import java.util.Random;
 
 import org.data2semantics.exp.experiments.Experimenter;
 import org.data2semantics.exp.experiments.KernelExperiment;
-import org.data2semantics.exp.experiments.RDFFVvsKernelExperiment;
+import org.data2semantics.exp.experiments.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.experiments.RDFKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -41,39 +42,24 @@ public class FullThemeExperiment extends CompareExperiment {
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
 		
-		Experimenter experimenter = new Experimenter(2);
-		Thread expT = new Thread(experimenter);
-		expT.setDaemon(true);
-		expT.start();	
-		
 		
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
 				LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearVSKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, parms, linParms, dataset, instances, labels, blackList);
 				
+				exp.run();
 				System.out.println("Running WL RDF: " + i + " " + it);
-				if (experimenter.hasSpace()) {
-					experimenter.addExperiment(exp);
-				}
-				
+					
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}	
 			}
 		}
-		
-		experimenter.stop();
-		try {
-			while (expT.isAlive()) {
-				Thread.sleep(1000);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+			
 		saveResults(resTable, "geo_theme.ser");
 		
 		resTable.addCompResults(resTable.getBestResults());

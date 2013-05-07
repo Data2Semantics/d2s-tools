@@ -273,7 +273,7 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		saveResults(resTable, "affiliation.ser");
 
 
-		/*
+		
 		List<GeneralPredictionDataSetParameters> dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
 
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, false));
@@ -318,7 +318,7 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		}
 		saveResults(resTable, "affiliation.ser");
 		
-		*/
+		
 
 		/*
 		dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
@@ -330,7 +330,7 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
 		 */
 
-		/*
+		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
@@ -390,7 +390,7 @@ public class AffiliationCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "affiliation.ser");
-		 */
+		
 
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
