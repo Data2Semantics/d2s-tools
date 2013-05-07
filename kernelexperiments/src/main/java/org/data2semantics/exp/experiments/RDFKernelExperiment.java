@@ -10,7 +10,7 @@ import org.data2semantics.proppred.kernels.Kernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
-import org.data2semantics.proppred.libsvm.LibSVMPrediction;
+import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -91,12 +91,9 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 			
 			
 			
-			//LibSVMPrediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
-			acc[j] = 0;
-			f1[j]  = 0;
-			
-			//acc[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
-			//f1[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
+			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
+			acc[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
+			f1[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 		}
 		
 		accR.setScores(acc);

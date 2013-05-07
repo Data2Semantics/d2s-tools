@@ -11,7 +11,7 @@ import org.data2semantics.proppred.kernels.WLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMModel;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
-import org.data2semantics.proppred.libsvm.LibSVMPrediction;
+import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
@@ -148,7 +148,7 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 		}
 	
 		// Just to indicate the performance of the predictor, we run cross-validation first
-		LibSVMPrediction[] pred = LibSVM.crossValidate(kernelMatrix, target, params, 10);
+		Prediction[] pred = LibSVM.crossValidate(kernelMatrix, target, params, 10);
 		
 		if (params.getAlgorithm() == LibSVMParameters.EPSILON_SVR || params.getAlgorithm() == LibSVMParameters.NU_SVR) {
 			System.out.println("10-fold CV MSE: "

@@ -8,12 +8,13 @@ import java.util.Random;
 
 import org.data2semantics.exp.experiments.Experimenter;
 import org.data2semantics.exp.experiments.KernelExperiment;
-import org.data2semantics.exp.experiments.RDFFVvsKernelExperiment;
+import org.data2semantics.exp.experiments.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.experiments.RDFKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -35,20 +36,19 @@ public class FullThemeExperiment extends CompareExperiment {
 		int[] iterations = {0, 2, 4, 6};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-		createGeoDataSet(100, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+		createGeoDataSet(50, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 
 	
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
-		
-		
 		
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
 				LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearVSKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, parms, linParms, dataset, instances, labels, blackList);
 				
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
@@ -85,7 +85,7 @@ public class FullThemeExperiment extends CompareExperiment {
 			}
 
 			for (Statement stmt2 : stmts2) {
-				if (Math.random() < 0.5) {
+				if (Math.random() < 0.1) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());
 				}

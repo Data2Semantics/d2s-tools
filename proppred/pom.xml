@@ -9,5 +9,11 @@
   		<artifactId>d2stools</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+    <groupId>de.bwaldvogel</groupId>
+    <artifactId>liblinear</artifactId>
+    <version>1.92</version>
+</dependency>
+  	
   </dependencies>
 </project>

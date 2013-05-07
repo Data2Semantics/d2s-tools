@@ -13,7 +13,7 @@ import org.data2semantics.proppred.kernels.GraphKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMModel;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
-import org.data2semantics.proppred.libsvm.LibSVMPrediction;
+import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
@@ -145,7 +145,7 @@ public class LinkPredictionExperiment implements Runnable {
 			}
 			
 					
-			LibSVMPrediction[] pred = LibSVM.testSVMModel(model, testMatrix);	
+			Prediction[] pred = LibSVM.testSVMModel(model, testMatrix);	
 						
 			double[] target = LibSVM.createTargets(labels, labelMap);
 			

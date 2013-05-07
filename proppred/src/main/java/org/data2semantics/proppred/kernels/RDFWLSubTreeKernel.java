@@ -30,8 +30,9 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  *
  */
 public class RDFWLSubTreeKernel extends RDFGraphKernel {
-	private static final String BLANK_VERTEX_LABEL = "0";
-	private static final String BLANK_EDGE_LABEL   = "1";
+	private static final String ROOT_LABEL = "1";
+	private static final String BLANK_VERTEX_LABEL = "1";
+	private static final String BLANK_EDGE_LABEL   = "2";
 	
 
 	private Map<String, String> labelMap;
@@ -65,7 +66,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,String>>, Integer>>();
 		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,String>>, Integer>>();
 
-		labelCounter = 1;
+		labelCounter = 2;
 		this.depth = depth;
 		this.inference = inference;
 		this.iterations = iterations;
@@ -81,7 +82,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		for (int i = 0; i < featureVectors.length; i++) {
 			featureVectors[i] = new SparseVector();
 		}	
-		int startLabel = 0;
+		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		
 		DirectedGraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
@@ -142,17 +143,17 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			if (vertexMap.containsKey(idStr)) {
 				startV = vertexMap.get(idStr);
 				for (int di : startV.getLabel().keySet()) {
-					startV.getLabel().put(di, "0");
+					startV.getLabel().put(di, ROOT_LABEL);
 				}
 				
-			// Else we construct a new node for the instance, and label it with '0' for the provided depth
+			// Else we construct a new node for the instance, and label it with ROOT_LABEL for the provided depth
 			} else {
 				startV = new Vertex<Map<Integer,String>>(new HashMap<Integer, String>());
 				vertexMap.put(idStr, startV);
 				graph.addVertex(startV);
 			}
-			startV.getLabel().put(depth, "0"); 
-			labelMap.put(idStr, "0"); // This label is (re)set to '0'
+			startV.getLabel().put(depth, ROOT_LABEL); 
+			labelMap.put(idStr, ROOT_LABEL); // This label is (re)set to ROOTLABEL
 			instanceVertices.put(idStr, startV); // So that we can reconstruct subgraphs later, we save the instance vertices
 
 			queryNodes.add(instance);

@@ -16,11 +16,6 @@ public class LibSVMParameters {
 	public static final int EPSILON_SVR = svm_parameter.EPSILON_SVR;
 	public static final int NU_SVR = svm_parameter.NU_SVR;	
 
-	public static final int ACCURACY = 1;
-	public static final int F1 = 2;
-	public static final int MSE = 3;
-	public static final int MAE = 4;
-	
 	
 	private svm_parameter params;
 	private double[] itParams;
@@ -61,9 +56,9 @@ public class LibSVMParameters {
 		verbose = false;	
 
 		if (params.svm_type == EPSILON_SVR || params.svm_type == NU_SVR) {
-			evalFunction = MSE;
+			evalFunction = LibSVM.MSE;
 		} else {
-			evalFunction = ACCURACY;
+			evalFunction = LibSVM.ACCURACY;
 		}
 	}
 
