@@ -33,15 +33,11 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	private static final String ROOT_LABEL = "1";
 	private static final String BLANK_VERTEX_LABEL = "1";
 	private static final String BLANK_EDGE_LABEL   = "2";
-	
 
 	private Map<String, String> labelMap;
-	private Map<String, Vertex<Map<Integer,String>>> instanceVertices;
-
-	private Map<String, Map<Vertex<Map<Integer,String>>, Integer>> instanceVertexIndexMap;
-	private Map<String, Map<Edge<Map<Integer,String>>, Integer>> instanceEdgeIndexMap;
-
-	
+	private Map<String, Vertex<Map<Integer,StringBuilder>>> instanceVertices;
+	private Map<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>> instanceVertexIndexMap;
+	private Map<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>> instanceEdgeIndexMap;
 	
 	private int labelCounter;
 	private int depth;
@@ -62,9 +58,9 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		this.blankLabels = false;
 
 		labelMap = new HashMap<String, String>();
-		instanceVertices = new HashMap<String, Vertex<Map<Integer,String>>>();
-		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,String>>, Integer>>();
-		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,String>>, Integer>>();
+		instanceVertices = new HashMap<String, Vertex<Map<Integer,StringBuilder>>>();
+		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>>();
+		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>>();
 
 		labelCounter = 2;
 		this.depth = depth;
@@ -84,7 +80,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		}	
 		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		
-		DirectedGraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>> graph = createGraphFromRDF(dataset, instances, blackList);
+		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
 		
 		if (blankLabels) {
@@ -120,19 +116,19 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	}
 
 
-	private DirectedGraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
-		Map<String, Vertex<Map<Integer,String>>> vertexMap = new HashMap<String, Vertex<Map<Integer, String>>>();
-		Map<String, Edge<Map<Integer,String>>> edgeMap = new HashMap<String, Edge<Map<Integer, String>>>();
+	private DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
+		Map<String, Vertex<Map<Integer,StringBuilder>>> vertexMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
+		Map<String, Edge<Map<Integer,StringBuilder>>> edgeMap = new HashMap<String, Edge<Map<Integer, StringBuilder>>>();
 
-		DirectedGraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>> graph = new DirectedSparseMultigraph<Vertex<Map<Integer,String>>,Edge<Map<Integer,String>>>();
+		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = new DirectedSparseMultigraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>>();
 
 		List<Resource> queryNodes = new ArrayList<Resource>();
 		List<Resource> newQueryNodes;
 		List<Statement> result;
 
-		Vertex<Map<Integer, String>> startV;
-		Vertex<Map<Integer,String>> newV;
-		Edge<Map<Integer,String>> newE;
+		Vertex<Map<Integer,StringBuilder>> startV;
+		Vertex<Map<Integer,StringBuilder>> newV;
+		Edge<Map<Integer,StringBuilder>> newE;
 
 		String idStr, idStr2;
 
@@ -143,16 +139,16 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			if (vertexMap.containsKey(idStr)) {
 				startV = vertexMap.get(idStr);
 				for (int di : startV.getLabel().keySet()) {
-					startV.getLabel().put(di, ROOT_LABEL);
+					startV.getLabel().put(di, new StringBuilder(ROOT_LABEL));
 				}
 				
 			// Else we construct a new node for the instance, and label it with ROOT_LABEL for the provided depth
 			} else {
-				startV = new Vertex<Map<Integer,String>>(new HashMap<Integer, String>());
+				startV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
 				vertexMap.put(idStr, startV);
 				graph.addVertex(startV);
 			}
-			startV.getLabel().put(depth, ROOT_LABEL); 
+			startV.getLabel().put(depth, new StringBuilder(ROOT_LABEL)); 
 			labelMap.put(idStr, ROOT_LABEL); // This label is (re)set to ROOTLABEL
 			instanceVertices.put(idStr, startV); // So that we can reconstruct subgraphs later, we save the instance vertices
 
@@ -170,12 +166,12 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 						idStr = stmt.getObject().toString();
 						if (vertexMap.containsKey(idStr)) { // existing vertex
 							newV = vertexMap.get(idStr);				 
-							newV.getLabel().put(i, labelMap.get(idStr)); // Set the label for depth i to the already existing label for this vertex
+							newV.getLabel().put(i, new StringBuilder(labelMap.get(idStr))); // Set the label for depth i to the already existing label for this vertex
 
 						} else { // New vertex
-							newV = new Vertex<Map<Integer,String>>(new HashMap<Integer, String>());
+							newV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
 							labelMap.put(idStr, Integer.toString(labelCounter));
-							newV.getLabel().put(i, Integer.toString(labelCounter));
+							newV.getLabel().put(i, new StringBuilder(Integer.toString(labelCounter)));
 							labelCounter++;
 							vertexMap.put(idStr, newV);
 							graph.addVertex(newV);
@@ -186,15 +182,15 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 						idStr2 = stmt.getPredicate().toString();
 						if (edgeMap.containsKey(idStr)) { // existing edge
 							newE = edgeMap.get(idStr);
-							newE.getLabel().put(i, labelMap.get(idStr2)); // Set the label for depth i to the already existing label for this edge
+							newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this edge
 
 						} else { // new edge
-							newE = new Edge<Map<Integer,String>>(new HashMap<Integer,String>());
+							newE = new Edge<Map<Integer,StringBuilder>>(new HashMap<Integer,StringBuilder>());
 							if (!labelMap.containsKey(idStr2)) { // Edge labels are not unique, in contrast to vertex labels, thus we need to check whether it exists already
 								labelMap.put(idStr2, Integer.toString(labelCounter));
 								labelCounter++;
 							}
-							newE.getLabel().put(i, labelMap.get(idStr2));
+							newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2)));
 							edgeMap.put(idStr, newE);
 		
 							graph.addEdge(newE, vertexMap.get(stmt.getSubject().toString()), newV, EdgeType.DIRECTED);
@@ -222,15 +218,15 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	}
 
 	
-	private void createInstanceIndexMaps(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances) {
-		Vertex<Map<Integer, String>> startV;
-		List<Vertex<Map<Integer, String>>> frontV, newFrontV;
-		Map<Vertex<Map<Integer, String>>, Integer> vertexIndexMap;
-		Map<Edge<Map<Integer, String>>, Integer> edgeIndexMap;
+	private void createInstanceIndexMaps(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, List<Resource> instances) {
+		Vertex<Map<Integer, StringBuilder>> startV;
+		List<Vertex<Map<Integer, StringBuilder>>> frontV, newFrontV;
+		Map<Vertex<Map<Integer, StringBuilder>>, Integer> vertexIndexMap;
+		Map<Edge<Map<Integer, StringBuilder>>, Integer> edgeIndexMap;
 
 		for (int i = 0; i < instances.size(); i++) {				
-			vertexIndexMap = new HashMap<Vertex<Map<Integer, String>>, Integer>();
-			edgeIndexMap   = new HashMap<Edge<Map<Integer, String>>, Integer>();
+			vertexIndexMap = new HashMap<Vertex<Map<Integer, StringBuilder>>, Integer>();
+			edgeIndexMap   = new HashMap<Edge<Map<Integer, StringBuilder>>, Integer>();
 			
 			instanceVertexIndexMap.put(instances.get(i).toString(), vertexIndexMap);
 			instanceEdgeIndexMap.put(instances.get(i).toString(), edgeIndexMap);
@@ -238,16 +234,16 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			
 			// Get the start node
 			startV = instanceVertices.get(instances.get(i).toString());
-			frontV = new ArrayList<Vertex<Map<Integer,String>>>();
+			frontV = new ArrayList<Vertex<Map<Integer,StringBuilder>>>();
 			frontV.add(startV);
 
 			// Process the start node
 			vertexIndexMap.put(startV, depth);
 			
 			for (int j = depth - 1; j >= 0; j--) {
-				newFrontV = new ArrayList<Vertex<Map<Integer,String>>>();
-				for (Vertex<Map<Integer, String>> qV : frontV) {
-					for (Edge<Map<Integer, String>> edge : graph.getOutEdges(qV)) {
+				newFrontV = new ArrayList<Vertex<Map<Integer,StringBuilder>>>();
+				for (Vertex<Map<Integer, StringBuilder>> qV : frontV) {
+					for (Edge<Map<Integer, StringBuilder>> edge : graph.getOutEdges(qV)) {
 						// Process the edge, if we haven't seen it before
 						if (!edgeIndexMap.containsKey(edge)) {
 							edgeIndexMap.put(edge, j);
@@ -271,7 +267,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	
 
 
-	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, int startLabel) {
+	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, int startLabel) {
 		Map<String, Bucket<VertexIndexPair>> bucketsV = new HashMap<String, Bucket<VertexIndexPair>>();
 		Map<String, Bucket<EdgeIndexPair>> bucketsE   = new HashMap<String, Bucket<EdgeIndexPair>>();
 
@@ -283,21 +279,21 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 
 		// 1. Fill buckets 
 		// Add each edge source (i.e.) start vertex to the bucket of the edge label
-		for (Edge<Map<Integer,String>> edge : graph.getEdges()) {
+		for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
 			// for each label we add a vertex-index-pair to the bucket
 			for (int index : edge.getLabel().keySet()) {
-				bucketsV.get(edge.getLabel().get(index)).getContents().add(new VertexIndexPair(graph.getDest(edge), index));
+				bucketsV.get(edge.getLabel().get(index).toString()).getContents().add(new VertexIndexPair(graph.getDest(edge), index));
 			}
 		}
 
 		// Add each incident edge to the bucket of the node label
-		for (Vertex<Map<Integer,String>> vertex : graph.getVertices()) {			
-			Collection<Edge<Map<Integer,String>>> v2 = graph.getOutEdges(vertex);	
+		for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {			
+			Collection<Edge<Map<Integer,StringBuilder>>> v2 = graph.getOutEdges(vertex);	
 
 			for (int index : vertex.getLabel().keySet()) {
 				if (index > 0) { // If index is 0 then we treat it as a fringe node, thus the label will not be propagated to the edges
-					for (Edge<Map<Integer,String>> e2 : v2) {
-						bucketsE.get(vertex.getLabel().get(index)).getContents().add(new EdgeIndexPair(e2, index - 1));
+					for (Edge<Map<Integer,StringBuilder>> e2 : v2) {
+						bucketsE.get(vertex.getLabel().get(index).toString()).getContents().add(new EdgeIndexPair(e2, index - 1));
 					}
 				}
 			}
@@ -306,15 +302,15 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		// 2. add bucket labels to existing labels
 		// Change the original label to a prefix label
 
-		for (Edge<Map<Integer,String>> edge : graph.getEdges()) {
+		for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
 			for (int i : edge.getLabel().keySet()) {
-				edge.getLabel().put(i, edge.getLabel().get(i) + "_");
+				edge.getLabel().get(i).append("_");   
 			}
 			
 		}
-		for (Vertex<Map<Integer,String>> vertex : graph.getVertices()) {
+		for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {
 			for (int i : vertex.getLabel().keySet()) {
-				vertex.getLabel().put(i, vertex.getLabel().get(i) + "_");
+				vertex.getLabel().get(i).append("_"); 
 			}
 		}
 
@@ -323,41 +319,41 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			// Process vertices
 			Bucket<VertexIndexPair> bucketV = bucketsV.get(Integer.toString(i));			
 			for (VertexIndexPair vp : bucketV.getContents()) {
-				vp.getVertex().getLabel().put(vp.getIndex(), vp.getVertex().getLabel().get(vp.getIndex()) + bucketV.getLabel());
+				vp.getVertex().getLabel().get(vp.getIndex()).append(bucketV.getLabel());//      .put(vp.getIndex(), vp.getVertex().getLabel().get(vp.getIndex()) + bucketV.getLabel());
 			}
 			// Process edges
 			Bucket<EdgeIndexPair> bucketE = bucketsE.get(Integer.toString(i));			
 			for (EdgeIndexPair ep : bucketE.getContents()) {
-				ep.getEdge().getLabel().put(ep.getIndex(), ep.getEdge().getLabel().get(ep.getIndex()) + bucketE.getLabel());
+				ep.getEdge().getLabel().get(ep.getIndex()).append(bucketE.getLabel());// .put(ep.getIndex(), ep.getEdge().getLabel().get(ep.getIndex()) + bucketE.getLabel());
 			}
 		}
 	}
 
 
-	private void compressGraphLabels(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph) {
+	private void compressGraphLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph) {
 		String label;
 
-		for (Edge<Map<Integer,String>> edge : graph.getEdges()) {
+		for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
 			for (int i : edge.getLabel().keySet()) {
 				label = labelMap.get(edge.getLabel().get(i));						
 				if (label == null) {					
 					label = Integer.toString(labelCounter);
 					labelCounter++;
-					labelMap.put(edge.getLabel().get(i), label);				
+					labelMap.put(edge.getLabel().get(i).toString(), label);				
 				}
-				edge.getLabel().put(i, label);
+				edge.getLabel().put(i, new StringBuilder(label));
 			}
 		}
 
-		for (Vertex<Map<Integer,String>> vertex : graph.getVertices()) {
+		for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {
 			for (int i : vertex.getLabel().keySet()) {
 				label = labelMap.get(vertex.getLabel().get(i));
 				if (label == null) {
 					label = Integer.toString(labelCounter);
 					labelCounter++;
-					labelMap.put(vertex.getLabel().get(i), label);
+					labelMap.put(vertex.getLabel().get(i).toString(), label);
 				}
-				vertex.getLabel().put(i, label);
+				vertex.getLabel().put(i, new StringBuilder(label));
 			}
 		}
 	}
@@ -374,21 +370,21 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	 * @param weight
 	 * @param featureVectors
 	 */
-	private void computeFVs(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances, double weight, SparseVector[] featureVectors) {
+	private void computeFVs(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, List<Resource> instances, double weight, SparseVector[] featureVectors) {
 		int index;
-		Map<Vertex<Map<Integer,String>>, Integer> vertexIndexMap;
-		Map<Edge<Map<Integer,String>>, Integer> edgeIndexMap;
+		Map<Vertex<Map<Integer,StringBuilder>>, Integer> vertexIndexMap;
+		Map<Edge<Map<Integer,StringBuilder>>, Integer> edgeIndexMap;
 		
 		for (int i = 0; i < instances.size(); i++) {
 			
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
-			for (Vertex<Map<Integer,String>> vertex : vertexIndexMap.keySet()) {
-				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)));
+			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
+				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
 			}
 			edgeIndexMap = instanceEdgeIndexMap.get(instances.get(i).toString());
-			for (Edge<Map<Integer,String>> edge : edgeIndexMap.keySet()) {
-				index = Integer.parseInt(edge.getLabel().get(edgeIndexMap.get(edge)));
+			for (Edge<Map<Integer,StringBuilder>> edge : edgeIndexMap.keySet()) {
+				index = Integer.parseInt(edge.getLabel().get(edgeIndexMap.get(edge)).toString());
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
 			}
 		}
@@ -505,31 +501,31 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		}
 	}
 
-	private void setBlankLabels(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph) {
-		for (Vertex<Map<Integer,String>> v : graph.getVertices()) {
+	private void setBlankLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph) {
+		for (Vertex<Map<Integer,StringBuilder>> v : graph.getVertices()) {
 			for (int k : v.getLabel().keySet()) {
-				v.getLabel().put(k, BLANK_VERTEX_LABEL);
+				v.getLabel().put(k, new StringBuilder(BLANK_VERTEX_LABEL));
 			}
 		}
 		
-		for (Edge<Map<Integer,String>> e : graph.getEdges()) {
+		for (Edge<Map<Integer,StringBuilder>> e : graph.getEdges()) {
 			for (int k : e.getLabel().keySet()) {
-				e.getLabel().put(k, BLANK_EDGE_LABEL);
+				e.getLabel().put(k, new StringBuilder(BLANK_EDGE_LABEL));
 			}
 		}	
 	}
 	
 
 	private class VertexIndexPair {
-		private Vertex<Map<Integer,String>> vertex;
+		private Vertex<Map<Integer,StringBuilder>> vertex;
 		private int index;
 
-		public VertexIndexPair(Vertex<Map<Integer, String>> vertex, int index) {
+		public VertexIndexPair(Vertex<Map<Integer, StringBuilder>> vertex, int index) {
 			this.vertex = vertex;
 			this.index = index;
 		}
 
-		public Vertex<Map<Integer, String>> getVertex() {
+		public Vertex<Map<Integer, StringBuilder>> getVertex() {
 			return vertex;
 		}
 		public int getIndex() {
@@ -538,15 +534,15 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	}
 
 	private class EdgeIndexPair {
-		private Edge<Map<Integer,String>> edge;
+		private Edge<Map<Integer,StringBuilder>> edge;
 		private int index;
 
-		public EdgeIndexPair(Edge<Map<Integer, String>> edge, int index) {
+		public EdgeIndexPair(Edge<Map<Integer, StringBuilder>> edge, int index) {
 			this.edge = edge;
 			this.index = index;
 		}
 
-		public Edge<Map<Integer, String>> getEdge() {
+		public Edge<Map<Integer, StringBuilder>> getEdge() {
 			return edge;
 		}
 		public int getIndex() {

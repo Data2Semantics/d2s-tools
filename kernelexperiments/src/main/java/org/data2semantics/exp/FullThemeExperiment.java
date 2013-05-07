@@ -30,22 +30,23 @@ public class FullThemeExperiment extends CompareExperiment {
 	 */
 	public static void main(String[] args) {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
-
+		double[] cs = { 1, 10, 100, 1000};	
+		// 0.001, 0.01, 0.1,
 		int depth = 3;
 		int[] iterations = {0, 2, 4, 6};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-		createGeoDataSet(50, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+		createGeoDataSet(10, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 
 	
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
 		
 		boolean inference = false;
-		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+		for (int i = 1; i <= depth; i++) {			
 			for (int it : iterations) {
+				resTable.newRow("");
+				
 				LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
 				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearVSKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, parms, linParms, dataset, instances, labels, blackList);
@@ -85,7 +86,7 @@ public class FullThemeExperiment extends CompareExperiment {
 			}
 
 			for (Statement stmt2 : stmts2) {
-				if (Math.random() < 0.1) {
+				if (Math.random() < 0.01) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());
 				}

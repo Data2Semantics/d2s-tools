@@ -29,6 +29,7 @@ public class LibLINEARParameters {
 	public LibLINEARParameters(int algorithm) {
 		SolverType solver;
 		this.algorithm = algorithm;
+		
 		switch (algorithm) {
 		case SVC_DUAL: 	solver = SolverType.L2R_L2LOSS_SVC_DUAL;
 		evalFunction = LibSVM.ACCURACY;
@@ -43,10 +44,10 @@ public class LibLINEARParameters {
 		evalFunction = LibSVM.MSE;
 		break;
 		case LR_DUAL: solver = SolverType.L2R_LR_DUAL;
-		evalFunction = LibSVM.MSE;
+		evalFunction = LibSVM.ACCURACY;
 		break;
 		case LR_PRIMAL: solver = SolverType.L2R_LR;
-		evalFunction = LibSVM.MSE;
+		evalFunction = LibSVM.ACCURACY;
 		break;
 		default: solver = SolverType.L2R_L2LOSS_SVC_DUAL;
 		evalFunction = LibSVM.ACCURACY;
@@ -54,6 +55,7 @@ public class LibLINEARParameters {
 		}
 
 		verbose = false;
+		bias = -1;
 		params = new Parameter(solver, 1, 0.1);
 	}
 

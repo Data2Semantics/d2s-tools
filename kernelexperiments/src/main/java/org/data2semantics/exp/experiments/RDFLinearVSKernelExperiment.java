@@ -135,18 +135,18 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 			tic = System.currentTimeMillis();
 			Prediction[] predA = LibLINEAR.crossValidate(fv, target, linearParms, 10);		
 			toc = System.currentTimeMillis();
-			compLA[j] = toc - tic;		
+			compLA[j] = toc - tic;			
 			
-			
-			double[][] matrix = Kernel.featureVectors2Kernel(fv, true);
 			svmParms.setPrecomputedKernel();
 			tic = System.currentTimeMillis();
+			double[][] matrix = Kernel.featureVectors2Kernel(fv, true);
 			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
 			toc = System.currentTimeMillis();
 			compKA[j] = toc - tic;	
 			
 			accLA[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predA));
 			f1LA[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predA));
+
 			accKA[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 			f1KA[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 	
