@@ -45,7 +45,7 @@ public class LibSVMParameters {
 		
 		// Fixed parameters
 		params.kernel_type = svm_parameter.PRECOMPUTED;
-		params.eps = 0.0001;
+		params.eps = 0.00001;
 		params.shrinking = 0;
 		params.probability = 0;
 		params.cache_size = 300;

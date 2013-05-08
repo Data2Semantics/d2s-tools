@@ -448,7 +448,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 
 
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
-		//parms.setEvalFunction(LibSVMParameters.F1);
+		//parms.setEvalFunction(LibSVM.F1);
 
 		ResultsTable resTable = new ResultsTable();
 
@@ -486,6 +486,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		}
 		saveResults(resTable, "geo_litho.ser");
 
+		
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
@@ -590,6 +591,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		}
 		saveResults(resTable, "geo_litho.ser");
 
+	
 
 		/*
 		dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
@@ -601,6 +603,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
 		 */
 
+		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
@@ -660,6 +663,7 @@ public class GeoCompareExperiment extends CompareExperiment {
 			}
 		}
 		saveResults(resTable, "geo_litho.ser");
+
 
 
 		resTable.addCompResults(resTable.getBestResults());

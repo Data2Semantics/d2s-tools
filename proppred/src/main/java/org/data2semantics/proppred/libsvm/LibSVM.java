@@ -77,7 +77,7 @@ public class LibSVM {
 			} else {
 				svmParams.nu = c;
 			}
-			svm.svm_cross_validation(svmProb, svmParams, 10, prediction);
+			svm.svm_cross_validation(svmProb, svmParams, 5, prediction);
 			
 			if (params.getEvalFunction() == LibSVM.ACCURACY) {
 				score = computeAccuracy(target, prediction);
