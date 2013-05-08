@@ -139,7 +139,7 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 			
 			svmParms.setPrecomputedKernel();
 			tic = System.currentTimeMillis();
-			double[][] matrix = Kernel.featureVectors2Kernel(fv, false);
+			double[][] matrix = Kernel.featureVectors2Kernel(fv);
 			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
 			toc = System.currentTimeMillis();
 			compKA[j] = toc - tic;	

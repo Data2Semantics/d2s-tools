@@ -109,9 +109,6 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		double[][] kernel = initMatrix(instances.size(), instances.size());
 		computeKernelMatrix(instances, featureVectors, kernel, 1);
 	
-		if (this.normalize) {
-			kernel = normalize(kernel);
-		}
 		return kernel;
 	}
 

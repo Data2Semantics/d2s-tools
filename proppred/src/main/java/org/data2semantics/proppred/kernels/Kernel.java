@@ -45,7 +45,7 @@ public abstract class Kernel {
 		return convert2DoublePrimitives(kernelDouble);
 	}
 	
-	public static double[][] featureVectors2Kernel(SparseVector[] featureVectors, boolean normalize) {
+	public static double[][] featureVectors2Kernel(SparseVector[] featureVectors) {
 		double[][] kernel = initMatrix(featureVectors.length, featureVectors.length);
 	
 		for (int i = 0; i < featureVectors.length; i++) {
@@ -53,10 +53,6 @@ public abstract class Kernel {
 				kernel[i][j] = featureVectors[i].dot(featureVectors[j]);
 				kernel[j][i] = kernel[i][j];
 			}
-		}
-		
-		if (normalize) {
-			kernel = normalize(kernel);
 		}
 		return kernel;
 	}
