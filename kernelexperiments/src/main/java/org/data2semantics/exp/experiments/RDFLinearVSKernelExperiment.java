@@ -133,7 +133,7 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		
 			
 			tic = System.currentTimeMillis();
-			Prediction[] predA = LibLINEAR.crossValidate(fv, target, linearParms, 10);		
+			Prediction[] predA = LibLINEAR.crossValidate(Kernel.convert2BinaryFeatureVectors(fv), target, linearParms, 10);		
 			toc = System.currentTimeMillis();
 			compLA[j] = toc - tic;			
 			

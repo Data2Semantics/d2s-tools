@@ -57,6 +57,17 @@ public abstract class Kernel {
 		return kernel;
 	}
 	
+	public static SparseVector[] convert2BinaryFeatureVectors(SparseVector[] featureVectors) {
+		for (SparseVector fv : featureVectors) {
+			for (int index : fv.getIndices()) {
+				fv.setValue(index, 1);
+			}
+		}
+		return normalize(featureVectors);
+	}
+	
+	
+	
 	protected static SparseVector[] normalize(SparseVector[] featureVectors) {
 		double norm = 0;
 		for (int i = 0; i < featureVectors.length; i++) {
