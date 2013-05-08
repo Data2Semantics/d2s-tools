@@ -78,7 +78,6 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		for (int i = 0; i < featureVectors.length; i++) {
 			featureVectors[i] = new SparseVector();
 		}	
-		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		
 		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
@@ -87,13 +86,14 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			setBlankLabels(graph);
 		}
 		
-		computeFVs(graph, instances, 1.0 / Math.sqrt(iterations + 1), featureVectors);
+		computeFVs(graph, instances, Math.sqrt(1.0 / ((double) (iterations + 1))), featureVectors);
 		
+		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		for (int i = 0; i < iterations; i++) {	
 			relabelGraph2MultisetLabels(graph, startLabel);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
-			computeFVs(graph, instances, (2.0 + i) / Math.sqrt(iterations + 1), featureVectors);
+			computeFVs(graph, instances, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), featureVectors);
 		}
 		if (this.normalize) {
 			featureVectors = Kernel.normalize(featureVectors);
@@ -102,16 +102,52 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		return featureVectors;
 	}
 	
-	
-	
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
 		double[][] kernel = initMatrix(instances.size(), instances.size());
-		computeKernelMatrix(instances, featureVectors, kernel, 1);
-	
+		computeKernelMatrix(instances, featureVectors, kernel);
 		return kernel;
 	}
 
+	
+	/*
+	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
+		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
+		createInstanceIndexMaps(graph, instances);
+		
+		if (blankLabels) {
+			setBlankLabels(graph);
+		}
+		
+		SparseVector[] featureVectors = new SparseVector[instances.size()];
+		for (int i = 0; i < featureVectors.length; i++) {
+			featureVectors[i] = new SparseVector();
+		}
+		computeFVs(graph, instances, 1, featureVectors);
+		
+		double[][] kernel = initMatrix(instances.size(), instances.size());
+		computeKernelMatrix(instances, featureVectors, kernel, 1.0 / ((double) (iterations + 1)));
+	
+		
+		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
+		for (int i = 0; i < iterations; i++) {	
+			relabelGraph2MultisetLabels(graph, startLabel);
+			startLabel = labelCounter;
+			compressGraphLabels(graph);
+			
+			featureVectors = new SparseVector[instances.size()];
+			for (int j = 0; j < featureVectors.length; j++) {
+				featureVectors[j] = new SparseVector();
+			}	
+			computeFVs(graph, instances, 1, featureVectors);
+			computeKernelMatrix(instances, featureVectors, kernel, (2.0 + i) / ((double) (iterations + 1)));
+		}
+		if (this.normalize) {
+			kernel = Kernel.normalize(kernel);
+		}
+		return kernel;
+	}
+	*/
 
 	private DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		Map<String, Vertex<Map<Integer,StringBuilder>>> vertexMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
@@ -132,7 +168,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		for (Resource instance : instances) {
 			idStr = instance.toString();			
 			// If the instance is already part of the graph (because it was retrieved for an earlier instance), 
-			// then we use that one, but we need to change the labels to the start label of instance nodes, for which we use '0'
+			// then we use that one, but we need to change the labels to the start label of instance nodes, for which we use ROOT_LABEL
 			if (vertexMap.containsKey(idStr)) {
 				startV = vertexMap.get(idStr);
 				for (int di : startV.getLabel().keySet()) {
@@ -146,7 +182,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 				graph.addVertex(startV);
 			}
 			startV.getLabel().put(depth, new StringBuilder(ROOT_LABEL)); 
-			labelMap.put(idStr, ROOT_LABEL); // This label is (re)set to ROOTLABEL
+			labelMap.put(idStr, ROOT_LABEL); // This label is (re)set to ROOT_LABEL
 			instanceVertices.put(idStr, startV); // So that we can reconstruct subgraphs later, we save the instance vertices
 
 			queryNodes.add(instance);
@@ -188,8 +224,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 								labelCounter++;
 							}
 							newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2)));
-							edgeMap.put(idStr, newE);
-		
+							edgeMap.put(idStr, newE);	
 							graph.addEdge(newE, vertexMap.get(stmt.getSubject().toString()), newV, EdgeType.DIRECTED);
 						}
 
@@ -209,8 +244,6 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		for (Statement stmt : blackList) {
 			graph.removeEdge(edgeMap.get(stmt.toString()));
 		}
-
-
 		return graph;
 	}
 
@@ -486,13 +519,22 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	}
 	 */
 
-	
-
-	private void computeKernelMatrix(List<Resource> instances, SparseVector[] featureVectors, double[][] kernel, int iteration) {
+	/*
+	private void computeKernelMatrix(List<Resource> instances, SparseVector[] featureVectors, double[][] kernel, double weight) {
 		for (int i = 0; i < instances.size(); i++) {
 			for (int j = i; j < instances.size(); j++) {
-				//kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j]) * ((iteration) / ((double) this.iterations+1));
-				kernel[i][j] += featureVectors[i].dot(featureVectors[j]) * ((iteration) / ((double) this.iterations+1));
+				kernel[i][j] += featureVectors[i].dot(featureVectors[j]) * weight;
+				kernel[j][i] = kernel[i][j];
+			}
+		}
+	}
+	*/
+	
+
+	private void computeKernelMatrix(List<Resource> instances, SparseVector[] featureVectors, double[][] kernel) {
+		for (int i = 0; i < instances.size(); i++) {
+			for (int j = i; j < instances.size(); j++) {
+				kernel[i][j] += featureVectors[i].dot(featureVectors[j]);
 				kernel[j][i] = kernel[i][j];
 			}
 		}
