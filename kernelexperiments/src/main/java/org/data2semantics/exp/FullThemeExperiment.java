@@ -33,7 +33,7 @@ public class FullThemeExperiment extends CompareExperiment {
 		double[] cs = { 1, 10, 100, 1000};	
 		// 0.001, 0.01, 0.1,
 		int depth = 3;
-		int[] iterations = {0, 2, 4, 6};
+		int[] iterations = {0, 2, 4};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 		createGeoDataSet(50, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");

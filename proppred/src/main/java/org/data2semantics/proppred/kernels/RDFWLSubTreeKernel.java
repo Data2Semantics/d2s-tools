@@ -87,13 +87,13 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			setBlankLabels(graph);
 		}
 		
-		computeFVs(graph, instances, 1, featureVectors);
+		computeFVs(graph, instances, 1.0 / Math.sqrt(iterations + 1), featureVectors);
 		
 		for (int i = 0; i < iterations; i++) {	
 			relabelGraph2MultisetLabels(graph, startLabel);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
-			computeFVs(graph, instances, 1, featureVectors);
+			computeFVs(graph, instances, (2.0 + i) / Math.sqrt(iterations + 1), featureVectors);
 		}
 		if (this.normalize) {
 			featureVectors = Kernel.normalize(featureVectors);
