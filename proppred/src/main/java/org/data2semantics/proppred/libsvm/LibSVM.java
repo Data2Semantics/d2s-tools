@@ -522,7 +522,15 @@ public class LibSVM {
 		prob.x = nodes;
 		
 		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = featureVectors[i].convert2svmNodes();
+			nodes[i] = new svm_node[featureVectors[i].size()];
+			
+			int j = 0;
+			for (int key : featureVectors[i].getIndices()) {
+				nodes[i][j] = new svm_node();
+				nodes[i][j].index = key;
+				nodes[i][j].value = featureVectors[i].getValue(key);
+				j++;
+			}
 		}		
 		return prob;		
 	}
@@ -554,7 +562,15 @@ public class LibSVM {
 		svm_node[][] nodes = new svm_node[testVectors.length][];
 		
 		for (int i = 0; i < testVectors.length; i++) {
-			nodes[i] = testVectors[i].convert2svmNodes();
+			nodes[i] = new svm_node[testVectors[i].size()];
+			
+			int j = 0;
+			for (int key : testVectors[i].getIndices()) {
+				nodes[i][j] = new svm_node();
+				nodes[i][j].index = key;
+				nodes[i][j].value = testVectors[i].getValue(key);
+				j++;
+			}
 		}
 		return nodes;
 	}

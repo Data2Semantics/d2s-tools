@@ -76,6 +76,7 @@ public abstract class Kernel {
 			for (int index : featureVectors[i].getIndices()) {
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) / norm);
 			}
+			featureVectors[i].clearConversion();
 		}
 		return featureVectors;
 	}
