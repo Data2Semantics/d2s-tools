@@ -65,7 +65,13 @@ public class SparseVector {
 		return ret;
 	}	
 	
-	public void convert2Arrays() {
+	public void clearConversion() {
+		converted = false;
+		indices = null;
+		values = null;
+	}
+	
+	private void convert2Arrays() {
 		indices = new int[vector.size()];
 		values = new double[vector.size()];
 		
@@ -78,6 +84,7 @@ public class SparseVector {
 		converted = true;
 	}
 	
+	/*
 	svm_node[] convert2svmNodes() {
 		svm_node[] ret = new svm_node[vector.size()];
 		
@@ -90,4 +97,5 @@ public class SparseVector {
 		}
 		return ret;
 	}
+	*/
 }
