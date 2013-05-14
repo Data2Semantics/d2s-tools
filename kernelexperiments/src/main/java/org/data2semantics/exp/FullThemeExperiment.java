@@ -14,6 +14,7 @@ import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
@@ -33,11 +34,11 @@ public class FullThemeExperiment extends CompareExperiment {
 		long[] seeds = {11,31,51,71,91};
 		double[] cs = { 1, 10, 100, 1000};	
 		// 0.001, 0.01, 0.1,
-		//int depth = 2;
-		//int[] iterations = {0, 2, 4};
 		
-		int depth = 3;
-		int[] iterations = {0, 2, 4};
+		//int[] depths = {1, 2, 3};
+		//int[] iterations = {0, 2, 4, 6};
+		int[] depths = {1,2,3};
+		int[] iterations = {0,2,4,6};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
@@ -48,9 +49,12 @@ public class FullThemeExperiment extends CompareExperiment {
 		resTable.setManWU(0.05);
 		
 		boolean inference = false;
-		for (int i = 3; i <= depth; i++) {			
+		for (int i : depths) {			
 			for (int it : iterations) {
 				resTable.newRow("");
+				
+				RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, i, inference, true);
+				LibLINEAR.featureVectors2File(kernel.computeFeatureVectors(dataset, instances, blackList), LibSVM.createTargets(labels), "BinaryFV_" + kernel.getLabel() + ".txt");		
 				
 				LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);

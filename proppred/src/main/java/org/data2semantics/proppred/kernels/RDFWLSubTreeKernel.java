@@ -54,7 +54,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize) {
 		super(normalize);
-		this.label = "RDF WL Kernel";
+		this.label = "RDF_WL_Kernel_" + depth + "_" + iterations;
 		this.blankLabels = false;
 
 		labelMap = new HashMap<String, String>();

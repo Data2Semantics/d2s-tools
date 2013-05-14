@@ -39,43 +39,7 @@ public abstract class CompareExperiment {
 	
 
 	
-	private static void createCommitteeMemberPredictionDataSet() {
-		RDFFileDataSet testSetA = new RDFFileDataSet("datasets/eswc-2011-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/eswc-2010-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/iswc-2010-complete.rdf", RDFFormat.RDFXML);
-
-		RDFFileDataSet testSetB = new RDFFileDataSet("datasets/eswc-2012-complete.rdf", RDFFormat.RDFXML);
-
-		instances = new ArrayList<Resource>();
-		List<Resource> instancesB = new ArrayList<Resource>();
-		labels = new ArrayList<Value>();
-		List<Statement> stmts = testSetA.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person");
-		for (Statement stmt : stmts) {
-			instancesB.add(stmt.getSubject()); 
-		}	
-
-		int pos = 0, neg = 0;
-		for (Resource instance : instancesB) {
-			if (!testSetB.getStatements(instance, null, null).isEmpty()) {
-				instances.add(instance);
-				if (testSetB.getStatementsFromStrings(instance.toString(), "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/conference/eswc/2012/research-track-committee-member", false).size() > 0) {
-					labels.add(testSetA.createLiteral("true"));
-					pos++;
-				} else {
-					labels.add(testSetA.createLiteral("false"));
-					neg++;
-				}
-			}
-		}
-
-		dataset = testSetA;		
-		blackList = new ArrayList<Statement>();
-
-		System.out.println("Pos and Neg: " + pos + " " + neg);
-		System.out.println("Baseline acc: " + Math.max(pos, neg) / ((double)pos+neg));
-
-	}
+	
 
 	
 
