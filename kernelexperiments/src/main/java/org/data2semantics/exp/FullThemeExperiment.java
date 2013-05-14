@@ -29,13 +29,18 @@ public class FullThemeExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
+		//long[] seeds = {11,21,31,41,51,61,71,81,91,101};
+		long[] seeds = {11,31,51,71,91};
 		double[] cs = { 1, 10, 100, 1000};	
 		// 0.001, 0.01, 0.1,
+		//int depth = 2;
+		//int[] iterations = {0, 2, 4};
+		
 		int depth = 3;
-		int[] iterations = {0, 2, 4, 6};
+		int[] iterations = {0, 2, 4};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+
 		createGeoDataSet(10, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 
 	
@@ -43,7 +48,7 @@ public class FullThemeExperiment extends CompareExperiment {
 		resTable.setManWU(0.05);
 		
 		boolean inference = false;
-		for (int i = 1; i <= depth; i++) {			
+		for (int i = 3; i <= depth; i++) {			
 			for (int it : iterations) {
 				resTable.newRow("");
 				
@@ -86,6 +91,7 @@ public class FullThemeExperiment extends CompareExperiment {
 			}
 
 			for (Statement stmt2 : stmts2) {
+
 				if (Math.random() < 0.01) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());

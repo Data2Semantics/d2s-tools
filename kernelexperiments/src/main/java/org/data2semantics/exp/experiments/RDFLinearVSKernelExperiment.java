@@ -70,17 +70,17 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 
 
 	public void run() {		
-		long tic, toc;
-		
-		List<Value> tempLabels = new ArrayList<Value>();
-		tempLabels.addAll(labels);
+		long tic, toc;		
 
 		tic = System.currentTimeMillis();
 		SparseVector[] fv = kernel.computeFeatureVectors(dataset, instances, blackList);
 		toc = System.currentTimeMillis();
 		
 		List<SparseVector> fvList = Arrays.asList(fv);
-		kernel = null;
+		kernel = null; // Remove the kernel since it takes up a lot of memory and we only need the FV's
+		
+		List<Value> tempLabels = new ArrayList<Value>();
+		tempLabels.addAll(labels);
 		
 		double[] comp = {0.0, 0.0};
 		comp[0] = toc - tic;
@@ -109,12 +109,14 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		compR.setLabel("kernel comp time");
 		compL.setLabel("linear comp time");
 		compK.setLabel("svm comp time");
+	
+		
 		
 		for (int j = 0; j < seeds.length; j++) {			
 			Collections.shuffle(fvList, new Random(seeds[j]));
-			fv = fvList.toArray(new SparseVector[1]);
 			Collections.shuffle(tempLabels, new Random(seeds[j]));
 			
+			fv = fvList.toArray(new SparseVector[1]);
 			double[] target = LibSVM.createTargets(tempLabels);
 			
 			// set the weights man
@@ -135,14 +137,16 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		
 			
 			tic = System.currentTimeMillis();
-			Prediction[] predA = LibLINEAR.crossValidate(Kernel.convert2BinaryFeatureVectors(fv), target, linearParms, 10);		
+			Prediction[] predA = LibLINEAR.crossValidate(Kernel.convert2BinaryFeatureVectors(fv), target, linearParms, 5);		
 			toc = System.currentTimeMillis();
 			compLA[j] = toc - tic;			
 			
 			svmParms.setPrecomputedKernel();
 			tic = System.currentTimeMillis();
-			double[][] matrix = Kernel.featureVectors2Kernel(fv);
-			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
+			Prediction[] predB = LibLINEAR.crossValidate(fv, target, linearParms, 5);
+			
+		//	double[][] matrix = Kernel.featureVectors2Kernel(fv);
+		//	Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 5);
 			toc = System.currentTimeMillis();
 			compKA[j] = toc - tic;	
 			

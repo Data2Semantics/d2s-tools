@@ -77,11 +77,16 @@ public class LibLINEAR {
 	
 	public static Prediction[] crossValidate(SparseVector[] featureVectors, double[] target, LibLINEARParameters params, int numberOfFolds) {
 		Prediction[] pred = new Prediction[target.length];
+		SparseVector[] trainFV, testFV;
+		double[] trainTarget;
 		
 		for (int fold = 1; fold <= numberOfFolds; fold++) {
-			SparseVector[] trainFV = LibSVM.createFeatureVectorsTrainFold(featureVectors, numberOfFolds, fold);
-			SparseVector[] testFV  = LibSVM.createFeatureVectorsTestFold(featureVectors, numberOfFolds, fold);
-			double[] trainTarget  = LibSVM.createTargetTrainFold(target, numberOfFolds, fold);			
+			if (featureVectors.length >=  10000) {
+				System.out.println("CV fold: " + fold);
+			}
+			trainFV 	 = LibSVM.createFeatureVectorsTrainFold(featureVectors, numberOfFolds, fold);
+			testFV  	 = LibSVM.createFeatureVectorsTestFold(featureVectors, numberOfFolds, fold);
+			trainTarget  = LibSVM.createTargetTrainFold(target, numberOfFolds, fold);			
 			pred = LibSVM.addFold2Prediction(testLinearModel(trainLinearModel(trainFV, trainTarget, params), testFV), pred, numberOfFolds, fold);
 		}		
 		return pred;
