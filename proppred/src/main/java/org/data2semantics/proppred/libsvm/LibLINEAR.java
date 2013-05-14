@@ -2,6 +2,7 @@ package org.data2semantics.proppred.libsvm;
 
 import static org.data2semantics.proppred.libsvm.LibSVM.createFeatureVectorsTrainFold;
 
+import java.io.FileWriter;
 import java.util.Set;
 
 
@@ -84,6 +85,35 @@ public class LibLINEAR {
 			pred = LibSVM.addFold2Prediction(testLinearModel(trainLinearModel(trainFV, trainTarget, params), testFV), pred, numberOfFolds, fold);
 		}		
 		return pred;
+	}
+	
+	
+	
+	
+	public static void featureVectors2File(SparseVector[] featureVectors, double[] target, String filename) {
+		try {
+			FileWriter fo = new FileWriter(filename);
+			StringBuffer line;
+			
+			for (int i = 0; i < featureVectors.length; i++) {
+				line = new StringBuffer();
+				line.append(target[i]);
+				line.append(" ");
+				
+				for (int index : featureVectors[i].getIndices()) {
+					line.append(index);
+					line.append(":");
+					line.append(featureVectors[i].getValue(index));
+					line.append(" ");
+				}
+				line.append("\n");
+				fo.write(line.toString());
+			}
+			fo.close();
+			
+		} catch (Exception e) {
+			e.getStackTrace();
+		}
 	}
 	
 	

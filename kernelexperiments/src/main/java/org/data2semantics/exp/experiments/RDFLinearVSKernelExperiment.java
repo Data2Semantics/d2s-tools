@@ -79,6 +79,9 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		SparseVector[] fv = kernel.computeFeatureVectors(dataset, instances, blackList);
 		toc = System.currentTimeMillis();
 		
+		List<SparseVector> fvList = Arrays.asList(fv);
+		kernel = null;
+		
 		double[] comp = {0.0, 0.0};
 		comp[0] = toc - tic;
 		comp[1] = toc - tic;
@@ -107,8 +110,7 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		compL.setLabel("linear comp time");
 		compK.setLabel("svm comp time");
 		
-		for (int j = 0; j < seeds.length; j++) {
-			List<SparseVector> fvList = Arrays.asList(fv);
+		for (int j = 0; j < seeds.length; j++) {			
 			Collections.shuffle(fvList, new Random(seeds[j]));
 			fv = fvList.toArray(new SparseVector[1]);
 			Collections.shuffle(tempLabels, new Random(seeds[j]));
