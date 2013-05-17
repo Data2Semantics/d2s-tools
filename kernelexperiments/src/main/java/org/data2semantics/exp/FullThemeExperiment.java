@@ -35,14 +35,14 @@ public class FullThemeExperiment extends CompareExperiment {
 		double[] cs = { 1, 10, 100, 1000};	
 		// 0.001, 0.01, 0.1,
 		
-		//int[] depths = {1, 2, 3};
-		//int[] iterations = {0, 2, 4, 6};
-		int[] depths = {1,2,3};
-		int[] iterations = {0,2,4,6};
+		int[] depths = {1, 2, 3};
+		int[] iterations = {0, 2, 4, 6};
+		//int[] depths = {3};
+		//int[] iterations = {6};
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
-		createGeoDataSet(10, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+		createGeoDataSet(700, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 
 	
 		ResultsTable resTable = new ResultsTable();
@@ -53,9 +53,10 @@ public class FullThemeExperiment extends CompareExperiment {
 			for (int it : iterations) {
 				resTable.newRow("");
 				
-				RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, i, inference, true);
-				LibLINEAR.featureVectors2File(kernel.computeFeatureVectors(dataset, instances, blackList), LibSVM.createTargets(labels), "BinaryFV_" + kernel.getLabel() + ".txt");		
+		//		RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, i, inference, true);
+		//		LibLINEAR.featureVectors2File(kernel.computeFeatureVectors(dataset, instances, blackList), LibSVM.createTargets(labels), "BinaryFV_" + kernel.getLabel() + ".txt");		
 				
+		
 				LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
 				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearVSKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, parms, linParms, dataset, instances, labels, blackList);
@@ -65,7 +66,8 @@ public class FullThemeExperiment extends CompareExperiment {
 				
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
-				}	
+				}
+					
 			}
 		}
 		
@@ -96,7 +98,7 @@ public class FullThemeExperiment extends CompareExperiment {
 
 			for (Statement stmt2 : stmts2) {
 
-				if (Math.random() < 0.01) {
+				if (Math.random() < 0.7) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());
 				}

@@ -1,6 +1,5 @@
 package org.data2semantics.proppred.libsvm;
 
-import static org.data2semantics.proppred.libsvm.LibSVM.createFeatureVectorsTrainFold;
 
 import java.io.FileWriter;
 import java.util.Set;
@@ -81,7 +80,7 @@ public class LibLINEAR {
 		double[] trainTarget;
 		
 		for (int fold = 1; fold <= numberOfFolds; fold++) {
-			if (featureVectors.length >=  10000) {
+			if (featureVectors.length >=  5000) {
 				System.out.println("CV fold: " + fold);
 			}
 			trainFV 	 = LibSVM.createFeatureVectorsTrainFold(featureVectors, numberOfFolds, fold);
