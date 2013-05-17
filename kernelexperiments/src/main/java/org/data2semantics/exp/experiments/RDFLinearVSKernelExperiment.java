@@ -87,13 +87,6 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		comp[1] = toc - tic;
 		compR.setScores(comp);
 
-		double avg = 0;
-		for (SparseVector v : fv) {
-			avg += v.size();
-		}
-		avg /= fv.length;
-
-		System.out.println("Average non-zero elements: " + avg);
 		
 		double[] accLA = new double[seeds.length];
 		double[] f1LA = new double[seeds.length];

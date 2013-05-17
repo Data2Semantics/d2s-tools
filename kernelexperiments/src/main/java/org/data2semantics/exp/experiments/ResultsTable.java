@@ -17,6 +17,7 @@ public class ResultsTable implements Serializable {
 	private List<Result> compRes;
 	private boolean doTTest;
 	private double pValue;
+	private int digits;
 
 
 	public ResultsTable() {
@@ -25,6 +26,7 @@ public class ResultsTable implements Serializable {
 		compRes = new ArrayList<Result>();
 		doTTest = true;
 		pValue = 0.05;
+		digits = 2;
 	}
 
 	public void newRow(String rowLabel) {
@@ -45,7 +47,7 @@ public class ResultsTable implements Serializable {
 	}
 
 	public String formatScore(double score) {
-		return Double.toString(((double) Math.round(score * 100)) / 100.0);
+		return Double.toString(((double) Math.round(score * Math.pow(10, digits))) / Math.pow(10, digits));
 	}
 
 	public String toString() {
@@ -146,6 +148,10 @@ public class ResultsTable implements Serializable {
 	public void setManWU(double pValue) {
 		doTTest = false;
 		this.pValue = pValue;
+	}
+	
+	public void setDigits(int digits) {
+		this.digits = digits;
 	}
 	
 	private boolean signifTest(double[] s1, double[] s2) {

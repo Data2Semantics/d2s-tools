@@ -3,6 +3,7 @@ package org.data2semantics.proppred.libsvm;
 import static org.data2semantics.proppred.libsvm.LibSVM.createFeatureVectorsTrainFold;
 
 import java.io.FileWriter;
+import java.util.Arrays;
 import java.util.Set;
 
 
@@ -22,23 +23,53 @@ import de.bwaldvogel.liblinear.Problem;
 public class LibLINEAR {
 
 
+
+
 	public static LibLINEARModel trainLinearModel(SparseVector[] featureVectors, double[] target, LibLINEARParameters params) {
+		Problem prob = createLinearProblem(featureVectors, target, params.getBias());
+		return trainLinearModel(prob, params);
+	}
+
+	private static LibLINEARModel trainLinearModel(Problem prob, LibLINEARParameters params) {
 		if (!params.isVerbose()) {
 			Linear.disableDebugOutput();
 		}
+
+		double avg = 0;
+		for (Feature[] v : prob.x) {
+			avg += v.length;
+		}
+		avg /= prob.x.length;
+
+		System.out.println("#instances:" + prob.l + ", #features: " + prob.n + ", #avg-non-zero: " + avg);
+
+		double[] prediction = null;
+		double[] target = null;
+		Problem trainProb = null;
+		Problem testProb = null;
 		
-		Problem prob = createLinearProblem(featureVectors, target, params.getBias());
-		
-		double prediction[] = new double[target.length];
+		if (params.getNumFolds() > 0) {
+			prediction = new double[prob.l];
+			target = prob.y;
+		} else {
+			trainProb = createProblemTrainSplit(prob, params.getSplitFraction());
+			testProb  = createProblemTestSplit(prob, params.getSplitFraction());
+			target = testProb.y;
+		}
+
 		Parameter linearParams = params.getParams();
-		
+
 		double score = 0, bestScore = 0, bestC = 1;
-		
+
 		for (double c : params.getCs()) {
 			linearParams.setC(c);
-			
-			Linear.crossValidation(prob, linearParams, 5, prediction);
-			
+
+			if (params.getNumFolds() > 0) {
+				Linear.crossValidation(prob, linearParams, params.getNumFolds(), prediction);
+			} else {
+				prediction = LibSVM.extractLabels(testLinearModel(new LibLINEARModel(Linear.train(trainProb, linearParams)), testProb.x));
+			}
+
 			if (params.getEvalFunction() == LibSVM.ACCURACY) {
 				score = LibSVM.computeAccuracy(target, prediction);
 			}
@@ -51,60 +82,79 @@ public class LibLINEAR {
 			if (params.getEvalFunction() == LibSVM.MAE) {
 				score = 1 / LibSVM.computeMeanAbsoluteError(target, prediction);
 			}
-			
+
 			if (score > bestScore) {
 				bestC = c;
 				bestScore = score;
 			}	
 		}
-		
+
 		linearParams.setC(bestC);	
+		System.out.println("Training model for C: " + bestC);
 		return new LibLINEARModel(Linear.train(prob, linearParams));
 	}
-	
+
+
 	public static Prediction[] testLinearModel(LibLINEARModel model, SparseVector[] testVectors) {
 		Feature[][] prob = createTestProblem(testVectors, model.getModel().getNrFeature(), model.getModel().getBias());
-		
-		Prediction[] pred = new Prediction[testVectors.length];		
-		for (int i = 0; i < testVectors.length; i++) {
+		return testLinearModel(model, prob);
+	}
+
+
+	private static Prediction[] testLinearModel(LibLINEARModel model, Feature[][] problem) {
+
+		Prediction[] pred = new Prediction[problem.length];		
+		for (int i = 0; i < problem.length; i++) {
 			double[] decVal = new double[(model.getModel().getNrClass() <= 2) ? 1 : model.getModel().getNrClass()];
-			pred[i] = new Prediction(Linear.predictValues(model.getModel(), prob[i], decVal), i);
+			pred[i] = new Prediction(Linear.predictValues(model.getModel(), problem[i], decVal), i);
 			pred[i].setDecisionValue(decVal);
 		}
 		return pred;
 	}
-	
-	
+
 	public static Prediction[] crossValidate(SparseVector[] featureVectors, double[] target, LibLINEARParameters params, int numberOfFolds) {
 		Prediction[] pred = new Prediction[target.length];
-		SparseVector[] trainFV, testFV;
-		double[] trainTarget;
-		
+		Problem trainP;
+		Feature[][] testP;
+		Problem prob = createLinearProblem(featureVectors, target, params.getBias());
+
 		for (int fold = 1; fold <= numberOfFolds; fold++) {
 			if (featureVectors.length >=  10000) {
 				System.out.println("CV fold: " + fold);
 			}
-			trainFV 	 = LibSVM.createFeatureVectorsTrainFold(featureVectors, numberOfFolds, fold);
-			testFV  	 = LibSVM.createFeatureVectorsTestFold(featureVectors, numberOfFolds, fold);
-			trainTarget  = LibSVM.createTargetTrainFold(target, numberOfFolds, fold);			
-			pred = LibSVM.addFold2Prediction(testLinearModel(trainLinearModel(trainFV, trainTarget, params), testFV), pred, numberOfFolds, fold);
+			trainP = createProblemTrainFold(prob, numberOfFolds, fold);
+			testP  = createProblemTestFold(prob, numberOfFolds, fold);
+			pred = LibSVM.addFold2Prediction(testLinearModel(trainLinearModel(trainP, params), testP), pred, numberOfFolds, fold);
 		}		
 		return pred;
 	}
+
+	public static Prediction[] trainTestSplit(SparseVector[] featureVectors, double[] target, LibLINEARParameters params, float splitFraction) {
+		Problem total  = createLinearProblem(featureVectors, target, params.getBias());
+		Problem trainP = createProblemTrainSplit(total, splitFraction);		
+		Problem testP  = createProblemTestSplit(total, splitFraction);
+		
+		return testLinearModel(trainLinearModel(trainP, params), testP.x);
+	}
+
+	public static double[] splitTestTarget(double[] target, double splitFraction) {
+		int foldStart = Math.round((float) target.length * (float) splitFraction); 
+		int foldEnd   = target.length;
+			
+		return Arrays.copyOfRange(target, foldStart, foldEnd);
+	}
 	
-	
-	
-	
+
 	public static void featureVectors2File(SparseVector[] featureVectors, double[] target, String filename) {
 		try {
 			FileWriter fo = new FileWriter(filename);
 			StringBuffer line;
-			
+
 			for (int i = 0; i < featureVectors.length; i++) {
 				line = new StringBuffer();
 				line.append(target[i]);
 				line.append(" ");
-				
+
 				for (int index : featureVectors[i].getIndices()) {
 					line.append(index);
 					line.append(":");
@@ -115,21 +165,21 @@ public class LibLINEAR {
 				fo.write(line.toString());
 			}
 			fo.close();
-			
+
 		} catch (Exception e) {
 			e.getStackTrace();
 		}
 	}
-	
-	
-	
+
+
+
 	private static Feature[][] createTestProblem(SparseVector[] featureVectors, int numberOfFeatures, double bias) {
 		Feature[][] nodes = new FeatureNode[featureVectors.length][];
-		
+
 		for (int i = 0; i < featureVectors.length; i++) {
 			Set<Integer> indices = featureVectors[i].getIndices();
 			nodes[i] = new FeatureNode[(bias >= 0) ? indices.size() + 1 : indices.size()];
-			
+
 			int j = 0;
 			for (int index : indices) {
 				nodes[i][j] = new FeatureNode(index, featureVectors[i].getValue(index));
@@ -141,14 +191,14 @@ public class LibLINEAR {
 		}	
 		return nodes;	
 	}
-	
-	
+
+
 	private static Problem createLinearProblem(SparseVector[] featureVectors, double[] target, double bias) {
 		Problem prob = new Problem();
 		prob.y = target;
 		prob.x = new FeatureNode[featureVectors.length][];	
 		prob.l = featureVectors.length;
-		
+
 		int maxIndex = 0;
 		for (int i = 0; i < featureVectors.length; i++) {
 			Set<Integer> indices = featureVectors[i].getIndices();
@@ -160,18 +210,82 @@ public class LibLINEAR {
 				j++;
 			}
 		}
-		
+
 		if (bias >= 0) {
 			maxIndex++;
 			for (int i = 0; i < featureVectors.length; i++) {
 				prob.x[i][prob.x[i].length - 1] = new FeatureNode(maxIndex, bias);
 			}
 		}
-		
+
 		prob.n    = maxIndex;
 		prob.bias = (bias >= 0) ? 1 : -1;
-		
+
 		return prob;		
+	}
+
+	private static Problem createProblemTrainSplit(Problem problem, float splitFrac) {
+		int foldStart = 0; 
+		int foldEnd   = Math.round(((float) problem.l) * splitFrac);
+
+		Problem prob = new Problem();
+		prob.y = Arrays.copyOfRange(problem.y, foldStart, foldEnd);
+		prob.x = Arrays.copyOfRange(problem.x, foldStart, foldEnd);
+		prob.l = foldEnd;
+		prob.n = problem.n;
+
+		return prob;
+	}
+	
+	private static Problem createProblemTestSplit(Problem problem, float splitFrac) {
+		int foldStart = Math.round(((float) problem.l) * splitFrac); 
+		int foldEnd   = problem.l;
+		
+		Problem prob = new Problem();
+		prob.y = Arrays.copyOfRange(problem.y, foldStart, foldEnd);
+		prob.x = Arrays.copyOfRange(problem.x, foldStart, foldEnd);
+		prob.l = prob.y.length;
+		prob.n = problem.n;
+		
+		return prob;
+	}
+
+
+	private static Problem createProblemTrainFold(Problem problem, int numberOfFolds, int fold) {
+		int foldStart = Math.round((problem.x.length / ((float) numberOfFolds)) * ((float) fold - 1));
+		int foldEnd   = Math.round((problem.x.length / ((float) numberOfFolds)) * ((float) fold));
+		int foldLength = (foldEnd-foldStart);
+
+		Problem prob = new Problem();
+		prob.y = new double[problem.x.length - foldLength];
+		prob.x = new FeatureNode[problem.x.length - foldLength][];
+		prob.l = problem.x.length - foldLength;
+		prob.n = problem.n;
+
+
+		for (int i = 0; i < foldStart; i++) {
+			prob.x[i] = problem.x[i];
+			prob.y[i] = problem.y[i];
+		}	
+		for (int i = foldEnd; i < problem.x.length; i++) {
+			prob.x[i - foldLength] = problem.x[i];
+			prob.y[i - foldLength] = problem.y[i];
+		}			
+		return prob;
+	}
+
+
+	static Feature[][] createProblemTestFold(Problem problem, int numberOfFolds, int fold) {
+		int foldStart = Math.round((problem.x.length / ((float) numberOfFolds)) * ((float) fold - 1));
+		int foldEnd   = Math.round((problem.x.length / ((float) numberOfFolds)) * ((float) fold));
+		int foldLength = (foldEnd-foldStart);
+
+		Feature[][] testP = new FeatureNode[foldLength][];
+
+		for (int i = foldStart; i < foldEnd; i++) {
+			testP[i - foldStart] = problem.x[i];
+		}			
+		return testP;
 	}
 
 }

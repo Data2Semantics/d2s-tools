@@ -37,6 +37,7 @@ public class CommitteeMemberCompareExperiment extends CompareExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
+		resTable.setDigits(3);
 		
 		boolean inference = true;
 		for (int i : depths) {			
@@ -68,13 +69,13 @@ public class CommitteeMemberCompareExperiment extends CompareExperiment {
 		RDFFileDataSet testSetA = new RDFFileDataSet("datasets/eswc-2010-complete.rdf", RDFFormat.RDFXML);
 		testSetA.addFile("datasets/eswc-2011-complete.rdf", RDFFormat.RDFXML);
 		testSetA.addFile("datasets/eswc-2012-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/eswc-2008-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/eswc-2009-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/eswc-2008-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/eswc-2009-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/iswc-2012-complete.rdf", RDFFormat.RDFXML);
 		testSetA.addFile("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
 		testSetA.addFile("datasets/iswc-2010-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/iswc-2009-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/iswc-2008-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/iswc-2009-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/iswc-2008-complete.rdf", RDFFormat.RDFXML);
 
 		RDFFileDataSet testSetB = new RDFFileDataSet("datasets/iswc-2012-complete.rdf", RDFFormat.RDFXML);
 

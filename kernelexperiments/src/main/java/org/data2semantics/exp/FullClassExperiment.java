@@ -25,7 +25,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class FullThemeExperiment extends CompareExperiment {
+public class FullClassExperiment extends CompareExperiment {
 
 	/**
 	 * @param args
@@ -36,13 +36,14 @@ public class FullThemeExperiment extends CompareExperiment {
 		double[] cs = { 1, 10, 100, 1000, 10000};	
 		// 0.001, 0.01, 0.1,
 		
-		int[] depths = {1, 2, 3};
-		int[] iterations = {0, 2, 4, 6};
+		//int[] depths = {1, 2, 3};
+		//int[] iterations = {0, 2, 4, 6};
+		int[] depths = {1,2,3};
+		int[] iterations = {0,2,4,6};
 
-		
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
-		createGeoDataSet(50, 0.5, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+		createGeoDataSet(10, 0.1, "http://data.bgs.ac.uk/ref/Lexicon/hasUnitClass");
 
 	
 		ResultsTable resTable = new ResultsTable();
@@ -52,17 +53,10 @@ public class FullThemeExperiment extends CompareExperiment {
 		for (int i : depths) {			
 			for (int it : iterations) {
 				resTable.newRow("");
-				/*
-				RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, i, inference, true);
-				LibLINEAR.featureVectors2File(kernel.computeFeatureVectors(dataset, instances, blackList), LibSVM.createTargets(labels), "BinaryFV_" + kernel.getLabel() + ".txt");		
-				*/
-				
+								
 				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-				linParms.setNumFolds(0);
-				linParms.setSplitFraction((float) 0.7);
-				
 				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, labels, blackList);
-						
+				
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
 				
