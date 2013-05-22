@@ -103,9 +103,8 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFWLSubTreeKern
 		accR.setScores(acc);
 		f1R.setScores(f1);
 		
-		double[] comp = {0.0, 0.0};
+		double[] comp = {0.0};
 		comp[0] = toc - tic;
-		comp[1] = toc - tic;
 		compR.setScores(comp);
 	}
 	

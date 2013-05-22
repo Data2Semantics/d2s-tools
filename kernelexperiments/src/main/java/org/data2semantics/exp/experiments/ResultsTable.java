@@ -71,7 +71,7 @@ public class ResultsTable implements Serializable {
 					signif = "";
 					for (Result comp : compRes) {
 						if (comp.getLabel().equals(res.getLabel())) {
-							if (!signifTest(comp.getScores(), res.getScores())) {
+							if (comp.getScores().length > 1 && !signifTest(comp.getScores(), res.getScores())) {
 								signif = "+";
 							}
 						}

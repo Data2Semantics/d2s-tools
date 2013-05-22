@@ -31,75 +31,92 @@ public class FullThemeExperiment extends CompareExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		long[] seeds = {11,31,51,71,91};
-		double[] cs = { 1, 10, 100, 1000, 10000};	
-		// 0.001, 0.01, 0.1,
-		
+		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+		long seed = 1;
+		double[] fractions = {0.01, 0.02, 0.03, 0.04, 0.05};
+
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-dir")) {
+				i++;
+				dataDir = args[i];
+			}
+			if (args[i].equals("-seed")) {
+				i++;
+				seed = Long.parseLong(args[i]);
+			}
+			if (args[i].equals("-frac")) {
+				i++;
+				String[] fracs = args[i].split(",");
+				fractions = new double[fracs.length];
+				for (int j = 0; j < fracs.length; j++) {
+					fractions[j] = Double.parseDouble(fracs[j]);
+				}
+			}
+		}
+
+		long[] seeds = {seed};
+		double[] cs = {1, 10, 100, 1000, 10000};	
+
 		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
 
 		
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
-		createGeoDataSet(50, 0.5, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 
-	
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
-		
+
 		boolean inference = false;
-		for (int i : depths) {			
-			for (int it : iterations) {
-				resTable.newRow("");
-				/*
-				RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, i, inference, true);
-				LibLINEAR.featureVectors2File(kernel.computeFeatureVectors(dataset, instances, blackList), LibSVM.createTargets(labels), "BinaryFV_" + kernel.getLabel() + ".txt");		
-				*/
-				
-				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-				linParms.setNumFolds(0);
-				linParms.setSplitFraction((float) 0.7);
-				
-				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, labels, blackList);
-						
-				System.out.println("Running WL RDF: " + i + " " + it);
-				exp.run();
-				
-				for (Result res : exp.getResults()) {
-					resTable.addResult(res);
-				}	
+
+
+		for (double frac : fractions) {
+			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+			System.out.println("Running fraction: " + frac);
+			
+			for (int i : depths) {			
+				for (int it : iterations) {
+					resTable.newRow("");
+	
+					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+					linParms.setNumFolds(0);
+					linParms.setSplitFraction((float) 0.7);
+
+					KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, labels, blackList);
+
+					System.out.println("Running WL RDF: " + i + " " + it);
+					exp.run();
+
+					for (Result res : exp.getResults()) {
+						resTable.addResult(res);
+					}	
+				}
 			}
 		}
-		
-		saveResults(resTable, "geo_theme.ser");
-		
+
+		saveResults(resTable, "geo_theme_" + seed + ".ser");
+
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
-		saveResults(resTable.toString(), "geo_theme_full.txt");
+		saveResults(resTable.toString(), "geo_theme_full_" + seed + ".txt");
 	}
-	
-	
 
-	private static void createGeoDataSet(int minSize, double frac, String property) {
+
+
+	private static void createGeoDataSet(int minSize, double frac, long seed, String property) {
+		Random rand = new Random(seed);
+		
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();
 		blackList = new ArrayList<Statement>();
 
-		// http://data.bgs.ac.uk/ref/Lexicon/hasRockUnitRank
-		// http://data.bgs.ac.uk/ref/Lexicon/hasTheme
-
 		for(Statement stmt: stmts) {
 			List<Statement> stmts2 = dataset.getStatementsFromStrings(stmt.getSubject().toString(), property, null);
 
-			if (stmts2.size() > 1) {
-				System.out.println("more than 1 Class");
-			}
-
 			for (Statement stmt2 : stmts2) {
 
-				if (Math.random() < frac) {
+				if (rand.nextDouble() < frac) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());
 				}
