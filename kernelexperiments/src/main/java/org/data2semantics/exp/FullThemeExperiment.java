@@ -19,13 +19,17 @@ import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
+import org.data2semantics.proppred.libsvm.evaluation.Accuracy;
+import org.data2semantics.proppred.libsvm.evaluation.EvaluationFunction;
+import org.data2semantics.proppred.libsvm.evaluation.EvaluationUtils;
+import org.data2semantics.proppred.libsvm.evaluation.F1;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class FullThemeExperiment extends CompareExperiment {
+public class FullThemeExperiment extends RDFMLExperiment {
 
 	/**
 	 * @param args
@@ -60,7 +64,7 @@ public class FullThemeExperiment extends CompareExperiment {
 		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
 
-		
+
 
 		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 
@@ -69,20 +73,40 @@ public class FullThemeExperiment extends CompareExperiment {
 
 		boolean inference = false;
 
+		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
+		evalFuncs.add(new Accuracy());
+		evalFuncs.add(new F1());
 
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+			List<Double> target = EvaluationUtils.createTarget(labels);
+
 			System.out.println("Running fraction: " + frac);
-			
+
+
 			for (int i : depths) {			
 				for (int it : iterations) {
 					resTable.newRow("");
-	
+
 					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+					linParms.setDoCrossValidation(false);
 					linParms.setNumFolds(0);
 					linParms.setSplitFraction((float) 0.7);
+					
+					Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target);
+					int[] wLabels = new int[counts.size()];
+					double[] weights = new double[counts.size()];
 
-					KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, labels, blackList);
+					for (double label : counts.keySet()) {
+						wLabels[(int) label - 1] = (int) label;
+						weights[(int) label - 1] = 1 / counts.get(label);
+					}
+					linParms.setWeightLabels(wLabels);
+					linParms.setWeights(weights);
+
+					
+
+					KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 
 					System.out.println("Running WL RDF: " + i + " " + it);
 					exp.run();
@@ -105,7 +129,7 @@ public class FullThemeExperiment extends CompareExperiment {
 
 	private static void createGeoDataSet(int minSize, double frac, long seed, String property) {
 		Random rand = new Random(seed);
-		
+
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();

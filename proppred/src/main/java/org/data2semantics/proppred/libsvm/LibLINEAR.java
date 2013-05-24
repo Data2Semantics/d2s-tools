@@ -43,14 +43,16 @@ public class LibLINEAR {
 
 		System.out.println("#instances:" + prob.l + ", #features: " + prob.n + ", #avg-non-zero: " + avg);
 
-		double[] prediction = null;
+		Prediction[] prediction;
+		
+		double[] pred2 = null;
 		double[] target = null;
 		Problem trainProb = null;
 		Problem testProb = null;
 		
-		if (params.getNumFolds() > 0) {
-			prediction = new double[prob.l];
+		if (params.isDoCrossValidation()) {
 			target = prob.y;
+			pred2 = new double[prob.l];
 		} else {
 			trainProb = createProblemTrainSplit(prob, params.getSplitFraction());
 			testProb  = createProblemTestSplit(prob, params.getSplitFraction());
@@ -59,31 +61,26 @@ public class LibLINEAR {
 
 		Parameter linearParams = params.getParams();
 
-		double score = 0, bestScore = 0, bestC = 1;
+		double score = 0, bestScore = 0, bestC = 0;
 
 		for (double c : params.getCs()) {
 			linearParams.setC(c);
 
-			if (params.getNumFolds() > 0) {
-				Linear.crossValidation(prob, linearParams, params.getNumFolds(), prediction);
+			if (params.isDoCrossValidation()) {
+				Linear.crossValidation(prob, linearParams, params.getNumFolds(), pred2);
+				prediction = new Prediction[prob.l];
+				
+				for (int i = 0; i < pred2.length; i++) {
+					prediction[i] = new Prediction(pred2[i], i);
+				}
+				
 			} else {
-				prediction = LibSVM.extractLabels(testLinearModel(new LibLINEARModel(Linear.train(trainProb, linearParams)), testProb.x));
+				prediction = testLinearModel(new LibLINEARModel(Linear.train(trainProb, linearParams)), testProb.x);
 			}
+			
+			score = params.getEvalFunction().computeScore(target, prediction);
 
-			if (params.getEvalFunction() == LibSVM.ACCURACY) {
-				score = LibSVM.computeAccuracy(target, prediction);
-			}
-			if (params.getEvalFunction() == LibSVM.F1) {
-				score = LibSVM.computeF1(target, prediction);
-			}
-			if (params.getEvalFunction() == LibSVM.MSE) {
-				score = 1 / LibSVM.computeMeanSquaredError(target, prediction);
-			}
-			if (params.getEvalFunction() == LibSVM.MAE) {
-				score = 1 / LibSVM.computeMeanAbsoluteError(target, prediction);
-			}
-
-			if (score > bestScore) {
+			if (bestC == 0 || params.getEvalFunction().isBetter(score, bestScore)) {
 				bestC = c;
 				bestScore = score;
 			}	

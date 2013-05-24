@@ -31,7 +31,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class GeoCompareExperiment extends CompareExperiment {
+public class GeoCompareExperiment extends RDFMLExperiment {
 	/**
 	 * @param args
 	 */
