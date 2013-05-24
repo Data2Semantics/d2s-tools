@@ -20,6 +20,8 @@ public class LibLINEARParameters {
 	private double[] cs;
 	private boolean verbose;
 	private double bias;
+	private int numFolds;
+	private float splitFraction;
 
 	public LibLINEARParameters(int algorithm, double[] cs) {
 		this(algorithm);
@@ -56,6 +58,9 @@ public class LibLINEARParameters {
 
 		verbose = false;
 		bias = -1;
+		numFolds = 5;
+		splitFraction = 0;
+		
 		params = new Parameter(solver, 1, 0.1);
 	}
 
@@ -102,6 +107,23 @@ public class LibLINEARParameters {
 	public boolean isVerbose() {
 		return verbose;
 	}
+	
+	public int getNumFolds() {
+		return numFolds;
+	}
+
+	public float getSplitFraction() {
+		return splitFraction;
+	}
+
+	public void setNumFolds(int numFolds) {
+		this.numFolds = numFolds;
+	}
+
+	public void setSplitFraction(float splitFraction) {
+		this.splitFraction = splitFraction;
+	}
+	
 
 	/**
 	 * Set the evaluation function used during the parameter optimization (e.g. C or nu).

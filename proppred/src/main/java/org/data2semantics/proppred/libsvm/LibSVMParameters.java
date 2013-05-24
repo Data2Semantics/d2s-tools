@@ -21,6 +21,9 @@ public class LibSVMParameters {
 	private double[] itParams;
 	private int evalFunction;
 	private boolean verbose;
+	private int numFolds;
+	private double splitFraction;
+	
 
 	
 	/**
@@ -60,6 +63,9 @@ public class LibSVMParameters {
 		} else {
 			evalFunction = LibSVM.ACCURACY;
 		}
+		
+		numFolds = 5;
+		splitFraction = 0;
 	}
 
 	svm_parameter getParams() {
@@ -122,7 +128,25 @@ public class LibSVMParameters {
 	public void setPrecomputedKernel() {
 		params.kernel_type = params.PRECOMPUTED;
 	}
+		
 	
+	
+	public int getNumFolds() {
+		return numFolds;
+	}
+
+	public double getSplitFraction() {
+		return splitFraction;
+	}
+
+	public void setNumFolds(int numFolds) {
+		this.numFolds = numFolds;
+	}
+
+	public void setSplitFraction(double splitFraction) {
+		this.splitFraction = splitFraction;
+	}
+
 	/**
 	 * Set the evaluation function used during the parameter optimization (e.g. C or nu).
 	 * This currently use 4 options, defined by constants.
