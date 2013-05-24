@@ -1,6 +1,10 @@
 package org.data2semantics.proppred.libsvm;
 
 
+import org.data2semantics.proppred.libsvm.evaluation.Accuracy;
+import org.data2semantics.proppred.libsvm.evaluation.EvaluationFunction;
+import org.data2semantics.proppred.libsvm.evaluation.MeanSquaredError;
+
 import de.bwaldvogel.liblinear.Parameter;
 import de.bwaldvogel.liblinear.SolverType;
 
@@ -12,20 +16,23 @@ public class LibLINEARParameters {
 	public static final int LR_DUAL = 5;
 	public static final int LR_PRIMAL = 6;	
 
-
 	private int[] weightLabels;
 	private int algorithm;
 	private Parameter params;	
-	private int evalFunction;
-	private double[] cs;
+	private double[] itParams;
 	private boolean verbose;
 	private double bias;
+	
+	private boolean doCrossValidation;
 	private int numFolds;
 	private float splitFraction;
+	
+	private EvaluationFunction evalFunction;
+	
 
-	public LibLINEARParameters(int algorithm, double[] cs) {
+	public LibLINEARParameters(int algorithm, double[] itParams) {
 		this(algorithm);
-		this.cs = cs;
+		this.itParams = itParams;
 	}
 
 	public LibLINEARParameters(int algorithm) {
@@ -34,32 +41,33 @@ public class LibLINEARParameters {
 		
 		switch (algorithm) {
 		case SVC_DUAL: 	solver = SolverType.L2R_L2LOSS_SVC_DUAL;
-		evalFunction = LibSVM.ACCURACY;
+		evalFunction = new Accuracy();
 		break;
 		case SVC_PRIMAL: solver = SolverType.L2R_L2LOSS_SVC;
-		evalFunction = LibSVM.ACCURACY;
+		evalFunction = new Accuracy();
 		break;
 		case SVR_DUAL: solver = SolverType.L2R_L2LOSS_SVR_DUAL;
-		evalFunction = LibSVM.MSE;
+		evalFunction = new MeanSquaredError();
 		break;
 		case SVR_PRIMAL: solver = SolverType.L2R_L2LOSS_SVR;
-		evalFunction = LibSVM.MSE;
+		evalFunction = new MeanSquaredError();
 		break;
 		case LR_DUAL: solver = SolverType.L2R_LR_DUAL;
-		evalFunction = LibSVM.ACCURACY;
+		evalFunction = new Accuracy();
 		break;
 		case LR_PRIMAL: solver = SolverType.L2R_LR;
-		evalFunction = LibSVM.ACCURACY;
+		evalFunction = new Accuracy();
 		break;
 		default: solver = SolverType.L2R_L2LOSS_SVC_DUAL;
-		evalFunction = LibSVM.ACCURACY;
+		evalFunction = new Accuracy();
 		break;
 		}
 
 		verbose = false;
 		bias = -1;
+		doCrossValidation = true;
 		numFolds = 5;
-		splitFraction = 0;
+		splitFraction = (float) 0.7;
 		
 		params = new Parameter(solver, 1, 0.1);
 	}
@@ -72,8 +80,8 @@ public class LibLINEARParameters {
 		this.algorithm = algorithm;
 	}
 
-	public void setCs(double[] cs) {
-		this.cs = cs;
+	public void setCs(double[] itParams) {
+		this.itParams = itParams;
 	}
 
 	public void setVerbose(boolean verbose) {
@@ -93,7 +101,7 @@ public class LibLINEARParameters {
 	}
 
 	public double[] getCs() {
-		return cs;
+		return itParams;
 	}
 
 	public void setP(double p) {
@@ -125,18 +133,19 @@ public class LibLINEARParameters {
 	}
 	
 
-	/**
-	 * Set the evaluation function used during the parameter optimization (e.g. C or nu).
-	 * This currently use 4 options, defined by constants in the LibSVM class.
-	 * By default this is ACCURACY for classification and one-class, and MSE for regression.
-	 * 
-	 * @param evalFunction, one of the 4 constant values
-	 */
-	public void setEvalFunction(int evalFunction) {
-		this.evalFunction = evalFunction;
+	public boolean isDoCrossValidation() {
+		return doCrossValidation;
 	}
 
-	public int getEvalFunction() {
+	public void setDoCrossValidation(boolean doCrossValidation) {
+		this.doCrossValidation = doCrossValidation;
+	}
+
+	public void setEvalFunction(EvaluationFunction evalFunc) {
+		this.evalFunction = evalFunc;
+	}
+
+	public EvaluationFunction getEvalFunction() {
 		return evalFunction;
 	}
 	

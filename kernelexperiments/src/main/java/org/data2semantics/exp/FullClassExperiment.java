@@ -19,13 +19,17 @@ import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
+import org.data2semantics.proppred.libsvm.evaluation.Accuracy;
+import org.data2semantics.proppred.libsvm.evaluation.EvaluationFunction;
+import org.data2semantics.proppred.libsvm.evaluation.EvaluationUtils;
+import org.data2semantics.proppred.libsvm.evaluation.F1;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class FullClassExperiment extends CompareExperiment {
+public class FullClassExperiment extends RDFMLExperiment {
 
 	/**
 	 * @param args
@@ -44,8 +48,13 @@ public class FullClassExperiment extends CompareExperiment {
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
 		createGeoDataSet(10, 0.1, "http://data.bgs.ac.uk/ref/Lexicon/hasUnitClass");
-
+		List<Double> target = EvaluationUtils.createTarget(labels);
+		
 	
+		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
+		evalFuncs.add(new Accuracy());
+		evalFuncs.add(new F1());
+		
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
 		
@@ -55,7 +64,7 @@ public class FullClassExperiment extends CompareExperiment {
 				resTable.newRow("");
 								
 				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, labels, blackList);
+				KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 				
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();

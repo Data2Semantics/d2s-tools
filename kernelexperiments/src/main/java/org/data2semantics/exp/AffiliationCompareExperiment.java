@@ -34,7 +34,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class AffiliationCompareExperiment extends CompareExperiment {
+public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 
 	/**

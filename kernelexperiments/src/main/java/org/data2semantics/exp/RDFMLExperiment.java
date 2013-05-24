@@ -21,7 +21,7 @@ import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
 
-public abstract class CompareExperiment {
+public abstract class RDFMLExperiment {
 	protected static RDFDataSet dataset;
 	protected static List<Resource> instances;
 	protected static List<Value> labels;
