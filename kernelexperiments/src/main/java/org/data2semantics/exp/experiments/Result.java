@@ -9,7 +9,7 @@ import cern.colt.Arrays;
 public class Result implements Serializable {
 	private static final long serialVersionUID = 1809158002144017691L;
 	
-	
+	private boolean higherIsBetter;
 	private double[] scores;
 	private String label;
 
@@ -18,10 +18,12 @@ public class Result implements Serializable {
 		//this.scores = new double[1];
 		//this.scores[0] = 0;
 		this.label = "Empty Result";
+		this.higherIsBetter = true;
 
 	}
 
 	public Result(double[] scores, String label) {
+		this();
 		this.scores = scores;
 		this.label = label;
 	}
@@ -58,6 +60,14 @@ public class Result implements Serializable {
 	public void setLabel(String label) {
 		this.label = label;
 	}
+	
+	public boolean isHigherIsBetter() {
+		return higherIsBetter;
+	}
+
+	public void setHigherIsBetter(boolean higherIsBetter) {
+		this.higherIsBetter = higherIsBetter;
+	}
 
 	public double getScore() {
 		double total = 0;
@@ -82,6 +92,14 @@ public class Result implements Serializable {
 			}
 		}
 		return newRes;
+	}
+	
+	public boolean isBetterThan(Result res) {
+		if (this.higherIsBetter) {
+			return getScore() > res.getScore();
+		} else {
+			return getScore() < res.getScore();
+		}
 	}
 
 }

@@ -125,7 +125,7 @@ public class ResultsTable implements Serializable {
 				for (Result bestRes : bestResults) {
 					if (res.getLabel().equals(bestRes.getLabel())) {
 						newType = false;
-						if (res.getScore() > bestRes.getScore()) {
+						if (res.isBetterThan(bestRes)) {
 							bestResults.remove(bestRes);
 							bestResults.add(res);
 							break;

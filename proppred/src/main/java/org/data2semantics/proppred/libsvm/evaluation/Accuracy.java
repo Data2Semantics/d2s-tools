@@ -25,5 +25,9 @@ public class Accuracy implements EvaluationFunction {
 		return "Accuracy";
 	}
 	
+	public boolean isHigherIsBetter() {
+		return true;
+	}
+	
 	
 }

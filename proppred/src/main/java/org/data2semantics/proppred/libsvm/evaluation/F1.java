@@ -44,4 +44,7 @@ public class F1 implements EvaluationFunction {
 		return "F1";
 	}
 
+	public boolean isHigherIsBetter() {
+		return true;
+	}
 }

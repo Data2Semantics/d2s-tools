@@ -23,5 +23,9 @@ public class MeanSquaredError implements EvaluationFunction {
 		return "MSE";
 	}
 	
+	public boolean isHigherIsBetter() {
+		return false;
+	}
+	
 
 }

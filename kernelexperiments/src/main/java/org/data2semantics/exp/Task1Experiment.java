@@ -38,130 +38,158 @@ public class Task1Experiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		long seed = 1;
 		createTask1DataSet(1, seed);
-		
-//		double[] bins = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 75.5};
-		double[] bins = {0.5, 1.5, 3.5, 6.5, 22.5};
 
+		//		double[] bins = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 75.5};
+		//double[] bins = {0.5, 1.5, 3.5, 6.5, 22.5};
+		double[] bins = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 22.5};
 		
+
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
 		int[] depths = {1,2,3};
 		int[] iterations = {0,2,4,6};
 
-		//double[] ps = {0.00001, 0.0001, 0.001, 0.01};
-		double[] ps = {0.01};
+		double[] ps1 = {1};
+		double[] ps2 = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
 		
-		
-		
+
 		List<Double> target = new ArrayList<Double>();	
 		List<Double> targetBins = new ArrayList<Double>();	
-		
+
 		for (Value label : labels) {
 			double val = LiteralUtil.getDoubleValue(label,0);
 			target.add(val);
-			
+
 			for (int i=0; i < bins.length-1; i++) {
 				if (val > bins[i] && val <= bins[i+1]) {
 					targetBins.add(i+1.0);
 				}
 			}
 		}
-		
-		
+
 
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
 
 		boolean inference = true;
 
-
+		List<EvaluationFunction> evalFuncs1 = new ArrayList<EvaluationFunction>();
+		evalFuncs1.add(new Task1ScoreForBins(bins));
 		
-		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
-		evalFuncs.add(new Task1ScoreForBins(bins));
-	
+		List<EvaluationFunction> evalFuncs2 = new ArrayList<EvaluationFunction>();
+		evalFuncs2.add(new Task1Score());
+
 		for (int d : depths) {			
 			for (int it : iterations) {
-				for (double p : ps) {
-					resTable.newRow("");
+				resTable.newRow("");
 
-					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-					linParms.setEvalFunction(new Task1ScoreForBothBins(bins));
-					linParms.setDoCrossValidation(false);
-					linParms.setSplitFraction((float) 0.8);
-					linParms.setEps(0.0001);
-					linParms.setP(p);
-					
-					RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, d, inference, true);
+				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+				linParms.setEvalFunction(new Task1ScoreForBothBins(bins));
+				linParms.setDoCrossValidation(false);
+				linParms.setSplitFraction((float) 0.8);
+				linParms.setEps(0.0001);
+				linParms.setPs(ps1);
+				
+				
+				LibLINEARParameters linParms2 = new LibLINEARParameters(LibLINEARParameters.SVR_DUAL, cs);
+				linParms2.setEvalFunction(new Task1Score());
+				linParms2.setDoCrossValidation(false);
+				linParms2.setSplitFraction((float) 0.8);
+				linParms2.setEps(0.0001);
+				linParms2.setPs(ps2);
+				linParms2.setBias(1);
 
-					//KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+				RDFWLSubTreeKernel kernel = new RDFWLSubTreeKernel(it, d, inference, true);
 
-					System.out.println("Running WL RDF: " + d + " " + it);
+				//KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+
+				System.out.println("Running WL RDF: " + d + " " + it);
+
+				Map<EvaluationFunction, double[]> resultMap = new HashMap<EvaluationFunction,double[]>();
+				Map<EvaluationFunction, double[]> resultMap2 = new HashMap<EvaluationFunction,double[]>();
+				
+				List<Result> results = new ArrayList<Result>();
+
+				for (EvaluationFunction evalFunc : evalFuncs1) {
+					Result res = new Result();
+					double[] resA = new double[seeds.length];
+					res.setLabel(evalFunc.getLabel());
+					res.setScores(resA);
+					res.setHigherIsBetter(evalFunc.isHigherIsBetter());
+					results.add(res);
+					resultMap.put(evalFunc, resA);
+				}
+				
+				for (EvaluationFunction evalFunc : evalFuncs2) {
+					Result res = new Result();
+					double[] resA = new double[seeds.length];
+					res.setLabel(evalFunc.getLabel());
+					res.setScores(resA);
+					res.setHigherIsBetter(evalFunc.isHigherIsBetter());
+					results.add(res);
+					resultMap2.put(evalFunc, resA);
+				}
+
+				Result compR = new Result();
+				results.add(compR);
+
+
+				long tic, toc;
+
+				List<Double> tempLabels = new ArrayList<Double>();
+				List<Double> tempLabelsBins = new ArrayList<Double>();
+				tempLabels.addAll(target);
+				tempLabelsBins.addAll(targetBins);
+
+				tic = System.currentTimeMillis();
+				SparseVector[] fv = kernel.computeFeatureVectors(dataset, instances, blackList);
+				toc = System.currentTimeMillis();
+
+				List<SparseVector> fvList = Arrays.asList(fv);
+
+
+				compR.setLabel("kernel comp time");
+
+				for (int j = 0; j < seeds.length; j++) {
+					Collections.shuffle(fvList, new Random(seeds[j]));
+					Collections.shuffle(tempLabels, new Random(seeds[j]));
+					Collections.shuffle(tempLabelsBins, new Random(seeds[j]));	
+
+					fv = fvList.toArray(new SparseVector[1]);
+					double[] targetA = new double[tempLabels.size()];
+					double[] targetABins = new double[tempLabelsBins.size()];
+					for (int i = 0; i < targetA.length; i++) {
+						targetA[i] = tempLabels.get(i);
+						targetABins[i] = tempLabelsBins.get(i);
+					}
+
+
+					Prediction[] pred = LibLINEAR.trainTestSplit(fv, targetABins, linParms, linParms.getSplitFraction());			
+					Prediction[] pred2 = LibLINEAR.trainTestSplit(fv, targetA, linParms2, linParms.getSplitFraction());
 					
-					Map<EvaluationFunction, double[]> resultMap = new HashMap<EvaluationFunction,double[]>();
-					List<Result> results = new ArrayList<Result>();
+					double[] targetSplit = LibLINEAR.splitTestTarget(targetA, linParms.getSplitFraction());
+
 					
-					for (EvaluationFunction evalFunc : evalFuncs) {
-						Result res = new Result();
-						double[] resA = new double[seeds.length];
-						res.setLabel(evalFunc.getLabel());
-						res.setScores(resA);
-						results.add(res);
-						resultMap.put(evalFunc, resA);
+
+					for (EvaluationFunction ef : evalFuncs1) {
+						resultMap.get(ef)[j] = ef.computeScore(targetSplit, pred);	
 					}
 					
-					Result compR = new Result();
-					results.add(compR);
-					
-					
-					long tic, toc;
+					for (EvaluationFunction ef : evalFuncs2) {
+						resultMap2.get(ef)[j] = ef.computeScore(targetSplit, pred2);	
+					}
 
-					List<Double> tempLabels = new ArrayList<Double>();
-					List<Double> tempLabelsBins = new ArrayList<Double>();
-					tempLabels.addAll(target);
-					tempLabelsBins.addAll(targetBins);
+				} 
 
-					tic = System.currentTimeMillis();
-					SparseVector[] fv = kernel.computeFeatureVectors(dataset, instances, blackList);
-					toc = System.currentTimeMillis();
+				double[] comp = {toc - tic};
+				compR.setScores(comp);
 
-					List<SparseVector> fvList = Arrays.asList(fv);
-
-				
-					compR.setLabel("kernel comp time");
-
-					for (int j = 0; j < seeds.length; j++) {
-						Collections.shuffle(fvList, new Random(seeds[j]));
-						Collections.shuffle(tempLabels, new Random(seeds[j]));
-						Collections.shuffle(tempLabelsBins, new Random(seeds[j]));	
-						
-						fv = fvList.toArray(new SparseVector[1]);
-						double[] targetA = new double[tempLabels.size()];
-						double[] targetABins = new double[tempLabelsBins.size()];
-						for (int i = 0; i < targetA.length; i++) {
-							targetA[i] = tempLabels.get(i);
-							targetABins[i] = tempLabelsBins.get(i);
-						}
-						
-						
-						Prediction[] pred = LibLINEAR.trainTestSplit(fv, targetABins, linParms, linParms.getSplitFraction());
-						double[] targetSplit = LibLINEAR.splitTestTarget(targetA, linParms.getSplitFraction());
-
-						
-						for (EvaluationFunction ef : evalFuncs) {
-							resultMap.get(ef)[j] = ef.computeScore(targetSplit, pred);	
-						}
-
-					} 
-
-					double[] comp = {toc - tic};
-					compR.setScores(comp);
-
-					for (Result res : results) {
-						resTable.addResult(res);
-					}	
-				}
+				for (Result res : results) {
+					resTable.addResult(res);
+				}	
 			}
+
 		}
 
 		saveResults(resTable, "task1_" + seed + ".ser");
@@ -177,8 +205,8 @@ public class Task1Experiment extends RDFMLExperiment {
 	private static void createTask1DataSet(double fraction, long seed) {
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
 		Random rand = new Random(seed);
-		
-		
+
+
 
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, RDF.TYPE.toString(), "http://purl.org/procurement/public-contracts#Contract");
 		instances = new ArrayList<Resource>();

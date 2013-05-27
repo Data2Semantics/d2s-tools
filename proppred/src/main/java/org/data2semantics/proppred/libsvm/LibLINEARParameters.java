@@ -19,7 +19,8 @@ public class LibLINEARParameters {
 	private int[] weightLabels;
 	private int algorithm;
 	private Parameter params;	
-	private double[] itParams;
+	private double[] cs;
+	private double[] ps;
 	private boolean verbose;
 	private double bias;
 	
@@ -30,9 +31,9 @@ public class LibLINEARParameters {
 	private EvaluationFunction evalFunction;
 	
 
-	public LibLINEARParameters(int algorithm, double[] itParams) {
+	public LibLINEARParameters(int algorithm, double[] cs) {
 		this(algorithm);
-		this.itParams = itParams;
+		this.cs = cs;
 	}
 
 	public LibLINEARParameters(int algorithm) {
@@ -68,6 +69,8 @@ public class LibLINEARParameters {
 		doCrossValidation = true;
 		numFolds = 5;
 		splitFraction = (float) 0.7;
+		ps = new double[1];
+		ps[0] = 0.1;
 		
 		params = new Parameter(solver, 1, 0.1);
 	}
@@ -81,7 +84,7 @@ public class LibLINEARParameters {
 	}
 
 	public void setCs(double[] itParams) {
-		this.itParams = itParams;
+		this.cs = itParams;
 	}
 
 	public void setVerbose(boolean verbose) {
@@ -101,11 +104,15 @@ public class LibLINEARParameters {
 	}
 
 	public double[] getCs() {
-		return itParams;
+		return cs;
+	}
+	
+	public double[] getPs() {
+		return ps;
 	}
 
-	public void setP(double p) {
-		params.setP(p);
+	public void setPs(double[] ps) {
+		this.ps = ps;
 	}
 
 	public void setEps(double eps) {

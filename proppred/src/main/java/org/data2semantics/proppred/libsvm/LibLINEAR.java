@@ -43,15 +43,13 @@ public class LibLINEAR {
 		System.out.println("#instances:" + prob.l + ", #features: " + prob.n + ", #avg-non-zero: " + avg);
 
 		Prediction[] prediction;
-		
-		double[] pred2 = null;
+
 		double[] target = null;
 		Problem trainProb = null;
 		Problem testProb = null;
-		
+
 		if (params.isDoCrossValidation()) {
 			target = prob.y;
-			pred2 = new double[prob.l];
 		} else {
 			trainProb = createProblemTrainSplit(prob, params.getSplitFraction());
 			testProb  = createProblemTestSplit(prob, params.getSplitFraction());
@@ -60,33 +58,33 @@ public class LibLINEAR {
 
 		Parameter linearParams = params.getParams();
 
-		double score = 0, bestScore = 0, bestC = 0;
+		double score = 0, bestScore = 0, bestC = 0, bestP = 0;
 
-		for (double c : params.getCs()) {
-			linearParams.setC(c);
 
-			if (params.isDoCrossValidation()) {
-				Linear.crossValidation(prob, linearParams, params.getNumFolds(), pred2);
-				prediction = new Prediction[prob.l];
-				
-				for (int i = 0; i < pred2.length; i++) {
-					prediction[i] = new Prediction(pred2[i], i);
+		for (double p : params.getPs()) {
+			linearParams.setP(p);
+			for (double c : params.getCs()) {
+				linearParams.setC(c);
+
+				if (params.isDoCrossValidation()) {
+					prediction = crossValidate(prob, linearParams, params.getNumFolds());
+
+				} else {
+					prediction = testLinearModel(new LibLINEARModel(Linear.train(trainProb, linearParams)), testProb.x);
 				}
-				
-			} else {
-				prediction = testLinearModel(new LibLINEARModel(Linear.train(trainProb, linearParams)), testProb.x);
-			}
-			
-			score = params.getEvalFunction().computeScore(target, prediction);
 
-			if (bestC == 0 || params.getEvalFunction().isBetter(score, bestScore)) {
-				bestC = c;
-				bestScore = score;
-			}	
+				score = params.getEvalFunction().computeScore(target, prediction);
+
+				if (bestC == 0 || params.getEvalFunction().isBetter(score, bestScore)) {
+					bestC = c;
+					bestP = p;
+					bestScore = score;
+				}	
+			}
 		}
 
 		linearParams.setC(bestC);	
-		System.out.println("Training model for C: " + bestC);
+		System.out.println("Training model for C: " + bestC + " and P (SVR only): " + bestP);
 		return new LibLINEARModel(Linear.train(prob, linearParams));
 	}
 
@@ -124,22 +122,33 @@ public class LibLINEAR {
 		}		
 		return pred;
 	}
+	
+	private static Prediction[] crossValidate(Problem prob, Parameter linearParams, int folds) {
+		double[] prediction = new double[prob.l];
+		Linear.crossValidation(prob, linearParams, folds, prediction);
+		Prediction[] pred2 = new Prediction[prob.l];
+
+		for (int i = 0; i < pred2.length; i++) {
+			pred2[i] = new Prediction(prediction[i], i);
+		}
+		return pred2;
+	}
 
 	public static Prediction[] trainTestSplit(SparseVector[] featureVectors, double[] target, LibLINEARParameters params, float splitFraction) {
 		Problem total  = createLinearProblem(featureVectors, target, params.getBias());
 		Problem trainP = createProblemTrainSplit(total, splitFraction);		
 		Problem testP  = createProblemTestSplit(total, splitFraction);
-		
+
 		return testLinearModel(trainLinearModel(trainP, params), testP.x);
 	}
 
 	public static double[] splitTestTarget(double[] target, double splitFraction) {
 		int foldStart = Math.round((float) target.length * (float) splitFraction); 
 		int foldEnd   = target.length;
-			
+
 		return Arrays.copyOfRange(target, foldStart, foldEnd);
 	}
-	
+
 
 	public static void featureVectors2File(SparseVector[] featureVectors, double[] target, String filename) {
 		try {
@@ -232,17 +241,17 @@ public class LibLINEAR {
 
 		return prob;
 	}
-	
+
 	private static Problem createProblemTestSplit(Problem problem, float splitFrac) {
 		int foldStart = Math.round(((float) problem.l) * splitFrac); 
 		int foldEnd   = problem.l;
-		
+
 		Problem prob = new Problem();
 		prob.y = Arrays.copyOfRange(problem.y, foldStart, foldEnd);
 		prob.x = Arrays.copyOfRange(problem.x, foldStart, foldEnd);
 		prob.l = prob.y.length;
 		prob.n = problem.n;
-		
+
 		return prob;
 	}
 

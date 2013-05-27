@@ -31,4 +31,8 @@ public class Task1ScoreForBothBins implements EvaluationFunction {
 	public String getLabel() {
 		return "T1 Score";
 	}
+	
+	public boolean isHigherIsBetter() {
+		return false;
+	}
 }
