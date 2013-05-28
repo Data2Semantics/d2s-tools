@@ -20,7 +20,9 @@ import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.proppred.libsvm.evaluation.Accuracy;
 import org.data2semantics.proppred.libsvm.evaluation.EvaluationFunction;
+import org.data2semantics.proppred.libsvm.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.libsvm.evaluation.F1;
+import org.data2semantics.proppred.libsvm.evaluation.MeanAbsoluteError;
 import org.data2semantics.proppred.libsvm.evaluation.MeanSquaredError;
 import org.data2semantics.proppred.libsvm.evaluation.Task1Score;
 import org.data2semantics.proppred.libsvm.evaluation.Task1ScoreForBins;
@@ -41,14 +43,14 @@ public class Task1Experiment extends RDFMLExperiment {
 
 		//		double[] bins = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 75.5};
 		//double[] bins = {0.5, 1.5, 3.5, 6.5, 22.5};
-		double[] bins = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 22.5};
+		double[] bins = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 12.5, 15.5, 18.5, 23.5};
 		
 
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
-		int[] depths = {1,2,3};
-		int[] iterations = {0,2,4,6};
+		int[] depths = {1,2};
+		int[] iterations = {0,2,4};
 
 		double[] ps1 = {1};
 		double[] ps2 = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
@@ -79,6 +81,8 @@ public class Task1Experiment extends RDFMLExperiment {
 		
 		List<EvaluationFunction> evalFuncs2 = new ArrayList<EvaluationFunction>();
 		evalFuncs2.add(new Task1Score());
+		evalFuncs2.add(new MeanSquaredError());
+		evalFuncs2.add(new MeanAbsoluteError());
 
 		for (int d : depths) {			
 			for (int it : iterations) {
@@ -88,15 +92,27 @@ public class Task1Experiment extends RDFMLExperiment {
 				linParms.setEvalFunction(new Task1ScoreForBothBins(bins));
 				linParms.setDoCrossValidation(false);
 				linParms.setSplitFraction((float) 0.8);
-				linParms.setEps(0.0001);
+				linParms.setEps(0.00001);
 				linParms.setPs(ps1);
+				
+				Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targetBins);
+				int[] wLabels = new int[counts.size()];
+				double[] weights = new double[counts.size()];
+
+				for (double label : counts.keySet()) {
+					wLabels[(int) label - 1] = (int) label;
+					weights[(int) label - 1] = 1 / counts.get(label);
+				}
+				linParms.setWeightLabels(wLabels);
+				linParms.setWeights(weights);
+
 				
 				
 				LibLINEARParameters linParms2 = new LibLINEARParameters(LibLINEARParameters.SVR_DUAL, cs);
 				linParms2.setEvalFunction(new Task1Score());
 				linParms2.setDoCrossValidation(false);
 				linParms2.setSplitFraction((float) 0.8);
-				linParms2.setEps(0.0001);
+				linParms2.setEps(0.00001);
 				linParms2.setPs(ps2);
 				linParms2.setBias(1);
 
