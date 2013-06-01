@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.proppred.kernels.Kernel;
+import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
@@ -25,7 +26,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.util.LiteralUtil;
 
-public class RDFLinearKernelExperiment extends KernelExperiment<RDFWLSubTreeKernel> {
+public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVectorKernel> {
 	private LibLINEARParameters linearParms;
 	private List<Double> labels;
 	private RDFDataSet dataset;
@@ -38,7 +39,7 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFWLSubTreeKern
 
 
 
-	public RDFLinearKernelExperiment(RDFWLSubTreeKernel kernel, long[] seeds,
+	public RDFLinearKernelExperiment(RDFFeatureVectorKernel kernel, long[] seeds,
 			LibLINEARParameters linearParms, RDFDataSet dataset,
 			List<Resource> instances, List<Double> labels, List<Statement> blackList, List<EvaluationFunction> evalFunctions) {
 		super(kernel, seeds);

@@ -6,17 +6,8 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
-public abstract class RDFGraphKernel extends Kernel {
-
+public interface RDFGraphKernel extends Kernel {
 	
-	public RDFGraphKernel() {
-		super();
-	}
-
-	public RDFGraphKernel(boolean normalize) {
-		super(normalize);
-	}
-	
-	public abstract double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList);
+	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList);
 
 }

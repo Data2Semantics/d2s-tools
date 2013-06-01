@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.data2semantics.proppred.kernels.GraphKernel;
+import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
 
@@ -59,7 +60,7 @@ public class PropertyPredictionExperiment implements Runnable {
 
 		for (int i = 0; i < seeds.length; i++) {
 			if (maxClassSize == 0) {
-				matrix = kernel.shuffle(matrix, seeds[i]);
+				matrix = KernelUtils.shuffle(matrix, seeds[i]);
 				dataSet.shuffle(seeds[i]);
 				target = LibSVM.createTargets(dataSet.getLabels());
 			} else {

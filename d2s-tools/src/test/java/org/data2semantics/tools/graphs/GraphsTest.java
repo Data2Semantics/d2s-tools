@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.data2semantics.tools.rdf.RDFDataSet;
+import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.junit.Ignore;
 import org.junit.Test;

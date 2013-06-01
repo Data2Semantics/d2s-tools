@@ -22,7 +22,9 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * @author Gerben
  *
  */
-public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> {
+public class IntersectionGraphKernel implements GraphKernel {
+	protected String label;
+	protected boolean normalize;
 	private int maxLength;
 	private double discountFactor;
 	
@@ -31,20 +33,28 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithR
 	}
 	
 	public IntersectionGraphKernel(int maxLength, double discountFactor, boolean normalize) {
-		super(normalize);
+		this.normalize = normalize;
 		this.label = "Intersection Graph Kernel, maxLength=" + maxLength + ", lambda=" + discountFactor;
 		this.maxLength = maxLength;
 		this.discountFactor = discountFactor;
 	}
+	
+	
 
-	@Override
-	public double[][] compute(
-			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
-		double[][] kernel = initMatrix(trainGraphs.size(), trainGraphs.size());
+	public String getLabel() {
+		return label;
+	}
+
+	public void setNormalize(boolean normalize) {
+		this.normalize = normalize;
+	}
+
+	public double[][] compute(List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
+		double[][] kernel = KernelUtils.initMatrix(trainGraphs.size(), trainGraphs.size());
 		DirectedGraph<Vertex<String>, Edge<String>> graph;
 		
 		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graphT : trainGraphs) {
-			graphT.getRootVertex().setLabel(ROOTID);
+			graphT.getRootVertex().setLabel(KernelUtils.ROOTID);
 		}
 		
 		for (int i = 0; i < trainGraphs.size(); i++) {
@@ -56,27 +66,26 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithR
 		}
 		
 		if (normalize) {
-			return normalize(kernel);
+			return KernelUtils.normalize(kernel);
 		} else {
 			return kernel;
 		}
 	}
 
-	@Override
 	public double[][] compute(
-			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
-			List<? extends DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
+			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
+			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
 		
-		double[][] kernel = initMatrix(testGraphs.size(), trainGraphs.size());
+		double[][] kernel = KernelUtils.initMatrix(testGraphs.size(), trainGraphs.size());
 		DirectedGraph<Vertex<String>, Edge<String>> graph;
 		double[] ssTest = new double[testGraphs.size()];
 		double[] ssTrain = new double[trainGraphs.size()];
 		
 		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graphT : trainGraphs) {
-			graphT.getRootVertex().setLabel(ROOTID);
+			graphT.getRootVertex().setLabel(KernelUtils.ROOTID);
 		}
 		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graphT : testGraphs) {
-			graphT.getRootVertex().setLabel(ROOTID);
+			graphT.getRootVertex().setLabel(KernelUtils.ROOTID);
 		}
 		
 		for (int i = 0; i < testGraphs.size(); i++) {
@@ -97,7 +106,7 @@ public class IntersectionGraphKernel extends GraphKernel<DirectedMultigraphWithR
 		}
 			
 		if (normalize) {	
-			return normalize(kernel, ssTrain, ssTest);		
+			return KernelUtils.normalize(kernel, ssTrain, ssTest);		
 		} else {		
 			return kernel;
 		}

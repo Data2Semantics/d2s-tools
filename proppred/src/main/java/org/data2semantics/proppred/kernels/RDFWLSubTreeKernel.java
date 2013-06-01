@@ -23,13 +23,13 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * This class implements a WL kernel directly on an RDF graph. The difference with a normal WL kernel is that subgraphs are not 
  * explicitly extracted. However we use the idea of subgraph implicitly by tracking for each vertex/edge the distance from an instance vertex.
  * For one thing, this leads to the fact that 1 black list is applied to the entire RDF graph, instead of 1 (small) blacklist per graph. 
- * Also the construction of the feature vectors is different, since we reconstruct the subgraph again during this computation.
  * 
+ *
  * 
  * @author Gerben
  *
  */
-public class RDFWLSubTreeKernel extends RDFGraphKernel {
+public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
 	private static final String ROOT_LABEL = "1";
 	private static final String BLANK_VERTEX_LABEL = "1";
 	private static final String BLANK_EDGE_LABEL   = "2";
@@ -38,22 +38,24 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	private Map<String, Vertex<Map<Integer,StringBuilder>>> instanceVertices;
 	private Map<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>> instanceVertexIndexMap;
 	private Map<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>> instanceEdgeIndexMap;
-	
+
 	private int labelCounter;
 	private int depth;
 	private int iterations;
 	private boolean inference;
 	private boolean blankLabels;
-	
-	
+	private String label;
+	private boolean normalize;
+
+
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
 		this(iterations, depth, inference, normalize);
 		this.blankLabels = blankLabels;
-	
+
 	}
 
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize) {
-		super(normalize);
+		this.normalize = normalize;
 		this.label = "RDF_WL_Kernel_" + depth + "_" + iterations;
 		this.blankLabels = false;
 
@@ -73,21 +75,31 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		this(2, 2, false, true);
 	}
 
+
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setNormalize(boolean normalize) {
+		this.normalize = normalize;
+	}
+
 	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = new SparseVector[instances.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
 			featureVectors[i] = new SparseVector();
 		}	
-		
+
 		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
-		
+
 		if (blankLabels) {
 			setBlankLabels(graph);
 		}
-		
+
 		computeFVs(graph, instances, Math.sqrt(1.0 / ((double) (iterations + 1))), featureVectors);
-		
+
 		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		for (int i = 0; i < iterations; i++) {	
 			relabelGraph2MultisetLabels(graph, startLabel);
@@ -96,45 +108,45 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			computeFVs(graph, instances, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), featureVectors);
 		}
 		if (this.normalize) {
-			featureVectors = Kernel.normalize(featureVectors);
+			featureVectors = KernelUtils.normalize(featureVectors);
 		}
-		
+
 		return featureVectors;
 	}
-	
+
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
-		double[][] kernel = initMatrix(instances.size(), instances.size());
+		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
 		computeKernelMatrix(instances, featureVectors, kernel);
 		return kernel;
 	}
 
-	
+
 	/*
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
-		
+
 		if (blankLabels) {
 			setBlankLabels(graph);
 		}
-		
+
 		SparseVector[] featureVectors = new SparseVector[instances.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
 			featureVectors[i] = new SparseVector();
 		}
 		computeFVs(graph, instances, 1, featureVectors);
-		
+
 		double[][] kernel = initMatrix(instances.size(), instances.size());
 		computeKernelMatrix(instances, featureVectors, kernel, 1.0 / ((double) (iterations + 1)));
-	
-		
+
+
 		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		for (int i = 0; i < iterations; i++) {	
 			relabelGraph2MultisetLabels(graph, startLabel);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
-			
+
 			featureVectors = new SparseVector[instances.size()];
 			for (int j = 0; j < featureVectors.length; j++) {
 				featureVectors[j] = new SparseVector();
@@ -147,7 +159,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		}
 		return kernel;
 	}
-	*/
+	 */
 
 	private DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		Map<String, Vertex<Map<Integer,StringBuilder>>> vertexMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
@@ -174,8 +186,8 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 				for (int di : startV.getLabel().keySet()) {
 					startV.getLabel().put(di, new StringBuilder(ROOT_LABEL));
 				}
-				
-			// Else we construct a new node for the instance, and label it with ROOT_LABEL for the provided depth
+
+				// Else we construct a new node for the instance, and label it with ROOT_LABEL for the provided depth
 			} else {
 				startV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
 				vertexMap.put(idStr, startV);
@@ -209,7 +221,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 							vertexMap.put(idStr, newV);
 							graph.addVertex(newV);
 						}
-												
+
 						// Process new Edge
 						idStr = stmt.toString();
 						idStr2 = stmt.getPredicate().toString();
@@ -247,7 +259,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		return graph;
 	}
 
-	
+
 	private void createInstanceIndexMaps(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, List<Resource> instances) {
 		Vertex<Map<Integer, StringBuilder>> startV;
 		List<Vertex<Map<Integer, StringBuilder>>> frontV, newFrontV;
@@ -257,11 +269,11 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		for (int i = 0; i < instances.size(); i++) {				
 			vertexIndexMap = new HashMap<Vertex<Map<Integer, StringBuilder>>, Integer>();
 			edgeIndexMap   = new HashMap<Edge<Map<Integer, StringBuilder>>, Integer>();
-			
+
 			instanceVertexIndexMap.put(instances.get(i).toString(), vertexIndexMap);
 			instanceEdgeIndexMap.put(instances.get(i).toString(), edgeIndexMap);
-			
-			
+
+
 			// Get the start node
 			startV = instanceVertices.get(instances.get(i).toString());
 			frontV = new ArrayList<Vertex<Map<Integer,StringBuilder>>>();
@@ -269,7 +281,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 
 			// Process the start node
 			vertexIndexMap.put(startV, depth);
-			
+
 			for (int j = depth - 1; j >= 0; j--) {
 				newFrontV = new ArrayList<Vertex<Map<Integer,StringBuilder>>>();
 				for (Vertex<Map<Integer, StringBuilder>> qV : frontV) {
@@ -294,7 +306,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			}
 		}		
 	}
-	
+
 
 
 	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, int startLabel) {
@@ -336,7 +348,7 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			for (int i : edge.getLabel().keySet()) {
 				edge.getLabel().get(i).append("_");   
 			}
-			
+
 		}
 		for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {
 			for (int i : vertex.getLabel().keySet()) {
@@ -388,8 +400,8 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		}
 	}
 
-	
-	
+
+
 	/**
 	 * The computation of the feature vectors assumes that each edge and vertex is only processed once. We can encounter the same
 	 * vertex/edge on different depths during computation, this could lead to multiple counts of the same vertex, possibly of different
@@ -404,9 +416,9 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 		int index;
 		Map<Vertex<Map<Integer,StringBuilder>>, Integer> vertexIndexMap;
 		Map<Edge<Map<Integer,StringBuilder>>, Integer> edgeIndexMap;
-		
+
 		for (int i = 0; i < instances.size(); i++) {
-			
+
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
 				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());
@@ -419,9 +431,9 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * The computation of the feature vectors assumes that each edge and vertex is only processed once. We can encounter the same
 	 * vertex/edge on different depths during computation, this could lead to multiple counts of the same vertex, possibly of different
@@ -433,18 +445,18 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 	 * @param startLabel
 	 * @param featureVectors
 	 */
-	
+
 	/*
 	private void computeFeatureVectors(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances, int startLabel, SparseVector[] featureVectors) {
 		int index;
 		Map<Vertex<Map<Integer,String>>, Integer> vertexIndexMap;
 		Map<Edge<Map<Integer,String>>, Integer> edgeIndexMap;
-		
+
 		for (int i = 0; i < instances.size(); i++) {
 			featureVectors[i] = new SparseVector();
 			//featureVectors[i] = new double[labelCounter - startLabel];
 			//Arrays.fill(featureVectors[i], 0.0);
-			
+
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,String>> vertex : vertexIndexMap.keySet()) {
 				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex))) - startLabel;
@@ -528,8 +540,8 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 			}
 		}
 	}
-	*/
-	
+	 */
+
 
 	private void computeKernelMatrix(List<Resource> instances, SparseVector[] featureVectors, double[][] kernel) {
 		for (int i = 0; i < instances.size(); i++) {
@@ -546,14 +558,14 @@ public class RDFWLSubTreeKernel extends RDFGraphKernel {
 				v.getLabel().put(k, new StringBuilder(BLANK_VERTEX_LABEL));
 			}
 		}
-		
+
 		for (Edge<Map<Integer,StringBuilder>> e : graph.getEdges()) {
 			for (int k : e.getLabel().keySet()) {
 				e.getLabel().put(k, new StringBuilder(BLANK_EDGE_LABEL));
 			}
 		}	
 	}
-	
+
 
 	private class VertexIndexPair {
 		private Vertex<Map<Integer,StringBuilder>> vertex;

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.proppred.kernels.Kernel;
+import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
@@ -130,7 +131,7 @@ public class RDFLinearVSKernelExperiment extends KernelExperiment<RDFWLSubTreeKe
 		
 			
 			tic = System.currentTimeMillis();
-			Prediction[] predA = LibLINEAR.crossValidate(Kernel.convert2BinaryFeatureVectors(fv), target, linearParms, 5);		
+			Prediction[] predA = LibLINEAR.crossValidate(KernelUtils.convert2BinaryFeatureVectors(fv), target, linearParms, 5);		
 			toc = System.currentTimeMillis();
 			compLA[j] = toc - tic;			
 			

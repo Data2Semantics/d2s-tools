@@ -37,8 +37,8 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 	 */
 	public static void main(String[] args) {
 		lithogenesisExperiments();
-		//lithogenesisRunningTimeExperiments();
-		//themeExperiments(0.1, 50);
+		lithogenesisRunningTimeExperiments();
+		themeExperiments(0.1, 50);
 	}
 
 	private static void lithogenesisRunningTimeExperiments() {
@@ -488,7 +488,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		
 
-		/*
+		
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
@@ -603,7 +603,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
 		 */
 		
-		/*
+		
 
 		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
@@ -666,7 +666,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		}
 		saveResults(resTable, "geo_litho.ser");
 
-	*/
+	
 
 
 		resTable.addCompResults(resTable.getBestResults());

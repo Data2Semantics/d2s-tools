@@ -29,6 +29,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.ConstantTransformer;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 
@@ -371,7 +372,7 @@ public class Graphs
 			List<String> vWhiteList,
 			List<String> eWhiteList)
 	{		
-		RDFDataSet testSet = new RDFFileDataSet(rdfFile, format);
+		RDFSingleDataSet testSet = new RDFFileDataSet(rdfFile, format);
 
 		//org.openrdf.model.Graph triples = testSet.getStatements(null, "http://swrc.ontoware.org/ontology#affiliation", null, true);
 		List<Statement> triples = testSet.getFullGraph();

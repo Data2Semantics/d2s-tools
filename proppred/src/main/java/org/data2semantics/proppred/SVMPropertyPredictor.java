@@ -32,7 +32,7 @@ import cern.colt.Arrays;
  *
  */
 public class SVMPropertyPredictor implements PropertyPredictor {
-	private GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel;
+	private GraphKernel kernel;
 	private List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs;
 	private List<String> trainLabels;
 	private Map<String, Value> valueMap;
@@ -58,7 +58,7 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 	 * 
 	 * @param kernel an instance of a GraphKernel
 	 */
-	public SVMPropertyPredictor(GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel) {
+	public SVMPropertyPredictor(GraphKernel kernel) {
 		this(kernel, 2);
 	}
 	
@@ -68,7 +68,7 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 	 * @param kernel an instance of GraphKernel
 	 * @param extractionDepth the depth used in subgraph extraction
 	 */
-	public SVMPropertyPredictor(GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel, int extractionDepth) {
+	public SVMPropertyPredictor(GraphKernel kernel, int extractionDepth) {
 		this.kernel = kernel;
 		this.extractionDepth = extractionDepth;	
 		this.setDefaultLibSVMParams();
@@ -88,7 +88,7 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 	 * @param extractionDepth depth used in subgraph extraction
 	 * @param params parameters for the LibSVM library. When using algorithms with the nu parameter (nu-SVC,nu-SVR and one-class) make sure the iteration parameters are set between 0 and 1.
 	 */
-	public SVMPropertyPredictor(GraphKernel<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> kernel, int extractionDepth, LibSVMParameters params) {
+	public SVMPropertyPredictor(GraphKernel kernel, int extractionDepth, LibSVMParameters params) {
 		this(kernel, extractionDepth);
 		this.params = params;
 	}

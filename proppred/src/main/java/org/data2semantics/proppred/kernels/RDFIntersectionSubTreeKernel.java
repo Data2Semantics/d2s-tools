@@ -21,7 +21,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
-public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
+public class RDFIntersectionSubTreeKernel implements RDFGraphKernel {
 	private static final int BLANK_VERTEX_LABEL = 1337;
 	private static final int BLANK_EDGE_LABEL   = 1338;
 	
@@ -33,7 +33,8 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 	private boolean inference;
 	private double discountFactor;
 	private boolean blankLabels;
-
+	protected String label;
+	protected boolean normalize;
 
 	public RDFIntersectionSubTreeKernel() {
 		this(2, 1, false, true);
@@ -46,7 +47,7 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 	
 	
 	public RDFIntersectionSubTreeKernel(int depth, double discountFactor, boolean inference, boolean normalize) {
-		super(normalize);
+		this.normalize = normalize;
 		this.label = "RDF Intersection SubTree Kernel";
 		this.blankLabels = false;
 		
@@ -58,11 +59,17 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 		this.discountFactor = discountFactor;
 	}
 
+	
+	public String getLabel() {
+		return label;
+	}
 
-
+	public void setNormalize(boolean normalize) {
+		this.normalize = normalize;
+	}
 
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
-		double[][] kernel = initMatrix(instances.size(), instances.size());
+		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
 		Tree<Vertex<Integer>, Edge<Integer>> tree;
 		
 		DirectedGraph<Vertex<Integer>,Edge<Integer>> graph = createGraphFromRDF(dataset, instances, blackList);
@@ -80,7 +87,7 @@ public class RDFIntersectionSubTreeKernel extends RDFGraphKernel {
 		}
 
 		if (normalize) {
-			return normalize(kernel);
+			return KernelUtils.normalize(kernel);
 		} else {		
 			return kernel;
 		}

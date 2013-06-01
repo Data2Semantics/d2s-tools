@@ -8,6 +8,7 @@ import java.util.Random;
 
 import org.data2semantics.proppred.kernels.GraphKernel;
 import org.data2semantics.proppred.kernels.Kernel;
+import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
@@ -15,7 +16,7 @@ import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
-import org.data2semantics.tools.rdf.RDFDataSet;
+import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
@@ -66,7 +67,7 @@ public class GraphKernelExperiment extends KernelExperiment<GraphKernel> {
 		compR.setLabel("kernel comp time");
 		
 		for (int j = 0; j < seeds.length; j++) {
-			matrix = Kernel.shuffle(matrix, seeds[j]);
+			matrix = KernelUtils.shuffle(matrix, seeds[j]);
 			Collections.shuffle(tempLabels, new Random(seeds[j]));
 			
 			double[] target = LibSVM.createTargets(tempLabels);

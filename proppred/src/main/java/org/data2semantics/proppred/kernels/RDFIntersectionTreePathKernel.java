@@ -1,0 +1,127 @@
+package org.data2semantics.proppred.kernels;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.data2semantics.proppred.libsvm.SparseVector;
+import org.data2semantics.tools.rdf.RDFDataSet;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+
+public class RDFIntersectionTreePathKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
+	private int depth;
+	private boolean inference;
+	private Map<URI, Integer> uri2int;
+	private Map<List<Integer>, Integer> path2index;
+	private Map<Integer, List<Integer>> index2path;
+	private RDFDataSet dataset;
+	private Set<Statement> blackList;
+	private boolean normalize;
+	private String label;
+
+
+	public RDFIntersectionTreePathKernel(int depth, boolean inference, boolean normalize) {
+		this.normalize = normalize;
+		this.depth = depth;
+		this.inference = inference;
+
+		uri2int = new HashMap<URI, Integer>();
+		path2index = new HashMap<List<Integer>, Integer>();
+		index2path = new HashMap<Integer, List<Integer>>();
+		blackList = new HashSet<Statement>();
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setNormalize(boolean normalize) {
+		this.normalize = normalize;		
+	}
+
+
+
+	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances,
+			List<Statement> blackList) {
+		this.dataset = dataset;	
+		this.blackList.addAll(blackList);
+
+		SparseVector[] ret = new SparseVector[instances.size()];
+
+		for (int i = 0; i < instances.size(); i++) {
+			ret[i] = processVertex(instances.get(i));
+		}
+
+		return ret;
+	}
+
+
+	private SparseVector processVertex(Resource root) {
+		SparseVector features = new SparseVector();
+		processVertexRec(root, new ArrayList<Integer>(), features, depth);
+		if (normalize) {
+			features = normalizeFeatures(features);
+		}
+		return features;
+	}
+
+	private SparseVector normalizeFeatures(SparseVector features) {
+		SparseVector res = new SparseVector();
+		for (int key : features.getIndices()) {
+			List<Integer> path = index2path.get(key);
+			if (path.size()==0) {
+				res.setValue(key, 1.0);
+			} else {
+				List<Integer> parent = path.subList(0, path.size()-1);
+				int parentKey = path2index.get(parent);
+				res.setValue(key, features.getValue(key)/features.getValue(parentKey));
+			}
+		}
+		return res;
+	}
+
+	private void processVertexRec(Value v1, List<Integer> path, SparseVector vec, int maxDepth) {
+
+		// Count
+		Integer index = path2index.get(path);
+		if (index == null) {
+			index = path2index.size()+1;
+			path2index.put(path, index);
+			index2path.put(index, path);
+		}
+		vec.setValue(index, vec.getValue(index)+1);
+
+		// Bottom out
+		if (maxDepth==0 || !(v1 instanceof Resource)) return;
+
+		// Recurse
+		List<Statement> result = dataset.getStatements((Resource)v1, null, null, inference);
+
+		for (Statement stmt : result) {
+			if (blackList.contains(stmt)) continue;
+			// ^^ Gerben vindt continue lelijk :-D
+			Integer key = uri2int.get(stmt.getPredicate());
+			if (key == null) {
+				key = new Integer(uri2int.size());
+				uri2int.put(stmt.getPredicate(), key);
+			}
+
+			ArrayList<Integer> new_path = new ArrayList<Integer>(path);
+			new_path.add(key);
+			processVertexRec(stmt.getObject(), new_path, vec, maxDepth-1);
+		}		
+	}
+
+	public double[][] compute(RDFDataSet dataset, List<Resource> instances,
+			List<Statement> blackList) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

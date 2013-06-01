@@ -6,7 +6,7 @@ import java.io.FileFilter;
 import org.openrdf.rio.RDFFormat;
 
 
-public class RDFFileDataSet extends RDFDataSet 
+public class RDFFileDataSet extends RDFSingleDataSet 
 {
 	
 	public RDFFileDataSet(String filename, RDFFormat fileFormat) {

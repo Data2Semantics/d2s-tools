@@ -102,7 +102,7 @@ public abstract class RDFMLExperiment {
 		for (int i = 0; i < instances.size(); i++) {
 			newBL.addAll(dataset.getStatements(instances.get(i), null, labels.get(i)));
 			if (labels.get(i) instanceof Resource) {
-				blackList.addAll(dataset.getStatements((Resource) labels.get(i), null, instances.get(i)));
+				newBL.addAll(dataset.getStatements((Resource) labels.get(i), null, instances.get(i)));
 			}
 		}
 

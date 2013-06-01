@@ -13,7 +13,10 @@ import org.data2semantics.exp.experiments.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.experiments.RDFKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
+import org.data2semantics.proppred.kernels.Kernel;
+import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreePathKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
@@ -61,7 +64,7 @@ public class FullThemeExperiment extends RDFMLExperiment {
 		long[] seeds = {seed};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
-		int[] depths = {1, 2, 3};
+		int[] depths = {1, 2, 3, 4};
 		int[] iterations = {0, 2, 4, 6};
 		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 
@@ -104,7 +107,7 @@ public class FullThemeExperiment extends RDFMLExperiment {
 
 					
 
-					KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+					KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 
 					System.out.println("Running WL RDF: " + i + " " + it);
 					exp.run();

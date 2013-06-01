@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.proppred.kernels.Kernel;
+import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
@@ -72,7 +73,7 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 		compR.setLabel("kernel comp time");
 		
 		for (int j = 0; j < seeds.length; j++) {
-			matrix = Kernel.shuffle(matrix, seeds[j]);
+			matrix = KernelUtils.shuffle(matrix, seeds[j]);
 			Collections.shuffle(tempLabels, new Random(seeds[j]));
 			
 			double[] target = LibSVM.createTargets(tempLabels);

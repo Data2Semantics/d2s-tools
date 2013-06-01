@@ -28,6 +28,8 @@ import org.data2semantics.proppred.libsvm.evaluation.Task1Score;
 import org.data2semantics.proppred.libsvm.evaluation.Task1ScoreForBins;
 import org.data2semantics.proppred.libsvm.evaluation.Task1ScoreForBothBins;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.data2semantics.tools.rdf.RDFMultiDataSet;
+import org.data2semantics.tools.rdf.RDFSparqlDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
@@ -49,7 +51,7 @@ public class Task1Experiment extends RDFMLExperiment {
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
-		int[] depths = {1,2};
+		int[] depths = {4};
 		int[] iterations = {0,2,4};
 
 		double[] ps1 = {1};
@@ -182,7 +184,19 @@ public class Task1Experiment extends RDFMLExperiment {
 
 
 					Prediction[] pred = LibLINEAR.trainTestSplit(fv, targetABins, linParms, linParms.getSplitFraction());			
-					Prediction[] pred2 = LibLINEAR.trainTestSplit(fv, targetA, linParms2, linParms.getSplitFraction());
+					Prediction[] pred2 = LibLINEAR.trainTestSplit(fv, targetA, linParms2, linParms2.getSplitFraction());
+					
+					/*
+					double avg = 0;
+					for (double val : targetA) {
+						avg += val;
+					}
+					avg /= targetA.length;
+					
+					for (Prediction p : pred2) {
+						p.setLabel(avg);
+					}*/
+					
 					
 					double[] targetSplit = LibLINEAR.splitTestTarget(targetA, linParms.getSplitFraction());
 
@@ -219,7 +233,25 @@ public class Task1Experiment extends RDFMLExperiment {
 	}
 
 	private static void createTask1DataSet(double fraction, long seed) {
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet d = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\adms.ttl", RDFFormat.TURTLE);
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\ns.ttl", RDFFormat.TURTLE);
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\skos.rdf", RDFFormat.RDFXML);
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\v1.owl", RDFFormat.RDFXML);
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\schemaorg.owl", RDFFormat.RDFXML);
+		
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\lookup\\describeList\\all.ttl", RDFFormat.TURTLE);
+		
+		RDFMultiDataSet test = new RDFMultiDataSet();
+		test.addRDFDataSet(d);
+		List<String> dbpns = new ArrayList<String>();
+		dbpns.add("http://dbpedia.org");
+		RDFSparqlDataSet sds = new RDFSparqlDataSet("http://dbpedia.org/sparql", dbpns);
+		sds.setLogFile("test.txt");
+		//test.addRDFDataSet(sds);
+		
+		dataset = test;
+		
 		Random rand = new Random(seed);
 
 
