@@ -39,7 +39,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		lithogenesisExperiments();
 		lithogenesisRunningTimeExperiments();
 		themeExperiments(0.1, 50);
-	}
+	} 
 
 	private static void lithogenesisRunningTimeExperiments() {
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);

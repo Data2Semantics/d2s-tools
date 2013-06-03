@@ -53,7 +53,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 		linParms.setEvalFunction(new Accuracy());
 		linParms.setDoCrossValidation(true);
 		linParms.setSplitFraction((float) 0.8);
-		linParms.setEps(0.00001);
+		linParms.setEps(0.1);
 
 		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targets);
 		int[] wLabels = new int[counts.size()];
