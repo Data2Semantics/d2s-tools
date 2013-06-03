@@ -180,6 +180,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 
+		
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
@@ -271,6 +272,8 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			}
 		}
 		saveResults(resTable, "affiliation.ser");
+		
+		
 
 
 		

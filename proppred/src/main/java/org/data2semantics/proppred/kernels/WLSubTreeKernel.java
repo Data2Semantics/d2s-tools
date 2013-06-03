@@ -162,22 +162,22 @@ public class WLSubTreeKernel implements GraphKernel {
 		}
 
 		// 1. Fill buckets 
-		for (DirectedGraph<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
+		for (DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
 			// Add each edge source (i.e.) start vertex to the bucket of the edge label
 			for (Edge<StringBuffer> edge : graph.getEdges()) {
-				bucketsV.get(edge.getLabel()).getContents().add(graph.getDest(edge));
+				bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getDest(edge));
 			}
 
 			// Add each incident edge to the bucket of the node label
 			for (Vertex<StringBuffer> vertex : graph.getVertices()) {			
 				Collection<Edge<StringBuffer>> v2 = graph.getOutEdges(vertex);	
-				bucketsE.get(vertex.getLabel()).getContents().addAll(v2);
+				bucketsE.get(vertex.getLabel().toString()).getContents().addAll(v2);
 			}	
 		}
 
 		// 2. add bucket labels to existing labels
 		// Change the original label to a prefix label
-		for (DirectedGraph<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
+		for (DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
 			for (Edge<StringBuffer> edge : graph.getEdges()) {
 				edge.setLabel(edge.getLabel().append("_"));
 			}

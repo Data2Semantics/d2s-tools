@@ -103,7 +103,7 @@ public class AffiliationPredictionExperiment {
 					if (experimenter.hasSpace()) {	
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
-						WLSubTreeKernel kernel = new WLSubTreeKernel(i, true, false);
+						WLSubTreeKernel kernel = new WLSubTreeKernel(i, true);
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), kernel, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsWL.addResult(exp.getResults().getAccuracy());
@@ -208,7 +208,7 @@ public class AffiliationPredictionExperiment {
 					if (experimenter.hasSpace()) {	
 						int fileId = (int) (Math.random() * 100000000);	
 						File file = new File(DATA_DIR + fileId + "_" + "WL" + "_" + i + ".txt");
-						WLSubTreeKernel kernel = new WLSubTreeKernel(i, true, false);
+						WLSubTreeKernel kernel = new WLSubTreeKernel(i, true);
 						exp = new PropertyPredictionExperiment(new PropertyPredictionDataSet(dataset), kernel, seeds, cs, new FileOutputStream(file));
 						experimenter.addExperiment(exp);
 						resultsWLadd.addResult(exp.getResults().getAccuracy());
