@@ -35,6 +35,7 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 	private List<EvaluationFunction> evalFunctions;
 	private Result compR;
 	private Map<EvaluationFunction, double[]> resultMap;
+	private boolean doCV;
 	
 
 
@@ -50,6 +51,8 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 		this.blackList = blackList;
 		this.evalFunctions = evalFunctions;
 	
+		doCV = false;
+		
 		resultMap = new HashMap<EvaluationFunction,double[]>();
 		
 		for (EvaluationFunction evalFunc : evalFunctions) {
@@ -113,11 +116,16 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 			}
 			*/
 
+			Prediction[] pred = null;
+			double[] targetSplit = null;
 			
-			
-			Prediction[] pred = LibLINEAR.trainTestSplit(fv, target, linearParms, linearParms.getSplitFraction());
-			double[] targetSplit = LibLINEAR.splitTestTarget(target, linearParms.getSplitFraction());
-
+			if (doCV) {
+				pred = LibLINEAR.crossValidate(fv, target, linearParms, linearParms.getNumFolds());
+				targetSplit = target;
+			} else {
+				pred = LibLINEAR.trainTestSplit(fv, target, linearParms, linearParms.getSplitFraction());
+				targetSplit = LibLINEAR.splitTestTarget(target, linearParms.getSplitFraction());
+			}
 			
 			for (EvaluationFunction ef : evalFunctions) {
 				resultMap.get(ef)[j] = ef.computeScore(targetSplit, pred);	
@@ -156,5 +164,8 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 		compR.setScores(comp);
 	}
 
+	public void setDoCV(boolean cv) {
+		doCV = cv;
+	}
 
 }

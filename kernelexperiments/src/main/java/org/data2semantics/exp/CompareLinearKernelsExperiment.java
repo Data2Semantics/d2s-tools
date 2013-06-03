@@ -13,6 +13,8 @@ import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
@@ -34,7 +36,9 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int depth = 3;
+		int[] depths = {1,2,3};
+		int[] depths2 = {1,2,3};
+		
 		int[] iterations = {0, 2, 4, 6};
 
 		createAffiliationPredictionDataSet(1);
@@ -47,7 +51,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 
 		LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
 		linParms.setEvalFunction(new Accuracy());
-		linParms.setDoCrossValidation(false);
+		linParms.setDoCrossValidation(true);
 		linParms.setSplitFraction((float) 0.8);
 		linParms.setEps(0.00001);
 
@@ -64,13 +68,14 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 
-
-		for (int i = 1; i <= depth; i++) {
+		
+		for (int depth : depths) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
-				System.out.println("Running WL RDF: " + i + " " + it);
+				System.out.println("Running WL RDF: " + depth + " " + it);
+				exp.setDoCV(true);
 				exp.run();
 
 				for (Result res : exp.getResults()) {
@@ -78,6 +83,38 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 				}
 			}
 		}
+		
+
+		for (int depth : depths2) {
+			resTable.newRow("");
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgePathKernel(depth, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+
+			System.out.println("Running ITEP RDF: " + depth);
+			exp.setDoCV(true);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}
+		}
+
+		for (int depth : depths2) {
+			resTable.newRow("");
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(depth, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+
+			System.out.println("Running ITEVP RDF: " + depth);
+			exp.setDoCV(true);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}
+		}
+
+		
+		resTable.addCompResults(resTable.getBestResults());
+		System.out.println(resTable);
+
 
 	}
 

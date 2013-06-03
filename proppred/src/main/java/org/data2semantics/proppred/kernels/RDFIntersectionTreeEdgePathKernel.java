@@ -14,27 +14,29 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
-public class RDFIntersectionTreePathKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
+public class RDFIntersectionTreeEdgePathKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
 	private int depth;
 	private boolean inference;
-	private Map<URI, Integer> uri2int;
+	protected Map<Value, Integer> uri2int;
 	private Map<List<Integer>, Integer> path2index;
 	private Map<Integer, List<Integer>> index2path;
 	private RDFDataSet dataset;
 	private Set<Statement> blackList;
 	private boolean normalize;
 	private String label;
+	protected int pathLen;
 
 
-	public RDFIntersectionTreePathKernel(int depth, boolean inference, boolean normalize) {
+	public RDFIntersectionTreeEdgePathKernel(int depth, boolean inference, boolean normalize) {
 		this.normalize = normalize;
 		this.depth = depth;
 		this.inference = inference;
 
-		uri2int = new HashMap<URI, Integer>();
+		uri2int = new HashMap<Value, Integer>();
 		path2index = new HashMap<List<Integer>, Integer>();
 		index2path = new HashMap<Integer, List<Integer>>();
 		blackList = new HashSet<Statement>();
+		pathLen = 1;
 	}
 
 	public String getLabel() {
@@ -78,7 +80,7 @@ public class RDFIntersectionTreePathKernel implements RDFGraphKernel, RDFFeature
 			if (path.size()==0) {
 				res.setValue(key, 1.0);
 			} else {
-				List<Integer> parent = path.subList(0, path.size()-1);
+				List<Integer> parent = path.subList(0, path.size()-pathLen);
 				int parentKey = path2index.get(parent);
 				res.setValue(key, features.getValue(key)/features.getValue(parentKey));
 			}
@@ -98,24 +100,39 @@ public class RDFIntersectionTreePathKernel implements RDFGraphKernel, RDFFeature
 		vec.setValue(index, vec.getValue(index)+1);
 
 		// Bottom out
-		if (maxDepth==0 || !(v1 instanceof Resource)) return;
+		if (maxDepth > 0 && (v1 instanceof Resource)) {
 
-		// Recurse
-		List<Statement> result = dataset.getStatements((Resource)v1, null, null, inference);
+			// Recurse
+			List<Statement> result = dataset.getStatements((Resource)v1, null, null, inference);
 
-		for (Statement stmt : result) {
-			if (blackList.contains(stmt)) continue;
-			// ^^ Gerben vindt continue lelijk :-D
-			Integer key = uri2int.get(stmt.getPredicate());
-			if (key == null) {
-				key = new Integer(uri2int.size());
-				uri2int.put(stmt.getPredicate(), key);
-			}
+			for (Statement stmt : result) {
+				if (!blackList.contains(stmt)) {
+					List<Integer> newPath = createPath(stmt, path);
+					processVertexRec(stmt.getObject(), newPath, vec, maxDepth-1);
+				}
+			}		
+		}
+	}
 
-			ArrayList<Integer> new_path = new ArrayList<Integer>(path);
-			new_path.add(key);
-			processVertexRec(stmt.getObject(), new_path, vec, maxDepth-1);
-		}		
+	protected List<Integer> createPath(Statement stmt, List<Integer> path) {
+		/*
+		Integer key = uri2int.get(stmt.getPredicate());
+		if (key == null) {
+			key = new Integer(uri2int.size());
+			uri2int.put(stmt.getPredicate(), key);
+		}
+		 */
+
+		Integer key2 = uri2int.get(stmt.getObject());
+		if (key2 == null) {
+			key2 = new Integer(uri2int.size());
+			uri2int.put(stmt.getObject(), key2);
+		}
+		List<Integer> newPath = new ArrayList<Integer>(path);
+		//newPath.add(key);
+		newPath.add(key2);
+
+		return newPath;
 	}
 
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances,
