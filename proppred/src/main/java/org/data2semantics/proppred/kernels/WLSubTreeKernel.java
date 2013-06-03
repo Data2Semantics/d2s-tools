@@ -218,7 +218,7 @@ public class WLSubTreeKernel implements GraphKernel {
 		for (DirectedGraph<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
 
 			for (Edge<StringBuffer> edge : graph.getEdges()) {
-				label = labelDict.get(edge.getLabel());						
+				label = labelDict.get(edge.getLabel().toString());						
 				if (label == null) {					
 					label = Integer.toString(currentLabel);
 					currentLabel++;
@@ -228,7 +228,7 @@ public class WLSubTreeKernel implements GraphKernel {
 			}
 
 			for (Vertex<StringBuffer> vertex : graph.getVertices()) {
-				label = labelDict.get(vertex.getLabel());
+				label = labelDict.get(vertex.getLabel().toString());
 				if (label == null) {
 					label = Integer.toString(currentLabel);
 					currentLabel++;
