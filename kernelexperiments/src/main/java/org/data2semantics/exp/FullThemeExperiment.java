@@ -128,7 +128,7 @@ public class FullThemeExperiment extends RDFMLExperiment {
 
 
 
-	private static void createGeoDataSet(int minSize, double frac, long seed, String property) {
+	protected static void createGeoDataSet(int minSize, double frac, long seed, String property) {
 		Random rand = new Random(seed);
 
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");

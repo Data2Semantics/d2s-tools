@@ -37,7 +37,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 	 */
 	public static void main(String[] args) {
 		lithogenesisExperiments();
-		lithogenesisRunningTimeExperiments();
+		//lithogenesisRunningTimeExperiments(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
 		themeExperiments(0.1, 50);
 	} 
 
