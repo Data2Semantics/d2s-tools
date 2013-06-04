@@ -34,8 +34,7 @@ public class WLSubTreeKernel implements GraphKernel {
 
 
 	/**
-	 * Construct a WLSubTreeKernel. The skipFirst parameter is used to not include the original labels in the kernel computation, i.e. 
-	 * we skip the bag of labels as part of the kernel.
+	 * Construct a WLSubTreeKernel. 
 	 * 
 	 * @param iterations
 	 * @param normalize
@@ -61,7 +60,7 @@ public class WLSubTreeKernel implements GraphKernel {
 
 	public double[][] compute(List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
 
-		List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs = copyGraphs(trainGraphs);
+		List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs = copyGraphs(trainGraphs);
 		SparseVector[] featureVectors = new SparseVector[graphs.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
 			featureVectors[i] = new SparseVector();
@@ -75,34 +74,34 @@ public class WLSubTreeKernel implements GraphKernel {
 
 		// We change the original label of the root node of the graph to a generic label
 		// This rootlabel identifies the graph uniquely, and we don't want that
-		for (DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
-			graph.getRootVertex().setLabel(new StringBuffer(KernelUtils.ROOTID));
+		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+			graph.getRootVertex().setLabel(new StringBuilder(KernelUtils.ROOTID));
 		}
 
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
-		computeFVs(graphs, featureVectors, Math.sqrt(1.0 / ((double) (iterations + 1))));
+		computeFVs(graphs, featureVectors, Math.sqrt(1.0 / ((double) (iterations + 1))), currentLabel-1);
 		
 		
 		for (int i = 0; i < this.iterations; i++) {
 			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
 			startLabel = currentLabel;
 			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
-			computeFVs(graphs, featureVectors, Math.sqrt((2.0 + i) / ((double) (iterations + 1))));
+			computeFVs(graphs, featureVectors, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), currentLabel-1);
 		}
-		computeKernelMatrix(graphs, featureVectors, kernel);
 		
 		if (normalize) {
-			return KernelUtils.normalize(kernel);
-		} else {		
-			return kernel;
-		}
+			featureVectors = KernelUtils.normalize(featureVectors);
+		}		
+		computeKernelMatrix(graphs, featureVectors, kernel);		
+		
+		return kernel;
 	}
 
 	public double[][] compute(
 			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
 					List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
 
-		List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs = copyGraphs(testGraphs);
+		List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs = copyGraphs(testGraphs);
 		graphs.addAll(copyGraphs(trainGraphs));
 		SparseVector[] featureVectors = new SparseVector[graphs.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
@@ -116,19 +115,19 @@ public class WLSubTreeKernel implements GraphKernel {
 		int startLabel = 1;
 		int currentLabel = 1;
 
-		for (DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
-			graph.getRootVertex().setLabel(new StringBuffer(KernelUtils.ROOTID));
+		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+			graph.getRootVertex().setLabel(new StringBuilder(KernelUtils.ROOTID));
 		}
 	
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
-		computeFVs(graphs, featureVectors, Math.sqrt(1.0 / ((double) (iterations + 1))));
+		computeFVs(graphs, featureVectors, Math.sqrt(1.0 / ((double) (iterations + 1))), currentLabel-1);
 		
 
 		for (int i = 0; i < this.iterations; i++) {
 			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
 			startLabel = currentLabel;
 			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
-			computeFVs(graphs, featureVectors, Math.sqrt((2.0 + i) / ((double) (iterations + 1))));	
+			computeFVs(graphs, featureVectors, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), currentLabel-1);	
 		}
 		
 		computeKernelMatrix(trainGraphs, testGraphs, featureVectors, kernel, ss);
@@ -151,51 +150,51 @@ public class WLSubTreeKernel implements GraphKernel {
 	 * @param startLabel
 	 * @param currentLabel
 	 */
-	private void relabelGraphs2MultisetLabels(List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs, int startLabel, int currentLabel) {
-		Map<String, Bucket<Vertex<StringBuffer>>> bucketsV = new HashMap<String, Bucket<Vertex<StringBuffer>>>();
-		Map<String, Bucket<Edge<StringBuffer>>> bucketsE   = new HashMap<String, Bucket<Edge<StringBuffer>>>();
+	private void relabelGraphs2MultisetLabels(List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs, int startLabel, int currentLabel) {
+		Map<String, Bucket<Vertex<StringBuilder>>> bucketsV = new HashMap<String, Bucket<Vertex<StringBuilder>>>();
+		Map<String, Bucket<Edge<StringBuilder>>> bucketsE   = new HashMap<String, Bucket<Edge<StringBuilder>>>();
 
 		// Initialize buckets
 		for (int i = startLabel; i < currentLabel; i++) {
-			bucketsV.put(Integer.toString(i), new Bucket<Vertex<StringBuffer>>(Integer.toString(i)));
-			bucketsE.put(Integer.toString(i), new Bucket<Edge<StringBuffer>>(Integer.toString(i)));
+			bucketsV.put(Integer.toString(i), new Bucket<Vertex<StringBuilder>>(Integer.toString(i)));
+			bucketsE.put(Integer.toString(i), new Bucket<Edge<StringBuilder>>(Integer.toString(i)));
 		}
 
 		// 1. Fill buckets 
-		for (DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
+		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
 			// Add each edge source (i.e.) start vertex to the bucket of the edge label
-			for (Edge<StringBuffer> edge : graph.getEdges()) {
+			for (Edge<StringBuilder> edge : graph.getEdges()) {
 				bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getDest(edge));
 			}
 
 			// Add each incident edge to the bucket of the node label
-			for (Vertex<StringBuffer> vertex : graph.getVertices()) {			
-				Collection<Edge<StringBuffer>> v2 = graph.getOutEdges(vertex);	
+			for (Vertex<StringBuilder> vertex : graph.getVertices()) {			
+				Collection<Edge<StringBuilder>> v2 = graph.getOutEdges(vertex);	
 				bucketsE.get(vertex.getLabel().toString()).getContents().addAll(v2);
 			}	
 		}
 
 		// 2. add bucket labels to existing labels
 		// Change the original label to a prefix label
-		for (DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
-			for (Edge<StringBuffer> edge : graph.getEdges()) {
-				edge.setLabel(edge.getLabel().append("_"));
+		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+			for (Edge<StringBuilder> edge : graph.getEdges()) {
+				edge.getLabel().append("_");
 			}
-			for (Vertex<StringBuffer> vertex : graph.getVertices()) {
-				vertex.setLabel(vertex.getLabel().append("_"));
+			for (Vertex<StringBuilder> vertex : graph.getVertices()) {
+				vertex.getLabel().append("_");
 			}
 		}
 
 		// 3. Relabel to the labels in the buckets
 		for (int i = startLabel; i < currentLabel; i++) {
 			// Process vertices
-			Bucket<Vertex<StringBuffer>> bucketV = bucketsV.get(Integer.toString(i));			
-			for (Vertex<StringBuffer> vertex : bucketV.getContents()) {
+			Bucket<Vertex<StringBuilder>> bucketV = bucketsV.get(Integer.toString(i));			
+			for (Vertex<StringBuilder> vertex : bucketV.getContents()) {
 				vertex.getLabel().append(bucketV.getLabel());
 			}
 			// Process edges
-			Bucket<Edge<StringBuffer>> bucketE = bucketsE.get(Integer.toString(i));			
-			for (Edge<StringBuffer> edge : bucketE.getContents()) {
+			Bucket<Edge<StringBuilder>> bucketE = bucketsE.get(Integer.toString(i));			
+			for (Edge<StringBuilder> edge : bucketE.getContents()) {
 				edge.getLabel().append(bucketE.getLabel());
 			}
 		}
@@ -212,29 +211,29 @@ public class WLSubTreeKernel implements GraphKernel {
 	 * @param currentLabel
 	 * @return
 	 */
-	private int compressGraphLabels(List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs, Map<String, String> labelDict, int currentLabel) {
+	private int compressGraphLabels(List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs, Map<String, String> labelDict, int currentLabel) {
 		String label;
 
-		for (DirectedGraph<Vertex<StringBuffer>, Edge<StringBuffer>> graph : graphs) {
+		for (DirectedGraph<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
 
-			for (Edge<StringBuffer> edge : graph.getEdges()) {
+			for (Edge<StringBuilder> edge : graph.getEdges()) {
 				label = labelDict.get(edge.getLabel().toString());						
 				if (label == null) {					
 					label = Integer.toString(currentLabel);
 					currentLabel++;
 					labelDict.put(edge.getLabel().toString(), label);				
 				}
-				edge.setLabel(new StringBuffer(label));
+				edge.setLabel(new StringBuilder(label));
 			}
 
-			for (Vertex<StringBuffer> vertex : graph.getVertices()) {
+			for (Vertex<StringBuilder> vertex : graph.getVertices()) {
 				label = labelDict.get(vertex.getLabel().toString());
 				if (label == null) {
 					label = Integer.toString(currentLabel);
 					currentLabel++;
 					labelDict.put(vertex.getLabel().toString(), label);
 				}
-				vertex.setLabel(new StringBuffer(label));
+				vertex.setLabel(new StringBuilder(label));
 			}
 		}
 		return currentLabel;
@@ -249,21 +248,22 @@ public class WLSubTreeKernel implements GraphKernel {
 	 * @param startLabel
 	 * @param currentLabel
 	 */
-	private void computeFVs(List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs, SparseVector[] featureVectors, double weight) {
+	private void computeFVs(List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs, SparseVector[] featureVectors, double weight, int lastIndex) {
 		int index;
 		for (int i = 0; i < graphs.size(); i++) {
+			featureVectors[i].setLastIndex(lastIndex);
 			//featureVectors[i] = new SparseVector();
 			//featureVectors[i] = new double[currentLabel - startLabel];		
 			//Arrays.fill(featureVectors[i], 0.0);
 
 			// for each vertex, use the label as index into the feature vector and do a + 1,
-			for (Vertex<StringBuffer> vertex : graphs.get(i).getVertices()) {
+			for (Vertex<StringBuilder> vertex : graphs.get(i).getVertices()) {
 				index = Integer.parseInt(vertex.getLabel().toString());	
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
 				//featureVectors[i][index] += 1.0;
 			}
 
-			for (Edge<StringBuffer> edge : graphs.get(i).getEdges()) {
+			for (Edge<StringBuilder> edge : graphs.get(i).getEdges()) {
 				index = Integer.parseInt(edge.getLabel().toString());
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
 				//featureVectors[i][index] += 1.0;;
@@ -281,7 +281,7 @@ public class WLSubTreeKernel implements GraphKernel {
 	 * @param kernel
 	 * @param iteration
 	 */
-	private void computeKernelMatrix(List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs, SparseVector[] featureVectors, double[][] kernel) {
+	private void computeKernelMatrix(List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs, SparseVector[] featureVectors, double[][] kernel) {
 		for (int i = 0; i < graphs.size(); i++) {
 			for (int j = i; j < graphs.size(); j++) {
 				kernel[i][j] += featureVectors[i].dot(featureVectors[j]);
@@ -306,16 +306,16 @@ public class WLSubTreeKernel implements GraphKernel {
 
 	}
 
-	private List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> copyGraphs(List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> oldGraphs) {
-		List<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>>();	
+	private List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> copyGraphs(List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> oldGraphs) {
+		List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs = new ArrayList<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>>();	
 		for(DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : oldGraphs) {
-			DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>> newGraph = new DirectedMultigraphWithRoot<Vertex<StringBuffer>, Edge<StringBuffer>>();
+			DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> newGraph = new DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>();
 			String rootLabel = graph.getRootVertex().getLabel();
 			
-			Map<Vertex<String>, Vertex<StringBuffer>> nodes = new HashMap<Vertex<String>, Vertex<StringBuffer>>();
+			Map<Vertex<String>, Vertex<StringBuilder>> nodes = new HashMap<Vertex<String>, Vertex<StringBuilder>>();
 
 			for (Vertex<String> vertex : graph.getVertices()) {
-				Vertex<StringBuffer> newV = new Vertex<StringBuffer>(new StringBuffer(vertex.getLabel()));
+				Vertex<StringBuilder> newV = new Vertex<StringBuilder>(new StringBuilder(vertex.getLabel()));
 				nodes.put(vertex, newV);
 				
 				if (vertex.getLabel().equals(rootLabel)) {
@@ -323,7 +323,7 @@ public class WLSubTreeKernel implements GraphKernel {
 				}
 			}		
 			for (Edge<String> edge : graph.getEdges()) {
-				newGraph.addEdge(new Edge<StringBuffer>(new StringBuffer(edge.getLabel())), nodes.get(graph.getSource(edge)), nodes.get(graph.getDest(edge)), EdgeType.DIRECTED);
+				newGraph.addEdge(new Edge<StringBuilder>(new StringBuilder(edge.getLabel())), nodes.get(graph.getSource(edge)), nodes.get(graph.getDest(edge)), EdgeType.DIRECTED);
 			}
 			graphs.add(newGraph);				
 		}

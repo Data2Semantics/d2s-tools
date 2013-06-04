@@ -418,7 +418,8 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		Map<Edge<Map<Integer,StringBuilder>>, Integer> edgeIndexMap;
 
 		for (int i = 0; i < instances.size(); i++) {
-
+			featureVectors[i].setLastIndex(labelCounter - 1);
+			
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
 				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());

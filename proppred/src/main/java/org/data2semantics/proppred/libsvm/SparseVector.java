@@ -10,6 +10,7 @@ public class SparseVector {
 	private TreeMap<Integer, Double> vector;
 	private int[] indices;
 	private double[] values;
+	private int lastIndex;
 	
 	private boolean converted;
 	
@@ -39,7 +40,15 @@ public class SparseVector {
 	public int size() {
 		return vector.size();
 	}
-	
+		
+	public int getLastIndex() {
+		return lastIndex;
+	}
+
+	public void setLastIndex(int lastIndex) {
+		this.lastIndex = lastIndex;
+	}
+
 	public double dot(SparseVector v2) {
 		int i = 0, j = 0;
 		double ret = 0;
@@ -83,6 +92,7 @@ public class SparseVector {
 		}
 		converted = true;
 	}
+	
 	
 	/*
 	svm_node[] convert2svmNodes() {

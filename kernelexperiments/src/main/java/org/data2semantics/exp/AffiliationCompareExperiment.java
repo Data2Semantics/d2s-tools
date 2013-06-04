@@ -134,6 +134,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 		}*/
 		
+		
 		resTable.newRow("");
 		for (double frac : fractions) {
 			createAffiliationPredictionDataSet(frac);
@@ -155,6 +156,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 		}
+		
 		
 		//resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
@@ -412,7 +414,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		// Extract all triples with the affiliation predicate
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null);
-
+		
 		// initialize the lists of instances and labels
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();
