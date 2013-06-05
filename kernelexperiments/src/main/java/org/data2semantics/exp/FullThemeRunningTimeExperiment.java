@@ -23,24 +23,27 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 		long seed = 11;
 		long tic, toc;
 		
-		double[] fractions = {0.001, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.1, 0.2};
-		double[] fractionsSlow = {0.001, 0.0025, 0.005, 0.0075, 0.01};
+		double[] fractions =  {0.1};
+		double[] fractionsSlow = {0.01};
 		
 		ResultsTable resTable = new ResultsTable();
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			RDFGraphKernel k = new RDFWLSubTreeKernel(6,3,false, true);
+			RDFFeatureVectorKernel k = new RDFWLSubTreeKernel(6,3,false, true);
 			
 			System.out.println("RDF WL: " + frac);
 			tic = System.currentTimeMillis();
-			k.compute(dataset, instances, blackList);
+			k.computeFeatureVectors(dataset, instances, blackList);
 			toc = System.currentTimeMillis();
 			double[] comp = {toc-tic};
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}
+		
+		
+		System.out.println(resTable);
 		
 		resTable.newRow("");
 		for (double frac : fractions) {
@@ -56,6 +59,8 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}
+		
+		System.out.println(resTable);
 		
 		resTable.newRow("");
 		for (double frac : fractionsSlow) {
