@@ -5,6 +5,7 @@ import org.data2semantics.exp.experiments.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
+import org.data2semantics.proppred.kernels.FeatureVectorKernel;
 import org.data2semantics.proppred.kernels.GraphKernel;
 import org.data2semantics.proppred.kernels.IntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
@@ -23,27 +24,62 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 		long seed = 11;
 		long tic, toc;
-		
-		double[] fractions = {0.01, 0.02, 0.03, 0.04, 0.05};
-		double[] fractionsSlow = {0.001, 0.0025, 0.005, 0.0075, 0.01};
+
+		double[] fractions = {0.1, 0.15, 0.2, 0.25, 0.3};
+		double[] fractionsSlow = {0.1, 0.15, 0.2};
+
 		
 		ResultsTable resTable = new ResultsTable();
 		
-		resTable.newRow("");
+		resTable.newRow("WLRDF FV");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			RDFGraphKernel k = new RDFWLSubTreeKernel(6,3, false, true);
+
+			RDFFeatureVectorKernel k = new RDFWLSubTreeKernel(6,3,false, true);
 			
-			System.out.println("RDF WL: " + frac);
+			System.out.println("RDF WL FV: " + frac);
+			tic = System.currentTimeMillis();
+			k.computeFeatureVectors(dataset, instances, blackList);
+			toc = System.currentTimeMillis();
+			double[] comp = {toc-tic};
+			Result res = new Result(comp, "comp time");
+			resTable.addResult(res);
+		}	
+		System.out.println(resTable);
+		
+		resTable.newRow("WLRDF Kernel");
+		for (double frac : fractions) {
+			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+
+			RDFGraphKernel k = new RDFWLSubTreeKernel(6,3,false, true);
+			
+			System.out.println("RDF WL Kernel: " + frac);
 			tic = System.currentTimeMillis();
 			k.compute(dataset, instances, blackList);
 			toc = System.currentTimeMillis();
 			double[] comp = {toc-tic};
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
-		}
+		}	
+		System.out.println(resTable);
 		
-		resTable.newRow("");
+		resTable.newRow("WLRDF String FV");
+		for (double frac : fractions) {
+			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+			RDFFeatureVectorKernel k = new RDFWLSubTreeKernelString(6,3, false, true);
+	
+			
+			System.out.println("RDF WL String FV: " + frac);
+			tic = System.currentTimeMillis();
+			k.computeFeatureVectors(dataset, instances, blackList);
+			toc = System.currentTimeMillis();
+			double[] comp = {toc-tic};
+			Result res = new Result(comp, "comp time");
+			resTable.addResult(res);
+		}
+		System.out.println(resTable);
+		
+		resTable.newRow("WLRDF String Kernel");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 			RDFGraphKernel k = new RDFWLSubTreeKernelString(6,3, false, true);
@@ -57,9 +93,49 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}
+		System.out.println(resTable);
+	
 		
-		/*
-		resTable.newRow("");
+		resTable.newRow("RDF IST");
+		for (double frac : fractions) {
+			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+			RDFGraphKernel k = new RDFIntersectionSubTreeKernel(1,3, false, true);
+	
+			
+			System.out.println("RDF IST: " + frac);
+			tic = System.currentTimeMillis();
+			k.compute(dataset, instances, blackList);
+			toc = System.currentTimeMillis();
+			double[] comp = {toc-tic};
+			Result res = new Result(comp, "comp time");
+			resTable.addResult(res);
+		}
+		System.out.println(resTable);
+		
+		
+		
+		resTable.newRow("WL FV");
+		for (double frac : fractionsSlow) {
+			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+			tic = System.currentTimeMillis();
+			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+			toc = System.currentTimeMillis();
+			double dsComp = toc-tic;
+			
+			FeatureVectorKernel k = new WLSubTreeKernel(6,true);
+			
+			System.out.println("WL: " + frac);
+			tic = System.currentTimeMillis();
+			k.computeFeatureVectors(ds.getGraphs());
+			toc = System.currentTimeMillis();
+			double[] comp = {(toc-tic) + dsComp};
+			Result res = new Result(comp, "comp time");
+			resTable.addResult(res);
+		}		
+		System.out.println(resTable);
+		
+		
+		resTable.newRow("WL Kernel");
 		for (double frac : fractionsSlow) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 			tic = System.currentTimeMillis();
@@ -76,10 +152,10 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			double[] comp = {(toc-tic) + dsComp};
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
-		}
-		*/
-		
+		}		
 		System.out.println(resTable);
+		
+		
 		
 		
 	}

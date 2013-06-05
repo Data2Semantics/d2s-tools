@@ -27,7 +27,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * @author Gerben
  *
  */
-public class WLSubTreeKernel implements GraphKernel {
+public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 	private int iterations = 2;
 	protected String label;
 	protected boolean normalize;
@@ -58,8 +58,10 @@ public class WLSubTreeKernel implements GraphKernel {
 		this.normalize = normalize;
 	}
 
-	public double[][] compute(List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
-
+	
+	
+	public SparseVector[] computeFeatureVectors(
+			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
 		List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs = copyGraphs(trainGraphs);
 		SparseVector[] featureVectors = new SparseVector[graphs.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
@@ -67,8 +69,7 @@ public class WLSubTreeKernel implements GraphKernel {
 		}	
 		//double[][] featureVectors = new double[graphs.size()][];
 		Map<String, String> labelDict = new HashMap<String,String>();
-		double[][] kernel = KernelUtils.initMatrix(graphs.size(), graphs.size());
-
+		
 		int startLabel = 1;
 		int currentLabel = 1;
 
@@ -91,9 +92,21 @@ public class WLSubTreeKernel implements GraphKernel {
 		
 		if (normalize) {
 			featureVectors = KernelUtils.normalize(featureVectors);
-		}		
-		computeKernelMatrix(graphs, featureVectors, kernel);		
-		
+		}
+
+		return featureVectors;
+	}
+
+	public SparseVector[] computeFeatureVectors(
+			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
+			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public double[][] compute(List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
+		double[][] kernel = KernelUtils.initMatrix(trainGraphs.size(), trainGraphs.size());
+		computeKernelMatrix(computeFeatureVectors(trainGraphs), kernel);				
 		return kernel;
 	}
 
@@ -281,9 +294,9 @@ public class WLSubTreeKernel implements GraphKernel {
 	 * @param kernel
 	 * @param iteration
 	 */
-	private void computeKernelMatrix(List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs, SparseVector[] featureVectors, double[][] kernel) {
-		for (int i = 0; i < graphs.size(); i++) {
-			for (int j = i; j < graphs.size(); j++) {
+	private void computeKernelMatrix(SparseVector[] featureVectors, double[][] kernel) {
+		for (int i = 0; i < featureVectors.length; i++) {
+			for (int j = i; j < featureVectors.length; j++) {
 				kernel[i][j] += featureVectors[i].dot(featureVectors[j]);
 				//kernel[i][j] += dotProduct(featureVectors[i], featureVectors[j]) * (((double) iteration) / ((double) this.iterations+1));
 				kernel[j][i] = kernel[i][j];
