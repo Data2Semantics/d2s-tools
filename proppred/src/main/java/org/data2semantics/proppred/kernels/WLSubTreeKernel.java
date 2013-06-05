@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
@@ -72,6 +74,22 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		
 		int startLabel = 1;
 		int currentLabel = 1;
+		
+		/* Code for setting all root vertices in all the graphs to the generic label (tested on aff. pred. task to give less performance)
+		Set<String> instances = new HashSet<String>();
+		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+			instances.add(graph.getRootVertex().toString());
+		}
+		
+		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+			for (Vertex<StringBuilder> vertex : graph.getVertices()) {
+				if (instances.contains(vertex.getLabel().toString())) {
+					vertex.setLabel(new StringBuilder(KernelUtils.ROOTID));
+				}
+			}
+		}
+		*/
+		
 
 		// We change the original label of the root node of the graph to a generic label
 		// This rootlabel identifies the graph uniquely, and we don't want that
