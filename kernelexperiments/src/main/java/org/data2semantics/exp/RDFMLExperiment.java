@@ -100,9 +100,9 @@ public abstract class RDFMLExperiment {
 		List<Statement> newBL = new ArrayList<Statement>();
 
 		for (int i = 0; i < instances.size(); i++) {
-			newBL.addAll(dataset.getStatements(instances.get(i), null, labels.get(i)));
+			newBL.addAll(dataset.getStatements(instances.get(i), null, labels.get(i), true));
 			if (labels.get(i) instanceof Resource) {
-				newBL.addAll(dataset.getStatements((Resource) labels.get(i), null, instances.get(i)));
+				newBL.addAll(dataset.getStatements((Resource) labels.get(i), null, instances.get(i), true));
 			}
 		}
 

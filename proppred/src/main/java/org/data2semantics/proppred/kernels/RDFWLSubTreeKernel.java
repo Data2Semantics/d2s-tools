@@ -383,6 +383,9 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					labelCounter++;
 					labelMap.put(edge.getLabel().get(i).toString(), label);				
 				}
+				
+				//edge.getLabel().get(i).delete(0, edge.getLabel().get(i).length());
+				//edge.getLabel().get(i).append(label);
 				edge.getLabel().put(i, new StringBuilder(label));
 			}
 		}
@@ -395,6 +398,8 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					labelCounter++;
 					labelMap.put(vertex.getLabel().get(i).toString(), label);
 				}
+				//vertex.getLabel().get(i).delete(0, vertex.getLabel().get(i).length());
+				//vertex.getLabel().get(i).append(label);
 				vertex.getLabel().put(i, new StringBuilder(label));
 			}
 		}

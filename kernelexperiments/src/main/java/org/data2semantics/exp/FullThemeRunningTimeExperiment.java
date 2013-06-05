@@ -11,6 +11,7 @@ import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.kernels.RDFWLSubTreeKernelString;
 import org.data2semantics.proppred.kernels.WLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
@@ -23,7 +24,7 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 		long seed = 11;
 		long tic, toc;
 		
-		double[] fractions = {0.001, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.1, 0.2};
+		double[] fractions = {0.01, 0.02, 0.03, 0.04, 0.05};
 		double[] fractionsSlow = {0.001, 0.0025, 0.005, 0.0075, 0.01};
 		
 		ResultsTable resTable = new ResultsTable();
@@ -31,7 +32,7 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 		resTable.newRow("");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			RDFGraphKernel k = new RDFWLSubTreeKernel(6,3,false, true);
+			RDFGraphKernel k = new RDFWLSubTreeKernel(6,3, false, true);
 			
 			System.out.println("RDF WL: " + frac);
 			tic = System.currentTimeMillis();
@@ -45,10 +46,10 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 		resTable.newRow("");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			RDFGraphKernel k = new RDFIntersectionSubTreeKernel(3,1, false, true);
+			RDFGraphKernel k = new RDFWLSubTreeKernelString(6,3, false, true);
 	
 			
-			System.out.println("RDF IST: " + frac);
+			System.out.println("RDF WL String: " + frac);
 			tic = System.currentTimeMillis();
 			k.compute(dataset, instances, blackList);
 			toc = System.currentTimeMillis();
@@ -57,6 +58,7 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			resTable.addResult(res);
 		}
 		
+		/*
 		resTable.newRow("");
 		for (double frac : fractionsSlow) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
@@ -75,6 +77,7 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}
+		*/
 		
 		System.out.println(resTable);
 		

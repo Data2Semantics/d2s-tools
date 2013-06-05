@@ -22,12 +22,12 @@ public class RDFIntersectionTreeEdgeVertexPathKernel extends
 			uri2int.put(stmt.getPredicate(), key);
 		}
 		
-
 		Integer key2 = uri2int.get(stmt.getObject());
 		if (key2 == null) {
 			key2 = new Integer(uri2int.size());
 			uri2int.put(stmt.getObject(), key2);
 		}
+		
 		List<Integer> newPath = new ArrayList<Integer>(path);
 		newPath.add(key);
 		newPath.add(key2);
