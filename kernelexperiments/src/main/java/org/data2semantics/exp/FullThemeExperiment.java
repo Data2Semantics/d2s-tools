@@ -40,7 +40,7 @@ public class FullThemeExperiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
 		long seed = 1;
-		double[] fractions = {0.01, 0.02, 0.03, 0.04, 0.05};
+		double[] fractions = {0.5};
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-dir")) {
@@ -61,10 +61,10 @@ public class FullThemeExperiment extends RDFMLExperiment {
 			}
 		}
 
-		long[] seeds = {seed};
+		long[] seeds = {11, 21, 31, 41, 51};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
-		int[] depths = {1, 2, 3, 4};
+		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
 		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 

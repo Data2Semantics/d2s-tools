@@ -55,7 +55,7 @@ public class Task1Experiment extends RDFMLExperiment {
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
 		int[] depths = {1,2,3};
-		int[] iterations = {0};
+		int[] iterations = {0,2,4,6};
 
 		double[] ps1 = {1};
 		double[] ps2 = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
@@ -121,9 +121,9 @@ public class Task1Experiment extends RDFMLExperiment {
 				linParms2.setPs(ps2);
 				linParms2.setBias(1);
 
-				//RDFFeatureVectorKernel kernel = new RDFWLSubTreeKernel(it, d, inference, true);
+				RDFFeatureVectorKernel kernel = new RDFWLSubTreeKernel(it, d, inference, true);
 
-				RDFFeatureVectorKernel kernel = new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true);
+				//RDFFeatureVectorKernel kernel = new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true);
 
 				
 				//KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
