@@ -48,7 +48,7 @@ public class FullClassExperiment extends RDFMLExperiment {
 
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
-		createGeoDataSet(10, 0.1, "http://data.bgs.ac.uk/ref/Lexicon/hasUnitClass");
+		createGeoDataSet(10, 0.1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasUnitClass");
 		List<Double> target = EvaluationUtils.createTarget(labels);
 		
 	
@@ -85,11 +85,13 @@ public class FullClassExperiment extends RDFMLExperiment {
 	
 	
 
-	private static void createGeoDataSet(int minSize, double frac, String property) {
+	protected static void createGeoDataSet(int minSize, double frac, long seed, String property) {
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();
 		blackList = new ArrayList<Statement>();
+		
+		Random rand = new Random(seed);
 
 		// http://data.bgs.ac.uk/ref/Lexicon/hasRockUnitRank
 		// http://data.bgs.ac.uk/ref/Lexicon/hasTheme
@@ -103,7 +105,7 @@ public class FullClassExperiment extends RDFMLExperiment {
 
 			for (Statement stmt2 : stmts2) {
 
-				if (Math.random() < frac) {
+				if (rand.nextDouble() < frac) {
 					instances.add(stmt2.getSubject());
 					labels.add(stmt2.getObject());
 				}

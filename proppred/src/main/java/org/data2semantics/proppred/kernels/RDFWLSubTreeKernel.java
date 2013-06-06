@@ -377,7 +377,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 		for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
 			for (int i : edge.getLabel().keySet()) {
-				label = labelMap.get(edge.getLabel().get(i));						
+				label = labelMap.get(edge.getLabel().get(i).toString());						
 				if (label == null) {					
 					label = Integer.toString(labelCounter);
 					labelCounter++;
@@ -392,7 +392,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 		for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {
 			for (int i : vertex.getLabel().keySet()) {
-				label = labelMap.get(vertex.getLabel().get(i));
+				label = labelMap.get(vertex.getLabel().get(i).toString());
 				if (label == null) {
 					label = Integer.toString(labelCounter);
 					labelCounter++;
