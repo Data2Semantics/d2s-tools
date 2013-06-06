@@ -17,6 +17,15 @@ public class SparseVector {
 	public SparseVector() {
 		vector = new TreeMap<Integer,Double>();
 		converted = false;
+		lastIndex = 0;
+	}
+	
+	public void addVector(SparseVector v) {
+		for (int k : v.getIndices()) {
+			vector.put(k + lastIndex, v.getValue(k));
+		}
+		this.lastIndex += v.getLastIndex();
+		converted = false;
 	}
 	
 	public void setValue(int index, double value) {

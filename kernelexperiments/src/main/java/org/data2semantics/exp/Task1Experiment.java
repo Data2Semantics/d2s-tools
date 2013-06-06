@@ -12,6 +12,7 @@ import org.data2semantics.exp.experiments.KernelExperiment;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
+import org.data2semantics.proppred.kernels.RDFCombinedKernel;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
@@ -121,9 +122,17 @@ public class Task1Experiment extends RDFMLExperiment {
 				linParms2.setPs(ps2);
 				linParms2.setBias(1);
 
+				List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
+				kernels.add(new RDFWLSubTreeKernel(it,d, inference, true));
+				kernels.add(new RDFIntersectionTreeEdgePathKernel(d, inference, true));
+				kernels.add(new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true));
+				
+				
+				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, true);
+				
 				//RDFFeatureVectorKernel kernel = new RDFWLSubTreeKernel(it, d, inference, true);
 
-				RDFFeatureVectorKernel kernel = new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true);
+				//RDFFeatureVectorKernel kernel = new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true);
 
 				
 				//KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);

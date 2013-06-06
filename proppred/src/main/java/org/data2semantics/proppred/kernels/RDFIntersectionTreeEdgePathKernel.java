@@ -60,6 +60,9 @@ public class RDFIntersectionTreeEdgePathKernel implements RDFGraphKernel, RDFFea
 			ret[i] = processVertex(instances.get(i));
 		}
 
+		for (SparseVector fv : ret) {
+			fv.setLastIndex(path2index.size());
+		}
 		return ret;
 	}
 
