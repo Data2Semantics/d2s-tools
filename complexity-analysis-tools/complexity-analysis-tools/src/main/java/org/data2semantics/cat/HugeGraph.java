@@ -69,13 +69,14 @@ public class HugeGraph<N> extends AbstractExperiment
 		assortativity = Measures.assortativity(graph);
 		logger.info("finished");
 		
-//		logger.info("Calculating mean local clustering coefficient");
-//		Map<V, Double> map = Metrics.clusteringCoefficients(graph);
+		logger.info("Calculating mean local clustering coefficient");
+		
+//		Map<Node<L>, Double> map = Metrics.clusteringCoefficients(graph);
 //		meanLocalClusteringCoefficient = 0.0;
 //		for(V vertex : graph.getVertices())
 //			meanLocalClusteringCoefficient += map.get(vertex);
 //		meanLocalClusteringCoefficient /= (double) graph.getVertexCount();
-		
+//		
 		BasicFrequencyModel<N> labelFM = new BasicFrequencyModel<N>();
 		for(Node<N> node : graph.nodes())
 			labelFM.add(node.label());
