@@ -13,7 +13,6 @@ import nl.peterbloem.powerlaws.Discrete;
 import nl.peterbloem.powerlaws.DiscreteApproximate;
 
 import org.apache.commons.collections15.Transformer;
-import org.data2semantics.tools.graphs.Graphs;
 import org.lilian.experiment.Result;
 import org.lilian.experiment.State;
 import org.lilian.graphs.Graph;
