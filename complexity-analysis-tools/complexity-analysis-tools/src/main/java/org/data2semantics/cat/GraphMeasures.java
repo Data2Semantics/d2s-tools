@@ -53,6 +53,8 @@ public class GraphMeasures<N> extends AbstractExperiment
 		else
 			throw new RuntimeException("Size parameter ("+size+") not understood.");
 		
+		experiments.add(new GraphDimension<N>(graph, 1, 6, "cbb"));
+		
 //		if(directed)
 //		{
 //			if(size.equals("huge"))

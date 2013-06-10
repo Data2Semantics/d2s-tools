@@ -5,8 +5,12 @@ import org.lilian.experiment.AbstractExperiment;
 import org.lilian.experiment.Result;
 import org.lilian.experiment.State;
 import org.lilian.graphs.Graph;
+import org.lilian.graphs.Link;
 import org.lilian.graphs.Measures;
 import org.lilian.graphs.Node;
+import org.lilian.graphs.TLink;
+import org.lilian.graphs.TGraph;
+import org.lilian.models.BasicFrequencyModel;
 
 /**
  * Graphs measures that will work on huge graphs. Generally, these are linear in 
@@ -24,6 +28,9 @@ public class HugeGraph<N> extends AbstractExperiment
 	
 	public @State double assortativity = Double.NaN;
 	public @State double meanLocalClusteringCoefficient = Double.NaN;
+	
+	public @State double labelEntropy = Double.NaN;
+	public @State double tagEntropy = Double.NaN;
 	
 	public HugeGraph(Graph<N> graph)
 	{
@@ -68,6 +75,21 @@ public class HugeGraph<N> extends AbstractExperiment
 //		for(V vertex : graph.getVertices())
 //			meanLocalClusteringCoefficient += map.get(vertex);
 //		meanLocalClusteringCoefficient /= (double) graph.getVertexCount();
+		
+		BasicFrequencyModel<N> labelFM = new BasicFrequencyModel<N>();
+		for(Node<N> node : graph.nodes())
+			labelFM.add(node.label());
+		labelEntropy = labelFM.entropy();
+		
+		if(graph instanceof TGraph)
+		{
+			TGraph<N, Object> tGraph = (TGraph<N, Object>) graph;
+			BasicFrequencyModel<Object> tagFM = new BasicFrequencyModel<Object>();
+			for(TLink<N, Object> link : tGraph.links())
+				tagFM.add(link.tag());
+			tagEntropy = tagFM.entropy();
+		}
+		
 	}
 	
 	@Result(name="Mean degree")
@@ -98,6 +120,18 @@ public class HugeGraph<N> extends AbstractExperiment
 	public double assortivity()
 	{
 		return assortativity;
+	}
+	
+	@Result(name="Label entropy")
+	public double labelEntropy()
+	{
+		return labelEntropy;
+	}
+	
+	@Result(name="Tag entropy")
+	public double tagEntropy()
+	{
+		return tagEntropy;
 	}
 	
 	@Result(name="Mean local clustering coefficient")
