@@ -44,7 +44,7 @@
 	            <configuration>
 	                <archive>
 	                    <manifest>
-	                        <mainClass>org.data2semantics.cat</mainClass>
+	                        <mainClass>org.data2semantics.cat.App</mainClass>
 	                    </manifest>
 	                </archive>
 	                <descriptorRefs>

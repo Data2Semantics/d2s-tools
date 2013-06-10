@@ -27,6 +27,9 @@ public class App
     @Option(name="--data", usage="The file containing the data.")    
 	private static File data;
     
+    @Option(name="--size", usage="The size of the graph: huge, large, small. The smaller the graph, the more measures will be run.")
+    private static String size;
+    
 	private static final File environment = new File(".");
 	
     public static void main( String[] args ) throws IOException
@@ -45,7 +48,7 @@ public class App
     	else if(type == Type.TURTLE)
     		graph = Resources.turtleGraph(data);
     		
-    	Experiment experiment = new GraphMeasures<String>(graph, "small");
+    	Experiment experiment = new GraphMeasures<String>(graph, size);
     	
     	Environment env = new Environment(environment, 0);
     	Environment.current = env;
