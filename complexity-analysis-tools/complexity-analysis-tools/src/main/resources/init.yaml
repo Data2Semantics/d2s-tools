@@ -1,0 +1,12 @@
+experiment:
+  class: org.data2semantics.cat.GraphMeasures
+  name: Graph measures
+  description: 
+    First run of the graph measures 
+
+  data:
+    resource: gml graph
+    name: Commit
+    parameters:
+      file: '/Users/Peter/Documents/datasets/graphs/commit/commit.gml'
+  size: small
