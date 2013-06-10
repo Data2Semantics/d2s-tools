@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.lilian.Global;
 import org.lilian.experiment.Environment;
 import org.lilian.experiment.Experiment;
 import org.lilian.experiment.Resources;
@@ -54,6 +55,8 @@ public class App
     	Environment.current = env;
     	
     	experiment.run(); 	
+    	
+    	Global.log().info("App Finished");
     }
 
 	private static void readArguments(String[] args) throws IOException
