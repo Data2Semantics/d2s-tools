@@ -15,13 +15,14 @@ import nl.peterbloem.powerlaws.DiscreteApproximate;
 import org.apache.commons.collections15.Transformer;
 import org.lilian.experiment.Result;
 import org.lilian.experiment.State;
+import org.lilian.graphs.ConnectionClustering;
+import org.lilian.graphs.FloydWarshall;
 import org.lilian.graphs.Graph;
 import org.lilian.graphs.Node;
+import org.lilian.graphs.Subgraph;
 import org.lilian.models.BasicFrequencyModel;
 import org.lilian.util.Functions;
 import org.lilian.util.Series;
-import org.lilian.util.graphs.jung.FloydWarshall;
-
 
 /**
  * Graph measures for large graphs. These methods are generally a low polynomial 
@@ -72,39 +73,17 @@ public class LargeGraph<N> extends HugeGraph<N>
 	{
 		super.body();
 		
-//		logger.info("Calculating size of the largest component");
-//		WeakComponentClusterer<V, E> clust = 
-//				new WeakComponentClusterer<V, E>();
-//		
-//		Set<Set<V>> clusters = clust.transform(graph);
-//		
-//		largestComponentSize = Double.NEGATIVE_INFINITY;
-//		Set<V> largest = null;
-//
-//		for(Set<V> set : clusters)
-//			if(set.size() > largestComponentSize)
-//			{
-//				largestComponentSize = set.size();
-//				largest = set;
-//			}
-//		
-//		largestComponent = Graphs.undirectedSubgraph(graph, largest);
-//		
-//		logger.info("Calculating diameter");
-//		diameter = DistanceStatistics.diameter(graph);	
-//		
-//		logger.info("Calculating mean distance");
-//		FloydWarshall<V, E> fw = new FloydWarshall<V, E>(largestComponent);
-//		meanDistance = 0.0;
-//		int num = 0;
-//		for(V vi : graph.getVertices())
-//			for(V vj : graph.getVertices())
-//			{
-//				meanDistance += fw.distance(vi, vj);
-//				num++;
-//			}
-//		
-//		meanDistance /= (double) num;
+		ConnectionClustering<N> cc = new ConnectionClustering<N>(graph);
+		
+		Graph<N> largestComponent = Subgraph.subgraphIndices(graph, cc.largestCluster());
+		largestComponentSize = largestComponent.size();
+
+		FloydWarshall<N> fw = new FloydWarshall<N>(largestComponent);
+		logger.info("Calculating diameter");
+		diameter = fw.diameter();
+		
+		logger.info("Calculating mean distance");
+		meanDistance = fw.meanDistance();
 				
 		// * Collect degrees 
 		for(Node<N> node : graph.nodes())
