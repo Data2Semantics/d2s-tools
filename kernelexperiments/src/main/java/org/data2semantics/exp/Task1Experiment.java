@@ -17,6 +17,7 @@ import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.kernels.RDFWLSubTreeKernelTree;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
