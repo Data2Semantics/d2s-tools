@@ -76,11 +76,11 @@ public class LargeGraph<N> extends HugeGraph<N>
 		if(graph instanceof UTGraph)
 		{
 			image = Graphs.image(
-				Graphs.toJUNG((UTGraph<?,?>)graph), 800, 494);	
+				Graphs.toJUNG((UTGraph<?,?>)graph), 500, 300);	
 		} else if(graph instanceof DTGraph)
 		{
 			image = Graphs.image(
-				Graphs.toJUNG((DTGraph<?,?>)graph), 800, 494);	
+				Graphs.toJUNG((DTGraph<?,?>)graph), 500, 300);	
 		}
 		logger.info("Visualization done.");
 		
