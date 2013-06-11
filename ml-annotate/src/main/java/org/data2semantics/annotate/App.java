@@ -5,10 +5,12 @@ import static org.lilian.util.Series.series;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.lilian.Global;
 import org.lilian.data.real.classification.Classified;
 import org.lilian.data.real.clustering.KMedioids;
 import org.lilian.experiment.Experiment;
@@ -44,6 +46,7 @@ public class App
 	
     public static void main( String[] args ) throws IOException
     {
+    	Global.log().setLevel(Level.SEVERE);
     	// * Parse the command line arguments
     	readArguments(args);
     }
@@ -73,13 +76,16 @@ public class App
     	Clusterer<String> cl = new GraphKMedoids<String>(NUM_CLUSTERS);
     	Classified<Node<String>> nodes = cl.cluster(graph);
     	
+    	RDFGraphClusteringAnnotator annotator = new RDFGraphClusteringAnnotator(data, type);
+    	
     	for(int i : series(nodes.size()))
     	{
     		String label = nodes.get(i).label(); // The node label (RDF id)
     		int cluster = nodes.cls(i); // The cluster we've found
-    				
-    		// ...
+    		annotator.annotate(label, cluster);		
     	}
+    	File annotatedOutput = new File(environment, "annotatedOutput.rdf");
+    	annotator.writeResult(annotatedOutput);
     }
 
 	private static void readArguments(String[] args) throws IOException
