@@ -2,6 +2,7 @@ package org.data2semantics.cat;
 
 import static java.util.Collections.reverseOrder;
 
+import java.awt.image.BufferedImage;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,10 +17,13 @@ import org.apache.commons.collections15.Transformer;
 import org.lilian.experiment.Result;
 import org.lilian.experiment.State;
 import org.lilian.graphs.ConnectionClustering;
+import org.lilian.graphs.DTGraph;
 import org.lilian.graphs.Graph;
 import org.lilian.graphs.Node;
 import org.lilian.graphs.Subgraph;
+import org.lilian.graphs.UTGraph;
 import org.lilian.graphs.algorithms.FloydWarshall;
+import org.lilian.graphs.jung.Graphs;
 import org.lilian.models.BasicFrequencyModel;
 import org.lilian.util.Functions;
 import org.lilian.util.Series;
@@ -35,13 +39,10 @@ import org.lilian.util.Series;
  */
 public class LargeGraph<N> extends HugeGraph<N>
 {
-	private static final double PL_ACCURACY = 0.1;
+	private static final double PL_ACCURACY = 0.2;
 	private static final int PL_DATASAMPLE = 1000;
 	
-	public @State double diameter = Double.NaN;	
-	public @State double largestComponentSize = Double.NaN;
-	public @State double meanDistance = Double.NaN;
-	
+	public @State BufferedImage image;
 	public @State List<Pair> pairs;  
 	public @State List<Integer> degrees;
 
@@ -69,19 +70,21 @@ public class LargeGraph<N> extends HugeGraph<N>
 	protected void body()
 	{
 		super.body();
-		
-		ConnectionClustering<N> cc = new ConnectionClustering<N>(graph);
-		
-		Graph<N> largestComponent = Subgraph.subgraphIndices(graph, cc.largestCluster());
-		largestComponentSize = largestComponent.size();
-
-		FloydWarshall<N> fw = new FloydWarshall<N>(largestComponent);
-		logger.info("Calculating diameter");
-		diameter = fw.diameter();
-		
-		logger.info("Calculating mean distance");
-		meanDistance = fw.meanDistance();
 				
+		// * Rendering visualization
+		logger.info("Rendering visualization.");
+		if(graph instanceof UTGraph)
+		{
+			image = Graphs.image(
+				Graphs.toJUNG((UTGraph<?,?>)graph), 800, 494);	
+		} else if(graph instanceof DTGraph)
+		{
+			image = Graphs.image(
+				Graphs.toJUNG((DTGraph<?,?>)graph), 800, 494);	
+		}
+		logger.info("Visualization done.");
+		
+		
 		// * Collect degrees 
 		for(Node<N> node : graph.nodes())
 			degrees.add(node.degree());
@@ -95,33 +98,11 @@ public class LargeGraph<N> extends HugeGraph<N>
 		Discrete dist = Discrete.fit(degreesPL).fit();
 		plExponent = dist.exponent();
 		plMin = dist.xMin();
-		plSignificance = dist.significance(degreesPL, PL_ACCURACY);
+		// * TODO: This is too slow to include now, but it is an important
+		//         statistic.
+		// plSignificance = dist.significance(degreesPL, PL_ACCURACY);
 	}
 	
-	@Result(name="diameter", description="Longest shortest path (in the largest component)")
-	public double diameter()
-	{
-		return diameter;
-	}
-	  
-	@Result(name="mean distance", description="Mean distance between nodes (in the largest component)")
-	public double meanDistance()
-	{
-		return meanDistance;
-	}
-	
-	@Result(name="Size of the largest component")
-	public double lCompSize()
-	{
-		return largestComponentSize;
-	}	
-	
-	@Result(name="Proportion of the largest component")
-	public double lCompProp()
-	{
-		return largestComponentSize / (double) numNodes();
-	}
-
 	@Result(name="Degrees")
 	public List<Integer> degrees()
 	{
@@ -144,6 +125,12 @@ public class LargeGraph<N> extends HugeGraph<N>
 	public double plSignificance()
 	{
 		return plSignificance;
+	}
+	
+	@Result(name="Visualization")
+	public BufferedImage visualization()
+	{
+		return image;
 	}
 	
 	private class Pair extends AbstractList<Object> implements Comparable<Pair>
