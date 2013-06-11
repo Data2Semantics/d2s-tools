@@ -29,15 +29,15 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * @author Gerben
  *
  */
-public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
+public class RDFWLSubTreeKernelTree implements RDFGraphKernel, RDFFeatureVectorKernel {
 	private static final String ROOT_LABEL = "1";
 	private static final String BLANK_VERTEX_LABEL = "1";
 	private static final String BLANK_EDGE_LABEL   = "2";
 
 	private Map<String, String> labelMap;
 	private Map<String, Vertex<Map<Integer,StringBuilder>>> instanceVertices;
-	private Map<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>> instanceVertexIndexMap;
-	private Map<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>> instanceEdgeIndexMap;
+	private Map<String, Map<Vertex<Map<Integer,StringBuilder>>, List<Integer>>> instanceVertexIndexMap;
+	private Map<String, Map<Edge<Map<Integer,StringBuilder>>, List<Integer>>> instanceEdgeIndexMap;
 
 	private int labelCounter;
 	private int depth;
@@ -48,21 +48,21 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	private boolean normalize;
 
 
-	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
+	public RDFWLSubTreeKernelTree(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
 		this(iterations, depth, inference, normalize);
 		this.blankLabels = blankLabels;
 
 	}
 
-	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize) {
+	public RDFWLSubTreeKernelTree(int iterations, int depth, boolean inference, boolean normalize) {
 		this.normalize = normalize;
 		this.label = "RDF_WL_Kernel_" + depth + "_" + iterations;
 		this.blankLabels = false;
 
 		labelMap = new HashMap<String, String>();
 		instanceVertices = new HashMap<String, Vertex<Map<Integer,StringBuilder>>>();
-		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>>();
-		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>>();
+		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,StringBuilder>>, List<Integer>>>();
+		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,StringBuilder>>, List<Integer>>>();
 
 		labelCounter = 2;
 		this.depth = depth;
@@ -71,7 +71,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	}
 
 
-	public RDFWLSubTreeKernel() {
+	public RDFWLSubTreeKernelTree() {
 		this(2, 2, false, true);
 	}
 
@@ -196,7 +196,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 			startV.getLabel().put(depth, new StringBuilder(ROOT_LABEL)); 
 			labelMap.put(idStr, ROOT_LABEL); // This label is (re)set to ROOT_LABEL
 			instanceVertices.put(idStr, startV); // So that we can reconstruct subgraphs later, we save the instance vertices
-			
+
 			queryNodes.add(instance);
 
 			for (int i = depth - 1; i >= 0; i--) {
@@ -263,12 +263,12 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	private void createInstanceIndexMaps(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, List<Resource> instances) {
 		Vertex<Map<Integer, StringBuilder>> startV;
 		List<Vertex<Map<Integer, StringBuilder>>> frontV, newFrontV;
-		Map<Vertex<Map<Integer, StringBuilder>>, Integer> vertexIndexMap;
-		Map<Edge<Map<Integer, StringBuilder>>, Integer> edgeIndexMap;
+		Map<Vertex<Map<Integer, StringBuilder>>, List<Integer>> vertexIndexMap;
+		Map<Edge<Map<Integer, StringBuilder>>, List<Integer>> edgeIndexMap;
 
 		for (int i = 0; i < instances.size(); i++) {				
-			vertexIndexMap = new HashMap<Vertex<Map<Integer, StringBuilder>>, Integer>();
-			edgeIndexMap   = new HashMap<Edge<Map<Integer, StringBuilder>>, Integer>();
+			vertexIndexMap = new HashMap<Vertex<Map<Integer, StringBuilder>>, List<Integer>>();
+			edgeIndexMap   = new HashMap<Edge<Map<Integer, StringBuilder>>, List<Integer>>();
 
 			instanceVertexIndexMap.put(instances.get(i).toString(), vertexIndexMap);
 			instanceEdgeIndexMap.put(instances.get(i).toString(), edgeIndexMap);
@@ -280,21 +280,24 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 			frontV.add(startV);
 
 			// Process the start node
-			vertexIndexMap.put(startV, depth);
+			vertexIndexMap.put(startV, new ArrayList<Integer>());
+			vertexIndexMap.get(startV).add(depth);
 
 			for (int j = depth - 1; j >= 0; j--) {
 				newFrontV = new ArrayList<Vertex<Map<Integer,StringBuilder>>>();
 				for (Vertex<Map<Integer, StringBuilder>> qV : frontV) {
 					for (Edge<Map<Integer, StringBuilder>> edge : graph.getOutEdges(qV)) {
-						// Process the edge, if we haven't seen it before
+						// Process the edge
 						if (!edgeIndexMap.containsKey(edge)) {
-							edgeIndexMap.put(edge, j);
+							edgeIndexMap.put(edge, new ArrayList<Integer>());
 						}
+						edgeIndexMap.get(edge).add(j);
 
-						// Process the vertex if we haven't seen it before
+						// Process the vertex
 						if (!vertexIndexMap.containsKey(graph.getDest(edge))) {
-							vertexIndexMap.put(graph.getDest(edge), j);
+							vertexIndexMap.put(graph.getDest(edge), new ArrayList<Integer>());
 						}
+						vertexIndexMap.get(graph.getDest(edge)).add(j);
 
 						// Add the vertex to the new front, if we go into a new round
 						if (j > 0) {
@@ -383,7 +386,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					labelCounter++;
 					labelMap.put(edge.getLabel().get(i).toString(), label);				
 				}
-				
+
 				//edge.getLabel().get(i).delete(0, edge.getLabel().get(i).length());
 				//edge.getLabel().get(i).append(label);
 				edge.getLabel().put(i, new StringBuilder(label));
@@ -419,21 +422,25 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	 */
 	private void computeFVs(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, List<Resource> instances, double weight, SparseVector[] featureVectors) {
 		int index;
-		Map<Vertex<Map<Integer,StringBuilder>>, Integer> vertexIndexMap;
-		Map<Edge<Map<Integer,StringBuilder>>, Integer> edgeIndexMap;
+		Map<Vertex<Map<Integer,StringBuilder>>, List<Integer>> vertexIndexMap;
+		Map<Edge<Map<Integer,StringBuilder>>, List<Integer>> edgeIndexMap;
 
 		for (int i = 0; i < instances.size(); i++) {
 			featureVectors[i].setLastIndex(labelCounter - 1);
-			
+
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
-				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());
-				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
+				for (int d : vertexIndexMap.get(vertex)) {
+					index = Integer.parseInt(vertex.getLabel().get(d).toString());
+					featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
+				}
 			}
 			edgeIndexMap = instanceEdgeIndexMap.get(instances.get(i).toString());
 			for (Edge<Map<Integer,StringBuilder>> edge : edgeIndexMap.keySet()) {
-				index = Integer.parseInt(edge.getLabel().get(edgeIndexMap.get(edge)).toString());
-				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
+				for (int d : edgeIndexMap.get(edge)) {
+					index = Integer.parseInt(edge.getLabel().get(d).toString());
+					featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);	
+				}
 			}
 		}
 	}

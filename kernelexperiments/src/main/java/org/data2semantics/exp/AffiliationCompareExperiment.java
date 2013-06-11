@@ -25,6 +25,7 @@ import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionPartialSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.kernels.RDFWLSubTreeKernelTree;
 import org.data2semantics.proppred.kernels.WLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFSingleDataSet;
