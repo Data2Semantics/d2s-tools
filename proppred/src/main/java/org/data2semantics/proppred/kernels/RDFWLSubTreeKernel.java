@@ -75,8 +75,6 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		this(2, 2, false, true);
 	}
 
-
-
 	public String getLabel() {
 		return label;
 	}
@@ -85,6 +83,15 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		this.normalize = normalize;
 	}
 
+	public Map<String,String> getInverseLabelMap() {
+		Map<String,String> invMap = new HashMap<String,String>();
+		for (String k : labelMap.keySet()) {
+			invMap.put(labelMap.get(k), k);
+		}
+		return invMap;
+	}
+	
+	
 	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = new SparseVector[instances.size()];
 		for (int i = 0; i < featureVectors.length; i++) {

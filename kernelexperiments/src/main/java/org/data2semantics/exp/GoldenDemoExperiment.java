@@ -1,6 +1,7 @@
 package org.data2semantics.exp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,10 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {1, 10, 100, 1000};	
 
-		int[] depths = {1,2};
-		int[] iterations = {0,2,4};
+		int[] depths = {1,2,3};
+		int[] iterations = {0};
 
-		double fraction = 1;
+		double fraction = 0.1;
 		
 		dataset = new RDFFileDataSet("datasets\\Stadsverkeer.ttl", RDFFormat.TURTLE);
 
@@ -66,7 +67,7 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 					linParms.setEvalFunction(new Accuracy());
 					linParms.setDoCrossValidation(false);
 					linParms.setSplitFraction((float) 0.8);
-					linParms.setEps(0.0001);
+					linParms.setEps(0.1);
 
 					Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targets);
 					int[] wLabels = new int[counts.size()];
@@ -121,7 +122,23 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 			}
 		}
 
-		createBlackList();
+		List<Statement> newBL = new ArrayList<Statement>();
+
+		for (int i = 0; i < instances.size(); i++) {
+			newBL.addAll(dataset.getStatements(null, null, labels.get(i), true));
+			if (labels.get(i) instanceof Resource) {
+				newBL.addAll(dataset.getStatements((Resource) labels.get(i), null, null, true));
+			}
+		}
+
+		blackList = newBL;
+		blackLists = new HashMap<Resource, List<Statement>>();
+		
+		for (Resource instance : instances) {
+			blackLists.put(instance, blackList);
+		}	
+
+		
 		removeSmallClasses(10);
 
 		System.out.println("# Cells with a color: " + instances.size());
