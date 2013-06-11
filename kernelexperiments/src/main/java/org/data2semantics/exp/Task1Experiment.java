@@ -56,8 +56,8 @@ public class Task1Experiment extends RDFMLExperiment {
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
-		int[] depths = {1,2,3};
-		int[] iterations = {0};
+		int[] depths = {1,2,3,4};
+		int[] iterations = {0,2};
 
 		double[] ps1 = {1};
 		double[] ps2 = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
@@ -132,7 +132,6 @@ public class Task1Experiment extends RDFMLExperiment {
 				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, true);
 				
 				//RDFFeatureVectorKernel kernel = new RDFWLSubTreeKernel(it, d, inference, true);
-
 				//RDFFeatureVectorKernel kernel = new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true);
 
 				

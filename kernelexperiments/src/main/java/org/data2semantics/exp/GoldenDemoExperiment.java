@@ -29,12 +29,14 @@ import org.openrdf.rio.RDFFormat;
 public class GoldenDemoExperiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
+		double[] cs = {1, 10, 100, 1000};	
 
 		int[] depths = {1,2};
-		int[] iterations = {0, 2, 4};
+		int[] iterations = {0,2,4};
 
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\git\\d2s-tools\\kernelexperiments\\datasets\\Stadsverkeer.ttl", RDFFormat.TURTLE);
+		double fraction = 1;
+		
+		dataset = new RDFFileDataSet("datasets\\Stadsverkeer.ttl", RDFFormat.TURTLE);
 
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
@@ -56,15 +58,15 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 				for (long seed : seeds) {
 					long[] s2 = {seed};
 
-					loadDataSet(0.05, seed);
+					loadDataSet(fraction, seed);
 					
 					List<Double> targets = EvaluationUtils.createTarget(labels);
 
 					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
 					linParms.setEvalFunction(new Accuracy());
-					linParms.setDoCrossValidation(true);
+					linParms.setDoCrossValidation(false);
 					linParms.setSplitFraction((float) 0.8);
-					linParms.setEps(0.1);
+					linParms.setEps(0.0001);
 
 					Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targets);
 					int[] wLabels = new int[counts.size()];
@@ -78,7 +80,7 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 					linParms.setWeights(weights);
 
 					
-					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), s2, linParms, dataset, instances, targets, blackList, evalFuncs);
 					res.add(exp.getResults());
 
 					System.out.println("Running WL RDF: " + d + " " + it);
