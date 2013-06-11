@@ -23,15 +23,18 @@ public class App
 	public enum Type {RDFXML, TURTLE, GML};
 	
     @Option(name="--type", usage="Selects the type of input file: RDFXML, TURTLE or GML")
-	private static Type type;
+	private static Type type = Type.TURTLE;
 
     @Option(name="--data", usage="The file containing the data.")    
 	private static File data;
     
     @Option(name="--size", usage="The size of the graph: huge, large, small. The smaller the graph, the more measures will be run.")
-    private static String size;
+    private static String size = "huge";
     
-	private static final File environment = new File(".");
+    @Option(name="--out", usage="Output directory.")
+    private static String out;
+    
+	private static File environment;
 	
     public static void main( String[] args ) throws IOException
     {
@@ -41,6 +44,8 @@ public class App
     
     public void run() throws IOException
     {
+    	environment = new File(out);
+    	
     	Graph<String> graph = null;
     	if(type == Type.GML)
     		graph = Resources.gmlGraph(data);
@@ -60,9 +65,16 @@ public class App
     }
 
 	private static void readArguments(String[] args) throws IOException
-	{
+	{		
 	    App bean = new App();
         CmdLineParser parser = new CmdLineParser(bean);
+        
+		if(args.length == 0)
+		{
+		    parser.printUsage(System.err);
+		    System.exit(1);
+		}
+        
         try 
         {
         	parser.parseArgument(args);
