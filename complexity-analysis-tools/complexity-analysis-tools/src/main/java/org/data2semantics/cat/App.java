@@ -59,6 +59,8 @@ public class App
     	Environment env = new Environment(environment, 0);
     	Environment.current = env;
     	
+    	env.addTag("narrow");
+    	
     	experiment.run(); 	
     	
     	Global.log().info("App Finished");
