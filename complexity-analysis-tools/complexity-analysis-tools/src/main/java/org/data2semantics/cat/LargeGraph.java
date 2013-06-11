@@ -45,9 +45,6 @@ public class LargeGraph<N> extends HugeGraph<N>
 	public @State List<Pair> pairs;  
 	public @State List<Integer> degrees;
 
-	public @State List<Pair> vertexLabelFrequencies;
-	public @State List<Pair> edgeLabelFrequencies;	
-	
 	public @State Graph<N> largestComponent;
 
 	private double plExponent;
@@ -90,28 +87,7 @@ public class LargeGraph<N> extends HugeGraph<N>
 			degrees.add(node.degree());
 		
 		Collections.sort(degrees, reverseOrder());
-//		Collections.sort(pairs, reverseOrder());
-//		
-//		// * Collect vertex labels
-//		BasicFrequencyModel<String> vertexModel = new BasicFrequencyModel<String>();
-//		for(V vertex : graph.getVertices())
-//			vertexModel.add(vertex.toString());
-//		
-//		List<String> tokens = vertexModel.sorted();
-//		vertexLabelFrequencies = new ArrayList<Pair>(tokens.size());
-//		for(String token : tokens)
-//			vertexLabelFrequencies.add(new Pair((int)vertexModel.frequency(token), token));	
-//		
-//		// * Collect edge labels
-//		BasicFrequencyModel<String> edgeModel = new BasicFrequencyModel<String>();
-//		for(E edge : graph.getEdges())
-//			edgeModel.add(edge.toString());
-//		
-//		tokens = edgeModel.sorted();
-//		edgeLabelFrequencies = new ArrayList<Pair>(tokens.size());
-//		for(String token : tokens)
-//			edgeLabelFrequencies.add(new Pair((int)edgeModel.frequency(token), token));	
-		
+
 		List<Integer> degreesPL = new ArrayList<Integer>(graph.size());
 		for(Node<N> node : graph.nodes())
 			degreesPL.add(node.degree());
@@ -145,19 +121,7 @@ public class LargeGraph<N> extends HugeGraph<N>
 	{
 		return largestComponentSize / (double) numNodes();
 	}
-	
-	@Result(name="Vertex labels")
-	public List<Pair> vertexLabels()
-	{
-		return Collections.unmodifiableList(vertexLabelFrequencies);
-	}
-	
-	@Result(name="Edge labels")
-	public List<Pair> edgeLabels()
-	{
-		return Collections.unmodifiableList(edgeLabelFrequencies);
-	}	
-	
+
 	@Result(name="Degrees")
 	public List<Integer> degrees()
 	{
