@@ -14,7 +14,9 @@ public class LibLINEARModel {
 	}
 	
 	public WeightIndexPair[][] getFeatureWeights() {
-		WeightIndexPair[][] weights = new WeightIndexPair[model.getNrClass()][];
+		int nrClass = model.getNrClass() == 2 ? 1 : model.getNrClass();
+		
+		WeightIndexPair[][] weights = new WeightIndexPair[nrClass][];
 		double[] llw = model.getFeatureWeights();
 		
 		for (int i = 0; i < weights.length; i++) {
@@ -22,7 +24,7 @@ public class LibLINEARModel {
 		}
 		
 		for (int i = 0; i < llw.length; i++) {
-			weights[i % model.getNrClass()][i / model.getNrClass()] = new WeightIndexPair(llw[i], (i/model.getNrClass())+1);
+			weights[i % nrClass][i / nrClass] = new WeightIndexPair(llw[i], (i/nrClass)+1);
 		}
 		
 		return weights;

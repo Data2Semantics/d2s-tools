@@ -36,14 +36,14 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 		int[] iterations = {0};
 
 		double fraction = 0.1;
-		
+
 		dataset = new RDFFileDataSet("datasets\\Stadsverkeer.ttl", RDFFormat.TURTLE);
 
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
 		evalFuncs.add(new F1());
-		
-		
+
+
 
 
 		ResultsTable resTable = new ResultsTable();
@@ -60,7 +60,7 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 					long[] s2 = {seed};
 
 					loadDataSet(fraction, seed);
-					
+
 					List<Double> targets = EvaluationUtils.createTarget(labels);
 
 					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
@@ -80,7 +80,7 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 					linParms.setWeightLabels(wLabels);
 					linParms.setWeights(weights);
 
-					
+
 					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), s2, linParms, dataset, instances, targets, blackList, evalFuncs);
 					res.add(exp.getResults());
 
@@ -108,40 +108,53 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 
 	public static void loadDataSet(double fraction, long seed) {
 
-		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.data2semantics.org/core/color", null, true);
+		List<Statement> all = dataset.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.data2semantics.org/core/empty", false);
+		Set<Resource> inst = new HashSet<Resource>();
+
+		for (Statement stmt : all) {
+			if (stmt.getSubject().toString().startsWith("http://www.data.org/Stadsverkeer/")) {
+				inst.add(stmt.getSubject());
+			}
+		}
 
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();
 
 		Random rand = new Random(seed);
 
-		for (Statement stmt : stmts) {
+		for (Resource res : inst) {
 			if (rand.nextDouble() < fraction) {
-				instances.add(stmt.getSubject());
-				labels.add(stmt.getObject());
+				List<Statement> stmts = dataset.getStatementsFromStrings(res.toString(), "http://www.data2semantics.org/core/color", null, true);
+				for (Statement stmt : stmts) {
+					instances.add(stmt.getSubject());
+					labels.add(dataset.createLiteral("colorfull"));
+					//labels.add(stmt.getObject());
+				}
+				if (stmts.isEmpty()) {
+					instances.add(res);
+					labels.add(dataset.createLiteral("colorless"));
+				}
+				
 			}
 		}
 
 		List<Statement> newBL = new ArrayList<Statement>();
 
 		for (int i = 0; i < instances.size(); i++) {
-			newBL.addAll(dataset.getStatements(null, null, labels.get(i), true));
-			if (labels.get(i) instanceof Resource) {
-				newBL.addAll(dataset.getStatements((Resource) labels.get(i), null, null, true));
-			}
+			newBL.addAll(dataset.getStatementsFromStrings(null, "http://www.data2semantics.org/core/color", null, true));
 		}
 
 		blackList = newBL;
 		blackLists = new HashMap<Resource, List<Statement>>();
-		
+
 		for (Resource instance : instances) {
 			blackLists.put(instance, blackList);
 		}	
 
-		
+
 		removeSmallClasses(10);
 
-		System.out.println("# Cells with a color: " + instances.size());
+		System.out.println("# Cells: " + instances.size());
 		System.out.println(EvaluationUtils.computeClassCounts(EvaluationUtils.createTarget(labels)));
 	}
 }

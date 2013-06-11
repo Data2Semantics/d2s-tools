@@ -369,11 +369,13 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 			Bucket<VertexIndexPair> bucketV = bucketsV.get(Integer.toString(i));			
 			for (VertexIndexPair vp : bucketV.getContents()) {
 				vp.getVertex().getLabel().get(vp.getIndex()).append(bucketV.getLabel());//      .put(vp.getIndex(), vp.getVertex().getLabel().get(vp.getIndex()) + bucketV.getLabel());
+				vp.getVertex().getLabel().get(vp.getIndex()).append("_");
 			}
 			// Process edges
 			Bucket<EdgeIndexPair> bucketE = bucketsE.get(Integer.toString(i));			
 			for (EdgeIndexPair ep : bucketE.getContents()) {
 				ep.getEdge().getLabel().get(ep.getIndex()).append(bucketE.getLabel());// .put(ep.getIndex(), ep.getEdge().getLabel().get(ep.getIndex()) + bucketE.getLabel());
+				ep.getEdge().getLabel().get(ep.getIndex()).append("_");
 			}
 		}
 	}

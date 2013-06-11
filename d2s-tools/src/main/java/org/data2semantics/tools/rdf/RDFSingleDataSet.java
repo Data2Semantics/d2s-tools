@@ -141,6 +141,8 @@ public class RDFSingleDataSet extends RDFDataSet
 			RepositoryConnection repCon = rdfRep.getConnection();
 
 			try {
+				
+				
 				RepositoryResult<Statement> statements = repCon.getStatements(subject, predicate, object, allowInference);
 
 				try {
