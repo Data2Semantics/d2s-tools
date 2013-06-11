@@ -1,5 +1,6 @@
 package org.data2semantics.exp.experiments;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
+import org.data2semantics.proppred.libsvm.LibLINEARModel;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
@@ -125,6 +127,25 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 			} else {
 				pred = LibLINEAR.trainTestSplit(fv, target, linearParms, linearParms.getSplitFraction());
 				targetSplit = LibLINEAR.splitTestTarget(target, linearParms.getSplitFraction());
+				
+				if (kernel instanceof RDFWLSubTreeKernel) {
+					RDFWLSubTreeKernel k = (RDFWLSubTreeKernel) kernel;
+					LibLINEARModel model = LibLINEAR.trainLinearModel(fv, target, linearParms);
+					LibLINEARModel.WeightIndexPair[][] fw = model.getFeatureWeights();
+					
+					Map<String, String> lm = k.getInverseLabelMap();
+					
+					for (LibLINEARModel.WeightIndexPair[] fwc : fw) {
+						Arrays.sort(fwc);
+						for (int i = 0; i < 10 && i < fwc.length; i++) {
+							System.out.print(lm.get(Integer.toString(fwc[i].getIndex())));
+							System.out.print(", ");
+						}
+						System.out.println("");
+					}
+					
+				}
+				
 			}
 			
 			for (EvaluationFunction ef : evalFunctions) {

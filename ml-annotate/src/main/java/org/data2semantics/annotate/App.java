@@ -2,6 +2,7 @@ package org.data2semantics.annotate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -9,6 +10,11 @@ import org.kohsuke.args4j.Option;
 import org.lilian.experiment.Experiment;
 import org.lilian.experiment.Resources;
 import org.lilian.graphs.Graph;
+import org.lilian.graphs.data.RDF;
+import org.lilian.graphs.data.RDFDataSet;
+import org.lilian.graphs.data.RDFFileDataSet;
+import org.openrdf.model.Statement;
+import org.openrdf.rio.RDFFormat;
 
 public class App
 {
@@ -38,9 +44,24 @@ public class App
     	
     	Graph<String> graph = null;
     	if(type == Type.RDFXML)
-    		graph = Resources.rdfGraph(data);
-    	else if(type == Type.TURTLE)
-    		graph = Resources.turtleGraph(data);
+    	{
+    		RDFDataSet testSet = new RDFFileDataSet(data, RDFFormat.RDFXML);
+
+    		List<Statement> triples = testSet.getFullGraph();	
+    		
+    		graph = RDF.createDirectedGraph(triples, null, null);
+    		
+    	} else if(type == Type.TURTLE) 
+    	{
+    		RDFDataSet testSet = new RDFFileDataSet(data, RDFFormat.TURTLE);
+
+    		List<Statement> triples = testSet.getFullGraph();	
+    		
+    		graph = RDF.createDirectedGraph(triples, null, null);
+    	}
+    	
+    	
+    	
     }
 
 	private static void readArguments(String[] args) throws IOException
