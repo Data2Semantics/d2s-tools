@@ -69,20 +69,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 		ResultsTable resTable = new ResultsTable();
 
 		
-		for (int depth : depths) {
-			resTable.newRow("");
-			for (int it : iterations) {
-				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
-				System.out.println("Running WL RDF: " + depth + " " + it);
-				exp.setDoCV(true);
-				exp.run();
-
-				for (Result res : exp.getResults()) {
-					resTable.addResult(res);
-				}
-			}
-		}
 		
 
 		for (int depth : depths2) {
@@ -97,6 +84,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 				resTable.addResult(res);
 			}
 		}
+		System.out.println(resTable);
 
 		for (int depth : depths2) {
 			resTable.newRow("");
@@ -108,6 +96,23 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 
 			for (Result res : exp.getResults()) {
 				resTable.addResult(res);
+			}
+		}
+		System.out.println(resTable);
+		
+		
+		for (int depth : depths) {
+			resTable.newRow("");
+			for (int it : iterations) {
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+
+				System.out.println("Running WL RDF: " + depth + " " + it);
+				exp.setDoCV(true);
+				exp.run();
+
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
 			}
 		}
 
