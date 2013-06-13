@@ -102,6 +102,15 @@ public class SparseVector {
 		converted = true;
 	}
 	
+	public String toString() {
+		StringBuilder res = new StringBuilder();
+		
+		for (int key : vector.keySet()) {
+			res.append(key +  ":" + vector.get(key) + ", ");
+		}
+		return res.toString();
+	}
+	
 	
 	/*
 	svm_node[] convert2svmNodes() {

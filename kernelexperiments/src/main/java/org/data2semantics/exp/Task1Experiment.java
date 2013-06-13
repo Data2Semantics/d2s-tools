@@ -16,6 +16,7 @@ import org.data2semantics.proppred.kernels.RDFCombinedKernel;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernelTree;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
@@ -56,8 +57,8 @@ public class Task1Experiment extends RDFMLExperiment {
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
 		double[] cs = {1, 10, 100, 1000, 10000};	
 
-		int[] depths = {1,2,3,4};
-		int[] iterations = {0,2};
+		int[] depths = {1,2,3};
+		int[] iterations = {0};
 
 		double[] ps1 = {1};
 		double[] ps2 = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
@@ -124,9 +125,10 @@ public class Task1Experiment extends RDFMLExperiment {
 				linParms2.setBias(1);
 
 				List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
-				kernels.add(new RDFWLSubTreeKernel(it,d, inference, true));
-				kernels.add(new RDFIntersectionTreeEdgePathKernel(d, inference, true));
-				kernels.add(new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true));
+				//kernels.add(new RDFWLSubTreeKernel(it,d, inference, true));
+				//kernels.add(new RDFIntersectionTreeEdgePathKernel(d, inference, true));
+				//kernels.add(new RDFIntersectionTreeEdgeVertexPathKernel(d, inference, true));
+				kernels.add(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, inference, true));
 				
 				
 				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, true);
@@ -137,7 +139,7 @@ public class Task1Experiment extends RDFMLExperiment {
 				
 				//KernelExperiment<RDFWLSubTreeKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 
-				System.out.println("Running WL RDF: " + d + " " + it);
+				System.out.println("Running Comb kernel: " + d + " " + it);
 
 				Map<EvaluationFunction, double[]> resultMap = new HashMap<EvaluationFunction,double[]>();
 				Map<EvaluationFunction, double[]> resultMap2 = new HashMap<EvaluationFunction,double[]>();
