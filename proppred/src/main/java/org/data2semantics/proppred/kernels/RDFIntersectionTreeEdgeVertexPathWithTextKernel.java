@@ -1,6 +1,7 @@
 package org.data2semantics.proppred.kernels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,17 +83,32 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 		for (int i = 0; i < instances.size(); i++) {
 			ret[i].addVector(text[i]);
 		}
-		
-		if (normalize) {
-			ret = KernelUtils.normalize(ret);
-		}
-		
+
 		return ret;
 	}
+	
+	private SparseVector normalizeFeatures(SparseVector features) {
+		SparseVector res = new SparseVector();
+		for (int key : features.getIndices()) {
+			List<Integer> path = index2path.get(key);
+			if (path.size()==0) {
+				res.setValue(key, 1.0);
+			} else {
+				List<Integer> parent = path.subList(0, path.size()-pathLen);
+				int parentKey = path2index.get(parent);
+				res.setValue(key, features.getValue(key)/features.getValue(parentKey));
+			}
+		}
+		return res;
+	}
+	
 	
 	private SparseVector processVertex(Resource root, int fvIndex) {
 		SparseVector features = new SparseVector();
 		processVertexRec(root, new ArrayList<Integer>(), features, depth, root, fvIndex);
+		if (normalize) {
+			features = normalizeFeatures(features);
+		}
 		return features;
 	}
 	
@@ -185,6 +201,10 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 			
 			if (textIndex2index2text.get(key).size() > 1) { // only do this is if we compare more than 1 node
 				List<SparseVector> temp = TextUtils.computeTFIDF(new ArrayList<String>(textIndex2index2text.get(key).values()));
+				
+				if (normalize) {
+					KernelUtils.normalize(temp.toArray(new SparseVector[1]));
+				}
 				
 				// Add the computed feature vectors
 				int i = 0;		
