@@ -11,6 +11,7 @@ import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
@@ -35,10 +36,10 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {1, 10, 100, 1000};	
+		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int[] depths = {1,2,3,4};
-		int[] iterations = {0,2,4,6,8};
+		int[] depths = {1,2,3};
+		int[] iterations = {0,2,4,6};
 
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
@@ -87,10 +88,10 @@ public class Task2Experiment extends RDFMLExperiment {
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
-		
+			
 		}
 		System.out.println(resTable);
-		
+	
 		
 		for (int d : depths) {
 			resTable.newRow("");
@@ -100,13 +101,32 @@ public class Task2Experiment extends RDFMLExperiment {
 				//RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 				exp.setDoCV(true);
 				
-				System.out.println("Running VertexEdge Path: " + d);
+				System.out.println("Running Edge Vertex Path: " + d);
 				exp.run();
 				
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
 			
+		}
+		System.out.println(resTable);
+		
+		
+		for (int d : depths) {
+			resTable.newRow("");
+
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				
+				//RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				exp.setDoCV(true);
+				
+				System.out.println("Running Edge Vertex Path with Text: " + d);
+				exp.run();
+				
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+		
 		}
 		System.out.println(resTable);
 		

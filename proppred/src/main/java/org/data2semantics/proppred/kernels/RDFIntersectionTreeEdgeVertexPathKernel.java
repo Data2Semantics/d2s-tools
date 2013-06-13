@@ -134,7 +134,7 @@ public class RDFIntersectionTreeEdgeVertexPathKernel implements RDFGraphKernel, 
 		Integer key2 = uri2int.get(obj);
 		if (key2 == null) {
 			key2 = new Integer(uri2int.size());
-			uri2int.put(stmt.getObject(), key2);
+			uri2int.put(obj, key2);
 		}
 		
 		List<Integer> newPath = new ArrayList<Integer>(path);
