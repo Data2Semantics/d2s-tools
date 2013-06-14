@@ -1,10 +1,12 @@
 package org.data2semantics.proppred.kernels;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
 import org.data2semantics.proppred.libsvm.SparseVector;
+import org.data2semantics.proppred.libsvm.text.TextUtils;
 
 public class KernelUtils {
 	public static final String ROOTID = "ROOT1337";
@@ -53,7 +55,7 @@ public class KernelUtils {
 			}
 			featureVectors[i].clearConversion();
 		}
-		return featureVectors;
+		return featureVectors;	
 	}
 	
 	

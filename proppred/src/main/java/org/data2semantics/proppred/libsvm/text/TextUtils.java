@@ -67,4 +67,29 @@ public class TextUtils {
 		return res;
 	}
 	
+	public static List<SparseVector> computeTFIDFforFV(List<SparseVector> fv) {
+		Map<Integer, Double> idfMap = new HashMap<Integer, Double>();
+		double nrFV = fv.size();
+		
+		for (SparseVector v : fv) {
+			for (int i : v.getIndices()) {
+				Double freq = idfMap.get(i);
+				if (freq == null) { // Have to compute the IDF
+					freq = 0.0;
+					for (SparseVector v2 : fv) {
+						freq += (v2.getValue(i) > 0) ? 1 : 0;
+					}
+					if (freq == 0.0) {
+						freq = 1.0;
+					}
+					freq = Math.log(nrFV / (freq));
+					idfMap.put(i, freq);	
+				}
+				v.setValue(i, v.getValue(i) * freq);
+			}
+		}
+		return fv;
+	}
+	
+	
 }

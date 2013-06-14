@@ -9,9 +9,12 @@ import java.util.Random;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
+import org.data2semantics.proppred.kernels.RDFCombinedKernel;
+import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
+import org.data2semantics.proppred.kernels.RDFSimpleTextKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
@@ -38,8 +41,8 @@ public class Task2Experiment extends RDFMLExperiment {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int[] depths = {1,2,3};
-		int[] iterations = {0,2,4,6};
+		int[] depths = {1,2};
+		int[] iterations = {0,2,4};
 
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
@@ -130,6 +133,24 @@ public class Task2Experiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 		
+		for (int d : depths) {
+			resTable.newRow("");
+
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFSimpleTextKernel(d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				
+				//RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				exp.setDoCV(true);
+				
+				System.out.println("Running Simple Text Kernel: " + d);
+				exp.run();
+				
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+		
+		}
+		System.out.println(resTable);
+		
 		
 		for (int d : depths) {
 			resTable.newRow("");
@@ -138,6 +159,28 @@ public class Task2Experiment extends RDFMLExperiment {
 				exp.setDoCV(true);
 				
 				System.out.println("Running WL RDF: " + d + " " + it);
+				exp.run();
+				
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+			}
+		}
+		System.out.println(resTable);
+		
+		for (int d : depths) {
+			resTable.newRow("");
+			for (int it : iterations) {
+				List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
+				kernels.add(new RDFWLSubTreeKernel(it,d, inference, true));
+				kernels.add(new RDFSimpleTextKernel(d, inference, true));
+				
+				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, true);
+				
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(kernel, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				exp.setDoCV(true);
+				
+				System.out.println("Running Text + WL RDF: " + d + " " + it);
 				exp.run();
 				
 				for (Result res : exp.getResults()) {
