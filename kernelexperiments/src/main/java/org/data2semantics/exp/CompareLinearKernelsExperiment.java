@@ -43,7 +43,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 
 		createAffiliationPredictionDataSet(1);
 
-		boolean inference = false;
+		boolean inference = true;
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
 		evalFuncs.add(new F1());

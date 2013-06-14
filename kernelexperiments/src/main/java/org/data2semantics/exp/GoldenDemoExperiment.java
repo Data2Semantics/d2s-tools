@@ -33,7 +33,7 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 		double[] cs = {1, 10, 100, 1000};	
 
 		int[] depths = {1,2,3};
-		int[] iterations = {0,2,4,6};
+		int[] iterations = {0};
 
 		double fraction = 0.1;
 

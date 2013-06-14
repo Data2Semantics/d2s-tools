@@ -46,7 +46,8 @@ public class KernelUtils {
 		double norm = 0;
 		for (int i = 0; i < featureVectors.length; i++) {
 			norm = Math.sqrt(featureVectors[i].dot(featureVectors[i]));
-			
+			norm = (norm == 0) ? 1 : norm;
+					
 			for (int index : featureVectors[i].getIndices()) {
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) / norm);
 			}
