@@ -13,9 +13,11 @@ import java.util.Random;
 import org.data2semantics.exp.experiments.DataSetFactory;
 import org.data2semantics.exp.experiments.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.experiments.GraphKernelExperiment;
+import org.data2semantics.exp.experiments.GraphKernelRunTimeExperiment;
 import org.data2semantics.exp.experiments.KernelExperiment;
 import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
 import org.data2semantics.exp.experiments.RDFKernelExperiment;
+import org.data2semantics.exp.experiments.RDFKernelRunTimeExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.GraphKernel;
@@ -42,75 +44,94 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		affiliationExperiment(false);
-		affiliationExperiment(true);
-		//affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
-		
+		//affiliationExperiment(false);
+		//affiliationExperiment(true);
+		affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
+
 	}
-	
-	
+
+
 	private static void affiliationRunningTimeExperiment() {
 		double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
-		
+
 		double[] cs = {1};	// dummy, we don't care about the prediction scores
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};;
-		
+
 		int depth = 3;
 		int iteration = 6;
 		boolean inference = true;
-		
+
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		ResultsTable resTable = new ResultsTable();
-		
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createAffiliationPredictionDataSet(frac);
-			
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
-			System.out.println("Running WL RDF: " + frac);
-			exp.run();
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
-			
+				createAffiliationPredictionDataSet(frac, seed);
+
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+
+				System.out.println("Running WL RDF: " + frac);
+				exp.run();
+				res.addResult(exp.getResults().get(0));
+
+			}
+			resTable.addResult(res);
+
 		}
-		
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createAffiliationPredictionDataSet(frac);
-			
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
-			System.out.println("Running IST: " + frac);
-			exp.run();
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+				createAffiliationPredictionDataSet(frac, seed);
+
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+
+				System.out.println("Running IST: " + frac);
+				exp.run();
+				res.addResult(exp.getResults().get(0));
+			}
+
+			resTable.addResult(res);
 		}
-		
-		
+
+
 		long tic, toc;
-		
-		
-		
+
+
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createAffiliationPredictionDataSet(frac);
-			tic = System.currentTimeMillis();
-			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-			toc = System.currentTimeMillis();
-			
-			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
 
-			System.out.println("Running WL: " + frac);
-			exp.run();
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
 
-			double[] comps =  {0,0};
-			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			Result resC = new Result(comps,"comp time 2");	
-			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
-			
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+				createAffiliationPredictionDataSet(frac,seed);
+				tic = System.currentTimeMillis();
+				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+				toc = System.currentTimeMillis();
+
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
+
+				System.out.println("Running WL: " + frac);
+				exp.run();
+				res.addResult(exp.getResults().get(0));
+
+				double[] comps = {2 * (toc-tic) + res.getScore()};
+				Result resC = new Result(comps,"comp time 2");	
+				res.addResult(resC);
+			}
+
+			resTable.addResult(res);
 		}
 		/*
 		resTable.newRow("");
@@ -119,8 +140,8 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 			toc = System.currentTimeMillis();
-			
-			
+
+
 			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running IGP: " + frac);
@@ -131,41 +152,45 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
 					Result resC = new Result(comps,"comp time 2");	
 			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
-			
+
 			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
 		}*/
-		
-		
+
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createAffiliationPredictionDataSet(frac);
-			tic = System.currentTimeMillis();
-			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-			toc = System.currentTimeMillis();
-			
-			
-			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
-			System.out.println("Running IGW: " + frac);
-			exp.run();
-			
-			double[] comps =  {0,0};
-			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			Result resC = new Result(comps,"comp time 2");	
-			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
+				createAffiliationPredictionDataSet(frac,seed);
+				tic = System.currentTimeMillis();
+				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+				toc = System.currentTimeMillis();
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+
+				System.out.println("Running IGW: " + frac);
+				exp.run();
+
+				res.addResult(exp.getResults().get(0));
+
+				double[] comps = {2 * (toc-tic) + res.getScore()};
+				Result resC = new Result(comps,"comp time 2");	
+				res.addResult(resC);
+			}
+
+			resTable.addResult(res);
 		}
-		
-		
+
+
 		//resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 		saveResults(resTable.toString(), "affiliation_runningtime.txt");
 
-		
+
 	}
-	
+
 
 	private static void affiliationExperiment(boolean blankLabels) {
 
@@ -183,7 +208,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 
-		
+
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
@@ -275,11 +300,11 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			}
 		}
 		saveResults(resTable, "affiliation.ser");
-		
-		
 
 
-		
+
+
+
 		List<GeneralPredictionDataSetParameters> dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
 
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, false));
@@ -323,8 +348,8 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			}
 		}
 		saveResults(resTable, "affiliation.ser");
-		
-		
+
+
 
 		/*
 		dataSetsParams = new ArrayList<GeneralPredictionDataSetParameters>();
@@ -336,7 +361,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
 		 */
 
-		
+
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
@@ -396,7 +421,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			}
 		}
 		saveResults(resTable, "affiliation.ser");
-		
+
 
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
@@ -405,17 +430,20 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 	}
 
 
-
-
 	private static void createAffiliationPredictionDataSet(double frac) {
-		Random rand = new Random(1);
+		createAffiliationPredictionDataSet(frac, (long)1);
+	}
+
+
+	private static void createAffiliationPredictionDataSet(double frac, long seed) {
+		Random rand = new Random(seed);
 
 		// Read in data set
 		dataset = new RDFFileDataSet("datasets/aifb-fixed_complete.n3", RDFFormat.N3);
 
 		// Extract all triples with the affiliation predicate
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null);
-		
+
 		// initialize the lists of instances and labels
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();
