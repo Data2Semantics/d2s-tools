@@ -25,12 +25,18 @@ public class RDFIntersectionTreeEdgeVertexPathKernel implements RDFGraphKernel, 
 	private String label;
 	protected int pathLen;
 	private Value rootValue;
+	private boolean probabilities;
 	
 	
 	public RDFIntersectionTreeEdgeVertexPathKernel(int depth, boolean inference, boolean normalize) {
+		this(depth, true, inference, normalize);
+	}
+	
+	public RDFIntersectionTreeEdgeVertexPathKernel(int depth, boolean probabilities, boolean inference, boolean normalize) {
 		this.normalize = normalize;
 		this.depth = depth;
 		this.inference = inference;
+		this.probabilities = probabilities;
 
 		uri2int = new HashMap<Value, Integer>();
 		path2index = new HashMap<List<Integer>, Integer>();
@@ -64,13 +70,16 @@ public class RDFIntersectionTreeEdgeVertexPathKernel implements RDFGraphKernel, 
 		for (SparseVector fv : ret) {
 			fv.setLastIndex(path2index.size());
 		}
+		if (normalize) {
+			ret = KernelUtils.normalize(ret);
+		}
 		return ret;
 	}
 	
 	private SparseVector processVertex(Resource root) {
 		SparseVector features = new SparseVector();
 		processVertexRec(root, new ArrayList<Integer>(), features, depth, root);
-		if (normalize) {
+		if (probabilities) {
 			features = normalizeFeatures(features);
 		}
 		return features;

@@ -36,15 +36,17 @@ public class KernelUtils {
 	public static SparseVector[] convert2BinaryFeatureVectors(SparseVector[] featureVectors) {
 		for (SparseVector fv : featureVectors) {
 			for (int index : fv.getIndices()) {
-				fv.setValue(index, 1);
+				if (fv.getValue(index) == 0.0) {
+					fv.setValue(index, 1);
+				}
 			}
 		}
-		return normalize(featureVectors);
+		return featureVectors;
 	}
 	
 	
 	
-	protected static SparseVector[] normalize(SparseVector[] featureVectors) {
+	public static SparseVector[] normalize(SparseVector[] featureVectors) {
 		double norm = 0;
 		for (int i = 0; i < featureVectors.length; i++) {
 			norm = Math.sqrt(featureVectors[i].dot(featureVectors[i]));

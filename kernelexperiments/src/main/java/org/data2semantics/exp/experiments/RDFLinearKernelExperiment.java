@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.proppred.kernels.Kernel;
+import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
@@ -22,6 +23,7 @@ import org.data2semantics.proppred.libsvm.Prediction;
 import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.proppred.libsvm.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.libsvm.evaluation.Task1Score;
+import org.data2semantics.proppred.libsvm.text.TextUtils;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -38,6 +40,8 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 	private Result compR;
 	private Map<EvaluationFunction, double[]> resultMap;
 	private boolean doCV;
+	private boolean doTFIDF;
+	private boolean doBinary;
 	
 
 
@@ -54,6 +58,8 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 		this.evalFunctions = evalFunctions;
 	
 		doCV = false;
+		doTFIDF = false;
+		doBinary = false;
 		
 		resultMap = new HashMap<EvaluationFunction,double[]>();
 		
@@ -81,6 +87,16 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 		tic = System.currentTimeMillis();
 		SparseVector[] fv = kernel.computeFeatureVectors(dataset, instances, blackList);
 		toc = System.currentTimeMillis();
+		
+		if (doTFIDF) {
+			fv = TextUtils.computeTFIDF(Arrays.asList(fv)).toArray(new SparseVector[1]);
+			fv = KernelUtils.normalize(fv);
+		}
+		
+		if (doBinary) {
+			fv = KernelUtils.convert2BinaryFeatureVectors(fv);
+			fv = KernelUtils.normalize(fv);
+		}
 
 		List<SparseVector> fvList = Arrays.asList(fv);
 
@@ -128,6 +144,7 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 				pred = LibLINEAR.trainTestSplit(fv, target, linearParms, linearParms.getSplitFraction());
 				targetSplit = LibLINEAR.splitTestTarget(target, linearParms.getSplitFraction());
 				
+				// If we deal with on RDFWLSubTree, then we show the most used features, based on the featuremap created
 				if (kernel instanceof RDFWLSubTreeKernel) {
 					RDFWLSubTreeKernel k = (RDFWLSubTreeKernel) kernel;
 					LibLINEARModel model = LibLINEAR.trainLinearModel(fv, target, linearParms);
@@ -187,6 +204,14 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 
 	public void setDoCV(boolean cv) {
 		doCV = cv;
+	}
+	
+	public void setDoTFIDF(boolean tfidf) {
+		doTFIDF = tfidf;
+	}
+	
+	public void setDoBinary(boolean binary) {
+		doBinary = binary;
 	}
 
 }

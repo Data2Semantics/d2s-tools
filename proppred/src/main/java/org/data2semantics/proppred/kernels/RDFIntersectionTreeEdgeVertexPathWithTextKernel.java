@@ -34,12 +34,17 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 	protected int pathLen;
 	private Value rootValue;
 	private Value blankVertex;
-	
-	
+	private boolean probabilities;
+
 	public RDFIntersectionTreeEdgeVertexPathWithTextKernel(int depth, boolean inference, boolean normalize) {
+		this(depth, true, inference, normalize);
+	}
+	
+	public RDFIntersectionTreeEdgeVertexPathWithTextKernel(int depth, boolean probabilities, boolean inference, boolean normalize) {
 		this.normalize = normalize;
 		this.depth = depth;
 		this.inference = inference;
+		this.probabilities = probabilities;
 
 		uri2int = new HashMap<Value, Integer>();
 		path2index = new HashMap<List<Integer>, Integer>();
@@ -83,7 +88,9 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 		for (int i = 0; i < instances.size(); i++) {
 			ret[i].addVector(text[i]);
 		}
-
+		if (normalize) {
+			ret = KernelUtils.normalize(ret);
+		}
 		return ret;
 	}
 	
@@ -106,7 +113,7 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 	private SparseVector processVertex(Resource root, int fvIndex) {
 		SparseVector features = new SparseVector();
 		processVertexRec(root, new ArrayList<Integer>(), features, depth, root, fvIndex);
-		if (normalize) {
+		if (probabilities) {
 			features = normalizeFeatures(features);
 		}
 		return features;
@@ -200,12 +207,8 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 			int lastIdx = ret[0].getLastIndex();
 			
 			if (textIndex2index2text.get(key).size() > 1) { // only do this is if we compare more than 1 node
-				List<SparseVector> temp = TextUtils.computeTFIDF(new ArrayList<String>(textIndex2index2text.get(key).values()));
-				
-				if (normalize) {
-					KernelUtils.normalize(temp.toArray(new SparseVector[1]));
-				}
-				
+				List<SparseVector> temp = TextUtils.computeTF(new ArrayList<String>(textIndex2index2text.get(key).values()));
+								
 				// Add the computed feature vectors
 				int i = 0;		
 				for (int key2 : textIndex2index2text.get(key).keySet()) {

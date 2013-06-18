@@ -10,10 +10,9 @@ import org.data2semantics.proppred.libsvm.SparseVector;
 
 public class TextUtils {
 
-	public static List<SparseVector> computeTFIDF(List<String> texts) {
+	public static List<SparseVector> computeTF(List<String> texts) {
 		
 		Map<String, Integer> word2index = new HashMap<String, Integer>();
-		Map<Integer, Double> index2freq = new HashMap<Integer,Double>();
 		List<SparseVector> res = new ArrayList<SparseVector>();
 		
 		BreakIterator wordIt = BreakIterator.getWordInstance();
@@ -34,40 +33,18 @@ public class TextUtils {
 		        	if (key == null) {
 		        		key = new Integer(word2index.size()+1);
 		        		word2index.put(word, key);
-		        		index2freq.put(key, 0.0);
 		        	}
-		        	
-		        	// Check if we have already seen it for this text
-		        	if (fv.getValue(key) == 0) { // if not seen it, increase the doc freq count
-		        		index2freq.put(key, index2freq.get(key) + 1.0);
-		        		fv.setValue(key, 1);
-		        	} else {
-		        		fv.setValue(key, fv.getValue(key) + 1); // increase count
-		        	}
+		
+	        		fv.setValue(key, fv.getValue(key) + 1); // increase count
 		        }
 		        start = end;
 		        end = wordIt.next();
 		    }		    
-		}
-		
-		// Compute the IDF scores
-		double nrTexts = (double) texts.size();
-		for (int key : index2freq.keySet()) {
-			index2freq.put(key, Math.log(nrTexts / index2freq.get(key)));
-		}
-		
-		// Compute the TF-IDF scores
-		for (SparseVector fv : res) {
-			for (int key : fv.getIndices()) {
-				fv.setValue(key, fv.getValue(key) * index2freq.get(key));
-			}
-			fv.setLastIndex(index2freq.size());
-		}
-		
+		}		
 		return res;
 	}
 	
-	public static List<SparseVector> computeTFIDFforFV(List<SparseVector> fv) {
+	public static List<SparseVector> computeTFIDF(List<SparseVector> fv) {
 		Map<Integer, Double> idfMap = new HashMap<Integer, Double>();
 		double nrFV = fv.size();
 		

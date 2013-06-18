@@ -70,7 +70,7 @@ public class RDFSimpleTextKernel implements RDFFeatureVectorKernel,
 			strings.add(str.toString());
 		}
 		
-		SparseVector[] ret = TextUtils.computeTFIDF(strings).toArray(new SparseVector[1]);
+		SparseVector[] ret = TextUtils.computeTF(strings).toArray(new SparseVector[1]);
 		
 		if (normalize) {
 			ret = KernelUtils.normalize(ret);
