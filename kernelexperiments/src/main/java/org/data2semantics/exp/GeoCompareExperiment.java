@@ -10,9 +10,11 @@ import org.data2semantics.exp.experiments.DataSetFactory;
 import org.data2semantics.exp.experiments.Experimenter;
 import org.data2semantics.exp.experiments.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.experiments.GraphKernelExperiment;
+import org.data2semantics.exp.experiments.GraphKernelRunTimeExperiment;
 import org.data2semantics.exp.experiments.KernelExperiment;
 import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
 import org.data2semantics.exp.experiments.RDFKernelExperiment;
+import org.data2semantics.exp.experiments.RDFKernelRunTimeExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.GraphKernel;
@@ -37,79 +39,93 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		lithogenesisExperiments();
-		//lithogenesisRunningTimeExperiments(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
-		themeExperiments(0.1, 50);
+		//lithogenesisExperiments();
+		lithogenesisRunningTimeExperiments(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
+		//themeExperiments(0.1, 50);
 	} 
 
 	private static void lithogenesisRunningTimeExperiments() {
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-		
-		
+
+
 		double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
-		
+
 		double[] cs = {1};	// dummy, we don't care about the prediction scores
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};;
-		
+
 		int depth = 3;
 		int iteration = 6;
 		boolean inference = true;
-		
+
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		ResultsTable resTable = new ResultsTable();
-		
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
-			
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
-			System.out.println("Running WL RDF: " + frac);
-			exp.run();
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
-			
+				createGeoDataSet(seed,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+
+				System.out.println("Running WL RDF: " + frac);
+				exp.run();
+				res.addResult(exp.getResults().get(0));
+			}
+			resTable.addResult(res);
 		}
-		
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
-				
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
-			System.out.println("Running IST: " + frac);
-			exp.run();
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
+				createGeoDataSet(seed,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+
+				System.out.println("Running IST: " + frac);
+				exp.run();
+				res.addResult(exp.getResults().get(0));
+			}
+			resTable.addResult(res);
 		}
-		
-		
+
+
 		long tic, toc;
-		
-		
-		
+
+
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
-			tic = System.currentTimeMillis();
-			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-			toc = System.currentTimeMillis();
-			
-			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
 
-			System.out.println("Running WL: " + frac);
-			exp.run();
-			
-			// We have to add the running time of the subgraph extraction, and we double it, to not let the statistic test fail
-			double[] comps =  {0,0};
-			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			Result resC = new Result(comps,"comp time 2");	
-			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
-	
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));	
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
+				createGeoDataSet(seed,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				tic = System.currentTimeMillis();
+				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+				toc = System.currentTimeMillis();
+
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
+
+				System.out.println("Running WL: " + frac);
+				exp.run();
+
+				res.addResult(exp.getResults().get(0));
+
+				double[] comps = {2 * (toc-tic) + res.getScore()};
+				Result resC = new Result(comps,"comp time 2");	
+				res.addResult(resC);
+			}
+
+			resTable.addResult(res);	
 		}
-		
+
 		/*
 		resTable.newRow("");
 		for (double frac : fractions) {
@@ -117,62 +133,66 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 			toc = System.currentTimeMillis();
-			
-			
+
+
 			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running IGP: " + frac);
 			exp.run();
-			
+
 			double[] comps =  {0,0};
 			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
 			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
 			Result resC = new Result(comps,"comp time 2");	
 			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
-	
+
 
 			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));	
 		}
-		*/
-		
+		 */
+
 		resTable.newRow("");
 		for (double frac : fractions) {
-			createGeoDataSet(11,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
-			tic = System.currentTimeMillis();
-			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-			toc = System.currentTimeMillis();
-			
-			
-			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
-			System.out.println("Running IGW: " + frac);
-			exp.run();
-			
-			double[] comps =  {0,0};
-			comps[0] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			comps[1] = 2*(toc-tic) + exp.getResults().get(exp.getResults().size()-1).getScore();
-			Result resC = new Result(comps,"comp time 2");	
-			exp.getResults().get(exp.getResults().size()-1).addResult(resC);
-	
+			Result res = new Result();
+			res.setLabel("runtime");
+			for (long seed : seeds) {
+				createGeoDataSet(seed,frac,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				tic = System.currentTimeMillis();
+				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+				toc = System.currentTimeMillis();
 
-			resTable.addResult(exp.getResults().get(exp.getResults().size()-1));
+
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+
+				System.out.println("Running IGW: " + frac);
+				exp.run();
+
+				res.addResult(exp.getResults().get(0));
+
+				double[] comps = {2 * (toc-tic) + res.getScore()};
+				Result resC = new Result(comps,"comp time 2");	
+				res.addResult(resC);
+			}
+
+			resTable.addResult(res);
 		}
-		
+
 		//resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 		saveResults(resTable.toString(), "lithogenesis_runningtime.txt");
 
-		
+
 	}
-	
-	
+
+
 	private static void themeExperiments(double fraction, int minSize) {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
 		int depth = 3;
 		int[] iterations = {0, 2, 4, 6};
-		
+
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
@@ -188,7 +208,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				Thread expT = new Thread(experimenter);
 				expT.setDaemon(true);
 				expT.start();				
-				
+
 				List<List<Result>> res = new ArrayList<List<Result>>();
 				for (long seed : seeds) {
 					long[] s2 = new long[1];
@@ -196,13 +216,13 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 					createGeoDataSet(seed, fraction, minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 					res.add(exp.getResults());
-					
+
 					System.out.println("Running WL RDF: " + i + " " + it);
 					if (experimenter.hasSpace()) {
 						experimenter.addExperiment(exp);
 					}
-				
-					
+
+
 				}
 
 				experimenter.stop();
@@ -231,7 +251,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				expT.setDaemon(true);
 				expT.start();
 
-				
+
 				List<List<Result>> res = new ArrayList<List<Result>>();
 				for (long seed : seeds) {
 					long[] s2 = new long[1];
@@ -239,13 +259,13 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 					createGeoDataSet(seed, fraction, minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 					KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 					res.add(exp.getResults());
-					
+
 					System.out.println("Running WL RDF: " + i + " " + it);
 					if (experimenter.hasSpace()) {
 						experimenter.addExperiment(exp);
 					}
-				
-				
+
+
 				}
 
 				experimenter.stop();
@@ -257,7 +277,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 						e.printStackTrace();
 					}
 				}
-				
+
 				for (Result res2 : Result.mergeResultLists(res)) {
 					resTable.addResult(res2);
 				}
@@ -282,7 +302,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
-				
+
 				System.out.println("Running IST: " + i);
 				if (experimenter.hasSpace()) {
 					experimenter.addExperiment(exp);
@@ -298,7 +318,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for (Result res2 : Result.mergeResultLists(res)) {
 				resTable.addResult(res2);
 			}
@@ -322,13 +342,13 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
-				
-				
+
+
 				System.out.println("Running IST: " + i);
 				if (experimenter.hasSpace()) {
 					experimenter.addExperiment(exp);
 				}
-			
+
 			}
 
 			experimenter.stop();
@@ -340,14 +360,14 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for (Result res2 : Result.mergeResultLists(res)) {
 				resTable.addResult(res2);
 			}
 		}
 		saveResults(resTable, "geo_theme.ser");
 
-		
+
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
@@ -364,7 +384,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
-				
+
 				System.out.println("Running IPST: " + i);
 				if (experimenter.hasSpace()) {
 					experimenter.addExperiment(exp);
@@ -380,7 +400,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for (Result res2 : Result.mergeResultLists(res)) {
 				resTable.addResult(res2);
 			}
@@ -388,7 +408,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		saveResults(resTable, "geo_theme.ser");
 
 
-		
+
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
@@ -405,7 +425,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				createGeoDataSet(seed, fraction,  minSize, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, false), s2, parms, dataset, instances, labels, blackList);
 				res.add(exp.getResults());
-				
+
 				System.out.println("Running IPST: " + i);
 				if (experimenter.hasSpace()) {
 					experimenter.addExperiment(exp);
@@ -421,7 +441,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for (Result res2 : Result.mergeResultLists(res)) {
 				resTable.addResult(res2);
 			}
@@ -487,9 +507,9 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		}
 		saveResults(resTable, "geo_litho.ser");
 
-		
 
-		
+
+
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
@@ -603,10 +623,10 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 1, false, true));
 		dataSetsParams.add(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 2, false, true));
 		 */
-		
-		
 
-		
+
+
+
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
@@ -667,7 +687,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		}
 		saveResults(resTable, "geo_litho.ser");
 
-	
+
 
 
 		resTable.addCompResults(resTable.getBestResults());

@@ -78,10 +78,8 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				System.out.println("Running WL RDF: " + frac);
 				exp.run();
 				res.addResult(exp.getResults().get(0));
-
 			}
 			resTable.addResult(res);
-
 		}
 
 		resTable.newRow("");

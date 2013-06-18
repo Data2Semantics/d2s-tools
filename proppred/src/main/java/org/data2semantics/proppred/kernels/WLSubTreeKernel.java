@@ -222,11 +222,13 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 			Bucket<Vertex<StringBuilder>> bucketV = bucketsV.get(Integer.toString(i));			
 			for (Vertex<StringBuilder> vertex : bucketV.getContents()) {
 				vertex.getLabel().append(bucketV.getLabel());
+				vertex.getLabel().append("_");
 			}
 			// Process edges
 			Bucket<Edge<StringBuilder>> bucketE = bucketsE.get(Integer.toString(i));			
 			for (Edge<StringBuilder> edge : bucketE.getContents()) {
 				edge.getLabel().append(bucketE.getLabel());
+				edge.getLabel().append("_");
 			}
 		}
 

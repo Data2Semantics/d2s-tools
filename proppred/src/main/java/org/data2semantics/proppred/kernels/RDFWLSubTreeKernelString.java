@@ -361,12 +361,12 @@ public class RDFWLSubTreeKernelString implements RDFGraphKernel, RDFFeatureVecto
 			// Process vertices
 			Bucket<VertexIndexPair> bucketV = bucketsV.get(Integer.toString(i));			
 			for (VertexIndexPair vp : bucketV.getContents()) {
-				vp.getVertex().getLabel().put(vp.getIndex(), vp.getVertex().getLabel().get(vp.getIndex()) + bucketV.getLabel());
+				vp.getVertex().getLabel().put(vp.getIndex(), vp.getVertex().getLabel().get(vp.getIndex()) + bucketV.getLabel() + "_");
 			}
 			// Process edges
 			Bucket<EdgeIndexPair> bucketE = bucketsE.get(Integer.toString(i));			
 			for (EdgeIndexPair ep : bucketE.getContents()) {
-				ep.getEdge().getLabel().put(ep.getIndex(), ep.getEdge().getLabel().get(ep.getIndex()) + bucketE.getLabel());
+				ep.getEdge().getLabel().put(ep.getIndex(), ep.getEdge().getLabel().get(ep.getIndex()) + bucketE.getLabel() + "_");
 			}
 		}
 	}
