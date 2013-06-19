@@ -44,9 +44,9 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//affiliationExperiment(false);
+		affiliationExperiment(false);
 		//affiliationExperiment(true);
-		affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
+		//affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
 
 	}
 
@@ -211,7 +211,10 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
+				k.setIgnoreLiterals(true);
+								
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
@@ -229,7 +232,10 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
+				k.setIgnoreLiterals(true);
+								
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();

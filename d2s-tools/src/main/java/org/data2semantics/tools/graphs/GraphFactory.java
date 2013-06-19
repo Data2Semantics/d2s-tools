@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -70,7 +71,10 @@ public class GraphFactory {
 				graph.addVertex(node1);
 			}
 
-			if (node2 == null) {
+			if (statement.getObject()instanceof Literal) { // Literals are not unique
+				node2 = new Vertex<String>(statement.getObject().toString());
+				graph.addVertex(node2);
+			} else if (node2 == null) {
 				node2 = new Vertex<String>(statement.getObject().toString());
 				nodes.put(node2.getLabel(), node2);
 				graph.addVertex(node2);

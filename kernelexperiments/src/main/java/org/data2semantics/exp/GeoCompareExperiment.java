@@ -39,8 +39,8 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//lithogenesisExperiments();
-		lithogenesisRunningTimeExperiments(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
+		lithogenesisExperiments();
+		//lithogenesisRunningTimeExperiments(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
 		//themeExperiments(0.1, 50);
 	} 
 
@@ -472,12 +472,16 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		//parms.setEvalFunction(LibSVM.F1);
 
 		ResultsTable resTable = new ResultsTable();
+		resTable.setDigits(3);
 
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
+				k.setIgnoreLiterals(true);
+				
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
@@ -495,7 +499,11 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
+				k.setIgnoreLiterals(true);
+				
+				
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();

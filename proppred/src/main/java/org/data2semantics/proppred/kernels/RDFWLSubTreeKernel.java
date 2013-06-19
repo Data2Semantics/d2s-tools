@@ -13,6 +13,7 @@ import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -46,6 +47,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	private boolean blankLabels;
 	private String label;
 	private boolean normalize;
+	private boolean ignoreLiterals;
 
 
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
@@ -58,6 +60,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		this.normalize = normalize;
 		this.label = "RDF_WL_Kernel_" + depth + "_" + iterations;
 		this.blankLabels = false;
+		this.ignoreLiterals = false;
 
 		labelMap = new HashMap<String, String>();
 		instanceVertices = new HashMap<String, Vertex<Map<Integer,StringBuilder>>>();
@@ -83,6 +86,10 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		this.normalize = normalize;
 	}
 
+	public void setIgnoreLiterals(boolean ignore) {
+		ignoreLiterals = ignore;
+	}
+
 	public Map<String,String> getInverseLabelMap() {
 		Map<String,String> invMap = new HashMap<String,String>();
 		for (String k : labelMap.keySet()) {
@@ -90,8 +97,8 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		}
 		return invMap;
 	}
-	
-	
+
+
 	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = new SparseVector[instances.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
@@ -169,6 +176,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	 */
 
 	private DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
+		Map<String, Vertex<Map<Integer,StringBuilder>>> literalMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
 		Map<String, Vertex<Map<Integer,StringBuilder>>> vertexMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
 		Map<String, Edge<Map<Integer,StringBuilder>>> edgeMap = new HashMap<String, Edge<Map<Integer, StringBuilder>>>();
 
@@ -203,7 +211,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 			startV.getLabel().put(depth, new StringBuilder(ROOT_LABEL)); 
 			labelMap.put(idStr, ROOT_LABEL); // This label is (re)set to ROOT_LABEL
 			instanceVertices.put(idStr, startV); // So that we can reconstruct subgraphs later, we save the instance vertices
-			
+
 			queryNodes.add(instance);
 
 			for (int i = depth - 1; i >= 0; i--) {
@@ -213,38 +221,60 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					result = dataset.getStatements(queryNode, null, null, inference);
 
 					for (Statement stmt : result) {
+						newV = null;
+						
+						// literal
+						if (stmt.getObject() instanceof Literal) {
+							if (!ignoreLiterals) {
+								idStr = stmt.toString();
+								idStr2 = stmt.getObject().toString();
 
-						// Process new vertex
-						idStr = stmt.getObject().toString();
-						if (vertexMap.containsKey(idStr)) { // existing vertex
-							newV = vertexMap.get(idStr);				 
-							newV.getLabel().put(i, new StringBuilder(labelMap.get(idStr))); // Set the label for depth i to the already existing label for this vertex
-
-						} else { // New vertex
-							newV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
-							labelMap.put(idStr, Integer.toString(labelCounter));
-							newV.getLabel().put(i, new StringBuilder(Integer.toString(labelCounter)));
-							labelCounter++;
-							vertexMap.put(idStr, newV);
-							graph.addVertex(newV);
+								if (literalMap.containsKey(idStr)) {
+									newV = literalMap.get(idStr);				 
+									newV.getLabel().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this vertex
+								} else {
+									newV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
+									labelMap.put(idStr2, Integer.toString(labelCounter));
+									newV.getLabel().put(i, new StringBuilder(Integer.toString(labelCounter)));
+									labelCounter++;
+									literalMap.put(idStr, newV);
+									graph.addVertex(newV);
+								}
+							}
+						} else { // Non-literal
+							idStr = stmt.getObject().toString();
+							if (vertexMap.containsKey(idStr)) { // existing vertex
+								newV = vertexMap.get(idStr);				 
+								newV.getLabel().put(i, new StringBuilder(labelMap.get(idStr))); // Set the label for depth i to the already existing label for this vertex
+							} else { // New vertex
+								newV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
+								labelMap.put(idStr, Integer.toString(labelCounter));
+								newV.getLabel().put(i, new StringBuilder(Integer.toString(labelCounter)));
+								labelCounter++;
+								vertexMap.put(idStr, newV);
+								graph.addVertex(newV);
+							}
 						}
 
-						// Process new Edge
-						idStr = stmt.toString();
-						idStr2 = stmt.getPredicate().toString();
-						if (edgeMap.containsKey(idStr)) { // existing edge
-							newE = edgeMap.get(idStr);
-							newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this edge
 
-						} else { // new edge
-							newE = new Edge<Map<Integer,StringBuilder>>(new HashMap<Integer,StringBuilder>());
-							if (!labelMap.containsKey(idStr2)) { // Edge labels are not unique, in contrast to vertex labels, thus we need to check whether it exists already
-								labelMap.put(idStr2, Integer.toString(labelCounter));
-								labelCounter++;
+						// Process new Edge
+						if (newV != null) {
+							idStr = stmt.toString();
+							idStr2 = stmt.getPredicate().toString();
+							if (edgeMap.containsKey(idStr)) { // existing edge
+								newE = edgeMap.get(idStr);
+								newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this edge
+
+							} else { // new edge
+								newE = new Edge<Map<Integer,StringBuilder>>(new HashMap<Integer,StringBuilder>());
+								if (!labelMap.containsKey(idStr2)) { // Edge labels are not unique, in contrast to vertex labels, thus we need to check whether it exists already
+									labelMap.put(idStr2, Integer.toString(labelCounter));
+									labelCounter++;
+								}
+								newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2)));
+								edgeMap.put(idStr, newE);	
+								graph.addEdge(newE, vertexMap.get(stmt.getSubject().toString()), newV, EdgeType.DIRECTED);
 							}
-							newE.getLabel().put(i, new StringBuilder(labelMap.get(idStr2)));
-							edgeMap.put(idStr, newE);	
-							graph.addEdge(newE, vertexMap.get(stmt.getSubject().toString()), newV, EdgeType.DIRECTED);
 						}
 
 
@@ -392,7 +422,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					labelCounter++;
 					labelMap.put(edge.getLabel().get(i).toString(), label);				
 				}
-				
+
 				//edge.getLabel().get(i).delete(0, edge.getLabel().get(i).length());
 				//edge.getLabel().get(i).append(label);
 				edge.getLabel().put(i, new StringBuilder(label));
@@ -433,7 +463,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 		for (int i = 0; i < instances.size(); i++) {
 			featureVectors[i].setLastIndex(labelCounter - 1);
-			
+
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
 				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());
