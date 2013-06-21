@@ -194,7 +194,11 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 			path2textIndex.put(path, key);
 			textIndex2index2text.put(key, new TreeMap<Integer,String>());
 		}
-		textIndex2index2text.get(key).put(fvIndex, text);
+		if (textIndex2index2text.get(key).containsKey(fvIndex)) {
+			textIndex2index2text.get(key).put(fvIndex, textIndex2index2text.get(key).get(fvIndex) + " " + text);
+		} else  {
+			textIndex2index2text.get(key).put(fvIndex, text);
+		}
 	}
 	
 	private SparseVector[] processTextVertices(List<Resource> instances) {

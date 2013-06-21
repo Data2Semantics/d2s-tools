@@ -65,6 +65,7 @@ public class RDFSimpleTextKernel implements RDFFeatureVectorKernel,
 		for (Set<String> text : texts) {
 			StringBuilder str = new StringBuilder();
 			for (String s : text) {
+				str.append(" ");
 				str.append(s);
 			}
 			strings.add(str.toString());
