@@ -45,8 +45,8 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 	 */
 	public static void main(String[] args) {
 		affiliationExperiment(false);
-		//affiliationExperiment(true);
-		//affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
+		affiliationExperiment(true);
+		affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
 
 	}
 
