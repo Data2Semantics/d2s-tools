@@ -17,6 +17,7 @@ import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.kernels.RDFWLSubTreeWithTextKernel;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVMParameters;
 import org.data2semantics.proppred.libsvm.evaluation.Accuracy;
@@ -37,10 +38,10 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int[] depths = {1,2,3};
+		int[] depths = {2};
 		int[] depths2 = {1,2,3};
 		
-		int[] iterations = {0,2,4,6};
+		int[] iterations = {4};
 
 		createAffiliationPredictionDataSet(1);
 
@@ -69,6 +70,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 
+		/*
 		for (int depth : depths2) {
 			resTable.newRow("");
 			
@@ -103,6 +105,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+		*/
 		
 		for (int depth : depths) {
 			resTable.newRow("");

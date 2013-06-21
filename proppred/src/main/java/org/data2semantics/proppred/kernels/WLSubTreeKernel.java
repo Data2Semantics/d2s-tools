@@ -195,12 +195,12 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
 			// Add each edge source (i.e.) start vertex to the bucket of the edge label
 			for (Edge<StringBuilder> edge : graph.getEdges()) {
-				bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getDest(edge));
+				bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getSource(edge));
 			}
 
 			// Add each incident edge to the bucket of the node label
 			for (Vertex<StringBuilder> vertex : graph.getVertices()) {			
-				Collection<Edge<StringBuilder>> v2 = graph.getOutEdges(vertex);	
+				Collection<Edge<StringBuilder>> v2 = graph.getInEdges(vertex);	
 				bucketsE.get(vertex.getLabel().toString()).getContents().addAll(v2);
 			}	
 		}

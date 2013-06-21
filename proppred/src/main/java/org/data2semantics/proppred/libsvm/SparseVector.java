@@ -20,6 +20,14 @@ public class SparseVector {
 		lastIndex = 0;
 	}
 	
+	public SparseVector(SparseVector v) {
+		this();
+		for (int i : v.getIndices()) {
+			setValue(i, v.getValue(i));
+		}
+		this.lastIndex = v.getLastIndex();
+	}
+	
 	public void addVector(SparseVector v) {
 		for (int k : v.getIndices()) {
 			vector.put(k + lastIndex, v.getValue(k));
@@ -27,6 +35,15 @@ public class SparseVector {
 		this.lastIndex += v.getLastIndex();
 		converted = false;
 	}
+	
+	public void sumVector(SparseVector v) {
+		for (int i : v.getIndices()) {
+			setValue(i, getValue(i) + v.getValue(i));
+		}
+		this.lastIndex = Math.max(lastIndex, v.getLastIndex());
+		converted = false;
+	}
+	
 	
 	public void setValue(int index, double value) {
 		vector.put(index, value);
