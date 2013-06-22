@@ -472,14 +472,14 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		//parms.setEvalFunction(LibSVM.F1);
 
 		ResultsTable resTable = new ResultsTable();
-		resTable.setDigits(3);
+		resTable.setDigits(2);
 
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
-				k.setIgnoreLiterals(true);
+				k.setIgnoreLiterals(false);
 				
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
@@ -500,7 +500,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			resTable.newRow("");
 			for (int it : iterations) {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
-				k.setIgnoreLiterals(true);
+				k.setIgnoreLiterals(false);
 				
 				
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
