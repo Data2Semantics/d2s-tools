@@ -44,7 +44,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		affiliationExperiment(false);
+		//affiliationExperiment(false);
 		affiliationExperiment(true);
 		affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
 
@@ -213,7 +213,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			resTable.newRow("");
 			for (int it : iterations) {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
-				k.setIgnoreLiterals(true);
+				k.setIgnoreLiterals(false);
 								
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
@@ -234,7 +234,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			resTable.newRow("");
 			for (int it : iterations) {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
-				k.setIgnoreLiterals(true);
+				k.setIgnoreLiterals(false);
 								
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
@@ -396,6 +396,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		saveResults(resTable, "affiliation.ser");
 
 
+		/*
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
@@ -424,6 +425,8 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 			}
 		}
+		*/
+		
 		saveResults(resTable, "affiliation.ser");
 
 
