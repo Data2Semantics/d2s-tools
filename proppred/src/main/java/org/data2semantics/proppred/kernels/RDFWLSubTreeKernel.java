@@ -48,6 +48,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	private String label;
 	private boolean normalize;
 	private boolean ignoreLiterals;
+	private boolean reverse;
 
 
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
@@ -61,6 +62,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		this.label = "RDF_WL_Kernel_" + depth + "_" + iterations;
 		this.blankLabels = false;
 		this.ignoreLiterals = false;
+		this.reverse = false;
 
 		labelMap = new HashMap<String, String>();
 		instanceVertices = new HashMap<String, Vertex<Map<Integer,StringBuilder>>>();
@@ -88,6 +90,10 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 	public void setIgnoreLiterals(boolean ignore) {
 		ignoreLiterals = ignore;
+	}
+	
+	public void setReverse(boolean reverse) {
+		this.reverse = reverse;
 	}
 
 	public Map<String,String> getInverseLabelMap() {
@@ -222,7 +228,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 					for (Statement stmt : result) {
 						newV = null;
-						
+
 						// literal
 						if (stmt.getObject() instanceof Literal) {
 							if (!ignoreLiterals) {
@@ -357,20 +363,21 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		}
 
 		// 1. Fill buckets 
-		// Add each edge source (i.e.) start vertex to the bucket of the edge label
-		for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
-			// for each label we add a vertex-index-pair to the bucket
-			for (int index : edge.getLabel().keySet()) {
-				bucketsV.get(edge.getLabel().get(index).toString()).getContents().add(new VertexIndexPair(graph.getSource(edge), index + 1));
+		if (reverse) { // Labels "travel" to the root node
+			
+			// Add each edge source (i.e.) start vertex to the bucket of the edge label
+			for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
+				// for each label we add a vertex-index-pair to the bucket
+				for (int index : edge.getLabel().keySet()) {
+					bucketsV.get(edge.getLabel().get(index).toString()).getContents().add(new VertexIndexPair(graph.getSource(edge), index + 1));
+				}
 			}
-		}
 
-		// Add each incident edge to the bucket of the node label
-		for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {			
-			Collection<Edge<Map<Integer,StringBuilder>>> v2 = graph.getInEdges(vertex);	
+			// Add each incident edge to the bucket of the node label
+			for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {			
+				Collection<Edge<Map<Integer,StringBuilder>>> v2 = graph.getInEdges(vertex);	
 
-			for (int index : vertex.getLabel().keySet()) {
-				if (index < depth) { // If index is 0 then we treat it as a fringe node, thus the label will not be propagated to the edges
+				for (int index : vertex.getLabel().keySet()) {
 					for (Edge<Map<Integer,StringBuilder>> e2 : v2) {
 						if (e2.getLabel().containsKey(index)) {
 							bucketsE.get(vertex.getLabel().get(index).toString()).getContents().add(new EdgeIndexPair(e2, index));
@@ -378,7 +385,30 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					}
 				}
 			}
-		}	
+
+		} else { // Labels "travel" to the fringe nodes
+			
+			// Add each edge source (i.e.) start vertex to the bucket of the edge label
+			for (Edge<Map<Integer,StringBuilder>> edge : graph.getEdges()) {
+				// for each label we add a vertex-index-pair to the bucket
+				for (int index : edge.getLabel().keySet()) {
+					bucketsV.get(edge.getLabel().get(index).toString()).getContents().add(new VertexIndexPair(graph.getDest(edge), index));
+				}
+			}
+
+			// Add each incident edge to the bucket of the node label
+			for (Vertex<Map<Integer,StringBuilder>> vertex : graph.getVertices()) {			
+				Collection<Edge<Map<Integer,StringBuilder>>> v2 = graph.getOutEdges(vertex);	
+
+				for (int index : vertex.getLabel().keySet()) {
+					if (index > 0) { // If index is 0 then we treat it as a fringe node, thus the label will not be propagated to the edges
+						for (Edge<Map<Integer,StringBuilder>> e2 : v2) {
+							bucketsE.get(vertex.getLabel().get(index).toString()).getContents().add(new EdgeIndexPair(e2, index - 1));
+						}
+					}
+				}
+			}
+		}
 
 		// 2. add bucket labels to existing labels
 		// Change the original label to a prefix label
@@ -465,7 +495,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 		for (int i = 0; i < instances.size(); i++) {
 			featureVectors[i].setLastIndex(labelCounter - 1);
-		
+
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
 				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());

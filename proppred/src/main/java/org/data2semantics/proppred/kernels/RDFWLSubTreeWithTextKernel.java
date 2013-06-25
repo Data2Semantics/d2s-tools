@@ -39,7 +39,6 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 	private Map<String, String> labelMap;
 	private Map<Vertex<Map<Integer,StringBuilder>>, Map<Integer, SparseVector>> vertexLiteralMap;
-	private Map<Edge<Map<Integer,StringBuilder>>, Map<Integer, SparseVector>> edgeLiteralMap;
 
 	private Map<String, Vertex<Map<Integer,StringBuilder>>> instanceVertices;
 	private Map<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>> instanceVertexIndexMap;
@@ -67,8 +66,7 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 		labelMap = new HashMap<String, String>();
 		vertexLiteralMap = new HashMap<Vertex<Map<Integer,StringBuilder>>, Map<Integer, SparseVector>>();
-		edgeLiteralMap   = new HashMap<Edge<Map<Integer,StringBuilder>>, Map<Integer, SparseVector>>();
-		
+
 		instanceVertices = new HashMap<String, Vertex<Map<Integer,StringBuilder>>>();
 		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>>();
 		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>>();
@@ -120,16 +118,16 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		for (int i = 0; i < iterations; i++) {	
-			relabelGraph2MultisetLabels(graph, startLabel, i);
+			relabelGraph2MultisetLabels(graph, startLabel);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
 			computeFVs(graph, instances, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), featureVectors, textFeatureVectors);
 		}
-		
+
 		for (int i = 0; i < featureVectors.length; i++) {
 			featureVectors[i].addVector(textFeatureVectors[i]);
 		}
-		
+
 		if (this.normalize) {
 			featureVectors = KernelUtils.normalize(featureVectors);
 		}
@@ -262,7 +260,7 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 			}		
 		}
 
-		
+
 		// construct BoW vectors for the Literals
 		List<String> text = new ArrayList<String>();
 		for (Vertex<Map<Integer,StringBuilder>> v : vertexLiteralStringMap.keySet()) {
@@ -275,9 +273,9 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 				vertexLiteralMap.get(v).put(i, bowfv.get(vertexLiteralStringMap.get(v).get(i)));
 			}
 		}
-		
+
 		System.out.println("total amount of literals extracted: " + literalMap.size());
-		
+
 		// Remove edges for statements on the blackList
 		for (Statement stmt : blackList) {
 			graph.removeEdge(edgeMap.get(stmt.toString()));
@@ -335,7 +333,7 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 
 
-	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, int startLabel, int iteration) {
+	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, int startLabel) {
 		Map<String, Bucket<VertexIndexPair>> bucketsV = new HashMap<String, Bucket<VertexIndexPair>>();
 		Map<String, Bucket<EdgeIndexPair>> bucketsE   = new HashMap<String, Bucket<EdgeIndexPair>>();
 
@@ -351,20 +349,7 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 			// for each label we add a vertex-index-pair to the bucket
 			for (int index : edge.getLabel().keySet()) {
-				Vertex<Map<Integer,StringBuilder>> v = graph.getDest(edge);
-				
-				// Transfer an associated Literal String from a vertex to the edge
-				if (vertexLiteralMap.containsKey(v) && vertexLiteralMap.get(v).containsKey(index)) {
-					if (!edgeLiteralMap.containsKey(edge)) {
-						edgeLiteralMap.put(edge, new HashMap<Integer,SparseVector>());
-					}
-					edgeLiteralMap.get(edge).put(index, vertexLiteralMap.get(v).get(index));
-					//vertexLiteralMap.get(v).remove(index);
-					//if (vertexLiteralMap.get(v).size() == 0) {
-					//	vertexLiteralMap.remove(v);
-					//}
-				}
-				
+				Vertex<Map<Integer,StringBuilder>> v = graph.getDest(edge);				
 				bucketsV.get(edge.getLabel().get(index).toString()).getContents().add(new VertexIndexPair(v,index));
 			}
 		}
@@ -376,33 +361,12 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 			for (int index : vertex.getLabel().keySet()) {
 				if (index > 0) { // If index is 0 then we treat it as a fringe node, thus the label will not be propagated to the edges
 					for (Edge<Map<Integer,StringBuilder>> e2 : v2) {
-						// Transfer an associated Literal String from an edge to a vertex
-						if (edgeLiteralMap.containsKey(e2) && edgeLiteralMap.get(e2).containsKey(index-1)) {
-							if (!vertexLiteralMap.containsKey(vertex)) {
-								vertexLiteralMap.put(vertex, new HashMap<Integer,SparseVector>());
-							}
-							if (vertexLiteralMap.get(vertex).containsKey(index)) {
-								vertexLiteralMap.get(vertex).get(index).sumVector(edgeLiteralMap.get(e2).get(index-1));
-							} else {
-								vertexLiteralMap.get(vertex).put(index, edgeLiteralMap.get(e2).get(index-1));
-							}
-			
-							//edgeLiteralMap.get(e2).remove(index-1);
-							//if (edgeLiteralMap.get(e2).size() == 0) {
-							//	edgeLiteralMap.remove(e2);
-							//}
+						if (e2.getLabel().containsKey(index-1)) {
+							bucketsE.get(vertex.getLabel().get(index).toString()).getContents().add(new EdgeIndexPair(e2, index-1));
 						}
-								
-						bucketsE.get(vertex.getLabel().get(index).toString()).getContents().add(new EdgeIndexPair(e2, index-1));
 					}
 				}
 			}
-		}
-		
-		if (iteration % 2 == 0) {
-			vertexLiteralMap.clear();
-		} else {
-			edgeLiteralMap.clear();
 		}
 
 		// 2. add bucket labels to existing labels
@@ -487,21 +451,19 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 		int index;
 		Map<Vertex<Map<Integer,StringBuilder>>, Integer> vertexIndexMap;
 		Map<Edge<Map<Integer,StringBuilder>>, Integer> edgeIndexMap;
-		
+
 		// Extra stuff for the text FV
 		Map<Integer, Integer> labelFVIndexMap = new HashMap<Integer, Integer>();
 		Map<Integer, Map<Integer, SparseVector>> indexFVMap = new HashMap<Integer, Map<Integer, SparseVector>>();
-		
+
 		for (int i = 0; i < instances.size(); i++) {
 			featureVectors[i].setLastIndex(labelCounter - 1);
 
-			System.out.println(instanceVertices.get(instances.get(i).toString()));
-			
 			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
 			for (Vertex<Map<Integer,StringBuilder>> vertex : vertexIndexMap.keySet()) {
 				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex)).toString());
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
-				
+
 				// If the vertex has a SparseVector at the depth of this instance
 				if (vertexLiteralMap.containsKey(vertex) && vertexLiteralMap.get(vertex).containsKey(vertexIndexMap.get(vertex))) {			
 					Integer key = labelFVIndexMap.get(index);
@@ -521,32 +483,18 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 			for (Edge<Map<Integer,StringBuilder>> edge : edgeIndexMap.keySet()) {
 				index = Integer.parseInt(edge.getLabel().get(edgeIndexMap.get(edge)).toString());
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
-				
-				// If the edge has a SparseVector at the depth of this instance
-				if (edgeLiteralMap.containsKey(edge) && edgeLiteralMap.get(edge).containsKey(edgeIndexMap.get(edge))) {
-					Integer key = labelFVIndexMap.get(index);
-					if (key == null) {
-						key = new Integer(labelFVIndexMap.size());
-						labelFVIndexMap.put(index, key);
-						indexFVMap.put(key, new HashMap<Integer, SparseVector>());					
-					}
-					if (indexFVMap.get(key).containsKey(i)) {
-						indexFVMap.get(key).get(i).sumVector(edgeLiteralMap.get(edge).get(edgeIndexMap.get(edge)));
-					} else {
-						indexFVMap.get(key).put(i, new SparseVector(edgeLiteralMap.get(edge).get(edgeIndexMap.get(edge))));
-					}		
-				}
+
 			}
 		}
 		System.out.println("");
-		
+
 		// Process the literal feature vectors
 		for (int k : indexFVMap.keySet()) {
 			int lastIdx = textFV[0].getLastIndex();
-			
+
 			if (indexFVMap.get(k).size() > 1) { // we only need to do stuff if more than 1 instance actually has a FV for this label k
 				System.out.println("Text FV idx: " + k + "  size: " + indexFVMap.get(k).size());
-				
+
 				for (int k2 : indexFVMap.get(k).keySet()) {
 					textFV[k2].addVector(indexFVMap.get(k).get(k2));
 					lastIdx = textFV[k2].getLastIndex();
@@ -586,14 +534,14 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 	private Map<String, SparseVector> computeTextFVs(List<String> texts) {
 		Map<String,SparseVector> map = new HashMap<String,SparseVector>();
 		List<SparseVector> fv = TextUtils.computeTF(texts);
-		
+
 		for (int i = 0; i < texts.size(); i++) {
 			map.put(texts.get(i), fv.get(i));
 		}
 		return map;
 	}
-	
-	
+
+
 
 	private class VertexIndexPair {
 		private Vertex<Map<Integer,StringBuilder>> vertex;
@@ -607,7 +555,7 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 		public Vertex<Map<Integer, StringBuilder>> getVertex() {
 			return vertex;
 		}
-		
+
 		public int getIndex() {
 			return index;
 		}
@@ -619,8 +567,8 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 			}
 			return super.equals(obj);
 		}	
-		
-		
+
+
 	}
 
 	private class EdgeIndexPair {
@@ -635,11 +583,11 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 		public Edge<Map<Integer, StringBuilder>> getEdge() {
 			return edge;
 		}
-		
+
 		public int getIndex() {
 			return index;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof EdgeIndexPair) {

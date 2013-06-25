@@ -33,6 +33,7 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 	private int iterations = 2;
 	protected String label;
 	protected boolean normalize;
+	private boolean reverse;
 
 
 	/**
@@ -44,6 +45,7 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 	public WLSubTreeKernel(int iterations, boolean normalize) {
 		this.normalize = normalize;
 		this.iterations = iterations;
+		this.reverse = false;
 		this.label = "WL SubTree Kernel, it=" + iterations;
 	}	
 
@@ -60,8 +62,10 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		this.normalize = normalize;
 	}
 
-	
-	
+	public void setReverse(boolean reverse) {
+		this.reverse = reverse;
+	}	
+
 	public SparseVector[] computeFeatureVectors(
 			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs) {
 		List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs = copyGraphs(trainGraphs);
@@ -71,16 +75,16 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		}	
 		//double[][] featureVectors = new double[graphs.size()][];
 		Map<String, String> labelDict = new HashMap<String,String>();
-		
+
 		int startLabel = 1;
 		int currentLabel = 1;
-		
+
 		/* Code for setting all root vertices in all the graphs to the generic label (tested on aff. pred. task to give less performance)
 		Set<String> instances = new HashSet<String>();
 		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
 			instances.add(graph.getRootVertex().toString());
 		}
-		
+
 		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
 			for (Vertex<StringBuilder> vertex : graph.getVertices()) {
 				if (instances.contains(vertex.getLabel().toString())) {
@@ -88,8 +92,8 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 				}
 			}
 		}
-		*/
-		
+		 */
+
 
 		// We change the original label of the root node of the graph to a generic label
 		// This rootlabel identifies the graph uniquely, and we don't want that
@@ -99,15 +103,15 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 		computeFVs(graphs, featureVectors, Math.sqrt(1.0 / ((double) (iterations + 1))), currentLabel-1);
-		
-		
+
+
 		for (int i = 0; i < this.iterations; i++) {
 			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
 			startLabel = currentLabel;
 			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 			computeFVs(graphs, featureVectors, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), currentLabel-1);
 		}
-		
+
 		if (normalize) {
 			featureVectors = KernelUtils.normalize(featureVectors);
 		}
@@ -130,7 +134,7 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 
 	public double[][] compute(
 			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
-					List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
+			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
 
 		List<DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>> graphs = copyGraphs(testGraphs);
 		graphs.addAll(copyGraphs(trainGraphs));
@@ -149,10 +153,10 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
 			graph.getRootVertex().setLabel(new StringBuilder(KernelUtils.ROOTID));
 		}
-	
+
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 		computeFVs(graphs, featureVectors, Math.sqrt(1.0 / ((double) (iterations + 1))), currentLabel-1);
-		
+
 
 		for (int i = 0; i < this.iterations; i++) {
 			relabelGraphs2MultisetLabels(graphs, startLabel, currentLabel);
@@ -160,7 +164,7 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 			computeFVs(graphs, featureVectors, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), currentLabel-1);	
 		}
-		
+
 		computeKernelMatrix(trainGraphs, testGraphs, featureVectors, kernel, ss);
 
 		if (normalize) {
@@ -192,17 +196,36 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		}
 
 		// 1. Fill buckets 
-		for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
-			// Add each edge source (i.e.) start vertex to the bucket of the edge label
-			for (Edge<StringBuilder> edge : graph.getEdges()) {
-				bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getSource(edge));
-			}
 
-			// Add each incident edge to the bucket of the node label
-			for (Vertex<StringBuilder> vertex : graph.getVertices()) {			
-				Collection<Edge<StringBuilder>> v2 = graph.getInEdges(vertex);	
-				bucketsE.get(vertex.getLabel().toString()).getContents().addAll(v2);
-			}	
+		if (reverse) { // Labels "travel" in the root direction
+			
+			for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+				// Add each edge source (i.e.) start vertex to the bucket of the edge label
+				for (Edge<StringBuilder> edge : graph.getEdges()) {
+					bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getSource(edge));
+				}
+
+				// Add each incident edge to the bucket of the node label
+				for (Vertex<StringBuilder> vertex : graph.getVertices()) {			
+					Collection<Edge<StringBuilder>> v2 = graph.getInEdges(vertex);	
+					bucketsE.get(vertex.getLabel().toString()).getContents().addAll(v2);
+				}	
+			}
+		} else { // Labels "travel" in the fringe vertices direction
+			for (DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> graph : graphs) {
+				// Add each edge source (i.e.) start vertex to the bucket of the edge label
+				for (Edge<StringBuilder> edge : graph.getEdges()) {
+					bucketsV.get(edge.getLabel().toString()).getContents().add(graph.getDest(edge));
+				}
+
+				// Add each incident edge to the bucket of the node label
+				for (Vertex<StringBuilder> vertex : graph.getVertices()) {			
+					Collection<Edge<StringBuilder>> v2 = graph.getOutEdges(vertex);	
+					bucketsE.get(vertex.getLabel().toString()).getContents().addAll(v2);
+				}	
+			}
+	
+
 		}
 
 		// 2. add bucket labels to existing labels
@@ -344,13 +367,13 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 		for(DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : oldGraphs) {
 			DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>> newGraph = new DirectedMultigraphWithRoot<Vertex<StringBuilder>, Edge<StringBuilder>>();
 			String rootLabel = graph.getRootVertex().getLabel();
-			
+
 			Map<Vertex<String>, Vertex<StringBuilder>> nodes = new HashMap<Vertex<String>, Vertex<StringBuilder>>();
 
 			for (Vertex<String> vertex : graph.getVertices()) {
 				Vertex<StringBuilder> newV = new Vertex<StringBuilder>(new StringBuilder(vertex.getLabel()));
 				nodes.put(vertex, newV);
-				
+
 				if (vertex.getLabel().equals(rootLabel)) {
 					newGraph.setRootVertex(newV);
 				}
