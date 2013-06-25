@@ -21,6 +21,7 @@ import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWith
 import org.data2semantics.proppred.kernels.RDFSimpleTextKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernelTree;
+import org.data2semantics.proppred.kernels.RDFWLSubTreeWithTextKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
@@ -53,8 +54,8 @@ public class Task1Experiment extends RDFMLExperiment {
 		createTask1DataSet(1, seed);
 
 		//		double[] bins = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 75.5};
-		//double[] bins = {0.5, 1.5, 3.5, 6.5, 22.5};
-		double[] bins = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 12.5, 15.5, 18.5, 23.5};
+		double[] bins = {0.5, 1.5, 3.5, 6.5, 22.5};
+		//double[] bins = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 12.5, 15.5, 18.5, 23.5};
 
 
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
@@ -219,10 +220,16 @@ public class Task1Experiment extends RDFMLExperiment {
 			for (int it : iterations) {
 				resTable.newRow("");
 
+				/*
 				List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
 				kernels.add(new RDFWLSubTreeKernel(it,d, inference, false));
 				kernels.add(new RDFSimpleTextKernel(d, inference, false));
 				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, true);
+				*/
+				
+				RDFFeatureVectorKernel kernel = new RDFWLSubTreeWithTextKernel(it, d, inference, false);
+				
+				
 				
 				System.out.println("Running RDFWL + text kernel: " + d + " " + it);
 
@@ -322,6 +329,8 @@ public class Task1Experiment extends RDFMLExperiment {
 
 	private static void createTask1DataSet(double fraction, long seed) {
 		RDFFileDataSet d = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+	
+		/*
 		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\adms.ttl", RDFFormat.TURTLE);
 		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\ns.ttl", RDFFormat.TURTLE);
 		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\skos.rdf", RDFFormat.RDFXML);
@@ -337,8 +346,9 @@ public class Task1Experiment extends RDFMLExperiment {
 		RDFSparqlDataSet sds = new RDFSparqlDataSet("http://dbpedia.org/sparql", dbpns);
 		sds.setLogFile("test.txt");
 		//test.addRDFDataSet(sds);
+	 */
 
-		dataset = test;
+		dataset = d;
 
 		Random rand = new Random(seed);
 

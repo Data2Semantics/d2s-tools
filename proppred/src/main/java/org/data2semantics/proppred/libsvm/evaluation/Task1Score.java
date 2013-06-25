@@ -18,7 +18,7 @@ public class Task1Score implements EvaluationFunction {
 	}
 	
 	private double score(double scoreA, double scoreB) {
-		return (2.0 / (1.0 + Math.exp(-1.0 * Math.abs(scoreA - scoreB) / Math.min(scoreA, scoreB)))) - 1;
+		return (2.0 / (1.0 + Math.exp(-1.0 * Math.abs(scoreA - scoreB) / Math.min(scoreA, scoreB))));
 	}
 	
 	public String getLabel() {

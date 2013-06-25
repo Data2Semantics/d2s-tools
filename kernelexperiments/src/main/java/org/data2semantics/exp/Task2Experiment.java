@@ -42,8 +42,8 @@ public class Task2Experiment extends RDFMLExperiment {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int[] depths = {2};
-		int[] iterations = {4};
+		int[] depths = {1,2};
+		int[] iterations = {0,2,4};
 
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
@@ -76,11 +76,11 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 
-		boolean tfidf = false;
-		boolean normalize = true;
+		boolean tfidf = true;
+		boolean normalize = false;
 		boolean inference = true;
 		
-		/*
+		
 
 		for (int d : depths) {
 			resTable.newRow("");
@@ -183,12 +183,12 @@ public class Task2Experiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 
-		*/
+		
 
 		for (int d : depths) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, inference, normalize);
+				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, normalize);
 				//k.setIgnoreLiterals(false);
 				
 				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
