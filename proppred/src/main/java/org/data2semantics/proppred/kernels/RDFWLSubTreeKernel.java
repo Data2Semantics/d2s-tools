@@ -54,7 +54,6 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
 		this(iterations, depth, inference, normalize);
 		this.blankLabels = blankLabels;
-
 	}
 
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize) {
