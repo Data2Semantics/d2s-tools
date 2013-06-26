@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import de.bwaldvogel.liblinear.Problem;
+
 
 /**
  * Wrapper class for the LibSVM library. This class provides static methods to interface with the libsvm library.
@@ -77,7 +79,7 @@ public class LibSVM {
 			} else {
 				svmParams.nu = c;
 			}
-			svm.svm_cross_validation(svmProb, svmParams, 5, prediction);
+			svm.svm_cross_validation(svmProb, svmParams, params.getNumFolds(), prediction);
 			
 			if (params.getEvalFunction() == LibSVM.ACCURACY) {
 				score = computeAccuracy(target, prediction);

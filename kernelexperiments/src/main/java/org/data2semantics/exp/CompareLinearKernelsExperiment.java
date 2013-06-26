@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.experiments.KernelExperiment;
-import org.data2semantics.exp.experiments.RDFKernelExperiment;
+import org.data2semantics.exp.experiments.RDFOldKernelExperiment;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;

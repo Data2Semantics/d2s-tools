@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.data2semantics.exp.experiments.KernelExperiment;
-import org.data2semantics.exp.experiments.RDFKernelExperiment;
+import org.data2semantics.exp.experiments.RDFOldKernelExperiment;
 import org.data2semantics.exp.experiments.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
@@ -46,7 +46,7 @@ public class CommitteeMemberCompareExperiment extends RDFMLExperiment {
 				
 				
 				LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, parms, dataset, instances, labels, blackList);
+				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, parms, dataset, instances, labels, blackList);
 				
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();

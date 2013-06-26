@@ -17,7 +17,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
-public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
+public class RDFOldKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 	private LibSVMParameters svmParms;
 	private List<Value> labels;
 	private RDFDataSet dataset;
@@ -28,8 +28,19 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 	private Result compR;
 
 
+	/**
+	 * @deprecated Should be changed to a new version in line with RDFLinearKernelExperiment, which requires an update of LibSVM
+	 *  
+	 * @param kernel
+	 * @param seeds
+	 * @param svmParms
+	 * @param dataset
+	 * @param instances
+	 * @param labels
+	 * @param blackList
+	 */
 	
-	public RDFKernelExperiment(RDFGraphKernel kernel, long[] seeds,
+	public RDFOldKernelExperiment(RDFGraphKernel kernel, long[] seeds,
 			LibSVMParameters svmParms, RDFDataSet dataset,
 			List<Resource> instances,  List<Value> labels, List<Statement> blackList) {
 		super(kernel, seeds);
@@ -67,9 +78,9 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 		double[] acc = new double[seeds.length];
 		double[] f1 = new double[seeds.length];
 		
-		accR.setLabel("acc");
+		accR.setLabel("Accuracy");
+		f1R.setLabel("F1");
 		
-		f1R.setLabel("f1");
 		compR.setLabel("kernel comp time");
 		
 		for (int j = 0; j < seeds.length; j++) {
@@ -92,7 +103,7 @@ public class RDFKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 			
 			
 			
-			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, 10);
+			Prediction[] predB = LibSVM.crossValidate(matrix, target, svmParms, svmParms.getNumFolds());
 			acc[j] = LibSVM.computeAccuracy(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 			f1[j]  = LibSVM.computeF1(LibSVM.createTargets(tempLabels), LibSVM.extractLabels(predB));
 		}

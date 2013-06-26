@@ -16,7 +16,7 @@ import org.data2semantics.exp.experiments.GraphKernelExperiment;
 import org.data2semantics.exp.experiments.GraphKernelRunTimeExperiment;
 import org.data2semantics.exp.experiments.KernelExperiment;
 import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
-import org.data2semantics.exp.experiments.RDFKernelExperiment;
+import org.data2semantics.exp.experiments.RDFOldKernelExperiment;
 import org.data2semantics.exp.experiments.RDFKernelRunTimeExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
@@ -215,7 +215,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 				k.setIgnoreLiterals(false);
 								
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
+				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
@@ -236,7 +236,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 				k.setIgnoreLiterals(false);
 								
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
+				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
@@ -252,7 +252,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + i + " ");
 			exp.run();
@@ -266,7 +266,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + i + " ");
 			exp.run();
@@ -281,7 +281,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IPST: " + i + " ");
 			exp.run();
@@ -295,7 +295,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
-			KernelExperiment<RDFGraphKernel> exp = new RDFKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
+			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IPST: " + i + " ");
 			exp.run();
