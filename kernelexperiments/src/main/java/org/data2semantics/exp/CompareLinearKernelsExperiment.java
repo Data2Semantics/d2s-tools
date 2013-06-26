@@ -78,6 +78,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 		linParms.setWeights(weights);
 
 		ResultsTable resTable = new ResultsTable();
+		resTable.setDigits(3);
 
 		/*
 		for (int depth : depths2) {

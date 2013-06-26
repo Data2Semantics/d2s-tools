@@ -17,6 +17,7 @@ import org.data2semantics.proppred.kernels.Kernel;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
@@ -40,7 +41,7 @@ public class FullThemeExperiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
 		long seed = 1;
-		double[] fractions = {0.5};
+		double[] fractions = {0.1};
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-dir")) {
@@ -62,7 +63,7 @@ public class FullThemeExperiment extends RDFMLExperiment {
 		}
 
 		long[] seeds = {11, 21, 31, 41, 51};
-		double[] cs = {1, 10, 100, 1000, 10000};	
+		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
 
 		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
@@ -81,34 +82,33 @@ public class FullThemeExperiment extends RDFMLExperiment {
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 			List<Double> target = EvaluationUtils.createTarget(labels);
+			
+			LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+			linParms.setDoCrossValidation(false);
+			linParms.setNumFolds(0);
+			linParms.setSplitFraction((float) 0.7);
+			
+			Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target);
+			int[] wLabels = new int[counts.size()];
+			double[] weights = new double[counts.size()];
+
+			for (double label : counts.keySet()) {
+				wLabels[(int) label - 1] = (int) label;
+				weights[(int) label - 1] = 1 / counts.get(label);
+			}
+			linParms.setWeightLabels(wLabels);
+			linParms.setWeights(weights);
+			
 
 			System.out.println("Running fraction: " + frac);
 
-
+			
 			for (int i : depths) {			
 				for (int it : iterations) {
-					resTable.newRow("");
-
-					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-					linParms.setDoCrossValidation(false);
-					linParms.setNumFolds(0);
-					linParms.setSplitFraction((float) 0.7);
-					
-					Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target);
-					int[] wLabels = new int[counts.size()];
-					double[] weights = new double[counts.size()];
-
-					for (double label : counts.keySet()) {
-						wLabels[(int) label - 1] = (int) label;
-						weights[(int) label - 1] = 1 / counts.get(label);
-					}
-					linParms.setWeightLabels(wLabels);
-					linParms.setWeights(weights);
-
-					
+					resTable.newRow("");	
 
 					KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
-
+				
 					System.out.println("Running WL RDF: " + i + " " + it);
 					exp.run();
 
@@ -117,6 +117,26 @@ public class FullThemeExperiment extends RDFMLExperiment {
 					}	
 				}
 			}
+			
+
+			for (int i : depths) {			
+				//for (int it : iterations) {
+					resTable.newRow("");	
+
+					//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+
+					KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(i, false, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+
+					
+					System.out.println("Running EVP: " + i);
+					//System.out.println("Running WL RDF: " + i + " " + it);
+					exp.run();
+
+					for (Result res : exp.getResults()) {
+						resTable.addResult(res);
+					}	
+				}
+			//}
 		}
 
 		saveResults(resTable, "geo_theme_" + seed + ".ser");
