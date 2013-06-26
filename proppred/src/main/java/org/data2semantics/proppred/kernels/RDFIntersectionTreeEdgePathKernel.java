@@ -149,8 +149,16 @@ public class RDFIntersectionTreeEdgePathKernel implements RDFGraphKernel, RDFFea
 
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances,
 			List<Statement> blackList) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
+		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
+		for (int i = 0; i < instances.size(); i++) {
+			for (int j = i; j < instances.size(); j++) {
+				kernel[i][j] += featureVectors[i].dot(featureVectors[j]);
+				kernel[j][i] = kernel[i][j];
+			}
+		}		
+		return kernel;
 	}
 
 }

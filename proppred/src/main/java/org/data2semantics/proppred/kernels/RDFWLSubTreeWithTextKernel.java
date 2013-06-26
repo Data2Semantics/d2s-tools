@@ -274,8 +274,6 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 			}
 		}
 
-		System.out.println("total amount of literals extracted: " + literalMap.size());
-
 		// Remove edges for statements on the blackList
 		for (Statement stmt : blackList) {
 			graph.removeEdge(edgeMap.get(stmt.toString()));
@@ -486,15 +484,13 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 			}
 		}
-		System.out.println("");
-
+		
 		// Process the literal feature vectors
 		for (int k : indexFVMap.keySet()) {
 			int lastIdx = textFV[0].getLastIndex();
 
 			if (indexFVMap.get(k).size() > 1) { // we only need to do stuff if more than 1 instance actually has a FV for this label k
-				System.out.println("Text FV idx: " + k + "  size: " + indexFVMap.get(k).size());
-
+				
 				for (int k2 : indexFVMap.get(k).keySet()) {
 					textFV[k2].addVector(indexFVMap.get(k).get(k2));
 					lastIdx = textFV[k2].getLastIndex();
