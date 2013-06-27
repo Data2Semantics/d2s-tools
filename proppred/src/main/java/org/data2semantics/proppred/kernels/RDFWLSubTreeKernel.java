@@ -41,6 +41,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	private Map<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>> instanceEdgeIndexMap;
 
 	private int labelCounter;
+	private int startLabel;
 	private int depth;
 	private int iterations;
 	private boolean inference;
@@ -68,7 +69,9 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		this.instanceVertexIndexMap = new HashMap<String, Map<Vertex<Map<Integer,StringBuilder>>, Integer>>();
 		this.instanceEdgeIndexMap = new HashMap<String, Map<Edge<Map<Integer,StringBuilder>>, Integer>>();
 
+		startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		labelCounter = 2;
+		
 		this.depth = depth;
 		this.inference = inference;
 		this.iterations = iterations;
@@ -100,6 +103,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		for (String k : labelMap.keySet()) {
 			invMap.put(labelMap.get(k), k);
 		}
+		
 		return invMap;
 	}
 
@@ -118,10 +122,9 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		}
 
 		computeFVs(graph, instances, Math.sqrt(1.0 / ((double) (iterations + 1))), featureVectors);
-
-		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
+		
 		for (int i = 0; i < iterations; i++) {	
-			relabelGraph2MultisetLabels(graph, startLabel);
+			relabelGraph2MultisetLabels(graph);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
 			computeFVs(graph, instances, Math.sqrt((2.0 + i) / ((double) (iterations + 1))), featureVectors);
@@ -239,9 +242,11 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 									newV.getLabel().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this vertex
 								} else {
 									newV = new Vertex<Map<Integer,StringBuilder>>(new HashMap<Integer, StringBuilder>());
-									labelMap.put(idStr2, Integer.toString(labelCounter));
-									newV.getLabel().put(i, new StringBuilder(Integer.toString(labelCounter)));
-									labelCounter++;
+									if (!labelMap.containsKey(idStr2)) { 
+										labelMap.put(idStr2, Integer.toString(labelCounter));
+										labelCounter++;
+									}
+									newV.getLabel().put(i, new StringBuilder(labelMap.get(idStr2)));
 									literalMap.put(idStr, newV);
 									graph.addVertex(newV);
 								}
@@ -351,7 +356,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 
 
-	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph, int startLabel) {
+	private void relabelGraph2MultisetLabels(DirectedGraph<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> graph) {
 		Map<String, Bucket<VertexIndexPair>> bucketsV = new HashMap<String, Bucket<VertexIndexPair>>();
 		Map<String, Bucket<EdgeIndexPair>> bucketsE   = new HashMap<String, Bucket<EdgeIndexPair>>();
 

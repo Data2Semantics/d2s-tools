@@ -152,6 +152,8 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 					
 					Map<String, String> lm = k.getInverseLabelMap();
 					
+					System.out.println("Map size: " + lm.size() + " fw length: " + fw[0].length + " fv max index: " + fv[0].getLastIndex());
+					
 					for (LibLINEARModel.WeightIndexPair[] fwc : fw) {
 						Arrays.sort(fwc);
 						for (int i = 0; i < 10 && i < fwc.length; i++) {

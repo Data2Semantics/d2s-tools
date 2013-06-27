@@ -114,7 +114,7 @@ public class CompareLinearKernelsExperiment extends RDFMLExperiment {
 				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, false), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
 				System.out.println("Running WL RDF: " + depth + " " + it);
-				exp.setDoCV(true);
+				//exp.setDoCV(true);
 				exp.setDoTFIDF(true);
 				exp.run();
 
