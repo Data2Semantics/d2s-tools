@@ -18,58 +18,65 @@ import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
 public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
-	
+
 	public static void main(String[] args) {
 		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
 		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
-		long seed = 11;
+		long[] seeds = {11,21,31};
 		long tic, toc;
 
 		double[] fractions = {0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1};
 		double[] fractionsSlow = {0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1};
 
-		
+
 		ResultsTable resTable = new ResultsTable();
-		
-		
+
+
 		resTable.newRow("WLRDF FV");
 		for (double frac : fractions) {
-			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+			double[] comp = new double[seeds.length];
+			for (int i = 0; i < seeds.length; i++) {
+				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 
-			RDFFeatureVectorKernel k = new RDFWLSubTreeKernel(6,3,false, true);
-			
-			System.out.println("RDF WL FV: " + frac);
-			tic = System.currentTimeMillis();
-			k.computeFeatureVectors(dataset, instances, blackList);
-			toc = System.currentTimeMillis();
-			double[] comp = {toc-tic};
+				RDFFeatureVectorKernel k = new RDFWLSubTreeKernel(6,3,false, true);
+
+				System.out.println("RDF WL FV: " + frac);
+				tic = System.currentTimeMillis();
+				k.computeFeatureVectors(dataset, instances, blackList);
+				toc = System.currentTimeMillis();
+				comp[i] = toc-tic;
+			}
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
-		}	
+		}
 		System.out.println(resTable);
-		
+
 		resTable.newRow("WLRDF Kernel");
 		for (double frac : fractions) {
-			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+			double[] comp = new double[seeds.length];
+			for (int i = 0; i < seeds.length; i++) {
+				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 
-			RDFGraphKernel k = new RDFWLSubTreeKernel(6,3,false, true);
-			
-			System.out.println("RDF WL Kernel: " + frac);
-			tic = System.currentTimeMillis();
-			k.compute(dataset, instances, blackList);
-			toc = System.currentTimeMillis();
-			double[] comp = {toc-tic};
+				RDFGraphKernel k = new RDFWLSubTreeKernel(6,3,false, true);
+
+				System.out.println("RDF WL Kernel: " + frac);
+				tic = System.currentTimeMillis();
+				k.compute(dataset, instances, blackList);
+				toc = System.currentTimeMillis();
+				comp[i] = toc-tic;
+			}
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}	
 		System.out.println(resTable);
-		
+
+		/*
 		resTable.newRow("WLRDF String FV");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 			RDFFeatureVectorKernel k = new RDFWLSubTreeKernelString(6,3, false, true);
-	
-			
+
+
 			System.out.println("RDF WL String FV: " + frac);
 			tic = System.currentTimeMillis();
 			k.computeFeatureVectors(dataset, instances, blackList);
@@ -79,13 +86,13 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			resTable.addResult(res);
 		}
 		System.out.println(resTable);
-		
+
 		resTable.newRow("WLRDF String Kernel");
 		for (double frac : fractions) {
 			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 			RDFGraphKernel k = new RDFWLSubTreeKernelString(6,3, false, true);
-	
-			
+
+
 			System.out.println("RDF WL String: " + frac);
 			tic = System.currentTimeMillis();
 			k.compute(dataset, instances, blackList);
@@ -95,73 +102,82 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 			resTable.addResult(res);
 		}
 		System.out.println(resTable);
-	
-		
-		
+		 */
+
+
 		resTable.newRow("RDF IST");
 		for (double frac : fractions) {
-			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			RDFGraphKernel k = new RDFIntersectionSubTreeKernel(3,1, false, true);
-	
-			
-			System.out.println("RDF IST: " + frac);
-			tic = System.currentTimeMillis();
-			k.compute(dataset, instances, blackList);
-			toc = System.currentTimeMillis();
-			double[] comp = {toc-tic};
+			double[] comp = new double[seeds.length];
+			for (int i = 0; i < seeds.length; i++) {
+				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+				RDFGraphKernel k = new RDFIntersectionSubTreeKernel(3,1, false, true);
+
+
+				System.out.println("RDF IST: " + frac);
+				tic = System.currentTimeMillis();
+				k.compute(dataset, instances, blackList);
+				toc = System.currentTimeMillis();
+				comp[i] = toc-tic;
+			}
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}
 		System.out.println(resTable);
-		
-		
-		
-		
+
+
+
+
 		resTable.newRow("WL FV");
 		for (double frac : fractionsSlow) {
-			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			tic = System.currentTimeMillis();
-			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-			toc = System.currentTimeMillis();
-			double dsComp = toc-tic;
-			
-			FeatureVectorKernel k = new WLSubTreeKernel(6,true);
-			
-			System.out.println("WL: " + frac);
-			tic = System.currentTimeMillis();
-			k.computeFeatureVectors(ds.getGraphs());
-			toc = System.currentTimeMillis();
-			double[] comp = {(toc-tic) + dsComp};
+			double[] comp = new double[seeds.length];
+			for (int i = 0; i < seeds.length; i++) {
+				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+				tic = System.currentTimeMillis();
+				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+				toc = System.currentTimeMillis();
+				double dsComp = toc-tic;
+
+				FeatureVectorKernel k = new WLSubTreeKernel(6,true);
+
+				System.out.println("WL: " + frac);
+				tic = System.currentTimeMillis();
+				k.computeFeatureVectors(ds.getGraphs());
+				toc = System.currentTimeMillis();
+				comp[i] = (toc-tic) + dsComp;
+			}
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}		
 		System.out.println(resTable);
-		
-		
+
+
 		resTable.newRow("WL Kernel");
 		for (double frac : fractionsSlow) {
-			createGeoDataSet((int)(1000 * frac), frac, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
-			tic = System.currentTimeMillis();
-			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
-			toc = System.currentTimeMillis();
-			double dsComp = toc-tic;
-			
-			GraphKernel k = new WLSubTreeKernel(6,true);
-			
-			System.out.println("WL: " + frac);
-			tic = System.currentTimeMillis();
-			k.compute(ds.getGraphs());
-			toc = System.currentTimeMillis();
-			double[] comp = {(toc-tic) + dsComp};
+			double[] comp = new double[seeds.length];
+			for (int i = 0; i < seeds.length; i++) {
+				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
+				tic = System.currentTimeMillis();
+				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
+				toc = System.currentTimeMillis();
+				double dsComp = toc-tic;
+
+				GraphKernel k = new WLSubTreeKernel(6,true);
+
+				System.out.println("WL: " + frac);
+				tic = System.currentTimeMillis();
+				k.compute(ds.getGraphs());
+				toc = System.currentTimeMillis();
+				comp[i] = (toc-tic) + dsComp;
+			}
 			Result res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}		
 		System.out.println(resTable);
-		
-		
-		
-		
+
+
+
+
 	}
-	
-	
+
+
 }
