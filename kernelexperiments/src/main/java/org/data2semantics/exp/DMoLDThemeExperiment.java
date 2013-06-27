@@ -85,9 +85,10 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 					linParms.setWeightLabels(wLabels);
 					linParms.setWeights(weights);
 
-					KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 
 					System.out.println("Running WL RDF: " + i + " " + it);
+					exp.setDoCV(true);
 					exp.run();
 					res.add(exp.getResults());
 				}
@@ -123,9 +124,10 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 				linParms.setWeightLabels(wLabels);
 				linParms.setWeights(weights);
 
-				KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(i, false, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(i, false, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 
 				System.out.println("Running EVP: " + i);
+				exp.setDoCV(true);
 				exp.run();
 				res.add(exp.getResults());
 			}
