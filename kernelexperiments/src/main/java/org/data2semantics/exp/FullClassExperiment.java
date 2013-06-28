@@ -15,6 +15,8 @@ import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.RDFGraphKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionSubTreeKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
@@ -40,57 +42,90 @@ public class FullClassExperiment extends RDFMLExperiment {
 		long[] seeds = {11,31,51,71,91};
 		double[] cs = { 1, 10, 100, 1000, 10000};	
 		// 0.001, 0.01, 0.1,
-		
+
 		//int[] depths = {1, 2, 3};
 		//int[] iterations = {0, 2, 4, 6};
 		int[] depths = {1,2,3};
 		int[] iterations = {0,2,4,6};
 
+		boolean inference = true;
+
 		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 
 		createGeoDataSet(10, 0.1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasUnitClass");
 		List<Double> target = EvaluationUtils.createTarget(labels);
-		
-	
+
+
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
 		evalFuncs.add(new F1());
-		
+
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
-		
-		boolean inference = false;
+
+
+
+
 		for (int i : depths) {			
 			for (int it : iterations) {
 				resTable.newRow("");
-								
+
 				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
 				KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
-				
+
 				System.out.println("Running WL RDF: " + i + " " + it);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}	
 			}
 		}
+		System.out.println(resTable);
+
+		for (int i : depths) {			
+			resTable.newRow("");
+
+			LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+			KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(i, false, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+
+			System.out.println("Running EVP: " + i);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}	
+		}
+		System.out.println(resTable);
 		
-		saveResults(resTable, "geo_theme.ser");
+		for (int i : depths) {			
+			resTable.newRow("");
+
+			LibSVMParameters svmParms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		
+			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+
+			System.out.println("Running IST: " + i);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}	
+		}
+
+
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
-		saveResults(resTable.toString(), "geo_theme_full.txt");
 	}
-	
-	
+
+
 
 	protected static void createGeoDataSet(int minSize, double frac, long seed, String property) {
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");
 		instances = new ArrayList<Resource>();
 		labels = new ArrayList<Value>();
 		blackList = new ArrayList<Statement>();
-		
+
 		Random rand = new Random(seed);
 
 		// http://data.bgs.ac.uk/ref/Lexicon/hasRockUnitRank

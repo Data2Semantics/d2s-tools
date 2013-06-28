@@ -67,6 +67,8 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 
 				List<List<Result>> res = new ArrayList<List<Result>>();
 				for (long seed : seeds) {
+					long[] seeds2 = {seed};
+					
 					createGeoDataSet((int)(1000 * fraction), fraction, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 					List<Double> target = EvaluationUtils.createTarget(labels);
 
@@ -85,7 +87,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 					linParms.setWeightLabels(wLabels);
 					linParms.setWeights(weights);
 
-					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, i, inference, true), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
 
 					System.out.println("Running WL RDF: " + i + " " + it);
 					exp.setDoCV(true);
@@ -106,6 +108,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
+				long[] seeds2 = {seed};
 				createGeoDataSet((int)(1000 * fraction), fraction, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				List<Double> target = EvaluationUtils.createTarget(labels);
 
@@ -124,7 +127,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 				linParms.setWeightLabels(wLabels);
 				linParms.setWeights(weights);
 
-				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(i, false, inference, true), seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(i, false, inference, true), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
 
 				System.out.println("Running EVP: " + i);
 				exp.setDoCV(true);
@@ -143,6 +146,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
+				long[] seeds2 = {seed};
 				createGeoDataSet((int)(1000 * fraction), fraction, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
 				List<Double> target = EvaluationUtils.createTarget(labels);
 
@@ -150,7 +154,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 				svmParms.setNumFolds(5);
 
 
-				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true), seeds2, svmParms, dataset, instances, labels, blackList);
 
 				System.out.println("Running IST: " + i);
 				exp.run();
