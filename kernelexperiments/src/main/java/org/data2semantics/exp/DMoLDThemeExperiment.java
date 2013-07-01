@@ -19,7 +19,9 @@ import org.data2semantics.proppred.kernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.kernels.RDFWLSubTreeWithTextKernel;
 import org.data2semantics.proppred.libsvm.LibLINEAR;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
@@ -42,9 +44,9 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
 
-		double fraction = 0.1;
-		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
-		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
+		double fraction = 0.2;
+		long[] seeds = {11, 21, 31, 41, 51};
+		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 10000};	
 
 		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
@@ -100,9 +102,52 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 				}
 			}
 		}
-
 		System.out.println(resTable);
 
+
+		for (int i : depths) {	
+			resTable.newRow("");	
+			for (int it : iterations) {
+
+				List<List<Result>> res = new ArrayList<List<Result>>();
+				for (long seed : seeds) {
+					long[] seeds2 = {seed};
+					
+					createGeoDataSet((int)(1000 * fraction), fraction, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+					List<Double> target = EvaluationUtils.createTarget(labels);
+
+					LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+					linParms.setDoCrossValidation(true);
+					linParms.setNumFolds(5);
+
+					Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target);
+					int[] wLabels = new int[counts.size()];
+					double[] weights = new double[counts.size()];
+
+					for (double label : counts.keySet()) {
+						wLabels[(int) label - 1] = (int) label;
+						weights[(int) label - 1] = 1 / counts.get(label);
+					}
+					linParms.setWeightLabels(wLabels);
+					linParms.setWeights(weights);
+
+					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeWithTextKernel(it, i, inference, false), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
+
+					System.out.println("Running WL RDF with text: " + i + " " + it);
+					exp.setDoCV(true);
+					exp.setDoTFIDF(true);
+					exp.run();
+					res.add(exp.getResults());
+				}
+
+				for (Result res2 : Result.mergeResultLists(res)) {
+					resTable.addResult(res2);
+				}
+			}
+		}
+		System.out.println(resTable);
+
+		
 		for (int i : depths) {	
 			resTable.newRow("");	
 
@@ -140,6 +185,47 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+		
+		for (int i : depths) {	
+			resTable.newRow("");	
+
+			List<List<Result>> res = new ArrayList<List<Result>>();
+			for (long seed : seeds) {
+				long[] seeds2 = {seed};
+				createGeoDataSet((int)(1000 * fraction), fraction, seed, "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");
+				List<Double> target = EvaluationUtils.createTarget(labels);
+
+				LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
+				linParms.setDoCrossValidation(true);
+				linParms.setNumFolds(5);
+
+				Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target);
+				int[] wLabels = new int[counts.size()];
+				double[] weights = new double[counts.size()];
+
+				for (double label : counts.keySet()) {
+					wLabels[(int) label - 1] = (int) label;
+					weights[(int) label - 1] = 1 / counts.get(label);
+				}
+				linParms.setWeightLabels(wLabels);
+				linParms.setWeights(weights);
+
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(i, false, inference, false), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
+
+				System.out.println("Running EVP with text: " + i);
+				exp.setDoCV(true);
+				exp.setDoTFIDF(true);
+				exp.run();
+				res.add(exp.getResults());
+			}
+
+			for (Result res2 : Result.mergeResultLists(res)) {
+				resTable.addResult(res2);
+			}
+		}
+		System.out.println(resTable);
+
+		
 
 		for (int i : depths) {	
 			resTable.newRow("");	
