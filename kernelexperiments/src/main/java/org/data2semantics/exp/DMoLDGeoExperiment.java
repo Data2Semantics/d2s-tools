@@ -69,7 +69,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		svmParms.setNumFolds(10);
 		
 		ResultsTable resTable = new ResultsTable();
-		resTable.setDigits(3);
+		resTable.setDigits(2);
 
 		for (int depth : depths) {
 			resTable.newRow("");
@@ -103,8 +103,12 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 		
+		
+		ResultsTable table2 = new ResultsTable();
+		
 		for (int depth : depths) {
 			resTable.newRow("");
+			table2.newRow("");
 			
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(depth, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
@@ -113,12 +117,14 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 
 			for (Result res : exp.getResults()) {
 				resTable.addResult(res);
+				table2.addResult(res);
 			}
 		}
 		System.out.println(resTable);
 		
 		for (int depth : depths) {
 			resTable.newRow("");
+			table2.newRow("");
 			
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(depth, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
@@ -127,6 +133,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 
 			for (Result res : exp.getResults()) {
 				resTable.addResult(res);
+				table2.addResult(res);
 			}
 		}
 		System.out.println(resTable);
@@ -144,6 +151,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		}
 		
 		resTable.addCompResults(resTable.getBestResults());
+		resTable.addCompResults(table2.getBestResults());
 		System.out.println(resTable);
 
 	}

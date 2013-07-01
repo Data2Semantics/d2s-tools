@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections15.Factory;
 import org.data2semantics.proppred.libsvm.SparseVector;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
@@ -16,8 +17,13 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+
+import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
+import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 /**
@@ -117,6 +123,16 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
 		createInstanceIndexMaps(graph, instances);
 
+		/*
+		Factory<Tree<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>>> treeFac = DelegateTree.getFactory();	
+		PrimMinimumSpanningTree<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>> spanTree = new PrimMinimumSpanningTree<Vertex<Map<Integer,StringBuilder>>, Edge<Map<Integer,StringBuilder>>>(treeFac);
+		Graph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph2 = spanTree.transform(graph);
+		
+		double ratio = ((double) graph2.getEdgeCount()) / ((double) graph.getEdgeCount());
+		System.out.println("SpanTree #edges: " + graph2.getEdgeCount() + ", Graph #edges: " + graph.getEdgeCount() + ", ratio: " + ratio);
+		*/
+		
+		
 		if (blankLabels) {
 			setBlankLabels(graph);
 		}

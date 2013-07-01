@@ -69,10 +69,12 @@ public class ResultsTable implements Serializable {
 				for (Result res : table.get(i)) {
 
 					signif = "";
+					int j = 0;
 					for (Result comp : compRes) {
+						j++;
 						if (comp.getLabel().equals(res.getLabel())) {
 							if (comp.getScores().length > 1 && !signifTest(comp.getScores(), res.getScores())) {
-								signif = "+";
+								signif += "^"+j;
 							}
 						}
 					}

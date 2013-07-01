@@ -42,8 +42,8 @@ public class Task2Experiment extends RDFMLExperiment {
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
-		int[] depths = {1,2};
-		int[] iterations = {0,2,4};
+		int[] depths = {1,2,3};
+		int[] iterations = {0,2,4,6};
 
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
@@ -76,8 +76,8 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 
-		boolean tfidf = true;
-		boolean normalize = false;
+		boolean tfidf = false;
+		boolean normalize = true;
 		boolean inference = true;
 		
 		
@@ -85,10 +85,10 @@ public class Task2Experiment extends RDFMLExperiment {
 		for (int d : depths) {
 			resTable.newRow("");
 
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgePathKernel(d, false, inference, normalize), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgePathKernel(d, false, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
 			exp.setDoCV(true);
-			exp.setDoTFIDF(tfidf);
+			exp.setDoTFIDF(false);
 
 			System.out.println("Running Edge Path: " + d);
 			exp.run();
@@ -104,10 +104,10 @@ public class Task2Experiment extends RDFMLExperiment {
 		for (int d : depths) {
 			resTable.newRow("");
 
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, normalize), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
 			exp.setDoCV(true);
-			exp.setDoTFIDF(tfidf);
+			exp.setDoTFIDF(false);
 
 			System.out.println("Running Edge Vertex Path: " + d);
 			exp.run();
@@ -123,11 +123,11 @@ public class Task2Experiment extends RDFMLExperiment {
 		for (int d : depths) {
 			resTable.newRow("");
 
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, normalize), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
 			exp.setDoCV(true);
 //			exp.setDoBinary(true);
-			exp.setDoTFIDF(tfidf);
+			exp.setDoTFIDF(true);
 
 			System.out.println("Running Edge Vertex Path with Text: " + d);
 			exp.run();
@@ -143,16 +143,16 @@ public class Task2Experiment extends RDFMLExperiment {
 		for (int d : depths) {
 			resTable.newRow("");
 			List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
-			kernels.add(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, normalize));
-			kernels.add(new RDFSimpleTextKernel(d, inference, normalize));
+			kernels.add(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, false));
+			kernels.add(new RDFSimpleTextKernel(d, inference, false));
 
-			RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, normalize);
+			RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, false);
 
 
 			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(kernel, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
 			exp.setDoCV(true);
-			exp.setDoTFIDF(tfidf);
+			exp.setDoTFIDF(true);
 
 			System.out.println("Running Edge Vertex Path with Simple Text: " + d);
 			exp.run();
@@ -167,11 +167,11 @@ public class Task2Experiment extends RDFMLExperiment {
 		for (int d : depths) {
 			resTable.newRow("");
 
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFSimpleTextKernel(d, inference, normalize), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFSimpleTextKernel(d, inference, false), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 
 			//RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeKernel(it, d, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 			exp.setDoCV(true);
-			exp.setDoTFIDF(tfidf);
+			exp.setDoTFIDF(true);
 
 			System.out.println("Running Simple Text Kernel: " + d);
 			exp.run();
@@ -183,19 +183,39 @@ public class Task2Experiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 
-		
 
 		for (int d : depths) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, normalize);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, inference, true);
 				//k.setIgnoreLiterals(false);
 				
 				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 				exp.setDoCV(true);
-				exp.setDoTFIDF(tfidf);
+				exp.setDoTFIDF(false);
 
 				System.out.println("Running WL RDF: " + d + " " + it);
+				exp.run();
+
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+			}
+		}
+		System.out.println(resTable);
+
+
+		for (int d : depths) {
+			resTable.newRow("");
+			for (int it : iterations) {
+				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, false);
+				//k.setIgnoreLiterals(false);
+				
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+				exp.setDoCV(true);
+				exp.setDoTFIDF(true);
+
+				System.out.println("Running WL RDF text: " + d + " " + it);
 				exp.run();
 
 				for (Result res : exp.getResults()) {
@@ -209,17 +229,17 @@ public class Task2Experiment extends RDFMLExperiment {
 			resTable.newRow("");
 			for (int it : iterations) {
 				List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
-				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, inference, normalize);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, inference, false);
 				k.setIgnoreLiterals(false);
 				
 				kernels.add(k);
-				kernels.add(new RDFSimpleTextKernel(d, inference, normalize));
+				kernels.add(new RDFSimpleTextKernel(d, inference, false));
 
-				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, normalize);
+				RDFFeatureVectorKernel kernel = new RDFCombinedKernel(kernels, false);
 
 				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(kernel, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 				exp.setDoCV(true);
-				exp.setDoTFIDF(tfidf);
+				exp.setDoTFIDF(true);
 
 				System.out.println("Running Text + WL RDF: " + d + " " + it);
 				exp.run();
