@@ -48,9 +48,9 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
 
-		double fraction = 0.2;
-		long[] seeds = {11, 21, 31, 41, 51};
-		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 10000};	
+		double fraction = 0.1;
+		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
+		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
 		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
@@ -67,6 +67,8 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		evalFuncs.add(new Accuracy());
 		evalFuncs.add(new F1());
 
+		
+		/*
 		for (int i : depths) {	
 			resTable.newRow("");	
 			for (int it : iterations) {
@@ -135,11 +137,11 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 					linParms.setWeightLabels(wLabels);
 					linParms.setWeights(weights);
 
-					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeWithTextKernel(it, i, inference, false), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
+					RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFWLSubTreeWithTextKernel(it, i, inference, true), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
 
 					System.out.println("Running WL RDF with text: " + i + " " + it);
 					exp.setDoCV(true);
-					exp.setDoTFIDF(true);
+					//exp.setDoTFIDF(true);
 					exp.run();
 					res.add(exp.getResults());
 				}
@@ -150,6 +152,8 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+		
+		*/
 
 		
 		for (int i : depths) {	
@@ -214,11 +218,11 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 				linParms.setWeightLabels(wLabels);
 				linParms.setWeights(weights);
 
-				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(i, false, inference, false), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(i, false, inference, true), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
 
 				System.out.println("Running EVP with text: " + i);
 				exp.setDoCV(true);
-				exp.setDoTFIDF(true);
+				//exp.setDoTFIDF(true);
 				exp.run();
 				res.add(exp.getResults());
 			}

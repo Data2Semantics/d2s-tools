@@ -62,8 +62,8 @@ public class FullThemeExperiment extends RDFMLExperiment {
 			}
 		}
 
-		long[] seeds = {11, 21, 31, 41, 51};
-		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
+		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};
+		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
 		int[] depths = {1, 2, 3};
 		int[] iterations = {0, 2, 4, 6};
