@@ -137,6 +137,8 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
+		//featureVectors = TextUtils.computeTFIDF(Arrays.asList(featureVectors)).toArray(new SparseVector[1]);
+		//featureVectors = KernelUtils.normalize(featureVectors);
 		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
 		computeKernelMatrix(instances, featureVectors, kernel);
 		return kernel;

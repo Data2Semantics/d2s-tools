@@ -1,4 +1,4 @@
-package org.data2semantics.exp;
+package org.data2semantics.exp.dmold;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.data2semantics.exp.RDFMLExperiment;
 import org.data2semantics.exp.experiments.KernelExperiment;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
@@ -47,11 +48,15 @@ import org.openrdf.model.util.LiteralUtil;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 
-public class Task2Classifier extends RDFMLExperiment {
+public class Task1Classifier extends RDFMLExperiment {
 	private static List<Resource> testInstances;
 	
 	public static void main(String[] args) {
-		createTask2DataSet();
+		createTask1DataSet();
+
+		//double[] bins = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 75.5};
+		//double[] bins = {0.5, 1.5, 3.5, 6.5, 22.5};
+		double[] bins = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 12.5, 15.5, 18.5, 23.5};
 
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
 		double[] ps1 = {1};
@@ -59,19 +64,27 @@ public class Task2Classifier extends RDFMLExperiment {
 	
 		boolean inference = true;
 
-		List<Double> targets = EvaluationUtils.createTarget(labels);
+		List<Double> targetBins = new ArrayList<Double>();	
+
+		for (Value label : labels) {
+			double val = LiteralUtil.getDoubleValue(label,0);
+
+			for (int i=0; i < bins.length-1; i++) {
+				if (val > bins[i] && val <= bins[i+1]) {
+					targetBins.add(i+1.0);
+				}
+			}
+		}
+
 
 		LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-		linParms.setEvalFunction(new Accuracy());
+		linParms.setEvalFunction(new Task1ScoreForBothBins(bins));
 		linParms.setDoCrossValidation(true);
 		linParms.setNumFolds(5);
 		linParms.setEps(0.001);
 		linParms.setPs(ps1);
 
-		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targets);
-		
-		System.out.println(counts);
-		
+		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targetBins);
 		int[] wLabels = new int[counts.size()];
 		double[] weights = new double[counts.size()];
 
@@ -83,7 +96,7 @@ public class Task2Classifier extends RDFMLExperiment {
 		linParms.setWeights(weights);
 
 		
-		RDFFeatureVectorKernel kernel = new RDFIntersectionTreeEdgeVertexPathWithTextKernel(2, false, inference, false);
+		RDFFeatureVectorKernel kernel = new RDFWLSubTreeWithTextKernel(4, 2, inference, false);
 		
 		List<Resource> allInstances = new ArrayList<Resource>(instances);
 		allInstances.addAll(testInstances);
@@ -97,10 +110,10 @@ public class Task2Classifier extends RDFMLExperiment {
 		SparseVector[] trainFV = Arrays.copyOfRange(fv, 0, instances.size());
 		SparseVector[] testFV = Arrays.copyOfRange(fv, instances.size(), allInstances.size());
 		
-		double[] targetA = new double[targets.size()];
+		double[] targetA = new double[targetBins.size()];
 		
-		for (int i = 0; i < targets.size(); i++) {
-			targetA[i] = targets.get(i);
+		for (int i = 0; i < targetBins.size(); i++) {
+			targetA[i] = targetBins.get(i);
 		}
 		
 		Prediction[] pred = LibLINEAR.testLinearModel(LibLINEAR.trainLinearModel(trainFV, targetA, linParms), testFV);
@@ -108,18 +121,18 @@ public class Task2Classifier extends RDFMLExperiment {
 		
 
 		for (int i = 0; i < pred.length; i++) {
-			double val = pred[i].getLabel();
+			double val = (bins[(int) pred[i].getLabel()] + bins[(int) pred[i].getLabel()-1]) / 2.0;
 			System.out.println(testInstances.get(i) + ", " + val);
 		}
 
 	}
 
-	private static void createTask2DataSet() {
-		RDFFileDataSet train = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_train.ttl", RDFFormat.TURTLE);
-		RDFFileDataSet test = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_test.ttl", RDFFormat.TURTLE);
+	private static void createTask1DataSet() {
+		RDFFileDataSet train = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet test = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_test.ttl", RDFFormat.TURTLE);
 		
-		RDFFileDataSet d = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_train.ttl", RDFFormat.TURTLE);
-		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_test.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet d = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_test.ttl", RDFFormat.TURTLE);
 		dataset = d;
 
 		List<Statement> stmts = train.getStatementsFromStrings(null, RDF.TYPE.toString(), "http://purl.org/procurement/public-contracts#Contract");
@@ -128,7 +141,7 @@ public class Task2Classifier extends RDFMLExperiment {
 		blackList = new ArrayList<Statement>();
 
 		for(Statement stmt: stmts) {
-			List<Statement> stmts2 = train.getStatementsFromStrings(stmt.getSubject().toString(), "http://example.com/multicontract", null);
+			List<Statement> stmts2 = train.getStatementsFromStrings(stmt.getSubject().toString(), "http://purl.org/procurement/public-contracts#numberOfTenders", null);
 
 			for (Statement stmt2 : stmts2) {
 				instances.add(stmt2.getSubject());
@@ -136,7 +149,7 @@ public class Task2Classifier extends RDFMLExperiment {
 			}
 		}
 
-		//removeSmallClasses(5);
+		removeSmallClasses(5);
 		createBlackList();
 		
 		stmts = test.getStatementsFromStrings(null, RDF.TYPE.toString(), "http://purl.org/procurement/public-contracts#Contract");

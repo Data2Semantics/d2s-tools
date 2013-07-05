@@ -1,4 +1,4 @@
-package org.data2semantics.exp;
+package org.data2semantics.exp.dmold;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.data2semantics.exp.RDFMLExperiment;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
+import org.data2semantics.exp.experiments.RDFOldKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
 import org.data2semantics.exp.experiments.ResultsTable;
 import org.data2semantics.proppred.kernels.RDFCombinedKernel;
 import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
+import org.data2semantics.proppred.kernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
@@ -19,6 +22,7 @@ import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.RDFWLSubTreeWithTextKernel;
 import org.data2semantics.proppred.libsvm.LibLINEARParameters;
 import org.data2semantics.proppred.libsvm.LibSVM;
+import org.data2semantics.proppred.libsvm.LibSVMParameters;
 import org.data2semantics.proppred.libsvm.evaluation.Accuracy;
 import org.data2semantics.proppred.libsvm.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.libsvm.evaluation.EvaluationUtils;
@@ -40,24 +44,24 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
+		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
 
 		int[] depths = {1,2,3};
 		int[] iterations = {0,2,4,6};
 
+		
+		
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());
 		evalFuncs.add(new F1());
-
 
 		List<Double> targets = EvaluationUtils.createTarget(labels);
 
 		LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
 		linParms.setEvalFunction(new Accuracy());
 		linParms.setDoCrossValidation(true);
-		linParms.setSplitFraction((float) 0.8);
-		linParms.setEps(0.1);
-
+		linParms.setNumFolds(10);
+		
 		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targets);
 		int[] wLabels = new int[counts.size()];
 		double[] weights = new double[counts.size()];
@@ -68,11 +72,16 @@ public class Task2Experiment extends RDFMLExperiment {
 		}
 		linParms.setWeightLabels(wLabels);
 		linParms.setWeights(weights);
+		
 
+		LibSVMParameters svmParms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
+		svmParms.setNumFolds(10);
+		
+		
 
 		ResultsTable resTable = new ResultsTable();
 		resTable.setManWU(0.05);
-		resTable.setDigits(3);
+		resTable.setDigits(2);
 
 
 
@@ -81,7 +90,7 @@ public class Task2Experiment extends RDFMLExperiment {
 		boolean inference = true;
 		
 		
-
+		/*
 		for (int d : depths) {
 			resTable.newRow("");
 
@@ -99,46 +108,10 @@ public class Task2Experiment extends RDFMLExperiment {
 
 		}
 		System.out.println(resTable);
+		*/
 
 
-		for (int d : depths) {
-			resTable.newRow("");
-
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
-
-			exp.setDoCV(true);
-			exp.setDoTFIDF(false);
-
-			System.out.println("Running Edge Vertex Path: " + d);
-			exp.run();
-
-			for (Result res : exp.getResults()) {
-				resTable.addResult(res);
-			}
-
-		}
-		System.out.println(resTable);
-
-
-		for (int d : depths) {
-			resTable.newRow("");
-
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
-
-			exp.setDoCV(true);
-//			exp.setDoBinary(true);
-			exp.setDoTFIDF(true);
-
-			System.out.println("Running Edge Vertex Path with Text: " + d);
-			exp.run();
-
-			for (Result res : exp.getResults()) {
-				resTable.addResult(res);
-			}
-
-		}
-		System.out.println(resTable);
-
+		/*
 
 		for (int d : depths) {
 			resTable.newRow("");
@@ -182,7 +155,9 @@ public class Task2Experiment extends RDFMLExperiment {
 
 		}
 		System.out.println(resTable);
+		*/
 
+		/*
 
 		for (int d : depths) {
 			resTable.newRow("");
@@ -190,9 +165,11 @@ public class Task2Experiment extends RDFMLExperiment {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, inference, true);
 				//k.setIgnoreLiterals(false);
 				
-				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
-				exp.setDoCV(true);
-				exp.setDoTFIDF(false);
+				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(k, seeds, svmParms, dataset, instances, labels, blackList);
+				
+				//RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);		
+				//exp.setDoCV(true);
+				//exp.setDoTFIDF(false);
 
 				System.out.println("Running WL RDF: " + d + " " + it);
 				exp.run();
@@ -203,6 +180,7 @@ public class Task2Experiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+		*/
 
 
 		for (int d : depths) {
@@ -210,6 +188,9 @@ public class Task2Experiment extends RDFMLExperiment {
 			for (int it : iterations) {
 				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, false);
 				//k.setIgnoreLiterals(false);
+				
+				//RDFOldKernelExperiment exp = new RDFOldKernelExperiment(k, seeds, svmParms, dataset, instances, labels, blackList);
+
 				
 				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
 				exp.setDoCV(true);
@@ -225,6 +206,7 @@ public class Task2Experiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 
+		/*
 		for (int d : depths) {
 			resTable.newRow("");
 			for (int it : iterations) {
@@ -249,7 +231,75 @@ public class Task2Experiment extends RDFMLExperiment {
 				}
 			}
 		}
+		*/
 
+		
+		/*
+		for (int d : depths) {
+			resTable.newRow("");
+
+			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+
+			
+			//RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, true), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+			//exp.setDoCV(true);
+			//exp.setDoTFIDF(false);
+
+			System.out.println("Running Edge Vertex Path: " + d);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}
+
+		}
+		System.out.println(resTable);
+		*/
+
+
+		for (int d : depths) {
+			resTable.newRow("");
+
+			//RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false), seeds, svmParms, dataset, instances, labels, blackList);
+
+			
+			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
+			exp.setDoCV(true);
+//			exp.setDoBinary(true);
+			exp.setDoTFIDF(true);
+
+			System.out.println("Running Edge Vertex Path with Text: " + d);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}
+
+		}
+		System.out.println(resTable);
+
+		/*
+		for (int d : depths) {
+			resTable.newRow("");
+
+			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(d, 1, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+
+			//exp.setDoCV(true);
+			//exp.setDoTFIDF(false);
+
+			System.out.println("Running IST: " + d);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}
+
+		}
+		System.out.println(resTable);
+		*/
+
+		
+		
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 

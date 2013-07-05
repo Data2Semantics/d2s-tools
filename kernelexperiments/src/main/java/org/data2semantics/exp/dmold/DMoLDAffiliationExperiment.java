@@ -1,4 +1,4 @@
-package org.data2semantics.exp;
+package org.data2semantics.exp.dmold;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.data2semantics.exp.RDFMLExperiment;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
 import org.data2semantics.exp.experiments.RDFOldKernelExperiment;
 import org.data2semantics.exp.experiments.Result;
@@ -39,29 +40,6 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 
 
 		createAffiliationPredictionDataSet(1);
-
-		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
-		evalFuncs.add(new Accuracy());
-		evalFuncs.add(new F1());
-		List<Double> targets = EvaluationUtils.createTarget(labels);
-
-		LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-		linParms.setEvalFunction(new Accuracy());
-		linParms.setDoCrossValidation(true);
-		linParms.setSplitFraction((float) 0.8);
-		linParms.setEps(0.1);
-		linParms.setNumFolds(5);
-
-		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(targets);
-		int[] wLabels = new int[counts.size()];
-		double[] weights = new double[counts.size()];
-
-		for (double label : counts.keySet()) {
-			wLabels[(int) label - 1] = (int) label;
-			weights[(int) label - 1] = 1 / counts.get(label);
-		}
-		linParms.setWeightLabels(wLabels);
-		linParms.setWeights(weights);
 
 		LibSVMParameters svmParms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		svmParms.setNumFolds(10);
@@ -123,7 +101,7 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 			resTable.newRow("");
 			table2.newRow("");
 			
-			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(depth, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(depth, false, inference, false), seeds, svmParms, dataset, instances, labels, blackList);
 
 			System.out.println("Running EVP with Text: " + depth);
 			exp.run();

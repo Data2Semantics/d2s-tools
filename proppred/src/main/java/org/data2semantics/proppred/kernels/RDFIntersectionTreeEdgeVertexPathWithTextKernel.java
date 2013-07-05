@@ -1,6 +1,7 @@
 package org.data2semantics.proppred.kernels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -235,7 +236,11 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 			List<Statement> blackList) {
 		
 		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
+		
 		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
+		featureVectors = TextUtils.computeTFIDF(Arrays.asList(featureVectors)).toArray(new SparseVector[1]);
+		featureVectors = KernelUtils.normalize(featureVectors);
+		
 		for (int i = 0; i < instances.size(); i++) {
 			for (int j = i; j < instances.size(); j++) {
 				kernel[i][j] += featureVectors[i].dot(featureVectors[j]);

@@ -2,7 +2,7 @@
  * Kernels don't work on this task, take depth 1 and the labels there, that works best.
  * 
  */
-package org.data2semantics.exp;
+package org.data2semantics.exp.dmold;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.data2semantics.exp.RDFMLExperiment;
 import org.data2semantics.exp.experiments.Experimenter;
 import org.data2semantics.exp.experiments.KernelExperiment;
 import org.data2semantics.exp.experiments.RDFLinearKernelExperiment;
@@ -68,7 +69,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		evalFuncs.add(new F1());
 
 		
-		/*
+		
 		for (int i : depths) {	
 			resTable.newRow("");	
 			for (int it : iterations) {
@@ -141,7 +142,6 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 
 					System.out.println("Running WL RDF with text: " + i + " " + it);
 					exp.setDoCV(true);
-					//exp.setDoTFIDF(true);
 					exp.run();
 					res.add(exp.getResults());
 				}
@@ -153,8 +153,6 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 		
-		*/
-
 		
 		for (int i : depths) {	
 			resTable.newRow("");	
@@ -218,11 +216,11 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 				linParms.setWeightLabels(wLabels);
 				linParms.setWeights(weights);
 
-				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(i, false, inference, true), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
+				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(i, false, inference, false), seeds2, linParms, dataset, instances, target, blackList, evalFuncs);
 
 				System.out.println("Running EVP with text: " + i);
 				exp.setDoCV(true);
-				//exp.setDoTFIDF(true);
+				exp.setDoTFIDF(true);
 				exp.run();
 				res.add(exp.getResults());
 			}
