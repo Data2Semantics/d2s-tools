@@ -83,7 +83,7 @@ public class ECML2013WLSubTreeKernel implements GraphKernel {
 
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 		computeFVs(graphs, featureVectors);
-		computeKernelMatrix(featureVectors, kernel, 1.0 / (iterations+1));
+		computeKernelMatrix(featureVectors, kernel, 1.0 / (iterations+1.0));
 
 
 		for (int i = 0; i < this.iterations; i++) {
@@ -91,7 +91,7 @@ public class ECML2013WLSubTreeKernel implements GraphKernel {
 			startLabel = currentLabel;
 			currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);
 			computeFVs(graphs, featureVectors);
-			computeKernelMatrix(featureVectors, kernel, (2.0+i) / (iterations+1));
+			computeKernelMatrix(featureVectors, kernel, (2.0+i) / (iterations+1.0));
 		}
 
 		if (normalize) {
