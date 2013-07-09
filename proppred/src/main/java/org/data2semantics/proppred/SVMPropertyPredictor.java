@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.data2semantics.proppred.kernels.GraphKernel;
-import org.data2semantics.proppred.kernels.WLSubTreeKernel;
-import org.data2semantics.proppred.libsvm.LibSVM;
-import org.data2semantics.proppred.libsvm.LibSVMModel;
-import org.data2semantics.proppred.libsvm.LibSVMParameters;
-import org.data2semantics.proppred.libsvm.Prediction;
+import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
+import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
+import org.data2semantics.proppred.learners.Prediction;
+import org.data2semantics.proppred.learners.libsvm.LibSVM;
+import org.data2semantics.proppred.learners.libsvm.LibSVMModel;
+import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.GraphFactory;
@@ -25,7 +25,7 @@ import cern.colt.Arrays;
 
 
 /**
- * This class is a Support Vector Machine (using {@link libsvm.LibSVM}) and {@link org.data2semantics.proppred.kernels.GraphKernel} based implementation of the {@link PropertyPredictor} Interface.
+ * This class is a Support Vector Machine (using {@link libsvm.LibSVM}) and {@link org.data2semantics.proppred.kernels.graphkernels.GraphKernel} based implementation of the {@link PropertyPredictor} Interface.
  * Classification, Regression and Outlier Detection (via One-Class SVM) are all supported.
  * 
  * @author Gerben

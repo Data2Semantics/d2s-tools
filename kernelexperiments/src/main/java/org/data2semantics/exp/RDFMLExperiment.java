@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Random;
 
 
-import org.data2semantics.exp.experiments.ResultsTable;
+import org.data2semantics.exp.utils.ResultsTable;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;

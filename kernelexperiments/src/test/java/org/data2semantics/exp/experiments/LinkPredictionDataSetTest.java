@@ -3,6 +3,8 @@ package org.data2semantics.exp.experiments;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
+import org.data2semantics.exp.old.utils.datasets.LinkPredictionDataSet;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.junit.Ignore;

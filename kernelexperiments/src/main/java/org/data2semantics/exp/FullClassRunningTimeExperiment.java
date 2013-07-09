@@ -1,18 +1,18 @@
 package org.data2semantics.exp;
 
-import org.data2semantics.exp.experiments.DataSetFactory;
-import org.data2semantics.exp.experiments.GeneralPredictionDataSetParameters;
-import org.data2semantics.exp.experiments.PropertyPredictionDataSet;
-import org.data2semantics.exp.experiments.Result;
-import org.data2semantics.exp.experiments.ResultsTable;
-import org.data2semantics.proppred.kernels.FeatureVectorKernel;
-import org.data2semantics.proppred.kernels.GraphKernel;
-import org.data2semantics.proppred.kernels.RDFFeatureVectorKernel;
-import org.data2semantics.proppred.kernels.RDFGraphKernel;
-import org.data2semantics.proppred.kernels.RDFIntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.RDFWLSubTreeKernelString;
-import org.data2semantics.proppred.kernels.WLSubTreeKernel;
+import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
+import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
+import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
+import org.data2semantics.exp.utils.Result;
+import org.data2semantics.exp.utils.ResultsTable;
+import org.data2semantics.proppred.kernels.graphkernels.FeatureVectorKernel;
+import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
+import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernelString;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 

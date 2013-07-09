@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-import org.data2semantics.proppred.libsvm.SparseVector;
-import org.data2semantics.proppred.libsvm.text.TextUtils;
+import org.data2semantics.proppred.learners.SparseVector;
+import org.data2semantics.proppred.learners.text.TextUtils;
 
 public class KernelUtils {
 	public static final String ROOTID = "ROOT1337";
@@ -61,7 +61,7 @@ public class KernelUtils {
 	}
 	
 	
-	protected static double[][] normalize(double[][] kernel) {
+	public static double[][] normalize(double[][] kernel) {
 		double[] ss = new double[kernel.length];
 		
 		for (int i = 0; i < ss.length; i++) {
@@ -77,7 +77,7 @@ public class KernelUtils {
 		return kernel;
 	}
 	
-	protected static double[][] normalize(double[][] kernel, double[] trainSS, double[] testSS) {
+	public static double[][] normalize(double[][] kernel, double[] trainSS, double[] testSS) {
 		for (int i = 0; i < kernel.length; i++) {
 			for (int j = 0; j < kernel[i].length; j++) {
 				kernel[i][j] /= Math.sqrt(testSS[i] * trainSS[j]);
@@ -86,7 +86,7 @@ public class KernelUtils {
 		return kernel;
 	}
 	
-	protected static double[][] initMatrix(int sizeRows, int sizeColumns) {
+	public static double[][] initMatrix(int sizeRows, int sizeColumns) {
 		double[][] kernel = new double[sizeRows][sizeColumns];
 		for (int i = 0; i < sizeRows; i++) {
 			Arrays.fill(kernel[i], 0.0);
@@ -94,10 +94,11 @@ public class KernelUtils {
 		return kernel;
 	}
 	
-	protected static double dotProduct(double[] fv1, double[] fv2) {
+	public static double dotProduct(double[] fv1, double[] fv2) {
 		double sum = 0.0;		
 		for (int i = 0; i < fv1.length && i < fv2.length; i++) {
-			sum += (fv1[i] != 0 && fv2[i] != 0) ? fv1[i] * fv2[i]: 0;
+			//sum += (fv1[i] != 0 && fv2[i] != 0) ? fv1[i] * fv2[i]: 0;
+			sum += fv1[i] * fv2[i];
 		}	
 		return sum;
 	}

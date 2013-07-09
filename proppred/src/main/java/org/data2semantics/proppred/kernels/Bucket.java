@@ -3,7 +3,7 @@ package org.data2semantics.proppred.kernels;
 import java.util.ArrayList;
 import java.util.List;
 
-class Bucket<T> {
+public class Bucket<T> {
 	private String label;
 	private List<T> contents;
 

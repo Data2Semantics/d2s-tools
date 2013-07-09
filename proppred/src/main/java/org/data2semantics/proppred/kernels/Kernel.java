@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-import org.data2semantics.proppred.libsvm.SparseVector;
+import org.data2semantics.proppred.learners.SparseVector;
 
 
 /**
