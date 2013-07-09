@@ -28,8 +28,6 @@ import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionPartialSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernelTree;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -45,10 +43,9 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//affiliationExperiment(false);
+		affiliationExperiment(false);
 		affiliationExperiment(true);
-		affiliationRunningTimeExperiment(); // Disabled, since results are different with added SparseVector implementation, see FullThemeRunningTimeExperiments now
-
+		affiliationRunningTimeExperiment();
 	}
 
 
@@ -74,7 +71,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 				createAffiliationPredictionDataSet(frac, seed);
 
-				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
+				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new ECML2013RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
 				System.out.println("Running WL RDF: " + frac);
 				exp.run();
@@ -119,7 +116,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 				toc = System.currentTimeMillis();
 
-				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new ECML2013WLSubTreeKernel(iteration), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running WL: " + frac);
 				exp.run();
@@ -213,8 +210,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
-				k.setIgnoreLiterals(false);
+				ECML2013RDFWLSubTreeKernel k = new ECML2013RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 								
 				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
@@ -234,8 +230,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		for (int i = 1; i <= depth; i++) {
 			resTable.newRow("");
 			for (int it : iterations) {
-				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
-				k.setIgnoreLiterals(false);
+				ECML2013RDFWLSubTreeKernel k = new ECML2013RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 								
 				KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(k, seeds, parms, dataset, instances, labels, blackList);
 
@@ -335,7 +330,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 			resTable.newRow("");
 			for (int it : iterations) {
-				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new WLSubTreeKernel(it), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013WLSubTreeKernel(it), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running WL: " + it);
 				exp.run();

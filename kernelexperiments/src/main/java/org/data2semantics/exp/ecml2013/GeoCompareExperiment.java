@@ -49,8 +49,8 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
 
 		double[] cs = {1};	// dummy, we don't care about the prediction scores
-		//long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		long[] seeds = {11};
+		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
+		//long[] seeds = {11};
 
 		int depth = 3;
 		int iteration = 6;
@@ -66,7 +66,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			res.setLabel("runtime");
 			for (long seed : seeds) {
 
-				createGeoDataSet(seed,frac,10,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new ECML2013RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
@@ -83,7 +83,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			Result res = new Result();
 			res.setLabel("runtime");
 			for (long seed : seeds) {
-				createGeoDataSet(seed,frac,10,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
@@ -105,7 +105,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			Result res = new Result();
 			res.setLabel("runtime");
 			for (long seed : seeds) {
-				createGeoDataSet(seed,frac,10,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 				tic = System.currentTimeMillis();
 				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 				toc = System.currentTimeMillis();
@@ -156,7 +156,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			Result res = new Result();
 			res.setLabel("runtime");
 			for (long seed : seeds) {
-				createGeoDataSet(seed,frac,10,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 				tic = System.currentTimeMillis();
 				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 				toc = System.currentTimeMillis();
