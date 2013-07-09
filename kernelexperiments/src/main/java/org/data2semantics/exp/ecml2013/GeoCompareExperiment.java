@@ -39,7 +39,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 	public static void main(String[] args) {
 		lithogenesisExperiments();
 		lithogenesisRunningTimeExperiments();
-		//themeExperiments(0.1, 50);
+		themeExperiments(0.1, 50);
 	} 
 
 	private static void lithogenesisRunningTimeExperiments() {
