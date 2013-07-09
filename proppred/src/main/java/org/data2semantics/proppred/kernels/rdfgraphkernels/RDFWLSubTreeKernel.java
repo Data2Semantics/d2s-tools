@@ -60,6 +60,12 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 	private boolean reverse;
 
 
+	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean reverse, boolean blankLabels) {
+		this(iterations, depth, inference, normalize);
+		this.reverse = reverse;
+		this.blankLabels = blankLabels;
+	}
+	
 	public RDFWLSubTreeKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
 		this(iterations, depth, inference, normalize);
 		this.blankLabels = blankLabels;
@@ -87,7 +93,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 
 
 	public RDFWLSubTreeKernel() {
-		this(2, 2, false, true);
+		this(2, 4, false, true);
 	}
 
 	public String getLabel() {
@@ -110,8 +116,7 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		Map<String,String> invMap = new HashMap<String,String>();
 		for (String k : labelMap.keySet()) {
 			invMap.put(labelMap.get(k), k);
-		}
-		
+		}		
 		return invMap;
 	}
 
@@ -161,45 +166,6 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 		return kernel;
 	}
 
-
-	/*
-	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
-		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
-		createInstanceIndexMaps(graph, instances);
-
-		if (blankLabels) {
-			setBlankLabels(graph);
-		}
-
-		SparseVector[] featureVectors = new SparseVector[instances.size()];
-		for (int i = 0; i < featureVectors.length; i++) {
-			featureVectors[i] = new SparseVector();
-		}
-		computeFVs(graph, instances, 1, featureVectors);
-
-		double[][] kernel = initMatrix(instances.size(), instances.size());
-		computeKernelMatrix(instances, featureVectors, kernel, 1.0 / ((double) (iterations + 1)));
-
-
-		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
-		for (int i = 0; i < iterations; i++) {	
-			relabelGraph2MultisetLabels(graph, startLabel);
-			startLabel = labelCounter;
-			compressGraphLabels(graph);
-
-			featureVectors = new SparseVector[instances.size()];
-			for (int j = 0; j < featureVectors.length; j++) {
-				featureVectors[j] = new SparseVector();
-			}	
-			computeFVs(graph, instances, 1, featureVectors);
-			computeKernelMatrix(instances, featureVectors, kernel, (2.0 + i) / ((double) (iterations + 1)));
-		}
-		if (this.normalize) {
-			kernel = Kernel.normalize(kernel);
-		}
-		return kernel;
-	}
-	 */
 
 	private DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		Map<String, Vertex<Map<Integer,StringBuilder>>> literalMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
@@ -476,9 +442,6 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					labelCounter++;
 					labelMap.put(edge.getLabel().get(i).toString(), label);				
 				}
-
-				//edge.getLabel().get(i).delete(0, edge.getLabel().get(i).length());
-				//edge.getLabel().get(i).append(label);
 				edge.getLabel().put(i, new StringBuilder(label));
 			}
 		}
@@ -491,8 +454,6 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 					labelCounter++;
 					labelMap.put(vertex.getLabel().get(i).toString(), label);
 				}
-				//vertex.getLabel().get(i).delete(0, vertex.getLabel().get(i).length());
-				//vertex.getLabel().get(i).append(label);
 				vertex.getLabel().put(i, new StringBuilder(label));
 			}
 		}
@@ -530,117 +491,6 @@ public class RDFWLSubTreeKernel implements RDFGraphKernel, RDFFeatureVectorKerne
 			}
 		}
 	}
-
-
-
-	/**
-	 * The computation of the feature vectors assumes that each edge and vertex is only processed once. We can encounter the same
-	 * vertex/edge on different depths during computation, this could lead to multiple counts of the same vertex, possibly of different
-	 * depth labels.
-	 * 
-	 * 
-	 * @param graph
-	 * @param instances
-	 * @param startLabel
-	 * @param featureVectors
-	 */
-
-	/*
-	private void computeFeatureVectors(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances, int startLabel, SparseVector[] featureVectors) {
-		int index;
-		Map<Vertex<Map<Integer,String>>, Integer> vertexIndexMap;
-		Map<Edge<Map<Integer,String>>, Integer> edgeIndexMap;
-
-		for (int i = 0; i < instances.size(); i++) {
-			featureVectors[i] = new SparseVector();
-			//featureVectors[i] = new double[labelCounter - startLabel];
-			//Arrays.fill(featureVectors[i], 0.0);
-
-			vertexIndexMap = instanceVertexIndexMap.get(instances.get(i).toString());
-			for (Vertex<Map<Integer,String>> vertex : vertexIndexMap.keySet()) {
-				index = Integer.parseInt(vertex.getLabel().get(vertexIndexMap.get(vertex))) - startLabel;
-				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + 1);
-				//featureVectors[i][index] += 1.0;
-			}
-			edgeIndexMap = instanceEdgeIndexMap.get(instances.get(i).toString());
-			for (Edge<Map<Integer,String>> edge : edgeIndexMap.keySet()) {
-				index = Integer.parseInt(edge.getLabel().get(edgeIndexMap.get(edge))) - startLabel;
-				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + 1);
-				//featureVectors[i][index] += 1.0;
-			}
-		}
-	}*/
-
-
-	/*
-	private void computeFeatureVectors(DirectedGraph<Vertex<Map<Integer,String>>, Edge<Map<Integer,String>>> graph, List<Resource> instances, int startLabel, double[][] featureVectors) {
-		int index;
-		Vertex<Map<Integer, String>> startV;
-		List<Vertex<Map<Integer, String>>> frontV, newFrontV;
-		Set<Vertex<Map<Integer, String>>> proccedV;
-		Set<Edge<Map<Integer, String>>> proccedE;
-
-
-		for (int i = 0; i < instances.size(); i++) {		
-			// new empty processed lists
-			proccedV = new HashSet<Vertex<Map<Integer, String>>>();
-			proccedE = new HashSet<Edge<Map<Integer, String>>>();
-
-			// Initialize current feature vector to all 0's
-			featureVectors[i] = new double[labelCounter - startLabel];		
-			Arrays.fill(featureVectors[i], 0.0);
-
-			// Get the start node
-			startV = instanceVertices.get(instances.get(i).toString());
-			frontV = new ArrayList<Vertex<Map<Integer,String>>>();
-			frontV.add(startV);
-
-			// Process the start node
-			index = Integer.parseInt(startV.getLabel().get(depth)) - startLabel;		
-			featureVectors[i][index] += 1.0;
-			proccedV.add(startV);
-
-			for (int j = depth - 1; j >= 0; j--) {
-				newFrontV = new ArrayList<Vertex<Map<Integer,String>>>();
-				for (Vertex<Map<Integer, String>> qV : frontV) {
-					for (Edge<Map<Integer, String>> edge : graph.getOutEdges(qV)) {
-						// Process the edge, if we haven't seen it before
-						if (!proccedE.contains(edge)) {
-							index = Integer.parseInt(edge.getLabel().get(j)) - startLabel;
-							featureVectors[i][index] += 1.0;
-							proccedE.add(edge);
-						}
-
-						// Process the vertex if we haven't seen it before
-						if (!proccedV.contains(graph.getDest(edge))) {
-							index = Integer.parseInt(graph.getDest(edge).getLabel().get(j)) - startLabel;
-							featureVectors[i][index] += 1.0;
-							proccedV.add(graph.getDest(edge));
-						}
-
-						// Add the vertex to the new front, if we go into a new round
-						if (j > 0) {
-							newFrontV.add(graph.getDest(edge));
-						}
-					}
-				}
-				frontV = newFrontV;
-			}
-		}
-	}
-	 */
-
-	/*
-	private void computeKernelMatrix(List<Resource> instances, SparseVector[] featureVectors, double[][] kernel, double weight) {
-		for (int i = 0; i < instances.size(); i++) {
-			for (int j = i; j < instances.size(); j++) {
-				kernel[i][j] += featureVectors[i].dot(featureVectors[j]) * weight;
-				kernel[j][i] = kernel[i][j];
-			}
-		}
-	}
-	 */
-
 
 	private void computeKernelMatrix(List<Resource> instances, SparseVector[] featureVectors, double[][] kernel) {
 		for (int i = 0; i < instances.size(); i++) {

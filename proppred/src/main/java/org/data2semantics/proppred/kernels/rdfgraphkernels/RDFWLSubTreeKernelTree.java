@@ -124,45 +124,6 @@ public class RDFWLSubTreeKernelTree implements RDFGraphKernel, RDFFeatureVectorK
 	}
 
 
-	/*
-	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
-		DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> graph = createGraphFromRDF(dataset, instances, blackList);
-		createInstanceIndexMaps(graph, instances);
-
-		if (blankLabels) {
-			setBlankLabels(graph);
-		}
-
-		SparseVector[] featureVectors = new SparseVector[instances.size()];
-		for (int i = 0; i < featureVectors.length; i++) {
-			featureVectors[i] = new SparseVector();
-		}
-		computeFVs(graph, instances, 1, featureVectors);
-
-		double[][] kernel = initMatrix(instances.size(), instances.size());
-		computeKernelMatrix(instances, featureVectors, kernel, 1.0 / ((double) (iterations + 1)));
-
-
-		int startLabel = 1; // start at 1, since featureVectors need to start at index 1
-		for (int i = 0; i < iterations; i++) {	
-			relabelGraph2MultisetLabels(graph, startLabel);
-			startLabel = labelCounter;
-			compressGraphLabels(graph);
-
-			featureVectors = new SparseVector[instances.size()];
-			for (int j = 0; j < featureVectors.length; j++) {
-				featureVectors[j] = new SparseVector();
-			}	
-			computeFVs(graph, instances, 1, featureVectors);
-			computeKernelMatrix(instances, featureVectors, kernel, (2.0 + i) / ((double) (iterations + 1)));
-		}
-		if (this.normalize) {
-			kernel = Kernel.normalize(kernel);
-		}
-		return kernel;
-	}
-	 */
-
 	private DirectedGraph<Vertex<Map<Integer,StringBuilder>>,Edge<Map<Integer,StringBuilder>>> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		Map<String, Vertex<Map<Integer,StringBuilder>>> vertexMap = new HashMap<String, Vertex<Map<Integer, StringBuilder>>>();
 		Map<String, Edge<Map<Integer,StringBuilder>>> edgeMap = new HashMap<String, Edge<Map<Integer, StringBuilder>>>();

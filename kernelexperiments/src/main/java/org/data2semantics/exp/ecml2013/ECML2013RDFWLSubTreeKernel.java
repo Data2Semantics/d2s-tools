@@ -101,14 +101,14 @@ public class ECML2013RDFWLSubTreeKernel implements RDFGraphKernel {
 		}
 	
 		computeFVs(graph, instances, featureVectors);
-		computeKernelMatrix(featureVectors, kernel, 1.0 / (iterations+1));
+		computeKernelMatrix(featureVectors, kernel, 1.0 / (iterations+1.0));
 		
 		for (int i = 0; i < iterations; i++) {	
 			relabelGraph2MultisetLabels(graph);
 			startLabel = labelCounter;
 			compressGraphLabels(graph);
 			computeFVs(graph, instances, featureVectors);
-			computeKernelMatrix(featureVectors, kernel, (2.0+i) / (iterations+1));
+			computeKernelMatrix(featureVectors, kernel, (2.0+i) / (iterations+1.0));
 		}
 		
 		
