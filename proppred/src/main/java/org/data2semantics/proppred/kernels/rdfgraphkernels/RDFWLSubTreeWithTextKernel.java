@@ -11,8 +11,8 @@ import java.util.Set;
 
 import org.data2semantics.proppred.kernels.Bucket;
 import org.data2semantics.proppred.kernels.KernelUtils;
+import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.proppred.learners.SparseVector;
-import org.data2semantics.proppred.learners.text.TextUtils;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 import org.data2semantics.tools.rdf.RDFDataSet;
@@ -53,6 +53,7 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 	private boolean blankLabels;
 	private String label;
 	private boolean normalize;
+	private boolean doTFIDFkernel;
 
 
 	public RDFWLSubTreeWithTextKernel(int iterations, int depth, boolean inference, boolean normalize, boolean blankLabels) {
@@ -77,6 +78,8 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 		this.depth = depth;
 		this.inference = inference;
 		this.iterations = iterations;
+
+		this.doTFIDFkernel = false;
 	}
 
 
@@ -90,6 +93,10 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 	public void setNormalize(boolean normalize) {
 		this.normalize = normalize;
+	}
+
+	public void setDoTFIDFkernel(boolean doTFIDFkernel) {
+		this.doTFIDFkernel = doTFIDFkernel;
 	}
 
 	public Map<String,String> getInverseLabelMap() {
@@ -139,8 +146,10 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
-		//featureVectors = TextUtils.computeTFIDF(Arrays.asList(featureVectors)).toArray(new SparseVector[1]);
-		//featureVectors = KernelUtils.normalize(featureVectors);
+		if (doTFIDFkernel) {
+			featureVectors = TextUtils.computeTFIDF(Arrays.asList(featureVectors)).toArray(new SparseVector[1]);
+			featureVectors = KernelUtils.normalize(featureVectors);
+		}
 		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
 		computeKernelMatrix(instances, featureVectors, kernel);
 		return kernel;
@@ -488,13 +497,13 @@ public class RDFWLSubTreeWithTextKernel implements RDFGraphKernel, RDFFeatureVec
 
 			}
 		}
-		
+
 		// Process the literal feature vectors
 		for (int k : indexFVMap.keySet()) {
 			int lastIdx = textFV[0].getLastIndex();
 
 			if (indexFVMap.get(k).size() > 1) { // we only need to do stuff if more than 1 instance actually has a FV for this label k
-				
+
 				for (int k2 : indexFVMap.get(k).keySet()) {
 					textFV[k2].addVector(indexFVMap.get(k).get(k2));
 					lastIdx = textFV[k2].getLastIndex();

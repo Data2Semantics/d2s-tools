@@ -37,6 +37,12 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 	protected boolean normalize;
 	private boolean reverse;
 
+	
+	public WLSubTreeKernel(int iterations, boolean normalize, boolean reverse) {
+		this(iterations, normalize);
+		this.reverse = reverse;
+	}
+	
 
 	/**
 	 * Construct a WLSubTreeKernel. 

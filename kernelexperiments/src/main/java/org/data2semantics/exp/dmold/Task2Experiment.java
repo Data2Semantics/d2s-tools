@@ -17,9 +17,9 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTre
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFSimpleTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
+import org.data2semantics.proppred.kernels.text.RDFSimpleTextKernel;
 import org.data2semantics.proppred.learners.evaluation.Accuracy;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
@@ -38,8 +38,17 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 
 public class Task2Experiment extends RDFMLExperiment {
+	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\";
+
 
 	public static void main(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataDir = args[i];
+			}
+		}
+		
 		createTask2DataSet(1,11);
 
 
@@ -309,7 +318,7 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 	private static void createTask2DataSet(double fraction, long seed) {
-		RDFFileDataSet d = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_train.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet d = new RDFFileDataSet(dataDir + "LDMC_Task2_train.ttl", RDFFormat.TURTLE);
 
 		dataset = d;
 

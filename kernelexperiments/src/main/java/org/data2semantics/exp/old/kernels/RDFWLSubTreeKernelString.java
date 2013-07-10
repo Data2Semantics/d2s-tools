@@ -1,4 +1,4 @@
-package org.data2semantics.proppred.kernels.rdfgraphkernels;
+package org.data2semantics.exp.old.kernels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.data2semantics.proppred.kernels.Bucket;
 import org.data2semantics.proppred.kernels.KernelUtils;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.learners.SparseVector;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;

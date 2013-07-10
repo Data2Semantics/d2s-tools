@@ -3,6 +3,7 @@ package org.data2semantics.exp.dmold;
 import java.util.Arrays;
 
 import org.data2semantics.exp.FullThemeExperiment;
+import org.data2semantics.exp.old.kernels.RDFWLSubTreeKernelString;
 import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
 import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
@@ -18,16 +19,22 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTre
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernelString;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
-import org.data2semantics.proppred.learners.text.TextUtils;
+import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
 public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
-
+	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+	
 	public static void main(String[] args) {
-		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataDir = args[i];
+			}
+		}
+		
 		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 		long[] seeds = {11,21,31};
 		long tic, toc;

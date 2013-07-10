@@ -30,8 +30,16 @@ import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
 public class DMoLDGeoExperiment extends RDFMLExperiment {
-
+	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+		
 	public static void main(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataDir = args[i];
+			}
+		}		
+		
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
@@ -39,7 +47,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		int[] iterations = {0,2,4,6};
 		boolean inference = true;
 
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 		createGeoDataSet(1, 1, 10, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 		LibSVMParameters svmParms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);

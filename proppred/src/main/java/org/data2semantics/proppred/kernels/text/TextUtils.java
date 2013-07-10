@@ -1,4 +1,4 @@
-package org.data2semantics.proppred.learners.text;
+package org.data2semantics.proppred.kernels.text;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;

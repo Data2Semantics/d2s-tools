@@ -42,12 +42,19 @@ import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
 public class DMoLDThemeExperiment extends RDFMLExperiment {
+	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataDir = args[i];
+			}
+		}		
 
 		double fraction = 0.1;
 		long[] seeds = {11, 21, 31, 41, 51, 61, 71, 81, 91, 101};

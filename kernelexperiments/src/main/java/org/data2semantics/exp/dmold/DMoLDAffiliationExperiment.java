@@ -29,8 +29,17 @@ import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
 public class DMoLDAffiliationExperiment extends RDFMLExperiment {
-
+	private static String dataFile = "datasets/aifb-fixed_complete.n3";
+	
+	
 	public static void main(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataFile = args[i];
+			}
+		}		
+		
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.001, 0.01, 0.1, 1, 10, 100, 1000};	
 
@@ -137,7 +146,7 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 		Random rand = new Random(1);
 
 		// Read in data set
-		dataset = new RDFFileDataSet("datasets/aifb-fixed_complete.n3", RDFFormat.N3);
+		dataset = new RDFFileDataSet(dataFile, RDFFormat.N3);
 
 		// Extract all triples with the affiliation predicate
 		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://swrc.ontoware.org/ontology#affiliation", null);

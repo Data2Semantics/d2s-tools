@@ -2,6 +2,7 @@ package org.data2semantics.exp;
 
 import java.util.Arrays;
 
+import org.data2semantics.exp.old.kernels.RDFWLSubTreeKernelString;
 import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
 import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
@@ -17,9 +18,8 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTre
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernelString;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
-import org.data2semantics.proppred.learners.text.TextUtils;
+import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.RDFMLExperiment;
+import org.data2semantics.exp.old.kernels.RDFWLSubTreeKernelTree;
 import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
 import org.data2semantics.exp.utils.Result;
@@ -19,10 +20,10 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKerne
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFSimpleTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernelTree;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
+import org.data2semantics.proppred.kernels.text.RDFSimpleTextKernel;
+import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.SparseVector;
 import org.data2semantics.proppred.learners.evaluation.Accuracy;
@@ -37,7 +38,6 @@ import org.data2semantics.proppred.learners.evaluation.Task1ScoreForBothBins;
 import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
-import org.data2semantics.proppred.learners.text.TextUtils;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.data2semantics.tools.rdf.RDFMultiDataSet;
 import org.data2semantics.tools.rdf.RDFSparqlDataSet;
@@ -49,9 +49,17 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 
 public class Task1Classifier extends RDFMLExperiment {
+	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\";
 	private static List<Resource> testInstances;
 	
 	public static void main(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataDir = args[i];
+			}
+		}
+		
 		createTask1DataSet();
 
 		//double[] bins = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 14.5, 75.5};
@@ -128,11 +136,11 @@ public class Task1Classifier extends RDFMLExperiment {
 	}
 
 	private static void createTask1DataSet() {
-		RDFFileDataSet train = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
-		RDFFileDataSet test = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_test.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet train = new RDFFileDataSet(dataDir + "LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet test = new RDFFileDataSet(dataDir + "LDMC_Task1_test.ttl", RDFFormat.TURTLE);
 		
-		RDFFileDataSet d = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_train.ttl", RDFFormat.TURTLE);
-		d.addFile("C:\\Users\\Gerben\\Dropbox\\D2S\\Task1\\LDMC_Task1_test.ttl", RDFFormat.TURTLE);
+		RDFFileDataSet d = new RDFFileDataSet(dataDir + "LDMC_Task1_train.ttl", RDFFormat.TURTLE);
+		d.addFile(dataDir + "LDMC_Task1_test.ttl", RDFFormat.TURTLE);
 		dataset = d;
 
 		List<Statement> stmts = train.getStatementsFromStrings(null, RDF.TYPE.toString(), "http://purl.org/procurement/public-contracts#Contract");

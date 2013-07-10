@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.data2semantics.proppred.kernels.KernelUtils;
+import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.proppred.learners.SparseVector;
-import org.data2semantics.proppred.learners.text.TextUtils;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -37,6 +37,8 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 	private Value rootValue;
 	private Value blankVertex;
 	private boolean probabilities;
+	private boolean doTFIDFkernel;
+	
 
 	public RDFIntersectionTreeEdgeVertexPathWithTextKernel(int depth, boolean inference, boolean normalize) {
 		this(depth, true, inference, normalize);
@@ -47,6 +49,7 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 		this.depth = depth;
 		this.inference = inference;
 		this.probabilities = probabilities;
+		this.doTFIDFkernel = false;
 
 		uri2int = new HashMap<Value, Integer>();
 		path2index = new HashMap<List<Integer>, Integer>();
@@ -66,8 +69,11 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 	public void setNormalize(boolean normalize) {
 		this.normalize = normalize;		
 	}
-	
-	
+
+	public void setDoTFIDFkernel(boolean doTFIDFkernel) {
+		this.doTFIDFkernel = doTFIDFkernel;
+	}
+
 	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances,
 			List<Statement> blackList) {
 		this.dataset = dataset;	
@@ -239,8 +245,10 @@ public class RDFIntersectionTreeEdgeVertexPathWithTextKernel implements RDFGraph
 		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
 		
 		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
-		featureVectors = TextUtils.computeTFIDF(Arrays.asList(featureVectors)).toArray(new SparseVector[1]);
-		featureVectors = KernelUtils.normalize(featureVectors);
+		if (doTFIDFkernel) {
+			featureVectors = TextUtils.computeTFIDF(Arrays.asList(featureVectors)).toArray(new SparseVector[1]);
+			featureVectors = KernelUtils.normalize(featureVectors);
+		}
 		
 		for (int i = 0; i < instances.size(); i++) {
 			for (int j = i; j < instances.size(); j++) {

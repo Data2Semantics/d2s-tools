@@ -33,17 +33,26 @@ import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
 public class GeoCompareExperiment extends RDFMLExperiment {
+	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-file")) {
+				i++;
+				dataDir = args[i];
+			}
+		}
+		
 		lithogenesisExperiments();
 		lithogenesisRunningTimeExperiments();
 		themeExperiments(0.1, 50);
 	} 
 
 	private static void lithogenesisRunningTimeExperiments() {
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 
 
 		double[] fractions = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
@@ -192,7 +201,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		int depth = 3;
 		int[] iterations = {0, 2, 4, 6};
 
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 
@@ -463,7 +472,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		boolean blankLabels = false;
 
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		dataset = new RDFFileDataSet(dataDir, RDFFormat.NTRIPLES);
 		createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 

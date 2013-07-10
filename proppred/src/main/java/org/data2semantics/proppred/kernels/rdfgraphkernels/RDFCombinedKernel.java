@@ -8,7 +8,7 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
-public class RDFCombinedKernel implements RDFFeatureVectorKernel {
+public class RDFCombinedKernel implements RDFFeatureVectorKernel, RDFGraphKernel {
 	private boolean normalize;
 	private String label;
 	private List<RDFFeatureVectorKernel> kernels;
@@ -42,11 +42,25 @@ public class RDFCombinedKernel implements RDFFeatureVectorKernel {
 				featureVectors[i].addVector(fv[i]);
 			}
 		}
-		
+
 		if (this.normalize) {
 			featureVectors = KernelUtils.normalize(featureVectors);
 		}
 		return featureVectors;
+	}
+
+	public double[][] compute(RDFDataSet dataset, List<Resource> instances,
+			List<Statement> blackList) {
+
+		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
+		SparseVector[] featureVectors = computeFeatureVectors(dataset, instances, blackList);
+		for (int i = 0; i < instances.size(); i++) {
+			for (int j = i; j < instances.size(); j++) {
+				kernel[i][j] += featureVectors[i].dot(featureVectors[j]);
+				kernel[j][i] = kernel[i][j];
+			}
+		}		
+		return kernel;
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.data2semantics.exp;
 
+import org.data2semantics.exp.old.kernels.RDFWLSubTreeKernelString;
 import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
 import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
 import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
@@ -12,7 +13,6 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKerne
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernelString;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
+import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.proppred.learners.SparseVector;
-import org.data2semantics.proppred.learners.text.TextUtils;
 
 public class KernelUtils {
 	public static final String ROOTID = "ROOT1337";
