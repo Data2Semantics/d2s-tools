@@ -66,7 +66,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			res.setLabel("runtime");
 			for (long seed : seeds) {
 
-				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,6,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new ECML2013RDFWLSubTreeKernel(iteration, depth, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
@@ -83,7 +83,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			Result res = new Result();
 			res.setLabel("runtime");
 			for (long seed : seeds) {
-				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,6,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 
 				KernelExperiment<RDFGraphKernel> exp = new RDFKernelRunTimeExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true, false), seeds, parms, dataset, instances, labels, blackList);
 
@@ -105,7 +105,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			Result res = new Result();
 			res.setLabel("runtime");
 			for (long seed : seeds) {
-				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,6,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 				tic = System.currentTimeMillis();
 				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 				toc = System.currentTimeMillis();
@@ -156,7 +156,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			Result res = new Result();
 			res.setLabel("runtime");
 			for (long seed : seeds) {
-				createGeoDataSet(seed,frac,1,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+				createGeoDataSet(seed,frac,6,"http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
 				tic = System.currentTimeMillis();
 				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 				toc = System.currentTimeMillis();
