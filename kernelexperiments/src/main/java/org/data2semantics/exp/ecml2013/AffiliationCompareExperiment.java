@@ -36,14 +36,25 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
+
+/**
+ * Class for running the three experiments in the ECML 2013 paper: de Vries, G.K.D. "A Fast Approximation of the Weisfeiler-Lehman Graph Kernel for RDF Data" on the AIFB dataset.
+ * The class contains a main method with the optional -file parameter to provide the location of the AIFB dataset (including the file name).
+ * 
+ * @author Gerben
+ *
+ */
 public class AffiliationCompareExperiment extends RDFMLExperiment {
 	private static String dataFile = "datasets/aifb-fixed_complete.n3";
 
 	/**
+	 * Main method that runs the three experiments with the affiliation (AIFB) prediction dataset
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		
+		// Parse input, to allow for specification of the location of the datafile, via "-file"
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-file")) {
 				i++;
@@ -51,8 +62,11 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			}
 		}
 		
+		// Run the regular affiliation prediction experiment
 		affiliationExperiment(false);
+		// Run the affiliation prediction experiment with the labels removed
 		affiliationExperiment(true);
+		// Run the run time experiment for the affiliation prediction dataset
 		affiliationRunningTimeExperiment();
 	}
 
@@ -70,7 +84,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		ResultsTable resTable = new ResultsTable();
 
-		resTable.newRow("");
+		resTable.newRow("WL RDF");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -88,7 +102,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			resTable.addResult(res);
 		}
 
-		resTable.newRow("");
+		resTable.newRow("IST");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -112,7 +126,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 
 
-		resTable.newRow("");
+		resTable.newRow("WL");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -161,7 +175,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		}*/
 
 
-		resTable.newRow("");
+		resTable.newRow("IGW");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -216,7 +230,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, no inference, depth=" + i);
 			for (int it : iterations) {
 				ECML2013RDFWLSubTreeKernel k = new ECML2013RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 								
@@ -236,7 +250,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, inference, depth=" + i);
 			for (int it : iterations) {
 				ECML2013RDFWLSubTreeKernel k = new ECML2013RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 								
@@ -255,7 +269,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IST, no inference, depth=" + i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + i + " ");
@@ -269,7 +283,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IST, inference, depth=" + i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + i + " ");
@@ -284,7 +298,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IPST, no inference, depth=" + i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IPST: " + i + " ");
@@ -298,7 +312,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IPST, inference, depth=" + i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IPST: " + i + " ");
@@ -336,7 +350,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				ds.removeVertexAndEdgeLabels();
 			}
 
-			resTable.newRow("");
+			resTable.newRow("WL");
 			for (int it : iterations) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013WLSubTreeKernel(it), seeds, parms, ds.getGraphs(), labels);
 
@@ -379,7 +393,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				ds.removeVertexAndEdgeLabels();
 			}
 
-			resTable.newRow("");
+			resTable.newRow("IGP");
 			for (int it : iterationsIG) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
@@ -400,7 +414,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 		saveResults(resTable, "affiliation.ser");
 
 
-		/*
+		
 		for (GeneralPredictionDataSetParameters params : dataSetsParams) {
 			tic = System.currentTimeMillis();
 			PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(params);
@@ -410,7 +424,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				ds.removeVertexAndEdgeLabels();
 			}
 
-			resTable.newRow("");
+			resTable.newRow("IGW");
 			for (int it : iterationsIG) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
@@ -429,7 +443,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 			}
 		}
-		*/
+		
 		
 		saveResults(resTable, "affiliation.ser");
 

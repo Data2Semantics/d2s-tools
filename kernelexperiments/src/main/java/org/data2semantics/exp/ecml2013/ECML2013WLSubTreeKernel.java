@@ -23,15 +23,10 @@ import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 /**
+ * ECML 2013 version of the regular Weisfeiler-Lehman graph kernel.
  * Class implementing the Weisfeiler-Lehman graph kernel for Multigraphs with a root node, which occurs in the RDF use case.
- * The current implementation can be made more efficient, since the compute function for test examples recomputes the label dictionary, instead
- * of reusing the one created during training. This makes the applicability of the implementation slightly more general.
- * 
- * TODO include a boolean for saving the labelDict to speed up computation of the kernel in the test phase.
- * 
  * 
  * @author Gerben
- *
  */
 public class ECML2013WLSubTreeKernel implements GraphKernel {
 	private int iterations = 2;

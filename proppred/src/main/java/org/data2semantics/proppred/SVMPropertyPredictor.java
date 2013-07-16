@@ -123,7 +123,7 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 		for (Resource instance : instances) {
 			subGraph = GraphFactory.copyDirectedGraph2GraphWithRoot(
 					GraphFactory.createDirectedGraph(dataset.getSubGraph(
-							instance, extractionDepth, false, false,
+							instance, extractionDepth, false, true,
 							blackLists.get(instance))), instance.toString());
 			trainGraphs.add(subGraph);
 		}
@@ -144,9 +144,11 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 				trainLabels.add(label.toString());
 				valueMap.put(label.toString(), label);
 			}
+			
+			
 			target = LibSVM.createTargets(trainLabels, labelMap);
 		}
-	
+		
 		// Just to indicate the performance of the predictor, we run cross-validation first
 		Prediction[] pred = LibSVM.crossValidate(kernelMatrix, target, params, 10);
 		
@@ -192,7 +194,7 @@ public class SVMPropertyPredictor implements PropertyPredictor {
 						.copyDirectedGraph2GraphWithRoot(GraphFactory
 								.createDirectedGraph(dataset.getSubGraph(
 										instance, extractionDepth, false,
-										false, blackLists.get(instance))),
+										true, blackLists.get(instance))),
 										instance.toString());
 				testGraphs.add(subGraph);
 			}

@@ -32,13 +32,23 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
+/**
+ * Class for running the three experiments in the ECML 2013 paper: de Vries, G.K.D. "A Fast Approximation of the Weisfeiler-Lehman Graph Kernel for RDF Data" on the BGS dataset.
+ * The class contains a main method with the optional -file parameter to provide the directory of the BGS dataset (without the file names).
+ * 
+ * @author Gerben
+ *
+ */
 public class GeoCompareExperiment extends RDFMLExperiment {
 	private static String dataDir = "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
 	
 	/**
+	 * Run the three experiments for the BGS dataset
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// parse location of the data
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-file")) {
 				i++;
@@ -46,8 +56,11 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			}
 		}
 		
+		// The lithogenesis prediction task
 		lithogenesisExperiments();
+		// The run time of the lithogenesis prediction task
 		lithogenesisRunningTimeExperiments();
+		// the prediction task for the geological theme (this one is slow)
 		themeExperiments(0.1, 50);
 	} 
 
@@ -68,7 +81,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		LibSVMParameters parms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		ResultsTable resTable = new ResultsTable();
 
-		resTable.newRow("");
+		resTable.newRow("WL RDF");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -86,7 +99,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			resTable.addResult(res);
 		}
 
-		resTable.newRow("");
+		resTable.newRow("IST");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -108,7 +121,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 
 
-		resTable.newRow("");
+		resTable.newRow("WL");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -159,7 +172,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 		}
 		 */
 
-		resTable.newRow("");
+		resTable.newRow("IGW");
 		for (double frac : fractions) {
 
 			Result res = new Result();
@@ -210,7 +223,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, no inference, depth="+i);
 			for (int it : iterations) {
 				Experimenter experimenter = new Experimenter(2);
 				Thread expT = new Thread(experimenter);
@@ -252,7 +265,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, inference, depth="+i);
 			for (int it : iterations) {
 				Experimenter experimenter = new Experimenter(2);
 				Thread expT = new Thread(experimenter);
@@ -296,7 +309,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IST, no inference, depth="+i);
 
 			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
@@ -336,7 +349,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IST, inference, depth="+i);
 
 			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
@@ -378,7 +391,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IPST, no inference, depth="+i);
 
 			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
@@ -419,7 +432,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IPST, inference, depth="+i);
 
 			Experimenter experimenter = new Experimenter(2);
 			Thread expT = new Thread(experimenter);
@@ -484,7 +497,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		boolean inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, no inference, depth="+i);
 			for (int it : iterations) {
 				ECML2013RDFWLSubTreeKernel k = new ECML2013RDFWLSubTreeKernel(it, i, inference, true, blankLabels);
 				
@@ -504,7 +517,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, inference, depth="+i);
 			for (int it : iterations) {
 				ECML2013RDFWLSubTreeKernel k = new ECML2013RDFWLSubTreeKernel(it, i, inference, true, blankLabels);	
 				
@@ -525,7 +538,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IST, no inference, depth="+i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + i + " ");
@@ -539,7 +552,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IST, inference, depth="+i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(i, 1, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + i + " ");
@@ -554,7 +567,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = false;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IPST, no inference, depth="+i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IPST: " + i + " ");
@@ -568,7 +581,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 		inference = true;
 		for (int i = 1; i <= depth; i++) {
-			resTable.newRow("");
+			resTable.newRow("IPST, inference, depth="+i);
 			KernelExperiment<RDFGraphKernel> exp = new RDFOldKernelExperiment(new RDFIntersectionPartialSubTreeKernel(i, 0.01, inference, true, blankLabels), seeds, parms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IPST: " + i + " ");
@@ -605,7 +618,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				ds.removeVertexAndEdgeLabels();
 			}
 
-			resTable.newRow("");
+			resTable.newRow("WL");
 			for (int it : iterations) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013WLSubTreeKernel(it), seeds, parms, ds.getGraphs(), labels);
 
@@ -649,7 +662,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				ds.removeVertexAndEdgeLabels();
 			}
 
-			resTable.newRow("");
+			resTable.newRow("IGP");
 			for (int it : iterationsIG) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
@@ -679,7 +692,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				ds.removeVertexAndEdgeLabels();
 			}
 
-			resTable.newRow("");
+			resTable.newRow("IGW");
 			for (int it : iterationsIG) {
 				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 

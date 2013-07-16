@@ -120,12 +120,10 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 			resTable.newRow("");
 			for (int it : iterations) {
 				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, false);
+				k.setDoTFIDFkernel(true);
 				
-				
-				RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
-				exp.setDoCV(true);
-				exp.setDoTFIDF(true);
-
+				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(k, seeds, svmParms, dataset, instances, labels, blackList);
+		
 				System.out.println("Running WL RDF text: " + d + " " + it);
 				exp.run();
 
@@ -159,10 +157,11 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 		for (int d : depths) {
 			resTable.newRow("");
 
-				
-			RDFLinearKernelExperiment exp = new RDFLinearKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false), seeds, linParms, dataset, instances, targets, blackList, evalFuncs);
-			exp.setDoCV(true);
-			exp.setDoTFIDF(true);
+			
+			RDFIntersectionTreeEdgeVertexPathWithTextKernel k = new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false);
+			k.setDoTFIDFkernel(true);
+			
+			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(k, seeds, svmParms, dataset, instances, labels, blackList);
 
 			System.out.println("Running Edge Vertex Path with Text: " + d);
 			exp.run();

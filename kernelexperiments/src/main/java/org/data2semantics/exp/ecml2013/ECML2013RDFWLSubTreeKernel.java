@@ -24,11 +24,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 /**
- * This class implements a WL kernel directly on an RDF graph. The difference with a normal WL kernel is that subgraphs are not 
- * explicitly extracted. However we use the idea of subgraph implicitly by tracking for each vertex/edge the distance from an instance vertex.
- * For one thing, this leads to the fact that 1 black list is applied to the entire RDF graph, instead of 1 (small) blacklist per graph. 
- * 
- *
+ * ECML 2013 paper version of the Weisfeiler-Lehman kernel for RDF graphs.
  * 
  * @author Gerben
  *

@@ -29,7 +29,7 @@ public class RDFOldKernelExperiment extends KernelExperiment<RDFGraphKernel> {
 
 
 	/**
-	 * @deprecated Should be changed to a new version in line with RDFLinearKernelExperiment, which requires an update of LibSVM
+	 * @deprecated Should use {@link RDFGraphKernelExperiment}
 	 *  
 	 * @param kernel
 	 * @param seeds

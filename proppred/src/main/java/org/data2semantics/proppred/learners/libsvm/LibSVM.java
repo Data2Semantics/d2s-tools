@@ -23,10 +23,12 @@ import de.bwaldvogel.liblinear.Problem;
  *
  */
 public class LibSVM {
+	/*
 	public static final int ACCURACY = 1;
 	public static final int F1 = 2;
 	public static final int MSE = 3;
 	public static final int MAE = 4;
+	*/
 
 
 
@@ -203,6 +205,8 @@ public class LibSVM {
 	 * 
 	 * @param labels
 	 * @return
+	 * 
+	 * @deprecated, use method in {@link org.data2semantics.proppred.learners.evaluation.EvaluationUtils}
 	 */
 	public static <L> double[] createTargets(List<L> labels) {
 		Map<L, Integer> labelMap = new HashMap<L, Integer>();
@@ -217,6 +221,8 @@ public class LibSVM {
 	 * @param labels
 	 * @param labelMap
 	 * @return
+	 * 
+	 * @deprecated, use method in {@link org.data2semantics.proppred.learners.evaluation.EvaluationUtils}
 	 */
 	public static <L> double[] createTargets(List<L> labels, Map<L, Integer> labelMap) {
 		double[] targets = new double[labels.size()];
@@ -240,6 +246,8 @@ public class LibSVM {
 	 * 
 	 * @param labelMap
 	 * @return
+	 * 
+	 * @deprecated, use method in {@link org.data2semantics.proppred.learners.evaluation.EvaluationUtils}
 	 */
 	public static <L> Map<Integer, L> reverseLabelMap(Map<L, Integer> labelMap) {
 		Map<Integer, L> reverseMap = new HashMap<Integer, L>();
@@ -257,6 +265,8 @@ public class LibSVM {
 	 * @param target
 	 * @param prediction
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.Accuracy}
 	 */
 	public static double computeAccuracy(double[] target, double[] prediction) {
 		double correct = 0;	
@@ -274,6 +284,8 @@ public class LibSVM {
 	 * @param target
 	 * @param prediction
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.Accuracy}
 	 */
 	public static double computeMeanAccuracy(double[] target, double[] prediction) {
 		Map<Double, Double> targetCounts = computeClassCounts(target);
@@ -299,6 +311,8 @@ public class LibSVM {
 	 * @param target
 	 * @param prediction
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.F1}
 	 */
 	public static double computeF1(double[] target, double[] prediction) {
 		Map<Double, Double> targetCounts = computeClassCounts(target);
@@ -326,6 +340,8 @@ public class LibSVM {
 	 * @param target
 	 * @param prediction
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.MeanSquaredError}
 	 */
 	public static double computeMeanSquaredError(double[] target, double[] prediction) {
 		double error = 0;
@@ -341,6 +357,8 @@ public class LibSVM {
 	 * @param target
 	 * @param prediction
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.MeanAbsoluteError}
 	 */
 	public static double computeMeanAbsoluteError(double[] target, double[] prediction) {
 		double error = 0;
@@ -356,6 +374,8 @@ public class LibSVM {
 	 * 
 	 * @param target
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.EvaluationUtils}
 	 */
 	public static Map<Double, Double> computeClassCounts(double[] target) {
 		Map<Double, Double> counts = new HashMap<Double, Double>();
@@ -371,10 +391,12 @@ public class LibSVM {
 	}
 
 	/**
-	 * Convenience method to extract the labels as a double array from an array of LibSVMPrediction objects
+ * Convenience method to extract the labels as a double array from an array of LibSVMPrediction objects
 	 * 
 	 * @param pred
 	 * @return
+	 * 
+	 * @deprecated, use {@link org.data2semantics.proppred.learners.evaluation.EvaluationUtils}
 	 */
 	public static double[] extractLabels(Prediction[] pred) {
 		double[] predLabels = new double[pred.length];
@@ -394,6 +416,8 @@ public class LibSVM {
 	 * 
 	 * @param pred
 	 * @return
+	 * 
+	 * @deprecated, should reimplement as implementation of EvaluationFunction
 	 */
 	public static int[] computeRanking(Prediction[] pred) {
 		Arrays.sort(pred);
@@ -414,6 +438,8 @@ public class LibSVM {
 	 * @param at
 	 * @param label
 	 * @return
+	 * 
+	 * @deprecated, should reimplement as implementation of EvaluationFunction
 	 */
 	public static double computePrecisionAt(double[] target, int[] ranking, int at, double label) {
 		double precision = 0;
@@ -432,6 +458,8 @@ public class LibSVM {
 	 * @param ranking
 	 * @param label
 	 * @return
+	 * 
+	 * @deprecated, should reimplement as implementation of EvaluationFunction
 	 */
 	public static double computeRPrecision(double[] target, int[] ranking, double label) {
 		int count = 0;
@@ -452,6 +480,8 @@ public class LibSVM {
 	 * @param ranking
 	 * @param label
 	 * @return
+	 * 
+	 * @deprecated, should reimplement as implementation of EvaluationFunction
 	 */
 	public static double computeAveragePrecision(double[] target, int[] ranking, double label) {
 		double posClass = 0;
@@ -471,13 +501,14 @@ public class LibSVM {
 
 	/**
 	 * Compute the NDCG measure, this is a simple variant. Since we use our rankings and labels can still only be (+1,-1)
-	 * 
-	 * 
+	 * 	 
 	 * @param target
 	 * @param ranking
 	 * @param p, the position to compute the NDCG at
 	 * @param label
 	 * @return
+	 * 
+	 * @deprecated, should reimplement as implementation of EvaluationFunction
 	 */
 	public static double computeNDCG(double[] target, int[] ranking, int p, double label) {
 		double dcg = 0, idcg = 0;
