@@ -3,9 +3,11 @@
 This library allows for doing property prediction on RDF graphs using graph kernels and support vector machines.
 Please have a look at Example.java for details on how to use it. 
 
-Currently 5 different graph kernels are implemented that can be used with RDF data. 
-Using these kernels support vector machines for classification, regression and outlier detection (one-class SVM) can be trained.
-The support vector machine code that is used comes from the LibSVM project. RDF  can be imported using the d2s-tools convenience classes, which make use of SESAME.
+
+- `proppred.kernels` contains the basic kernel interface
+  - `proppred.kernels.graphkernels` contains graph kernels that take lists of JUNG graphs as input
+  - `proppred.kernels.rdfgraphkernels` contains graph kernels that take an RDFDataSet and a list of resources as input, i.e. these kernels are implemented directly on an RDF dataset.
+- `proppred.learners` contains wrappers for two support vector machine libraries, LibSVM and LibLINEAR.
 
 
 ## Note
