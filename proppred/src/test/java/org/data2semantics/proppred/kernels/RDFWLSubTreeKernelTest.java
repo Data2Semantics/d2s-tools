@@ -1,12 +1,8 @@
 package org.data2semantics.proppred.kernels;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;

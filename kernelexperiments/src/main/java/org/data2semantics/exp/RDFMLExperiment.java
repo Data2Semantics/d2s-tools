@@ -11,14 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-
 import org.data2semantics.exp.utils.ResultsTable;
 import org.data2semantics.tools.rdf.RDFDataSet;
-import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
-import org.openrdf.rio.RDFFormat;
 
 
 public abstract class RDFMLExperiment {

@@ -14,6 +14,15 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
+/**
+ * Implementation of the Intersection Tree Path kernel, as described in the DMoLD paper. This is the variant in the paper, with path's described by edge and vertex labels.
+ * With the probabilities boolean in the constructor set to true, the values in the featureVectors will be computed as transition probabilities.
+ * 
+ * The Intersection Tree Path kernel has performance comparable to the IntersectionSubTree kernel but is much, much faster to compute.
+ * 
+ * @author Gerben
+ *
+ */
 public class RDFIntersectionTreeEdgeVertexPathKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
 	private int depth;
 	private boolean inference;

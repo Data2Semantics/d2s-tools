@@ -2,7 +2,6 @@ package org.data2semantics.proppred.kernels.rdfgraphkernels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +21,12 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
+/**
+ * Implementation of the Intersection SubTree kernel directly on the RDF graph, as suggested in the original paper.
+ * 
+ * @author Gerben
+ *
+ */
 public class RDFIntersectionSubTreeKernel implements RDFGraphKernel {
 	private static final int BLANK_VERTEX_LABEL = 1337;
 	private static final int BLANK_EDGE_LABEL   = 1338;

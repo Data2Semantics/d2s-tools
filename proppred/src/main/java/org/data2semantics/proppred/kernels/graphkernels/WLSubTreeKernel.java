@@ -4,21 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.data2semantics.proppred.kernels.Bucket;
 import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.learners.SparseVector;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
-import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Vertex;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 /**
  * Class implementing the Weisfeiler-Lehman graph kernel for Multigraphs with a root node, which occurs in the RDF use case.
@@ -130,7 +126,7 @@ public class WLSubTreeKernel implements GraphKernel, FeatureVectorKernel {
 	public SparseVector[] computeFeatureVectors(
 			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> trainGraphs,
 			List<DirectedMultigraphWithRoot<Vertex<String>, Edge<String>>> testGraphs) {
-		// TODO Auto-generated method stub
+		// TODO Implement this
 		return null;
 	}
 

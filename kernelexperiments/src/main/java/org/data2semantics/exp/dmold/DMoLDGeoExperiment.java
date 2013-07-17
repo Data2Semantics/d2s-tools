@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.RDFMLExperiment;
-import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
 import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
@@ -16,11 +15,6 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEd
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
-import org.data2semantics.proppred.learners.evaluation.Accuracy;
-import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
-import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
-import org.data2semantics.proppred.learners.evaluation.F1;
-import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
@@ -57,7 +51,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		resTable.setDigits(2);
 
 		for (int depth : depths) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, depth="+depth);
 			for (int it : iterations) {
 				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
@@ -73,7 +67,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		System.out.println(resTable);
 
 		for (int depth : depths) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF BoW, depth="+depth);
 			for (int it : iterations) {
 				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFWLSubTreeWithTextKernel(it, depth, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
@@ -92,12 +86,12 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		ResultsTable table2 = new ResultsTable();
 		
 		for (int depth : depths) {
-			resTable.newRow("");
+			resTable.newRow("ITP, depth="+depth);
 			table2.newRow("");
 			
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(depth, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
-			System.out.println("Running EVP: " + depth);
+			System.out.println("Running ITP: " + depth);
 			exp.run();
 
 			for (Result res : exp.getResults()) {
@@ -108,12 +102,12 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		System.out.println(resTable);
 		
 		for (int depth : depths) {
-			resTable.newRow("");
+			resTable.newRow("ITP BoW, depth="+depth);
 			table2.newRow("");
 			
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(depth, false, inference, false), seeds, svmParms, dataset, instances, labels, blackList);
 
-			System.out.println("Running EVP with Text: " + depth);
+			System.out.println("Running ITP with Text: " + depth);
 			exp.run();
 
 			for (Result res : exp.getResults()) {
@@ -124,7 +118,7 @@ public class DMoLDGeoExperiment extends RDFMLExperiment {
 		System.out.println(resTable);
 		
 		for (int depth : depths) {
-			resTable.newRow("");
+			resTable.newRow("IST, depth="+depth);
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
 			System.out.println("Running IST: " + depth);

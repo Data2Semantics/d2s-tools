@@ -1,4 +1,4 @@
-package org.data2semantics.proppred;
+package org.data2semantics.proppred.predictors;
 
 import java.util.List;
 import java.util.Map;

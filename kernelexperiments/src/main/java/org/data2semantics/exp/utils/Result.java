@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import cern.colt.Arrays;
-
 public class Result implements Serializable {
 	private static final long serialVersionUID = 1809158002144017691L;
 	

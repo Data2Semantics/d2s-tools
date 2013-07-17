@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.data2semantics.proppred.kernels.Kernel;
 import org.data2semantics.proppred.kernels.KernelUtils;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.SparseVector;

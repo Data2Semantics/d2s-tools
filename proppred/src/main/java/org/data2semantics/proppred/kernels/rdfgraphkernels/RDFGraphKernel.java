@@ -7,8 +7,14 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
+/**
+ * Compute a kernel matrix on an RDFDataSet, instead of a list of graphs as in {@link org.data2semantics.proppred.kernels.GraphKernel}.
+ * 
+ * TODO, add a method for computation on a test set
+ * 
+ * @author Gerben
+ *
+ */
 public interface RDFGraphKernel extends Kernel {
-	
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList);
-
 }

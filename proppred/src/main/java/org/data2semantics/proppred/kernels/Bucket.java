@@ -3,6 +3,14 @@ package org.data2semantics.proppred.kernels;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Implementation of a simple bucket for the bucket-sort that is used in the Weisfeiler-Lehman algorithm used in the WLSubTree kernels.
+ * 
+ * @author Gerben
+ *
+ * @param <T> Type of the Objects in the bucket
+ */
 public class Bucket<T> {
 	private String label;
 	private List<T> contents;

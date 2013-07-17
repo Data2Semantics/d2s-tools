@@ -8,8 +8,6 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryResult;
 
 public class RDFMultiDataSet extends RDFDataSet {
 	private List<RDFDataSet> datasets;

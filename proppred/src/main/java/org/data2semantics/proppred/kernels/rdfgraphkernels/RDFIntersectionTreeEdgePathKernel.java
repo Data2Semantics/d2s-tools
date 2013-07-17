@@ -12,9 +12,15 @@ import org.data2semantics.proppred.learners.SparseVector;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
+/**
+ * Implementation of the Intersection Tree Path kernel defined in DMoLD paper. This variant consider only the labels on the edges (i.e. the predicates) for the paths.
+ * With the probabilities boolean in the constructor set to true, the values in the featureVectors will be computed as transition probabilities
+ * 
+ * @author Gerben
+ *
+ */
 public class RDFIntersectionTreeEdgePathKernel implements RDFGraphKernel, RDFFeatureVectorKernel {
 	private int depth;
 	private boolean inference;
@@ -53,8 +59,6 @@ public class RDFIntersectionTreeEdgePathKernel implements RDFGraphKernel, RDFFea
 	public void setNormalize(boolean normalize) {
 		this.normalize = normalize;		
 	}
-
-
 
 	public SparseVector[] computeFeatureVectors(RDFDataSet dataset, List<Resource> instances,
 			List<Statement> blackList) {
@@ -128,23 +132,16 @@ public class RDFIntersectionTreeEdgePathKernel implements RDFGraphKernel, RDFFea
 	}
 
 	protected List<Integer> createPath(Statement stmt, List<Integer> path) {
-		/*
+		
 		Integer key = uri2int.get(stmt.getPredicate());
 		if (key == null) {
 			key = new Integer(uri2int.size());
 			uri2int.put(stmt.getPredicate(), key);
 		}
-		 */
 
-		Integer key2 = uri2int.get(stmt.getObject());
-		if (key2 == null) {
-			key2 = new Integer(uri2int.size());
-			uri2int.put(stmt.getObject(), key2);
-		}
 		List<Integer> newPath = new ArrayList<Integer>(path);
-		//newPath.add(key);
-		newPath.add(key2);
-
+		newPath.add(key);
+		
 		return newPath;
 	}
 

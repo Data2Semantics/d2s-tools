@@ -8,6 +8,12 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
+/**
+ * A simple RDF graph kernel to combine different RDF graph kernels, currently we do not even implement a weighing of the different kernels.
+ * 
+ * @author Gerben
+ *
+ */
 public class RDFCombinedKernel implements RDFFeatureVectorKernel, RDFGraphKernel {
 	private boolean normalize;
 	private String label;

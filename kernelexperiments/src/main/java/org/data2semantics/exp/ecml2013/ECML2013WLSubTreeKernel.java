@@ -11,16 +11,12 @@ import java.util.Set;
 
 import org.data2semantics.proppred.kernels.Bucket;
 import org.data2semantics.proppred.kernels.KernelUtils;
-import org.data2semantics.proppred.kernels.graphkernels.FeatureVectorKernel;
 import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
-import org.data2semantics.proppred.learners.SparseVector;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
-import org.data2semantics.tools.graphs.GraphFactory;
 import org.data2semantics.tools.graphs.Vertex;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 /**
  * ECML 2013 version of the regular Weisfeiler-Lehman graph kernel.
@@ -72,8 +68,17 @@ public class ECML2013WLSubTreeKernel implements GraphKernel {
 
 		// We change the original label of the root node of the graph to a generic label
 		// This rootlabel identifies the graph uniquely, and we don't want that
+		Set<String> rootLabels = new HashSet<String>();
+		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : graphs) {
+			rootLabels.add(graph.getRootVertex().getLabel());
+		}
 		for (DirectedMultigraphWithRoot<Vertex<String>, Edge<String>> graph : graphs) {
 			graph.getRootVertex().setLabel(KernelUtils.ROOTID);
+			for (Vertex<String> vertex : graph.getVertices()) {
+				if (rootLabels.contains(vertex.getLabel())) {
+					vertex.setLabel(KernelUtils.ROOTID);
+				}
+			}
 		}
 
 		currentLabel = compressGraphLabels(graphs, labelDict, currentLabel);

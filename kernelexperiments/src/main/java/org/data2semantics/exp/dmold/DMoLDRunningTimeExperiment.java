@@ -1,26 +1,13 @@
 package org.data2semantics.exp.dmold;
 
-import java.util.Arrays;
-
 import org.data2semantics.exp.FullThemeExperiment;
-import org.data2semantics.exp.old.kernels.RDFWLSubTreeKernelString;
-import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
-import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
-import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
-import org.data2semantics.proppred.kernels.graphkernels.FeatureVectorKernel;
-import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
-import org.data2semantics.proppred.kernels.graphkernels.IntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
-import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
@@ -44,7 +31,7 @@ public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
 		ResultsTable resTable = new ResultsTable();
 
 		for (double frac : fractions) {
-			resTable.newRow("");
+			resTable.newRow("Fraction: " + frac);
 
 			double[] comp = new double[seeds.length];
 			for (int i = 0; i < seeds.length; i++) {
@@ -58,7 +45,7 @@ public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
 				toc = System.currentTimeMillis();
 				comp[i] = toc-tic;
 			}
-			Result res = new Result(comp, "comp time");
+			Result res = new Result(comp, "RDF WL FV");
 			resTable.addResult(res);
 	
 			comp = new double[seeds.length];
@@ -73,7 +60,7 @@ public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
 				toc = System.currentTimeMillis();
 				comp[i] = toc-tic;
 			}
-			res = new Result(comp, "comp time");
+			res = new Result(comp, "RDF WL Kernel");
 			resTable.addResult(res);
 	
 			comp = new double[seeds.length];
@@ -82,13 +69,13 @@ public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
 
 				RDFFeatureVectorKernel k = new RDFIntersectionTreeEdgeVertexPathKernel(3,false, false, true);
 
-				System.out.println("RDF EVP FV: " + frac);
+				System.out.println("RDF ITP FV: " + frac);
 				tic = System.currentTimeMillis();
 				k.computeFeatureVectors(dataset, instances, blackList);
 				toc = System.currentTimeMillis();
 				comp[i] = toc-tic;
 			}
-			res = new Result(comp, "comp time");
+			res = new Result(comp, "RDF ITP FV");
 			resTable.addResult(res);
 	
 			comp = new double[seeds.length];
@@ -97,13 +84,13 @@ public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
 
 				RDFGraphKernel k = new RDFIntersectionTreeEdgeVertexPathKernel(3,false, false, true);
 
-				System.out.println("RDF EVP Kernel: " + frac);
+				System.out.println("RDF ITP Kernel: " + frac);
 				tic = System.currentTimeMillis();
 				k.compute(dataset, instances, blackList);
 				toc = System.currentTimeMillis();
 				comp[i] = toc-tic;
 			}
-			res = new Result(comp, "comp time");
+			res = new Result(comp, "RDF ITP Kernel");
 			resTable.addResult(res);
 		
 			
@@ -119,7 +106,7 @@ public class DMoLDRunningTimeExperiment extends FullThemeExperiment {
 				toc = System.currentTimeMillis();
 				comp[i] = toc-tic;
 			}
-			res = new Result(comp, "comp time");
+			res = new Result(comp, "RDF IST");
 			resTable.addResult(res);
 	
 			System.out.println(resTable);

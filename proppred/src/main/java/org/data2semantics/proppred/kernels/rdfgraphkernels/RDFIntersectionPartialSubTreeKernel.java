@@ -1,12 +1,17 @@
 package org.data2semantics.proppred.kernels.rdfgraphkernels;
 
-import java.util.HashMap;
 
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
 
 import edu.uci.ics.jung.graph.Tree;
 
+/**
+ * Implementation of the Intersection Partial SubTree kernel, directly on the RDF graph, as suggested in the original paper.
+ * 
+ * @author Gerben
+ *
+ */
 public class RDFIntersectionPartialSubTreeKernel extends
 		RDFIntersectionSubTreeKernel {
 	
@@ -23,7 +28,6 @@ public class RDFIntersectionPartialSubTreeKernel extends
 		this(depth, discountFactor, inference, normalize, false);
 	}
 	
-	
 	protected double subTreeScore(Tree<Vertex<Integer>, Edge<Integer>> tree, Vertex<Integer> currentVertex, double discountFactor) {
 		// Base case of recursion
 		if (tree.getSuccessors(currentVertex).isEmpty()) {
@@ -36,5 +40,4 @@ public class RDFIntersectionPartialSubTreeKernel extends
 			return score;
 		}
 	}
-
 }

@@ -1,24 +1,12 @@
 package org.data2semantics.exp.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
-import org.data2semantics.proppred.kernels.Kernel;
-import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
-import org.data2semantics.proppred.learners.Prediction;
-import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.graphs.DirectedMultigraphWithRoot;
 import org.data2semantics.tools.graphs.Edge;
 import org.data2semantics.tools.graphs.Vertex;
-import org.data2semantics.tools.rdf.RDFSingleDataSet;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 public class GraphKernelRunTimeExperiment extends KernelExperiment<GraphKernel> {

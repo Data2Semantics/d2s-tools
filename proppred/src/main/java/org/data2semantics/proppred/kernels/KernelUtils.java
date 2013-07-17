@@ -1,17 +1,28 @@
 package org.data2semantics.proppred.kernels;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-import org.data2semantics.proppred.kernels.text.TextUtils;
 import org.data2semantics.proppred.learners.SparseVector;
 
-public class KernelUtils {
-	public static final String ROOTID = "ROOT1337";
-	
 
+/** 
+ * Class with utility methods for kernels
+ * 
+ * @author Gerben
+ *
+ */
+public class KernelUtils {
+	public static final String ROOTID = "ROOT1337"; // Special root label used in some kernels
+	
+	/**
+	 * Shuffle a kernel matrix with seed to initialize the Random object
+	 * 
+	 * @param kernel, 2D matrix of doubles
+	 * @param seed, for the Random object
+	 * @return the shuffled kernel matrix
+	 */
 	public static double[][] shuffle(double[][] kernel, long seed) {		
 		Double[][] kernelDouble = convert2DoubleObjects(kernel);		
 		for (int i = 0; i < kernel.length; i++) {
@@ -21,6 +32,12 @@ public class KernelUtils {
 		return convert2DoublePrimitives(kernelDouble);
 	}
 	
+	/**
+	 * Convert an array of SparseVectors to a kernel matrix, by computing the dot product of all the SparseVectors
+	 * 
+	 * @param featureVectors, an array of SparseVectors
+	 * @return a 2d array of doubles, the kernel matrix
+	 */
 	public static double[][] featureVectors2Kernel(SparseVector[] featureVectors) {
 		double[][] kernel = initMatrix(featureVectors.length, featureVectors.length);
 	
@@ -33,6 +50,12 @@ public class KernelUtils {
 		return kernel;
 	}
 	
+	/**
+	 * Convert an array of SparseVectors to binary SparseVectors, i.e. only 0 or 1 values.
+	 * 
+	 * @param featureVectors
+	 * @return an array of binary SparseVectors (the array is not copied, so the original array is returned)
+	 */
 	public static SparseVector[] convert2BinaryFeatureVectors(SparseVector[] featureVectors) {
 		for (SparseVector fv : featureVectors) {
 			for (int index : fv.getIndices()) {
@@ -44,13 +67,17 @@ public class KernelUtils {
 		return featureVectors;
 	}
 	
-	
-	
+	/**
+	 * Normalize an array of SparseVectors
+	 * 
+	 * @param featureVectors
+	 * @return an array of normalized SparseVectors (the orignal array is returned, it is not copied)
+	 */
 	public static SparseVector[] normalize(SparseVector[] featureVectors) {
 		double norm = 0;
 		for (int i = 0; i < featureVectors.length; i++) {
 			norm = Math.sqrt(featureVectors[i].dot(featureVectors[i]));
-			norm = (norm == 0) ? 1 : norm;
+			norm = (norm == 0) ? 1 : norm; // In case we have 0-vector
 					
 			for (int index : featureVectors[i].getIndices()) {
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) / norm);
@@ -60,7 +87,12 @@ public class KernelUtils {
 		return featureVectors;	
 	}
 	
-	
+	/**
+	 * Normalize a kernel matrix.
+	 * 
+	 * @param kernel
+	 * @return normalized matrix, which is the same matrix, not copied
+	 */
 	public static double[][] normalize(double[][] kernel) {
 		double[] ss = new double[kernel.length];
 		
@@ -77,6 +109,14 @@ public class KernelUtils {
 		return kernel;
 	}
 	
+	/**
+	 * Normalize an asymmetric train-test kernel matrix
+	 * 
+	 * @param kernel, the kernel matrix
+	 * @param trainSS, the self-similarities for the train set, (i.e. the kernel values k(i,i))
+	 * @param testSS, the self-similarities for the test set
+	 * @return a normalized matrix, which is the same array, not a copy
+	 */
 	public static double[][] normalize(double[][] kernel, double[] trainSS, double[] testSS) {
 		for (int i = 0; i < kernel.length; i++) {
 			for (int j = 0; j < kernel[i].length; j++) {
@@ -86,6 +126,13 @@ public class KernelUtils {
 		return kernel;
 	}
 	
+	/**
+	 * create a 2d array of doubles with the sizeRows and sizeColumns dimensions.
+	 * 
+	 * @param sizeRows
+	 * @param sizeColumns
+	 * @return
+	 */
 	public static double[][] initMatrix(int sizeRows, int sizeColumns) {
 		double[][] kernel = new double[sizeRows][sizeColumns];
 		for (int i = 0; i < sizeRows; i++) {
@@ -94,6 +141,13 @@ public class KernelUtils {
 		return kernel;
 	}
 	
+	/**
+	 * Compute the dot product between two feature vectors represented as double arrays
+	 * 
+	 * @param fv1
+	 * @param fv2
+	 * @return the dot product between fv1 and fv2
+	 */
 	public static double dotProduct(double[] fv1, double[] fv2) {
 		double sum = 0.0;		
 		for (int i = 0; i < fv1.length && i < fv2.length; i++) {

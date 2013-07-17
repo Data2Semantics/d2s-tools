@@ -19,8 +19,6 @@ import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
 import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
-import org.data2semantics.proppred.kernels.graphkernels.IntersectionGraphPathKernel;
-import org.data2semantics.proppred.kernels.graphkernels.IntersectionGraphWalkKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionPartialSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
@@ -156,7 +154,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 			toc = System.currentTimeMillis();
 
 
-			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running IGP: " + frac);
 			exp.run();
@@ -184,7 +182,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 				toc = System.currentTimeMillis();
 
 
-				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new ECML2013IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running IGW: " + frac);
 				exp.run();
@@ -664,7 +662,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 			resTable.newRow("IGP");
 			for (int it : iterationsIG) {
-				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running IGP: " + it);
 				exp.run();
@@ -694,7 +692,7 @@ public class GeoCompareExperiment extends RDFMLExperiment {
 
 			resTable.newRow("IGW");
 			for (int it : iterationsIG) {
-				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running IGW: " + it);
 				exp.run();

@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
-import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 
 public class ResultsTable implements Serializable {
 

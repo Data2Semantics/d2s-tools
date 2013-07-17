@@ -22,6 +22,14 @@ public class EvaluationUtils {
 		return target;	
 	}
 	
+	public static double[] target2Doubles(List<Double> target) {
+		double[] ret = new double[target.size()];
+		for (int i = 0; i < target.size(); i++) {
+			ret[i] = target.get(i);
+		}
+		return ret;
+	}
+	
 	public static Map<Double, Double> computeClassCounts(List<Double> target) {
 		Map<Double, Double> counts = new HashMap<Double, Double>();
 

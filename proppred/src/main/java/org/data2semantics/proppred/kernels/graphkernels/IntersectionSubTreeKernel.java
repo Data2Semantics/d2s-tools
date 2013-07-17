@@ -34,7 +34,6 @@ public class IntersectionSubTreeKernel implements GraphKernel {
 
 
 	public IntersectionSubTreeKernel(int depth, double discountFactor, boolean normalize) {
-		this.label = label;
 		this.depth = depth;
 		this.discountFactor = discountFactor;
 		this.label = "Intersection Full SubTree Kernel, depth=" + depth + ", lambda=" + discountFactor;

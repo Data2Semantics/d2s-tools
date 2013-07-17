@@ -11,18 +11,13 @@ import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.RDFMLExperiment;
-import org.data2semantics.exp.old.utils.Experimenter;
 import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
-import org.data2semantics.exp.utils.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
-import org.data2semantics.proppred.kernels.Kernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
@@ -31,7 +26,6 @@ import org.data2semantics.proppred.learners.evaluation.Accuracy;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.evaluation.F1;
-import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
@@ -78,7 +72,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		
 		
 		for (int i : depths) {	
-			resTable.newRow("");	
+			resTable.newRow("WL RDF, depth="+i);	
 			for (int it : iterations) {
 
 				List<List<Result>> res = new ArrayList<List<Result>>();
@@ -120,7 +114,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 
 
 		for (int i : depths) {	
-			resTable.newRow("");	
+			resTable.newRow("WL RDF BoW, depth="+i);	
 			for (int it : iterations) {
 
 				List<List<Result>> res = new ArrayList<List<Result>>();
@@ -162,7 +156,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		
 		
 		for (int i : depths) {	
-			resTable.newRow("");	
+			resTable.newRow("ITP, depth="+i);	
 
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
@@ -200,7 +194,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		System.out.println(resTable);
 		
 		for (int i : depths) {	
-			resTable.newRow("");	
+			resTable.newRow("ITP BoW, depth="+i);	
 
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {
@@ -241,7 +235,7 @@ public class DMoLDThemeExperiment extends RDFMLExperiment {
 		
 
 		for (int i : depths) {	
-			resTable.newRow("");	
+			resTable.newRow("IST, depth="+i);	
 
 			List<List<Result>> res = new ArrayList<List<Result>>();
 			for (long seed : seeds) {

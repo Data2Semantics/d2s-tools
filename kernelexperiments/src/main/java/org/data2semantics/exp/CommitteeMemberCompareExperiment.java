@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.data2semantics.exp.utils.KernelExperiment;
-import org.data2semantics.exp.utils.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
-import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
-import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
-import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;

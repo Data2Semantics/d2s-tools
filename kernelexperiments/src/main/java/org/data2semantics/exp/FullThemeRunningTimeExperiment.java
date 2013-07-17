@@ -2,16 +2,8 @@ package org.data2semantics.exp;
 
 import java.util.Arrays;
 
-import org.data2semantics.exp.old.kernels.RDFWLSubTreeKernelString;
-import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
-import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
-import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
-import org.data2semantics.proppred.kernels.graphkernels.FeatureVectorKernel;
-import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
-import org.data2semantics.proppred.kernels.graphkernels.IntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;

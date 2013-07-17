@@ -1,4 +1,4 @@
-package org.data2semantics.proppred;
+package org.data2semantics.proppred.predictors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +20,6 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
-
-import cern.colt.Arrays;
 
 
 /**

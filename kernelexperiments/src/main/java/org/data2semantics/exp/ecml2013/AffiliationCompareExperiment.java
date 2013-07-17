@@ -1,13 +1,8 @@
 package org.data2semantics.exp.ecml2013;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.RDFMLExperiment;
@@ -22,14 +17,10 @@ import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
 import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
-import org.data2semantics.proppred.kernels.graphkernels.IntersectionGraphPathKernel;
-import org.data2semantics.proppred.kernels.graphkernels.IntersectionGraphWalkKernel;
-import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionPartialSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
-import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -160,7 +151,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 			toc = System.currentTimeMillis();
 
 
-			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+			KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013IntersectionGraphPathKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 			System.out.println("Running IGP: " + frac);
 			exp.run();
@@ -186,7 +177,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 				PropertyPredictionDataSet ds = DataSetFactory.createPropertyPredictionDataSet(new GeneralPredictionDataSetParameters(dataset, blackLists, instances, 3, false, true));
 				toc = System.currentTimeMillis();
 
-				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelRunTimeExperiment(new ECML2013IntersectionGraphWalkKernel(2,1), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running IGW: " + frac);
 				exp.run();
@@ -395,7 +386,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 			resTable.newRow("IGP");
 			for (int it : iterationsIG) {
-				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013IntersectionGraphPathKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running IGP: " + it);
 				exp.run();
@@ -426,7 +417,7 @@ public class AffiliationCompareExperiment extends RDFMLExperiment {
 
 			resTable.newRow("IGW");
 			for (int it : iterationsIG) {
-				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
+				KernelExperiment<GraphKernel> exp = new GraphKernelExperiment(new ECML2013IntersectionGraphWalkKernel(it,1), seeds, parms, ds.getGraphs(), labels);
 
 				System.out.println("Running IGW: " + it);
 				exp.run();

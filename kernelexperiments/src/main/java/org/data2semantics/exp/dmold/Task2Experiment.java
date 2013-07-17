@@ -1,39 +1,26 @@
 package org.data2semantics.exp.dmold;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.RDFMLExperiment;
 import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
-import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFCombinedKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgePathKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
-import org.data2semantics.proppred.kernels.text.RDFSimpleTextKernel;
 import org.data2semantics.proppred.learners.evaluation.Accuracy;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.evaluation.F1;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
-import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
-import org.data2semantics.tools.rdf.RDFMultiDataSet;
-import org.data2semantics.tools.rdf.RDFSparqlDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
-import org.openrdf.model.util.LiteralUtil;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 
@@ -193,7 +180,7 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, depth="+d);
 			for (int it : iterations) {
 				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, false);
 				//k.setIgnoreLiterals(false);
@@ -267,7 +254,7 @@ public class Task2Experiment extends RDFMLExperiment {
 
 
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("ITP BoW, depth="+d);
 
 			//RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false), seeds, svmParms, dataset, instances, labels, blackList);
 

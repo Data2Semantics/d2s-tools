@@ -1,11 +1,8 @@
 package org.data2semantics.tools.graphs;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 
 import org.junit.Ignore;
-import org.junit.Test;
 
 public class EdgeIterableTest
 {

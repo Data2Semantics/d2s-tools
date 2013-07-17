@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.data2semantics.exp.old.utils.Experimenter;
 import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
-import org.data2semantics.exp.utils.RDFLinearVSKernelExperiment;
 import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
@@ -22,7 +20,6 @@ import org.data2semantics.proppred.learners.evaluation.Accuracy;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.evaluation.F1;
-import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;

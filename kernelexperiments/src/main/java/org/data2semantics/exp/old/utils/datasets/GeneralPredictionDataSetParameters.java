@@ -6,7 +6,6 @@ import java.util.Map;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 
 public class GeneralPredictionDataSetParameters {
 	private RDFDataSet rdfDataSet;

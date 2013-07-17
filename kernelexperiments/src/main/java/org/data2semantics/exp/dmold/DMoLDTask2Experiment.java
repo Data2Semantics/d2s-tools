@@ -1,39 +1,29 @@
 package org.data2semantics.exp.dmold;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import org.data2semantics.exp.RDFMLExperiment;
-import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
 import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFCombinedKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
-import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgePathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
-import org.data2semantics.proppred.kernels.text.RDFSimpleTextKernel;
 import org.data2semantics.proppred.learners.evaluation.Accuracy;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.evaluation.F1;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
-import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
-import org.data2semantics.tools.rdf.RDFMultiDataSet;
-import org.data2semantics.tools.rdf.RDFSparqlDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
-import org.openrdf.model.util.LiteralUtil;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 
@@ -97,7 +87,7 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 		
 
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF, depth="+d);
 			for (int it : iterations) {
 				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, inference, true);
 				
@@ -117,7 +107,7 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 
 
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("WL RDF BoW, depth="+d);
 			for (int it : iterations) {
 				RDFWLSubTreeWithTextKernel k = new RDFWLSubTreeWithTextKernel(it, d, inference, false);
 				k.setDoTFIDFkernel(true);
@@ -138,11 +128,11 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 		
 		
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("ITP, depth="+d);
 
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexPathKernel(d, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
-			System.out.println("Running Edge Vertex Path: " + d);
+			System.out.println("Running Edge Vertex Tree Path: " + d);
 			exp.run();
 
 			for (Result res : exp.getResults()) {
@@ -155,7 +145,7 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 
 
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("ITP BoW, depth="+d);
 
 			
 			RDFIntersectionTreeEdgeVertexPathWithTextKernel k = new RDFIntersectionTreeEdgeVertexPathWithTextKernel(d, false, inference, false);
@@ -163,7 +153,7 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 			
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(k, seeds, svmParms, dataset, instances, labels, blackList);
 
-			System.out.println("Running Edge Vertex Path with Text: " + d);
+			System.out.println("Running Edge Vertex Tree Path with Text: " + d);
 			exp.run();
 
 			for (Result res : exp.getResults()) {
@@ -175,7 +165,7 @@ public class DMoLDTask2Experiment extends RDFMLExperiment {
 
 		
 		for (int d : depths) {
-			resTable.newRow("");
+			resTable.newRow("IST, depth="+d);
 
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(d, 1, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 

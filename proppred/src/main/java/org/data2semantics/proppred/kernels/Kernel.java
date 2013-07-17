@@ -1,16 +1,9 @@
 package org.data2semantics.proppred.kernels;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
-
-import org.data2semantics.proppred.learners.SparseVector;
-
-
 /**
- * Kernel interface mainly as marker interface, since this does not define on what we compute a kernel.
+ * Kernel interface, used as a marker interface, since this does not define on what we compute a kernel.
+ * 
  * @author Gerben
- *
  */
 public interface Kernel {
 	public String getLabel();
