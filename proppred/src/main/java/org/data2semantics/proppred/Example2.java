@@ -12,6 +12,7 @@ import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKerne
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.SparseVector;
+import org.data2semantics.proppred.learners.evaluation.Accuracy;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARModel;
@@ -70,19 +71,23 @@ public class Example2 {
 			}
 		}
 		
+		// We remove classes with fewer than 5 instances
+		EvaluationUtils.removeSmallClasses(instances, labels, 5);
+		
 		// Create the RDFFeatureVectorKernel that we are going to use
 		RDFFeatureVectorKernel kernel = new RDFWLSubTreeKernel(6,3,true,true);
 		
 		// Compute feature vectors
 		SparseVector[] featureVectors = kernel.computeFeatureVectors(dataset, instances, blackList);
 		
-		// Create a list of doubles as target
-		List<Double> target = EvaluationUtils.createTarget(labels);
+		// Create a list of doubles as target, with our labelMap, so that we can use it later on (i.e. get the reverseMap)
+		Map<Value, Double> labelMap = new HashMap<Value, Double>();
+		List<Double> target = EvaluationUtils.createTarget(labels, labelMap);
 
 		// Initialize parameters object for LibLINEAR
-		double[] cs = {1,10,100,1000}; // C values to optimize over.
+		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1,10,100,1000, 10000}; // C values to optimize over.
 		LibLINEARParameters linParms = new LibLINEARParameters(LibLINEARParameters.SVC_DUAL, cs);
-		linParms.setDoCrossValidation(false);
+		linParms.setDoCrossValidation(true);
 		
 		// Set the weights of the different classes, for the first 100 instances
 		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target.subList(0,100));
@@ -103,13 +108,13 @@ public class Example2 {
 		Prediction[] predictions = LibLINEAR.testLinearModel(model, Arrays.copyOfRange(featureVectors, 100, featureVectors.length));
 		
 		// Print out the predictions and compute the accuracy on the test set.
+		Map<Double, Value> revMap = EvaluationUtils.reverseLabelMap(labelMap);
 		List<Double> testLabels = target.subList(100, target.size());
-		int correct = 0;
+
 		for (int i = 0; i < predictions.length; i++) {
-			System.out.println("Label: " + testLabels.get(i) + ", Predicted: " + predictions[i].getLabel());
-			correct = (testLabels.get(i).equals(predictions[i].getLabel())) ? correct + 1 : correct;
+			System.out.println("Label: " + revMap.get(testLabels.get(i)) + ", Predicted: " + revMap.get(predictions[i].getLabel()));
 		}
-		System.out.println("Accuracy: " + ((double) correct) / (double) predictions.length);	
+		System.out.println("Accuracy: " + (new Accuracy()).computeScore(EvaluationUtils.target2Doubles(testLabels), predictions));	
 		
 
 	}
