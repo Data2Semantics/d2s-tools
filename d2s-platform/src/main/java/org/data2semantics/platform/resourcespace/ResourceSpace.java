@@ -1,6 +1,8 @@
 package org.data2semantics.platform.resourcespace;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,14 +82,29 @@ public class ResourceSpace {
 	 */
 	
 	public void generateReport(File outputDirectory){
-		for(String key : refersTo.keySet()){
-			System.out.println("Module " + key);
-			System.out.print("    ");
-			for(String outputs: refersTo.get(key)){
-				System.out.print(outputs+" ");
-			}
-			System.out.println();
+		// Create a directory
+		outputDirectory.mkdir();
+		
+		// Create the file output.txt
+		File report = new File(outputDirectory, "Report.html");
+		
+		try {
+			FileWriter writer = new FileWriter(report);
+			writer.append("\n<h1>Workflow execution Report</h1>");
+			writer.append("\b<h2>Call  dependency </h2>");
+			
+			writer.append("<img src='https://chart.googleapis.com/chart?cht=gv:dot&chl=");
+			writer.append(produceDotString());
+			writer.append("'>");
+			
+			writer.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		
 	}
 	
 	public void addReference(String module, String referredModule){
@@ -101,4 +118,22 @@ public class ResourceSpace {
 		}
 	}
 	
+	private String produceDotString(){
+		StringBuffer result = new StringBuffer();
+		
+		result.append ("digraph{");
+		
+		for(String module : refersTo.keySet()){
+				for(String referringOutput : refersTo.get(module)){
+					String source = referringOutput.split("\\.")[0];
+					String label =  referringOutput.split("\\.")[1];
+					result.append(source + "->" + module + "[label=\"" + label + "\"]");
+				}
+		}
+		
+		result.append("}");
+		
+		return result.toString();
+		
+	}
 }

@@ -55,7 +55,6 @@ public class Orchestrator {
 		// Get all modules which are ready to be executed
 		List<Module> readyModules = currentWorkflow.getModulesWithState(State.READY);
 		
-		
 		// Main execution loop, find all ready modules and execute
 		while(readyModules.size() > 0){
 			
