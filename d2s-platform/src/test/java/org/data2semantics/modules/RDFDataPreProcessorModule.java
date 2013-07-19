@@ -48,7 +48,7 @@ public class RDFDataPreProcessorModule extends RDFMLExperiment {
 		
 		LOG.info("In module, creating dataset");
 		dataset=new RDFFileDataSet(dataDirectory, RDFFormat.NTRIPLES);
-		createGeoDataSet(2,fraction,123, predicateFilter2);
+		createGeoDataSet(10,fraction,123, predicateFilter2);
 		LOG.info("In module, done creating dataset");
 		return dataset;
 	}
