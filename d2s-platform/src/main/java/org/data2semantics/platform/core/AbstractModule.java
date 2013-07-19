@@ -11,7 +11,7 @@ import java.util.List;
  */
 public abstract class AbstractModule implements Module {
 	
-	private String name;
+	protected String name;
 	
 	// Parent Workflow where this module belongs
 	protected Workflow parent;

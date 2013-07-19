@@ -26,6 +26,8 @@ public class TestKernelExperiment {
 		
 		workflowContainer.dumpIntermediateResults();
 		
+		platformOrchestrator.writeOutput("output_directory");
+		
 		
 	}
 }

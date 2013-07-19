@@ -119,11 +119,12 @@ public class Workflow {
 			SimpleModuleWrapper abr = (SimpleModuleWrapper) b;
 			Map<String, String> references = abr.getReferences();
 			Set<String> resolved = new HashSet<String>();
-			for(String key : references.keySet()){
-				String ref = references.get(key);
-				if(resourceSpace.containsKey(ref)){
-					abr.updateInput(key, resourceSpace.get(ref));
-					resolved.add(key);
+			for(String inputKey : references.keySet()){
+				String referredOutput = references.get(inputKey);
+				if(resourceSpace.containsKey(referredOutput)){
+					abr.updateInput(inputKey, resourceSpace.get(referredOutput));
+					resourceSpace.addReference(abr.getName(), referredOutput);
+					resolved.add(inputKey);
 				}
 			}
 			

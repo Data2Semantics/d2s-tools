@@ -1,7 +1,9 @@
 package org.data2semantics.platform.resourcespace;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,8 +29,15 @@ import java.util.Set;
 public class ResourceSpace {
 	
 	
+	// Hashmap storing intermediate results. The key would be Modulename.Output
 	Map<String, Object> space = new HashMap<String, Object>();
 
+	// Keeping track of which module is  referring to output of which other modules.
+	Map<String, List<String>> refersTo = new HashMap<String, List<String>>();
+	
+	
+	
+	
 	/**
 	 * Initialize the result space
 	 */
@@ -36,16 +45,13 @@ public class ResourceSpace {
 		
 		space = new HashMap<String, Object>();
 	}
+
 	
 	/**
-	 * Generate report ?
+	 * Store intermediate results
+	 * @param identifier
+	 * @param result
 	 */
-	
-	public void generateReport(File outputDirectory){
-		
-	}
-	
-	
 	
 	public void storeResult(String identifier, Object result){
 			
@@ -69,5 +75,30 @@ public class ResourceSpace {
 	
 	
 	
+	/**
+	 * Generate report ?
+	 */
+	
+	public void generateReport(File outputDirectory){
+		for(String key : refersTo.keySet()){
+			System.out.println("Module " + key);
+			System.out.print("    ");
+			for(String outputs: refersTo.get(key)){
+				System.out.print(outputs+" ");
+			}
+			System.out.println();
+		}
+	}
+	
+	public void addReference(String module, String referredModule){
+		if(refersTo.containsKey(module)){
+			List<String> referredList = refersTo.get(module);
+			referredList.add(referredModule);
+		} else {
+			List<String> referredList = new ArrayList<String>();
+			referredList.add(referredModule);
+			refersTo.put(module, referredList);
+		}
+	}
 	
 }
