@@ -1,0 +1,58 @@
+workflow:
+
+         
+- module:
+    name: Multiplier2
+    source: org.data2semantics.modules.MultiplierModule
+    inputs:
+        first: 
+            reference: Multiplier1.result
+        second: 
+            reference: Adder2.result
+            
+         
+- module:
+    name: Multiplier1
+    source: org.data2semantics.modules.MultiplierModule
+    inputs:
+        first: 
+            reference: Adder3.result
+        second: 
+            reference: Adder2.result
+            
+- module:
+    name: Adder1
+    source: org.data2semantics.modules.AdderModule
+    inputs:
+        first: 2320
+        second: 20
+       
+- module:
+    name: Adder2
+    source: org.data2semantics.modules.AdderModule
+    inputs:
+        first: 
+            reference: Adder1.result
+        second: 20
+         
+         
+- module:
+    name: Adder3
+    source: org.data2semantics.modules.AdderModule
+    inputs:
+        first: 
+            reference: Adder1.result
+        second: 
+            reference: Adder2.result
+            
+         
+- module:
+    name: Multiplier1
+    source: org.data2semantics.modules.MultiplierModule
+    inputs:
+        first: 
+            reference: Adder1.result
+        second: 
+            reference: Adder2.result
+            
+            

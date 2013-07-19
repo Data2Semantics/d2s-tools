@@ -1,0 +1,75 @@
+ workflow:
+    - module:
+        name: merge
+        source: 'java:org.d2s.data.Merge'
+    
+        inputs:
+            datasets:
+                - resource: csv-file
+                  parameters:
+                    file: 'C:/Users/Jane/datasets/mnist/training.csv'
+                - resource: csv-file
+                  parameters:
+                    file: 'C:/Users/Jane/datasets/mnist/test.csv'
+                    
+    - module:
+        name: preprocess
+        source: 'java:org.d2s.data.PCA'
+        
+        inputs:
+            data:
+                reference: 'merge.merged data'
+    
+    - module: 
+        name: split
+        source: 'java:org.d2s.data.SplitDeterministic'
+        inputs:
+            data: 
+                reference: 'preprocess.preprocessed data'
+                numfolds: 10
+                fold: 
+                    start: 0
+                    end : 10
+            
+    - module:
+        name: mlp trainer
+        source: 'java:com.janedoe.experiments.MLPTrainer'
+        
+        inputs:
+            hidden nodes: 5
+            learning rate: 1.5
+            data: 
+            
+        reference: 'splitter.outside'
+    
+    - module:
+        name: dt trainer
+        source: 'java:com.janedoe.experiments.DTTrainer'
+        
+        inputs:
+            pruning: true
+            data: 
+        reference: 'splitter.outside'
+        
+    - module:
+        name: svm trainer
+        source: 'java:com.janedoe.experiments.SVMTrainer'
+        
+        inputs:
+            c: 3
+            data: 
+            
+        reference: 'splitter.outside'
+        
+    - module:
+        name: tester
+        source: 'java:org.d2s.classification.Test'
+    
+        inputs:
+            test data: 
+                reference: 'splitter.inside'
+            classifier:
+        reference: 
+            - 'mlp trainer.classifier'
+            - 'dt trainer.classifier'
+            - 'svm trainer.classifier'

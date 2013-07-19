@@ -1,0 +1,7 @@
+source: org.data2semantics.modules.SimpleAnnotatedModule
+
+repeat: 10
+
+inputs:
+    population size: 150
+    initial variance: 0.4123123

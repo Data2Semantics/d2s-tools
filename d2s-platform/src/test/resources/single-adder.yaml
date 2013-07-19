@@ -1,0 +1,7 @@
+source: org.data2semantics.modules.AdderModule
+
+repeat: 10
+
+inputs:
+    first: 150
+    second: 123

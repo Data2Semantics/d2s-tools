@@ -1,0 +1,53 @@
+workflow:
+
+#This should be the module that spawn outputs, producing list of integer for example        
+- module:
+    name: Spawn1
+    source: org.data2semantics.modules.ListModule
+    inputs:
+        nOutput:   5
+        
+   
+- module:
+    name: Spawn2
+    source: org.data2semantics.modules.ListModule
+    inputs:
+        nOutput:  2
+        
+        
+- module:
+    name: Multiplier
+    source: org.data2semantics.modules.MultiplierModule
+    inputs:
+        first: 
+            reference: Adder.result
+        second: 
+            reference: Adder.result
+            
+     
+     
+- module:
+    name: Adder
+    source: org.data2semantics.modules.AdderModule
+    inputs:
+        first: 
+            reference: Spawn1.result
+        second:
+            reference: Spawn2.result
+            
+- module:
+    name: Adder10
+    source: org.data2semantics.modules.AdderModule
+    inputs:
+        first: 
+            reference: Multiplier.result
+        second:
+            10
+            
+- module:
+    name: SumList
+    source: org.data2semantics.modules.SumListModule
+    inputs: 
+        list:
+            reference: Adder2.result
+            
