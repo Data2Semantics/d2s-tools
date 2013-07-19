@@ -2,6 +2,7 @@ d2s-tools
 =========
 
 This project provides tools for dealing with RDF data in a Machine Learning/Complexity Analysis context.
+See also http://www.data2semantics.org/publications/ecmlpkdd-2013/.
 
 ## Running experiments for the DMoLD 2013 Submission
 
