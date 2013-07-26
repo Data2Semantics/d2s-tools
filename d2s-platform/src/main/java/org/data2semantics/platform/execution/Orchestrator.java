@@ -1,5 +1,6 @@
 package org.data2semantics.platform.execution;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -54,7 +55,6 @@ public class Orchestrator {
 		// Get all modules which are ready to be executed
 		List<Module> readyModules = currentWorkflow.getModulesWithState(State.READY);
 		
-		
 		// Main execution loop, find all ready modules and execute
 		while(readyModules.size() > 0){
 			
@@ -87,6 +87,10 @@ public class Orchestrator {
 			}
 		}
 		LOG.info(statuses.toString());
+	}
+
+	public void writeOutput(String output_directory) {
+		resourceSpace.generateReport(new File(output_directory));	
 	}
 	
 }

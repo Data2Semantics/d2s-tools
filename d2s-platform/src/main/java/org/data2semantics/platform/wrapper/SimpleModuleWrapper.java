@@ -35,7 +35,6 @@ public class SimpleModuleWrapper extends AbstractModule {
 	ClassLoader loader;
 	Class<?> myclass;
 	
-	String name;
 	
 	
 	/**

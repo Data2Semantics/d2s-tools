@@ -1,7 +1,11 @@
 package org.data2semantics.platform.resourcespace;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,8 +31,15 @@ import java.util.Set;
 public class ResourceSpace {
 	
 	
+	// Hashmap storing intermediate results. The key would be Modulename.Output
 	Map<String, Object> space = new HashMap<String, Object>();
 
+	// Keeping track of which module is  referring to output of which other modules.
+	Map<String, List<String>> refersTo = new HashMap<String, List<String>>();
+	
+	
+	
+	
 	/**
 	 * Initialize the result space
 	 */
@@ -36,16 +47,13 @@ public class ResourceSpace {
 		
 		space = new HashMap<String, Object>();
 	}
+
 	
 	/**
-	 * Generate report ?
+	 * Store intermediate results
+	 * @param identifier
+	 * @param result
 	 */
-	
-	public void generateReport(File outputDirectory){
-		
-	}
-	
-	
 	
 	public void storeResult(String identifier, Object result){
 			
@@ -69,5 +77,63 @@ public class ResourceSpace {
 	
 	
 	
+	/**
+	 * Generate report ?
+	 */
 	
+	public void generateReport(File outputDirectory){
+		// Create a directory
+		outputDirectory.mkdir();
+		
+		// Create the file output.txt
+		File report = new File(outputDirectory, "Report.html");
+		
+		try {
+			FileWriter writer = new FileWriter(report);
+			writer.append("\n<h1>Workflow execution Report</h1>");
+			writer.append("\b<h2>Call  dependency </h2>");
+			
+			writer.append("<img src='https://chart.googleapis.com/chart?cht=gv:dot&chl=");
+			writer.append(produceDotString());
+			writer.append("'>");
+			
+			writer.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	public void addReference(String module, String referredModule){
+		if(refersTo.containsKey(module)){
+			List<String> referredList = refersTo.get(module);
+			referredList.add(referredModule);
+		} else {
+			List<String> referredList = new ArrayList<String>();
+			referredList.add(referredModule);
+			refersTo.put(module, referredList);
+		}
+	}
+	
+	private String produceDotString(){
+		StringBuffer result = new StringBuffer();
+		
+		result.append ("digraph{");
+		
+		for(String module : refersTo.keySet()){
+				for(String referringOutput : refersTo.get(module)){
+					String source = referringOutput.split("\\.")[0];
+					String label =  referringOutput.split("\\.")[1];
+					result.append(source + "->" + module + "[label=\"" + label + "\"]");
+				}
+		}
+		
+		result.append("}");
+		
+		return result.toString();
+		
+	}
 }
