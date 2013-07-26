@@ -16,7 +16,6 @@ import nl.peterbloem.powerlaws.DiscreteApproximate;
 import org.apache.commons.collections15.Transformer;
 import org.lilian.experiment.Result;
 import org.lilian.experiment.State;
-import org.lilian.graphs.ConnectionClustering;
 import org.lilian.graphs.DTGraph;
 import org.lilian.graphs.Graph;
 import org.lilian.graphs.Node;

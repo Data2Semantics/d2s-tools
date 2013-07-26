@@ -4,12 +4,12 @@ import java.awt.image.BufferedImage;
 
 import org.lilian.experiment.Result;
 import org.lilian.experiment.State;
-import org.lilian.graphs.ConnectionClustering;
 import org.lilian.graphs.Graph;
 import org.lilian.graphs.Measures;
 import org.lilian.graphs.Subgraph;
 import org.lilian.graphs.UTGraph;
 import org.lilian.graphs.algorithms.FloydWarshall;
+import org.lilian.graphs.clustering.ConnectionClusterer.ConnectionClustering;
 import org.lilian.graphs.jung.Graphs;
 
 
