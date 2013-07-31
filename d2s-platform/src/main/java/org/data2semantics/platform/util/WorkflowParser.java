@@ -1,12 +1,23 @@
 package org.data2semantics.platform.util;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.DataType;
+import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.domain.Domain;
+import org.data2semantics.platform.domain.JavaDomain;
+import org.data2semantics.platform.domain.PythonDomain;
+import org.data2semantics.platform.exception.InconsistentWorkflowException;
 import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 import org.yaml.snakeyaml.Yaml;
 
@@ -18,54 +29,133 @@ import org.yaml.snakeyaml.Yaml;
 public class WorkflowParser {
 
 	private String workflowDescription;
-	private Yaml yaml = new Yaml();
-	
-	public WorkflowParser() {
-		
-		
-		
-	}
+	private static Yaml yaml = new Yaml();
 	
 	/**
 	 * Perhaps not only the parsed yaml file will be required here as parameter, but also what kind of wrapper.
 	 * @param yamlFile
 	 * @return
 	 */
-	public Workflow parseYAML(String yamlFile){
-		Workflow workflowContainer = new Workflow();
-		BufferedInputStream bis=null;
-		try {
-			bis = new BufferedInputStream(new FileInputStream(yamlFile));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static Workflow parseYAML(String yamlFile)
+		throws IOException
+	{
+		return parseYAML(new File(yamlFile));
+	}
 	
+	public static Workflow parseYAML(File yamlFile)
+		throws IOException
+	{
+		
+		Workflow.WorkflowBuilder builder = Workflow.builder();
+		
+		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(yamlFile));
 		
 		// Need to create bean instead of directly working with map
-		Map  workflow = (Map) yaml.load(bis);
-		ArrayList<Map> modules = (ArrayList <Map>) workflow.get("workflow");
+		Map<?, ?> workflowMap = (Map<?, ?>) yaml.load(bis);
+		ArrayList<Map<?, ?>> modules = (ArrayList <Map<?, ?>>) workflowMap.get("workflow");
 	
-		
+		// workflow name
+		 
 		
 		/**
 		 * First setup the workflow to contain all modules.
 		 */
-		for(Map m : modules){
-			Map module = (Map)m.get("module");
-			SimpleModuleWrapper moduleWrapper = new SimpleModuleWrapper(workflowContainer);
-			moduleWrapper.wrapModule(module);
-			workflowContainer.addModule(moduleWrapper);
+		for (Map m : modules)
+		{
+			Map module = (Map) m.get("module");
+
+			String name = (String) module.get("name");
+			String source = (String) module.get("source");
+
+			// Default domain
+			Domain domain;
+			if(! source.contains(":"))
+				domain = Global.defaultDomain();
+			
+			String domainPrefix = source.split(":")[0];
+			String sourceTail = source.split(":", 2)[1];
+			
+			if(! Global.domainExists(domainPrefix))
+				throw new RuntimeException("Domain "+domainPrefix+" is not known");
+			
+			domain = Global.domain(name);
+
+			// get name
+			builder.module(name, domain);
+
+			// get the source
+			builder.source(name, sourceTail);
+
+			// get the inputs
+			Map inputMap = (Map) module.get("inputs");
+
+			for (Object inputKey : inputMap.keySet())
+			{
+				String inputName = inputKey.toString();
+
+				// If the input is a map, then it is actually a reference input
+				if (inputMap.get(inputKey) instanceof Map)
+				{
+					Map ref = (Map) inputMap.get(inputKey);
+					String referenceString = (String) ref.get("reference");
+
+					// Reference is in : module.output format, we split using .
+					String referencedModule = referenceString.split("\\.")[0];
+					String referencedOutput = referenceString.split("\\.")[1];
+
+					builder.refInput(name, inputName, referencedModule,
+							referencedOutput, domain.inputType(sourceTail, inputName));
+					
+				} else // Raw value
+				{
+					Object value = inputMap.get(inputKey);
+					DataType dataType = domain.inputType(sourceTail, inputName);
+					
+					if(domain.valueMatches(value, dataType))
+						builder.rawInput(name, inputName, value, domain.inputType(sourceTail, inputName));
+					else if((value instanceof List<?> ) && listItemsMatch((List<Object>) value, dataType, domain))
+						builder.multiInput(name, inputName, (List<Object>)value, dataType);
+					else
+						throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+value+") does not match the required data type ("+dataType+").");
+				}
+			}
+
+			// ask the domain object for the outputs
+			Map<String, DataType> outputTypeMap = getOutputTypes(source, domain);
+			
+			for(String outputName : outputTypeMap.keySet())
+				builder.output(name, outputName, outputTypeMap.get(outputName));
 		}
-		return workflowContainer;
-				
+		
+		return builder.workflow();
 	}
 
-	public String getWorkflowDescription() {
+	private static boolean listItemsMatch(List<Object> list, DataType type, Domain domain)
+	{
+		for(Object item : list)
+			if(! domain.valueMatches(item, type))
+				return false;
+		
+		return true;
+	}
+	
+	private static Map<String, DataType> getOutputTypes(String source, Domain domain)
+	{
+		Map<String, DataType> result = new LinkedHashMap<String, DataType>();
+		
+		for(String output : domain.outputs(source))
+			result.put(output, domain.outputType(source, output));
+		
+		return result;
+	}
+
+	public String getWorkflowDescription() 
+	{
 		return workflowDescription;
 	}
 
-	public void setWorkflowDescription(String workflowDescription) {
+	public void setWorkflowDescription(String workflowDescription)
+	{
 		this.workflowDescription = workflowDescription;
 	}
 	

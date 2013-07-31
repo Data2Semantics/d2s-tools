@@ -1,13 +1,13 @@
 package org.data2semantics.workflow;
 
-import org.data2semantics.platform.annotation.MainMethod;
-import org.data2semantics.platform.annotation.OutputField;
+import org.data2semantics.platform.annotation.Main;
+import org.data2semantics.platform.annotation.Out;
 
 public class AnnotationOutputField {
-	@OutputField(name ="intField")
+	@Out(name ="intField")
 	public int result=0;
 	
-	@MainMethod
+	@Main
 	public void setResult(int x){
 		result =x;
 	}

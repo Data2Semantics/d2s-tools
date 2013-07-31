@@ -6,24 +6,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a method parameter as an input.
+ * Annotation marking the output of a module. Can annotate either a field or a 
+ * module.
+ * 
  * @author wibisono
  *
  */
-@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface InputParameter {
+public @interface Out {
 	
 	/**
-	 * Name of this input
+	 * Name of this output
 	 * @return
 	 */
 	public String name();
 	
-	/**
-	 * Type of this input.
-	 * @return
-	 */
-	public String type() default "String";
+	public String description() default "";
 
 }

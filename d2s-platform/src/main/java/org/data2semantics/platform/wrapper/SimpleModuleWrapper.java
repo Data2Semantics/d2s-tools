@@ -28,7 +28,7 @@ import org.data2semantics.platform.util.PlatformUtil;
  * @author wibisono
  *
  */
-public class SimpleModuleWrapper extends AbstractModule {
+public class SimpleModuleWrapper {
 
 	private final static Logger LOG = Logger.getLogger(SimpleModuleWrapper.class.getName());
 		

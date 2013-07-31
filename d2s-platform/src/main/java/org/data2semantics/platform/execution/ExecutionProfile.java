@@ -7,11 +7,11 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.DebugGraphics;
 
-import org.data2semantics.platform.core.AbstractModule;
-import org.data2semantics.platform.core.Input;
+
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 
@@ -42,44 +42,50 @@ abstract public class ExecutionProfile {
 		 * @param resultSpace 
 		 * @return whether the execution is successful
 		 */
-		public boolean executeModule(Module currentModule, Workflow currentWorkflow, ResourceSpace resultSpace){
-				boolean success = true;
-				
+		public boolean executeModule(Module module, Workflow workflow, ResourceSpace space)
+		{
+				boolean success = true;		
 				
 				//Check each inputs of current Module, if they are all ready.
 				
-				//If there are references from other retrieve all required inputs from Resource Space
+				// If there are references from other retrieve all required 
+				// inputs from Resource Space
 				
 				// Execute the module based on inputs.
 				
 				// Now here we will have the cases, 
 				
+				// Perhaps at this stage actually all the inputs are already 
+				// resolved ?
+				List<Input> inputs = module.inputs();
 				
-				// Perhaps at this stage actually all the inputs are already resolved ?
-				List<Input> inputs = currentModule.getInputs();
+				// If available inputs are exactly the same type with the 
+				// expected inputs then we will only execute once.
 				
+				// Confused, when is it better to do this check haven't this 
+				// been done already at this point?
 				
-				// if available inputs are exactly the same type with the expected inputs then we will only execute once.
-				// Confused, when is it better to do this check haven't this been done already at this point?
-				LOG.info("Executing module :- "+currentModule);
-				success = currentModule.execute();
+				LOG.info("Executing module :- " + module);
+				//success = module.execute();
 				
+//				
+//				if(success){
+//					currentModule.setState(State.FINISHED);
+//				} else
+//					currentModule.setState(State.FAILED);
+//				I think perhaps modules should set their own state  --Peter
 				
-				if(success){
-					currentModule.setState(State.FINISHED);
-				} else
-					currentModule.setState(State.FAILED);
-		
-				
-				// at the end of this all we will then return result to result space
-
+				// At the end of this all we will then return result to 
+				// result space
 				
 				return success;
 				
 		}
 		
 		
-		public boolean atomicModuleExecution(Module currentModule, ResourceSpace resultSpace){
+		public boolean atomicModuleExecution(
+				Module currentModule, ResourceSpace resultSpace)
+		{
 			boolean success = true;
 			
 			return success;

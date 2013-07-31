@@ -1,0 +1,9 @@
+workflow:
+
+         
+- module:
+    name: GenerateGraph
+    source: 'org.data2semantics.modules.GenerateGraph'
+    inputs:
+      nodes: 10
+      links: 5

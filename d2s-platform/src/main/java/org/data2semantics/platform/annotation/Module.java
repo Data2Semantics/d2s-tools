@@ -7,6 +7,16 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Module {
+
+/**
+ * Signifies that a given java class can be used as a module. 
+ * 
+ * 
+ * @author Peter
+ */
+public @interface Module 
+{
 	public String name();
+	
+	public String description() default "";
 }

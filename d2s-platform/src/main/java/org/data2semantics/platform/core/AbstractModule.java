@@ -1,57 +1,74 @@
 package org.data2semantics.platform.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.core.data.InstanceInput;
+import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.core.data.ReferenceInput;
+import org.data2semantics.platform.domain.Domain;
 
 /**
  * This is a representation of a concrete module, which is annotated.
- * Abstract Module will be generated based on information prescribed in YAML, and annotation on original source code.
+ * Abstract Module will be generated based on information prescribed in YAML, 
+ * and annotation on original source code.
+ * 
+ * 
  * @author wibisono
  *
  */
-public abstract class AbstractModule implements Module {
-	
+abstract class AbstractModule implements Module
+{
 	protected String name;
+	protected Domain domain;
+	protected String source;
 	
 	// Parent Workflow where this module belongs
-	protected Workflow parent;
-	
-	// Module state which depends on the state of the inputs
-	protected State currentState;
+	protected Workflow workflow;
 
-	List<Input> inputs = new ArrayList<Input>();
-	List<Output> outputs = new ArrayList<Output>();
-	
-	IterationStrategy iterationStrategy;
-	
-	public AbstractModule(Workflow parent) {
-		this.parent = parent;
+	protected Map<String, Input>  inputs = new LinkedHashMap<String, Input>();
+	protected Map<String, Output> outputs = new LinkedHashMap<String, Output>();
+		
+	public AbstractModule(Workflow workflow, Domain domain) {
+		this.domain = domain;
+		this.workflow = workflow;
 	}
 	
-	public void setParent(Workflow parent) {
-		this.parent = parent;
-	}
-	
-	public Workflow getParent(){
-		return parent;
+	public Workflow workflow(){
+		return workflow;
 	}
 
-	public List<Input> getInputs() {
-		return inputs;
+	public List<Input> inputs() {
+		return new ArrayList<Input>(inputs.values());
 	}
-	public List<Output> getOutputs() {
-		return outputs;
-	}
-	
-	public void setInputs(List<Input> inputs) {
-		this.inputs = inputs;
+	public List<Output> outputs() {
+		return new ArrayList<Output>(outputs.values());
 	}
 	
-	public void setOutputs(List<Output> outputs) {
-		this.outputs = outputs;
+
+	public Input input(String name)
+	{
+		if(! inputs.containsKey(name))
+			throw new IllegalArgumentException("Input "+name+" does not exist.");
+
+		return inputs.get(name);
+	}
+
+	public Output output(String name)
+	{
+		if(! outputs.containsKey(name))
+			throw new IllegalArgumentException("Output "+name+" does not exist.");
+
+		return outputs.get(name);	
 	}
 	
-	public String getName() {
+	public String name() 
+	{
 		return name;
 	}
 	
@@ -59,44 +76,78 @@ public abstract class AbstractModule implements Module {
 		this.name = name;
 	}
 	
-	/**
-	 * This should be generated/instantiated whenever we generate source code based on the annotated source code.
-	 * Execution would change the state of the module. Results must be handled after execution.
-	 */
-	
-	public abstract boolean execute();
-	
-	
-	/**
-	 * Result from this module is stored in output with a certain reference key.
-	 * @param referenceKey
-	 * @return
-	 */
-	public abstract Object getReference(String referenceKey);
+	// @Override // why does this give a compile error?
+	public int rank()
+	{
+		int rank = 0;
+		for(Input input : inputs())
+			if(input instanceof ReferenceInput)
+			{
+				int dependencyRank = ((ReferenceInput)input).reference().module().rank();
+				rank = Math.max(rank, dependencyRank);
+			}
 		
-	
-	public State getState(){
-		return currentState;
+		return rank + 1; 
 	}
 	
-	public void setState(State newState){
-		currentState  = newState;
+	public ModuleInstance instance(int i)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
-	
-	public boolean isReady(){
-		return currentState == State.READY;
+
+	public int numInstances()
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
-	
-	public boolean isBlocked(){
-		return currentState == State.BLOCKED;
+
+	public int repeats()
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
-	
-	public IterationStrategy getIterationStrategy() {
-		return iterationStrategy;
-	}
-	
-	public void setIterationStrategy(IterationStrategy strategy) {
-		iterationStrategy = strategy;
+
+	private class ModuleInstanceImpl implements ModuleInstance
+	{
+		protected State state = State.READY;
+		protected List<InstanceInput> inputs;
+		protected List<InstanceOutput> outputs;
+		
+		public ModuleInstanceImpl(int i)
+		{
+			// TODO
+		}
+		
+		public Module module()
+		{
+			return AbstractModule.this;
+		}
+
+		public List<InstanceInput> inputs()
+		{
+			return Collections.unmodifiableList(inputs);
+		}
+
+		public List<InstanceOutput> outputs()
+		{
+			return Collections.unmodifiableList(outputs);
+		}
+
+		public boolean execute()
+		{
+			boolean success = domain.execute(this, new ArrayList<String>());
+			
+			state = success ? State.FINISHED : State.READY;
+			
+			return success;
+		}
+
+		public State state()
+		{
+			return state;
+		}
+		
 	}
 	
 }

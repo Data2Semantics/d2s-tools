@@ -6,15 +6,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark the main method of a class that we are going to wrap as a module
- * The result of this method call will immediately referred as result.
- * @author wibisono
+ * 
+ * Signals that a method can be used in place of constructor to construct the module. 
+ * Using the @In within a method parameters requires this @Factory.
+ * 
+ * @author Peter
  *
  */
+
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MainMethod {
-	
-	public String name() default "result";
+
+public @interface Factory
+{
 
 }

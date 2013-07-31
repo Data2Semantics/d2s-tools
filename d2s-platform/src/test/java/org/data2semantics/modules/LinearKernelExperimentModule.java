@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
-import org.data2semantics.platform.annotation.InputParameter;
-import org.data2semantics.platform.annotation.MainMethod;
+import org.data2semantics.platform.annotation.In;
+import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.learners.evaluation.Accuracy;
@@ -20,17 +20,17 @@ import org.openrdf.model.Value;
 @Module(name="LinearKernelExperiment")
 public class LinearKernelExperimentModule {
 	
-	@MainMethod
+	@Main
 	public void mainKernelMethod(
-			@InputParameter(name="linParms") LibLINEARParameters linParms,
-			@InputParameter(name="dataset") RDFDataSet dataset,
-			@InputParameter(name="instances") ArrayList<Resource> instances, 
-			@InputParameter(name="labels") ArrayList<Value> labels, 
-			@InputParameter(name="blacklist")  ArrayList<Statement> blackList,
-			@InputParameter(name="target") List<Double> target,
-			@InputParameter(name="seed") int seed,
-			 @InputParameter(name="iteration") int iteration,
-			 @InputParameter(name="depth") int depth
+			@In(name="linParms") LibLINEARParameters linParms,
+			@In(name="dataset") RDFDataSet dataset,
+			@In(name="instances") ArrayList<Resource> instances, 
+			@In(name="labels") ArrayList<Value> labels, 
+			@In(name="blacklist")  ArrayList<Statement> blackList,
+			@In(name="target") List<Double> target,
+			@In(name="seed") int seed,
+			@In(name="iteration") int iteration,
+			@In(name="depth") int depth
 			){
 		
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();

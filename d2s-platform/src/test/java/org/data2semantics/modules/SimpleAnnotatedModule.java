@@ -1,8 +1,8 @@
 package org.data2semantics.modules;
 
 
-import org.data2semantics.platform.annotation.InputParameter;
-import org.data2semantics.platform.annotation.MainMethod;
+import org.data2semantics.platform.annotation.In;
+import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
 
 
@@ -10,8 +10,10 @@ import org.data2semantics.platform.annotation.Module;
 public class SimpleAnnotatedModule {
 
 
-	@MainMethod
-	public String mainExperiment(@InputParameter(name="population size") int popsize, @InputParameter(name="initial variance") double initVar){
+	@Main
+	public String mainExperiment(
+			@In(name="population size") int popsize, 
+			@In(name="initial variance") double initVar){
 		return "Executing experiment with population size " + popsize + " initial variance "+initVar;
 	}
 

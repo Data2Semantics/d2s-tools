@@ -8,10 +8,10 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.data2semantics.exp.RDFMLExperiment;
-import org.data2semantics.platform.annotation.InputParameter;
-import org.data2semantics.platform.annotation.MainMethod;
+import org.data2semantics.platform.annotation.In;
+import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
-import org.data2semantics.platform.annotation.OutputField;
+import org.data2semantics.platform.annotation.Out;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.model.Resource;
@@ -23,27 +23,27 @@ import org.openrdf.rio.RDFFormat;
 public class RDFDataPreProcessorModule extends RDFMLExperiment {
 	private final static Logger LOG = Logger.getLogger(RDFDataPreProcessorModule.class.getName());
 	
-	@OutputField(name = "instances")
+	@Out(name = "instances")
 	public ArrayList<Resource> instances;
 	
 
-	@OutputField(name = "labels")
+	@Out(name = "labels")
 	public ArrayList<Value> labels;
 	
 
-	@OutputField(name = "blacklist")
+	@Out(name = "blacklist")
 	public ArrayList<Statement> blackList;
 	
 
-	@OutputField(name = "dataset")
+	@Out(name = "dataset")
 	public RDFFileDataSet dataset;
 	
-	@MainMethod
-	public RDFFileDataSet processRDFData(@InputParameter(name="fraction") Double fraction, 
-										 @InputParameter(name="dataDir") String dataDirectory, 
-										 @InputParameter(name="objectFilter1") String objectFilter1,
-										 @InputParameter(name="predicateFilter1") String predicateFilter1,
-										 @InputParameter(name="predicateFilter2") String predicateFilter2
+	@Main
+	public RDFFileDataSet processRDFData(@In(name="fraction") Double fraction, 
+										 @In(name="dataDir") String dataDirectory, 
+										 @In(name="objectFilter1") String objectFilter1,
+										 @In(name="predicateFilter1") String predicateFilter1,
+										 @In(name="predicateFilter2") String predicateFilter2
 			)	{
 		
 		LOG.info("In module, creating dataset");

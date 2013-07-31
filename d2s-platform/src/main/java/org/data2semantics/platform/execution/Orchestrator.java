@@ -13,8 +13,10 @@ import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 
 
 /**
- * Class that will be responsible for executing workflow. Given a workflow, execution profile and a resource space, this executor will be responsible
+ * Class that will be responsible for executing workflow. Given a workflow, 
+ * execution profile and a resource space, this executor will be responsible
  * to decide which modules will be executed next.
+ * 
  * @author wibisono
  *
  */
@@ -25,20 +27,22 @@ public class Orchestrator {
 	// Current workflow containing modules.
 	private Workflow currentWorkflow;
 	
-	// This is the execution profile associated with this workflow, which seems to be not accurate since if we will have module from different
-	// Execution profile, then we should have an execution profile associated with module
+	// This is the execution profile associated with this workflow, which seems 
+	// to be not accurate since if we will have module from different Execution 
+	// profile, then we should have an execution profile associated with module
 	private ExecutionProfile executionProfile;
 	
 	// Result space, where we will have the results stored
 	private ResourceSpace resourceSpace;
 	
 	// Retries policy, how many times a failed modules should be retried
-	public Orchestrator(Workflow w, ExecutionProfile ep, ResourceSpace rs){
+	public Orchestrator(Workflow w, ExecutionProfile ep, ResourceSpace rs)
+	{
 		currentWorkflow = w;
 		executionProfile = ep;
 		resourceSpace = rs;
 		
-		currentWorkflow.setResourceSpace(resourceSpace);
+		//currentWorkflow.setResourceSpace(resourceSpace);
 	}
 	
 	/**
@@ -53,7 +57,7 @@ public class Orchestrator {
 	public void execute(){
 		
 		// Get all modules which are ready to be executed
-		List<Module> readyModules = currentWorkflow.getModulesWithState(State.READY);
+		List<Module> readyModules = currentWorkflow.modules(State.READY);
 		
 		// Main execution loop, find all ready modules and execute
 		while(readyModules.size() > 0){
@@ -70,7 +74,7 @@ public class Orchestrator {
 			
 		
 			// Update ready modules, assuming that above executions updates successfully state of the modules.
-			readyModules = currentWorkflow.getModulesWithState(State.READY);
+			readyModules = currentWorkflow.modules(State.READY);
 			
 		}
 		
@@ -80,7 +84,7 @@ public class Orchestrator {
 	public void logModuleStatuses(){
 		StringBuffer statuses = new StringBuffer();
 		for(State currentState: State.values()){
-			List<Module> modules= currentWorkflow.getModulesWithState(currentState);
+			List<Module> modules= currentWorkflow.modules(currentState);
 			if(modules.size() > 0){
 				statuses.append("\nState : " + currentState);
 				for(Module m : modules)statuses.append("     "+m);

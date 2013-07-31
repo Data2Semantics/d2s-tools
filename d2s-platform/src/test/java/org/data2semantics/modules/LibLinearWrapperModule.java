@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.data2semantics.platform.annotation.InputParameter;
-import org.data2semantics.platform.annotation.MainMethod;
+import org.data2semantics.platform.annotation.In;
+import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
-import org.data2semantics.platform.annotation.OutputField;
+import org.data2semantics.platform.annotation.Out;
 import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.openrdf.model.Value;
@@ -21,22 +21,22 @@ import org.openrdf.model.Value;
 @Module(name="LibLinearWrapper")
 public class LibLinearWrapperModule {
 
-		@OutputField(name="wLabels")
+		@Out(name="wLabels")
 		public int[] wLabels ;
 	
-		@OutputField(name="weights")
+		@Out(name="weights")
 		public double[] weights;
 	
-		@OutputField(name="params")
+		@Out(name="params")
 		public LibLINEARParameters linParms;
 		
-		@OutputField(name="target")
+		@Out(name="target")
 		public List<Double> target;
 		
-		@MainMethod
+		@Main
 		public LibLINEARParameters getLibLInearParam(
-				@InputParameter(name="labels") ArrayList<Value> labels, 
-				@InputParameter(name="cs") ArrayList<Double> csArray){
+				@In(name="labels") ArrayList<Value> labels, 
+				@In(name="cs") ArrayList<Double> csArray){
 			
 			double[] cs = new double[csArray.size()];
 			for(int i=0;i<cs.length;i++)cs[i] = csArray.get(i);

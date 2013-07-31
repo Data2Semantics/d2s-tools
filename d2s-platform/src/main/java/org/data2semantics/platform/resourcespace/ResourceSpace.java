@@ -16,13 +16,16 @@ import java.util.Set;
  * where results from module execution will be stored.
  * 
  * Interesting point:
- * 	- If implemented properly in the future this will be the point where different execution profile (cluster, cloud) can communicate
+ * 	- If implemented properly in the future this will be the point where 
+ *    different execution profile (cluster, cloud) can communicate
  * 	- We can use whatever stored here also as provenance, 
  * 	- Reports of execution can also be generated from this space
  * 
- * 	- If we properly define interface I suppose JavaSpace and others can be used as a backing system for this.
+ * 	- If we properly define interface I suppose JavaSpace and others can be used
+ *    as a backing system for this.
  * 
- *  - We might even avoid execution if one resource space can forward a request of data to another resource space, and resolve a data without computing
+ *  - We might even avoid execution if one resource space can forward a request 
+ *    of data to another resource space, and resolve a data without computing
  *    if some other resource space already containe an expected result.
  * 
  * @author wibisono
@@ -34,11 +37,8 @@ public class ResourceSpace {
 	// Hashmap storing intermediate results. The key would be Modulename.Output
 	Map<String, Object> space = new HashMap<String, Object>();
 
-	// Keeping track of which module is  referring to output of which other modules.
+	// Keeping track of which module is referring to output of which other modules.
 	Map<String, List<String>> refersTo = new HashMap<String, List<String>>();
-	
-	
-	
 	
 	/**
 	 * Initialize the result space

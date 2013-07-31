@@ -12,11 +12,10 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import org.data2semantics.platform.annotation.InputField;
-import org.data2semantics.platform.annotation.InputParameter;
-import org.data2semantics.platform.annotation.MainMethod;
+import org.data2semantics.platform.annotation.In;
+import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
-import org.data2semantics.platform.annotation.OutputField;
+import org.data2semantics.platform.annotation.Out;
 
 public class PlatformUtil {
 	private final static Logger LOG = Logger.getLogger(PlatformUtil.class.getName());
@@ -77,7 +76,7 @@ public class PlatformUtil {
 		for(Method m : methods){
 			Annotation [] methans = m.getAnnotations();
 			for(Annotation a : methans)
-				if(a instanceof MainMethod){
+				if(a instanceof Main){
 					return m;
 				}
 		}
@@ -99,7 +98,7 @@ public class PlatformUtil {
 		for(Field f : fields){
 			Annotation [] fieldAnnotations = f.getAnnotations();
 			for(Annotation a : fieldAnnotations){
-				if(a instanceof InputField){
+				if(a instanceof In){
 					result.add(f);
 					break;
 				}
@@ -126,7 +125,7 @@ public class PlatformUtil {
 			
 			for(int i=0;i<annotations.length;i++){
 				for(Annotation curAnnotation : annotations[i]){
-					if(curAnnotation instanceof InputParameter){
+					if(curAnnotation instanceof In){
 						result.add(m);
 						System.out.println("DEBUG "+paramTypes[i] + " annotation "+curAnnotation);
 						break;
@@ -250,12 +249,12 @@ public class PlatformUtil {
 		int nParam = parameterTypes.length;
 		Object [] result = new Object[nParam];
 		
-		for(int i=0;i<nParam;i++){
+		for(int i = 0; i < nParam; i++){
 			
 			// Let's for now assume that we care only for the first annotation
 			if(annotations[i].length > 0 )
-			if(annotations[i][0] instanceof InputParameter){
-				InputParameter ip = (InputParameter) annotations[i][0];
+			if(annotations[i][0] instanceof In){
+				In ip = (In) annotations[i][0];
 				result[i] = actualInputMap.get(ip.name());
 				LOG.info("Getting " + ip.name() + " " + result[i]);
 			}
@@ -277,8 +276,8 @@ public class PlatformUtil {
 	public static Object getOutputField(Object instance, String outputName) throws IllegalArgumentException, IllegalAccessException{
 		Object result= null;
 		for(Field f : instance.getClass().getDeclaredFields()){
-			if(f.isAnnotationPresent(OutputField.class)){
-				OutputField outputAnnotation = f.getAnnotation(OutputField.class);
+			if(f.isAnnotationPresent(Out.class)){
+				Out outputAnnotation = f.getAnnotation(Out.class);
 				if(outputName.equals(outputAnnotation.name())){
 					return f.get(instance);
 				}
@@ -292,8 +291,8 @@ public class PlatformUtil {
 			Collection<String> result = new Vector<String>();
 			
 			for(Field f: clz.getDeclaredFields()){
-				if(f.isAnnotationPresent(OutputField.class)){
-					OutputField outputAnnotation = f.getAnnotation(OutputField.class);
+				if(f.isAnnotationPresent(Out.class)){
+					Out outputAnnotation = f.getAnnotation(Out.class);
 					result.add(outputAnnotation.name());	
 				}
 			}
