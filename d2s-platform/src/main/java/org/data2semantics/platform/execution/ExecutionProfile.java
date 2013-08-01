@@ -9,6 +9,7 @@ import javax.swing.DebugGraphics;
 
 
 import org.data2semantics.platform.core.Module;
+import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.Input;
@@ -42,7 +43,7 @@ abstract public class ExecutionProfile {
 		 * @param resultSpace 
 		 * @return whether the execution is successful
 		 */
-		public boolean executeModule(Module module, Workflow workflow, ResourceSpace space)
+		public boolean executeModule(ModuleInstance module, Workflow workflow, ResourceSpace space)
 		{
 				boolean success = true;		
 				
@@ -57,7 +58,7 @@ abstract public class ExecutionProfile {
 				
 				// Perhaps at this stage actually all the inputs are already 
 				// resolved ?
-				List<Input> inputs = module.inputs();
+				List<Input> inputs = module.module().inputs();
 				
 				// If available inputs are exactly the same type with the 
 				// expected inputs then we will only execute once.

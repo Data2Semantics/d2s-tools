@@ -25,7 +25,7 @@ public class TestIterator {
 		
 		platformOrchestrator.execute();
 		
-		workflowContainer.dumpIntermediateResults();
+		//workflowContainer.dumpIntermediateResults();
 		platformOrchestrator.writeOutput("output_dir1");
 		
 	}

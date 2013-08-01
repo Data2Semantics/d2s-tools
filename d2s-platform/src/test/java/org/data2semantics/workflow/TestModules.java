@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.data2semantics.modules.SimpleExtendedModule;
+
 import org.data2semantics.platform.core.AbstractModule;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.util.PlatformUtil;
@@ -35,7 +35,7 @@ public class TestModules {
 			
 	}
 	
-	@Test
+/*	@Test
 	public void testDumpExtendedModuleToYAML(){
 			Workflow w = new Workflow("SimpleWorkflow");
 			AbstractModule m = new SimpleExtendedModule(w);
@@ -50,7 +50,7 @@ public class TestModules {
 			Yaml yaml = new Yaml();
 			System.out.println(yaml.dump(w));
 			
-	}
+	}*/
 	
 	@Test
 	public void testSingleModule() throws FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{

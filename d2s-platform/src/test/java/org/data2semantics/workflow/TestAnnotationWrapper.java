@@ -19,9 +19,9 @@ public class TestAnnotationWrapper {
 		
 		Workflow workflowContainer = parser.parseYAML("src/test/resources/multi-modules.yaml");
 		
-		workflowContainer.run();
+		//workflowContainer.run();
 		
-		workflowContainer.dumpIntermediateResults();
+		//workflowContainer.dumpIntermediateResults();
 		
 	}
 

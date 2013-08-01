@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.data2semantics.platform.core.AbstractModule;
 import org.data2semantics.platform.core.Module;
+import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
@@ -57,20 +57,20 @@ public class Orchestrator {
 	public void execute(){
 		
 		// Get all modules which are ready to be executed
-		List<Module> readyModules = currentWorkflow.modules(State.READY);
+		List<ModuleInstance> readyModules = currentWorkflow.modules(State.READY);
 		
 		// Main execution loop, find all ready modules and execute
 		while(readyModules.size() > 0){
 			
 			// Normal batch of execution all ready module
-			for(Module currentModule : readyModules ){
+			for(ModuleInstance currentModule : readyModules ){
 				
 				executionProfile.executeModule(currentModule, currentWorkflow,  resourceSpace);
 				
 			}
 	
-			// Need to update blocked module also here, 
-			currentWorkflow.updateModuleReferences();
+			//TODO Adjust to new code
+			//currentWorkflow.updateModuleReferences();
 			
 		
 			// Update ready modules, assuming that above executions updates successfully state of the modules.
@@ -84,10 +84,10 @@ public class Orchestrator {
 	public void logModuleStatuses(){
 		StringBuffer statuses = new StringBuffer();
 		for(State currentState: State.values()){
-			List<Module> modules= currentWorkflow.modules(currentState);
+			List<ModuleInstance> modules= currentWorkflow.modules(currentState);
 			if(modules.size() > 0){
 				statuses.append("\nState : " + currentState);
-				for(Module m : modules)statuses.append("     "+m);
+				for(ModuleInstance m : modules)statuses.append("     "+m);
 			}
 		}
 		LOG.info(statuses.toString());

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.data2semantics.platform.core.AbstractModule;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.domain.Domain;
 import org.data2semantics.platform.execution.ExecutionProfile;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.PlatformUtil;
@@ -28,7 +29,7 @@ import org.data2semantics.platform.util.PlatformUtil;
  * @author wibisono
  *
  */
-public class SimpleModuleWrapper {
+public class SimpleModuleWrapper extends AbstractModule{
 
 	private final static Logger LOG = Logger.getLogger(SimpleModuleWrapper.class.getName());
 		
@@ -45,8 +46,8 @@ public class SimpleModuleWrapper {
 	
 	Map<String, String> references = new HashMap<String, String>();
 	
-	public SimpleModuleWrapper(Workflow parent) {
-		super(parent);
+	public SimpleModuleWrapper(Workflow parent, Domain domain) {
+		super(parent, domain);
 		
 	}
 	
@@ -95,8 +96,13 @@ public class SimpleModuleWrapper {
 	
 	
 	
+	private void setState(State ready) {
+		
+		
+	}
+
 	//check for references if really ready to execute.
-	@Override
+
 	public boolean execute() {
 		
 		
@@ -115,13 +121,13 @@ public class SimpleModuleWrapper {
 				Object result = mainMethod.invoke(myModuleObj,args);
 				
 				// Storing the intermediate result to workflow, instead this should be to resource space
-				parent.storeIntermediateResult(name+".result", result);
+				//parent.storeIntermediateResult(name+".result", result);
 				
 				
 				Collection<String> outputNames = PlatformUtil.getAllOutputNames(myclass);
 				for(String outputName : outputNames){
 					Object currentOutput = PlatformUtil.getOutputField(myModuleObj, outputName);
-					parent.storeIntermediateResult(name+"."+outputName, currentOutput);
+					//parent.storeIntermediateResult(name+"."+outputName, currentOutput);
 				}
 					
 			} else 
@@ -143,7 +149,7 @@ public class SimpleModuleWrapper {
 				}
 				
 				// Need also to store all the other outputs.
-				parent.storeIntermediateResult(name+".result", resultList);
+				//parent.storeIntermediateResult(name+".result", resultList);
 	
 			}
 			
@@ -167,7 +173,7 @@ public class SimpleModuleWrapper {
 		return true;
 	}
 
-	@Override
+	
 	public Object getReference(String referenceKey) {
 		return outputs.get(referenceKey);
 	}
@@ -185,14 +191,14 @@ public class SimpleModuleWrapper {
 		for (String key : resolved)
 			references.remove(key);
 				
-		if(isReady())
-			currentState = State.READY;
+//		if(isReady())
+//			currentState = State.READY;
 	}
 	
-	@Override
+/*	@Override
 	public boolean isReady(){
 		return currentState != State.FINISHED && references.size() == 0;
-	}
+	}*/
 	
 	public void getNextInputs(ResourceSpace resourceSpace) {
 	

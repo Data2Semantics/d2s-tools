@@ -22,7 +22,7 @@ import org.data2semantics.platform.domain.Domain;
  * @author wibisono
  *
  */
-abstract class AbstractModule implements Module
+public abstract class AbstractModule implements Module
 {
 	protected String name;
 	protected Domain domain;

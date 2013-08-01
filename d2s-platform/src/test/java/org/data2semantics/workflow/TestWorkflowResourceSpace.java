@@ -24,7 +24,7 @@ public class TestWorkflowResourceSpace {
 		
 		platformOrchestrator.execute();
 		
-		workflowContainer.dumpIntermediateResults();
+		//workflowContainer.dumpIntermediateResults();
 
 	}
 	

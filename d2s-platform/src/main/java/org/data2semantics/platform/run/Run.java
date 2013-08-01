@@ -1,6 +1,7 @@
 package org.data2semantics.platform.run;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class Run
     @Argument
     private List<String> arguments = new ArrayList<String>(1);
     
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
     	
     	// * Parse and check the command line input
@@ -58,7 +59,7 @@ public class Run
     	
     	// * Read the workflow description from a yaml file into a map
     	
-    	Workflow wf = wfParser.parseYAML(file);
+    	Workflow wf = WorkflowParser.parseYAML(file);
     	
     	// -- The workflow object will check the consistency of the inputs and 
     	//    outputs and make sure that    
