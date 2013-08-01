@@ -24,4 +24,7 @@ public class JavaType implements DataType
 		return "java";
 	}
 
+	public Class<?> clazz(){
+		return javaClass;
+	}
 }

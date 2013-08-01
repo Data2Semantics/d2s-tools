@@ -105,12 +105,13 @@ public interface Domain
 	public DataType outputType(String source, String name);
 
 	/**
+	 * Listing the annotated output names of the current module.
 	 * 
 	 * @param source The source description without the domain prefix
 	 * @return
 	 */
-	public List<String> outputs(String source);
 	
+	public List<String> outputs(String source);
 	
 	public boolean valueMatches(Object value, DataType type);
 }

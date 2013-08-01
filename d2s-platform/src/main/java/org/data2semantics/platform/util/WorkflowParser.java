@@ -51,12 +51,13 @@ public class WorkflowParser {
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(yamlFile));
 		
 		// Need to create bean instead of directly working with map
-		Map<?, ?> workflowMap = (Map<?, ?>) yaml.load(bis);
-		ArrayList<Map<?, ?>> modules = (ArrayList <Map<?, ?>>) workflowMap.get("workflow");
+		Map<?, ?> loadMap = (Map<?, ?>) yaml.load(bis);
+		Map<?, ?> workflowMap = (Map<?, ?>) loadMap.get("workflow");
+		ArrayList<Map<?, ?>> modules = (ArrayList <Map<?, ?>>) workflowMap.get("modules");
 	
 		// workflow name
-		 
-		
+		String workflowName= (String) workflowMap.get("name");
+		builder.name(workflowName);
 		/**
 		 * First setup the workflow to contain all modules.
 		 */
@@ -69,16 +70,26 @@ public class WorkflowParser {
 
 			// Default domain
 			Domain domain;
+			String domainPrefix, sourceTail;
+			
 			if(! source.contains(":"))
+			{
 				domain = Global.defaultDomain();
+				domainPrefix = "java";
+				sourceTail = source;
+			} else
+			{
+				domainPrefix = source.split(":")[0];
+				sourceTail = source.split(":", 2)[1];
+				
+				if(! Global.domainExists(domainPrefix))
+					throw new RuntimeException("Domain "+domainPrefix+" is not known");
+				
+				domain = Global.domain(name);
+			}
 			
-			String domainPrefix = source.split(":")[0];
-			String sourceTail = source.split(":", 2)[1];
 			
-			if(! Global.domainExists(domainPrefix))
-				throw new RuntimeException("Domain "+domainPrefix+" is not known");
-			
-			domain = Global.domain(name);
+		
 
 			// get name
 			builder.module(name, domain);
@@ -109,7 +120,10 @@ public class WorkflowParser {
 				} else // Raw value
 				{
 					Object value = inputMap.get(inputKey);
+					System.out.println("Source : "+sourceTail+ " Input " + inputName);
+					
 					DataType dataType = domain.inputType(sourceTail, inputName);
+					System.out.println("Matching value : "+value + " Datatype " + dataType + "Match value "+domain.valueMatches(value, dataType));
 					
 					if(domain.valueMatches(value, dataType))
 						builder.rawInput(name, inputName, value, domain.inputType(sourceTail, inputName));

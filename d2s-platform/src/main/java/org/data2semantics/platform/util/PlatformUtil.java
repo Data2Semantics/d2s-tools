@@ -153,7 +153,7 @@ public class PlatformUtil {
 		return true;
 	}
 
-	static boolean isAssignableFrom(Class <?> source,  Class <?> target ){
+	public static boolean isAssignableFrom(Class <?> source,  Class <?> target ){
 			Class <?> boxedSource = source.isPrimitive() ? getPrimitiveBox(source) : source;
 			Class <?> boxedTarget = target.isPrimitive() ? getPrimitiveBox(target) : target;
 			return boxedSource.isAssignableFrom(boxedTarget);

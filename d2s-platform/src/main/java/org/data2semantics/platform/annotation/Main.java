@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 
 public @interface Main {
 	
-	public String name() default "main method";
+	public String name() default "result";
 	
 	public String description() default "";
 }

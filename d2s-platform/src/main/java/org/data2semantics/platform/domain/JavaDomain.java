@@ -11,12 +11,14 @@ import java.util.List;
 import org.data2semantics.platform.annotation.DomainDefinition;
 import org.data2semantics.platform.annotation.Factory;
 import org.data2semantics.platform.annotation.In;
+import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Out;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.JavaType;
 import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.util.PlatformUtil;
 
 @DomainDefinition(prefix="java")
 public class JavaDomain implements Domain
@@ -66,6 +68,7 @@ public class JavaDomain implements Domain
 			}
 		}
 
+		// Case where input are defined as parameter of constructors.
 		for(Constructor c : constructors){
 			Annotation [][] parameterAnnotations = c.getParameterAnnotations();
 			for(int i =0; i< parameterAnnotations.length;i++){
@@ -81,7 +84,7 @@ public class JavaDomain implements Domain
 				}
 			}
 		}
-		
+		// Case where inputs are defined as parameter of input factory method.
 		for(Method m : methods){
 			if(hasFactoryAnnotation(m)){
 				Annotation [][] parameterAnnotations = m.getParameterAnnotations();
@@ -174,6 +177,8 @@ public class JavaDomain implements Domain
 
 		for (Method m : methods)
 		{
+			if(m.getReturnType().equals(Void.TYPE)) continue;
+			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
 				if(a instanceof Out){
@@ -182,7 +187,13 @@ public class JavaDomain implements Domain
 						JavaType jType = new JavaType(m.getReturnType());
 						return jType;
 					}
-					
+				}
+				if(a instanceof Main){
+					Main mainAnnotation = (Main)a;
+					if(mainAnnotation.name().equals(name)){
+						JavaType jType = new JavaType(m.getReturnType());
+						return jType;
+					}
 				}
 			}
 
@@ -193,6 +204,7 @@ public class JavaDomain implements Domain
 	}
 
 	@Override
+
 	public List<String> outputs(String source)
 	{
 		Class <?> theClass = loadClass(source);
@@ -200,18 +212,25 @@ public class JavaDomain implements Domain
 		
 		Method[] methods = theClass.getMethods();
 		for(Method m : methods){
+			if(m.getReturnType().equals(Void.TYPE)) continue;
+			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
+				if(a instanceof Main){
+					outputNames.add(0,((Main)a).name());
+				}
 				if(a instanceof Out){
 					outputNames.add(((Out)a).name());
 				}
+				
 			}
 		}
 		
 		Field[] fields = theClass.getFields();
 		for(Field f : fields){
 			Out outputAnnotation = getOutputAnnotations(f);
-			outputNames.add(outputAnnotation.name());
+			if(outputAnnotation != null)
+				outputNames.add(outputAnnotation.name());
 		}
 		
 		return outputNames;
@@ -220,8 +239,13 @@ public class JavaDomain implements Domain
 	@Override
 	public boolean valueMatches(Object value, DataType type)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		//Because this is java domain
+		if(!(type instanceof JavaType))
+			return false;
+		
+		JavaType jType = (JavaType)type;
+		return PlatformUtil.isAssignableFrom(jType.clazz(), value.getClass());
+		
 	}
 	
 	public static JavaDomain domain()
