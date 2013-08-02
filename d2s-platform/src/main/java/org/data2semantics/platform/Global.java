@@ -11,8 +11,8 @@ public class Global
 {
 	private static Map<String, Domain> domains = new HashMap<String, Domain>();
 	static {
-		// Serach the classpath for classes tagged with @DomainDefinition
-		
+		// Search the classpath for classes tagged with @DomainDefinition
+		// TODO
 		
 		// for now 
 		domains.put("java", new JavaDomain());
