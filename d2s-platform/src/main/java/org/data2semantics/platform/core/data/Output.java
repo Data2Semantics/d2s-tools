@@ -32,7 +32,7 @@ public class Output implements Data
 		return name;
 	}
 
-	public DataType getDataType()
+	public DataType dataType()
 	{
 		return dataType;
 	}

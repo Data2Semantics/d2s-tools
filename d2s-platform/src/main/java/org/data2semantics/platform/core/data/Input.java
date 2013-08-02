@@ -22,7 +22,7 @@ public abstract class Input implements Data
 		return name;
 	}
 	
-	public DataType getDataType()
+	public DataType dataType()
 	{
 		return dataType;
 	}

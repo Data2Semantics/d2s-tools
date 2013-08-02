@@ -3,14 +3,21 @@ package org.data2semantics.platform.core.data;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 
+/**
+ * Class which hold the output of module execution
+ * 
+ * @author wibisono
+ *
+ */
 public class InstanceOutput extends Output
 {
 	private Output original;
 	private ModuleInstance instance;
+	private Object value = null;
 	
-	public InstanceOutput(String name, Module module, DataType dataType, Output original, ModuleInstance instance)
+	public InstanceOutput(Module module, Output original, ModuleInstance instance)
 	{
-		super(name, module, dataType);
+		super(original.name(), module, original.dataType());
 		this.original = original;
 		this.instance = instance;
 	}
@@ -31,6 +38,14 @@ public class InstanceOutput extends Output
 	public ModuleInstance instance()
 	{
 		return instance;
+	}
+	
+	public Object value(){
+		return value;
+	}
+	
+	public void setValue(Object val){
+		value = val;
 	}
 
 }

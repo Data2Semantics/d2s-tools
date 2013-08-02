@@ -13,12 +13,14 @@ public class InstanceInput extends Input
 {
 	private Input original;
 	private ModuleInstance instance;
+	private Object value;
 	
-	public InstanceInput(String name, Module module, DataType dataType, Input original, ModuleInstance instance)
+	public InstanceInput(Module module, Input original, ModuleInstance instance, Object value)
 	{
-		super(name, dataType, module);
+		super(original.name(), original.dataType(), module);
 		this.original = original;
 		this.instance = instance;
+		this.value = value;
 	}
 
 	
@@ -38,6 +40,10 @@ public class InstanceInput extends Input
 	public ModuleInstance instance()
 	{
 		return instance;
+	}
+	
+	public Object value(){
+		return value;
 	}
 
 }

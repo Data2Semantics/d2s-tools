@@ -4,5 +4,5 @@ public interface Data
 {	
 	public String name();
 	
-	public DataType getDataType();
+	public DataType dataType();
 }

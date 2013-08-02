@@ -1,0 +1,12 @@
+workflow:
+
+   name: "An Adder"
+   
+   modules:
+
+   - module:
+        name: Adder
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  15
+            second: 10

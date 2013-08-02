@@ -1,10 +1,12 @@
 package org.data2semantics.platform.domain;
 
 import java.util.List;
+import java.util.Map;
 
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.core.data.Output;
 
 /**
@@ -28,7 +30,7 @@ public interface Domain
 {
 	
 	/**
-	 * This method checks whether two domain-specific typescan be matched. Ie.
+	 * This method checks whether two domain-specific types can be matched. I.e.
 	 * this method returns true if, under the logic of the domain, the value of
 	 * the given output can be used as a value for the given input.
 	 * 
@@ -85,7 +87,7 @@ public interface Domain
 	 * 
 	 * @return
 	 */
-	public boolean execute(ModuleInstance instance, List<String> errors);
+	public boolean execute(ModuleInstance instance, List<String> errors, Map<String, Object> results);
 	
 	/**
 	 * 

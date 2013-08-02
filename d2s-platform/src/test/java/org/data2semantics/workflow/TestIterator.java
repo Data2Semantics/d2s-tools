@@ -15,13 +15,17 @@ public class TestIterator {
 
 	@Test
 	public void testIterators() throws Exception {
-		WorkflowParser parser = new WorkflowParser();
 		
-		Workflow workflowContainer = parser.parseYAML("src/test/resources/iterator-test.yaml");
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/iterator-test.yaml");
+		
+		
+		System.out.println("Check Workflow " +workflow);
 		
 		ResourceSpace resourceSpace = new ResourceSpace();
+		
 		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
-		Orchestrator platformOrchestrator = new Orchestrator(workflowContainer, localExecutionProfile, resourceSpace);
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
 		platformOrchestrator.execute();
 		
@@ -31,6 +35,28 @@ public class TestIterator {
 	}
 	
 	@Test
+	public void testAnAdder() throws Exception {
+		
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/AnAdder.yaml");
+		
+		
+		System.out.println("Check Workflow " +workflow);
+		
+		ResourceSpace resourceSpace = new ResourceSpace();
+		
+		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
+		
+		platformOrchestrator.instantiateModules();
+		platformOrchestrator.execute();
+		
+		//workflowContainer.dumpIntermediateResults();
+		platformOrchestrator.writeOutput("output_dir1");
+		
+	}
+	
+
 	public void testUnroll (){
 			Object [] args = new Object[3];
 			Object [] temp = new Object[3];

@@ -14,12 +14,12 @@ import org.data2semantics.platform.core.Module;
 public class MultiInput extends Input
 {
 
-	private List<Input> inputs;
+	private List<RawInput> inputs;
 	
 	
 	
 	public MultiInput(String name, DataType dataType, Module module,
-			List<Input> inputs)
+			List<RawInput> inputs)
 	{
 		super(name, dataType, module);
 		this.inputs = inputs;
@@ -30,7 +30,7 @@ public class MultiInput extends Input
 	 * 
 	 * @return
 	 */
-	public List<Input> inputs()
+	public List<RawInput> inputs()
 	{
 		return inputs;
 	}

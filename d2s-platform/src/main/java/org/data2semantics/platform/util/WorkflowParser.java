@@ -120,10 +120,8 @@ public class WorkflowParser {
 				} else // Raw value
 				{
 					Object value = inputMap.get(inputKey);
-					System.out.println("Source : "+sourceTail+ " Input " + inputName);
 					
 					DataType dataType = domain.inputType(sourceTail, inputName);
-					System.out.println("Matching value : "+value + " Datatype " + dataType + "Match value "+domain.valueMatches(value, dataType));
 					
 					if(domain.valueMatches(value, dataType))
 						builder.rawInput(name, inputName, value, domain.inputType(sourceTail, inputName));

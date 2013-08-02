@@ -30,20 +30,11 @@ public interface Module
 		public Output output(String name);
 		
 		/**
-		 * A module instance is a "copy" of this module with single values for 
-		 * each input. This method returns the i-th module instance of this 
-		 * module.
+		 * Function to return all instances of this module, will return null unless the module is {@link #ready}
 		 * 
-		 * @param i
 		 * @return
 		 */
-		public abstract ModuleInstance instance(int i);
-		
-		/**
-		 * The number of instances for this module.
-		 * @return
-		 */
-		public abstract int numInstances();
+		public abstract List<ModuleInstance> instances();
 		
 		/**
 		 * Determines the rank of the given module. 
@@ -68,4 +59,44 @@ public interface Module
 		 * @return
 		 */
 		public int repeats();
+		
+		
+		/**
+		 * Whether all instances of this module are successfully executed.
+		 * 
+		 * @return
+		 */
+		public boolean finished();
+
+	
+		/**
+		 * Whether all the dependencies of this module are already finished.
+		 * 
+		 * @return
+		 */
+		public boolean ready();
+		
+		
+		/**
+		 * Create necessary {@link ModuleInstance}  for this module
+		 */
+		public void instantiate();
+		
+		/**
+		 * Check whether module instances have been created
+		 * @return
+		 */
+		public boolean instantiated();
+		
+		/**
+		 * Getter for the module source
+		 * @return source
+		 */
+		public String source();
+		
+		/**
+		 * The name of this module.
+		 * @return
+		 */
+		public String name();
 }

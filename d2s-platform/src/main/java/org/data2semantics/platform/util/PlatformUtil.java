@@ -86,6 +86,27 @@ public class PlatformUtil {
 	}
 	
 	/**
+	 * Getting the first found main method name in an annotated module.
+	 * @param c
+	 * @return
+	 */
+	public static Main getMainAnnotation(Class<?> c ){
+		
+		Method[] methods = c.getMethods();
+		
+		for(Method m : methods){
+			Annotation [] methans = m.getAnnotations();
+			for(Annotation a : methans)
+				if(a instanceof Main){
+					return  (Main)a;
+				}
+		}
+		
+		return null;
+				
+	}
+	
+	/**
 	 * Get list of public fields which is annotated as input of modules.
 	 * @param c
 	 * @return

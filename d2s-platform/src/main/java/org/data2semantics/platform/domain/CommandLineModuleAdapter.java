@@ -72,6 +72,36 @@ public class CommandLineModuleAdapter  implements Module {
 		return 0;
 	}
 
+	@Override
+	public List<ModuleInstance> instances() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean finished() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean ready() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void instantiate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean instantiated() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	
 
 	

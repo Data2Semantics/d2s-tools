@@ -18,13 +18,14 @@ import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.MultiInput;
 import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.RawInput;
+import org.data2semantics.platform.core.data.ReferenceInput;
 import org.data2semantics.platform.domain.Domain;
 import org.data2semantics.platform.exception.InconsistentWorkflowException;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 
 /**
- * This class represents a workflow. We guarantue the following:
+ * This class represents a workflow. We guarantee the following:
  * 
  * <ul>
  * <li>After creation, a the object represents a consistent workflow.</li>
@@ -39,41 +40,55 @@ import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
  */
 public final class Workflow {
 	
-	private  List<Module> modules = new ArrayList<Module>();
-	private  List<ModuleInstance> instances = new ArrayList<ModuleInstance>();
+	// * Map from names to modules
+	private Map<String, WorkflowBuilder.ModuleImpl> modules = new LinkedHashMap<String, WorkflowBuilder.ModuleImpl>();
+	
+	private ArrayList<Module> sortedList = null;
+	
 		
 	/**
 	 * Name of this workflow
 	 */
 	private String name;
 	
-	private Workflow(String name, Collection<Module> modules) 
-	{
-		this.modules.addAll(modules);
-	}
+	private Workflow() {
 		
-	/**
-	 * Get modules within this workflow which is in the given state
-	 * 
-	 * @param expectedState
-	 * @return
-	 */
-	public List<ModuleInstance> modules(State expectedState)
-	{
-		List<ModuleInstance> result  = new ArrayList<ModuleInstance>();
-		
-		for(ModuleInstance m : instances){
-			if(m.state().equals(expectedState))
-				result.add(m);
-		}
-		return result;
 	}
+
+//	/**
+//	 * Get modules within this workflow which is in the given state
+//	 * 
+//	 * @param expectedState
+//	 * @return
+//	 */
+//	public List<ModuleInstance> modules(State expectedState)
+//	{
+//		List<ModuleInstance> result  = new ArrayList<ModuleInstance>();
+//		
+//		
+//		for(WorkflowBuilder.ModuleImpl module : modules.values()){
+//			List<ModuleInstance> mInstances = module.instances();
+//			for(ModuleInstance m : mInstances){
+//			if(m.state().equals(expectedState))
+//				result.add(m);
+//			}
+//		}
+//		return result;
+//	}
 	
 	/**
 	 * @return the name
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	public List<Module> modules(){
+			if(sortedList != null) return sortedList;
+			
+			sortedList = new ArrayList<Module>(modules.values());
+			Collections.sort(sortedList, new ModuleComparator());
+			return sortedList;
 	}
 	
 	private class ModuleComparator implements Comparator<Module>
@@ -104,16 +119,16 @@ public final class Workflow {
 		private String name = null;
 		
 		private boolean dead = false;
-		private Workflow workflow;
 		
-		// * Map from names to modules
-		private Map<String, ModuleImpl> modules = new LinkedHashMap<String, ModuleImpl>();
 		
 		// * Cached references (stored until all modules have been created).
 		private List<List<Object>> references = new ArrayList<List<Object>>();
 		
+		private Workflow workflow;
 		
-		private WorkflowBuilder() {}
+		private WorkflowBuilder() {
+			workflow = new Workflow();
+		}
 
 		/**
 		 * Add a module to the workflow
@@ -125,8 +140,8 @@ public final class Workflow {
 		{
 			check();
 			
-			if(! modules.containsKey(name))
-				modules.put(name, new ModuleImpl(workflow, name, domain));
+			if(! workflow.modules.containsKey(name))
+				workflow.modules.put(name, new ModuleImpl(workflow, name, domain));
 			else
 				throw new IllegalArgumentException("Module ("+name+") already exists.");
 			
@@ -143,10 +158,10 @@ public final class Workflow {
 		public WorkflowBuilder source(String moduleName, String source)
 		{
 			check();
-			if(! modules.containsKey(moduleName))
+			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
-			ModuleImpl module = modules.get(moduleName);
+			ModuleImpl module = workflow.modules.get(moduleName);
 			module.setSource(source);
 
 			return this;
@@ -163,10 +178,10 @@ public final class Workflow {
 		public WorkflowBuilder rawInput(String moduleName, String name, Object value, DataType type)
 		{
 			check();
-			if(! modules.containsKey(moduleName))
+			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
-			ModuleImpl module = modules.get(moduleName);
+			ModuleImpl module = workflow.modules.get(moduleName);
 			module.addInput(name, value, type);
 
 			return this;
@@ -183,10 +198,10 @@ public final class Workflow {
 		public WorkflowBuilder multiInput(String moduleName, String name, List<Object> value, DataType type)
 		{
 			check();
-			if(! modules.containsKey(moduleName))
+			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
-			ModuleImpl module = modules.get(moduleName);
+			ModuleImpl module = workflow.modules.get(moduleName);
 			module.addMultiInput(name, value, type);
 
 			return this;
@@ -202,7 +217,7 @@ public final class Workflow {
 		public WorkflowBuilder refInput(String moduleName, String inputName, String referencedModule, String referencedOutput, DataType type)
 		{
 			check();
-			if(! modules.containsKey(moduleName))
+			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
 			references.add(Arrays.asList(moduleName, inputName, referencedModule, referencedOutput, type));
@@ -213,10 +228,10 @@ public final class Workflow {
 		public WorkflowBuilder output(String moduleName, String name, DataType type)
 		{
 			check();
-			if(! modules.containsKey(moduleName))
+			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
-			ModuleImpl module = modules.get(moduleName);
+			ModuleImpl module = workflow.modules.get(moduleName);
 			module.addOutput(name, type);
 
 			return this;
@@ -225,8 +240,8 @@ public final class Workflow {
 		/**
 		 * Returns the workflow object
 		 * 
-		 * Note that this metod should be called only once. After it has been 
-		 * called, the workflowbuilder will "die", and a call to any of its 
+		 * Note that this method should be called only once. After it has been 
+		 * called, the @WorkflowBuilder will "die", and a call to any of its 
 		 * methods will results in an exception.
 		 *  
 		 * @return
@@ -244,10 +259,11 @@ public final class Workflow {
 				       inputName = (String) reference.get(1),
 				       referencedModuleName = (String) reference.get(2),
 				       referencedOutputName = (String) reference.get(3);
+				
 				DataType type = (DataType) reference.get(4);
 				
-				ModuleImpl module = modules.get(moduleName),
-				           referencedModule = modules.get(referencedModuleName);
+				ModuleImpl module = workflow.modules.get(moduleName),
+				           referencedModule = workflow.modules.get(referencedModuleName);
 				
 				Output referencedOutput = referencedModule.output(referencedOutputName);
 				module.addRefInput(inputName, referencedOutput, type);
@@ -255,10 +271,11 @@ public final class Workflow {
 			}
 			
 			// * Kill the WorkflowBuilder
-			workflow = null;
+			Workflow result = workflow;
 			dead = true;
+			workflow = null;
 			
-			return workflow;
+			return result;
 		}
 		
 		/**
@@ -279,12 +296,12 @@ public final class Workflow {
 				       referencedModule = (String) reference.get(2),
 				       referencedOutput = (String) reference.get(3);
 				
-				if(! modules.containsKey(moduleName))
+				if(! workflow.modules.containsKey(moduleName))
 					errors.add("Module ("+moduleName+") does not exist.");
 
-				if(! modules.containsKey(referencedModule))
+				if(! workflow.modules.containsKey(referencedModule))
 					errors.add("Module ("+referencedModule+") does not exist.");
-				else if(! modules.get(referencedModule).hasOutput(referencedOutput))
+				else if(! workflow.modules.get(referencedModule).hasOutput(referencedOutput))
 					errors.add("Referenced module ("+referencedModule+") does not have output "+referencedOutput+".");
 
 			}
@@ -309,8 +326,11 @@ public final class Workflow {
 
 			public void addRefInput(String inputName, Output referencedOutput, DataType type)
 			{
-				// TODO Auto-generated method stub
 				
+				if(inputs.containsKey(inputName))
+					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+inputName+")");
+				
+				inputs.put(name, new ReferenceInput(this, inputName, type, referencedOutput));
 			}
 
 			public boolean hasOutput(String output)
@@ -336,7 +356,7 @@ public final class Workflow {
 				if(inputs.containsKey(name))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+name+")");
 				
-				List<Input> rawInputs = new ArrayList<Input>(values.size());
+				List<RawInput> rawInputs = new ArrayList<RawInput>(values.size());
 				for(Object value : values)
 					rawInputs.add(new RawInput(value, name, type, this));
 				

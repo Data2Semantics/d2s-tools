@@ -8,6 +8,7 @@ import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 
@@ -25,7 +26,7 @@ public class Orchestrator {
 	private final static Logger LOG = Logger.getLogger(Orchestrator.class.getName());
 	
 	// Current workflow containing modules.
-	private Workflow currentWorkflow;
+	private Workflow workflow;
 	
 	// This is the execution profile associated with this workflow, which seems 
 	// to be not accurate since if we will have module from different Execution 
@@ -38,7 +39,7 @@ public class Orchestrator {
 	// Retries policy, how many times a failed modules should be retried
 	public Orchestrator(Workflow w, ExecutionProfile ep, ResourceSpace rs)
 	{
-		currentWorkflow = w;
+		workflow = w;
 		executionProfile = ep;
 		resourceSpace = rs;
 		
@@ -51,45 +52,60 @@ public class Orchestrator {
 	public void initialize(){
 		resourceSpace.initialize();
 	}
+	
+	
+	public void instantiateModules(){
+		for(Module m : workflow.modules()){
+			LOG.info("Instantiating module " + m.source());
+		
+			m.instantiate();
+		}
+	}
 	/**
 	 * Perhaps this will be the main loop where all the execution happened.
 	 */
 	public void execute(){
-		
-		// Get all modules which are ready to be executed
-		List<ModuleInstance> readyModules = currentWorkflow.modules(State.READY);
-		
-		// Main execution loop, find all ready modules and execute
-		while(readyModules.size() > 0){
-			
-			// Normal batch of execution all ready module
-			for(ModuleInstance currentModule : readyModules ){
-				
-				executionProfile.executeModule(currentModule, currentWorkflow,  resourceSpace);
+		for(Module m : workflow.modules()){
+			for(ModuleInstance mi : m.instances()){
+				LOG.info("Executing " + mi);
+				LOG.info(" execute result " +mi.execute());
 				
 			}
-	
-			//TODO Adjust to new code
-			//currentWorkflow.updateModuleReferences();
-			
-		
-			// Update ready modules, assuming that above executions updates successfully state of the modules.
-			readyModules = currentWorkflow.modules(State.READY);
-			
 		}
+		// Get all modules which are ready to be executed
+//		List<ModuleInstance> readyModules = currentWorkflow.modules(State.READY);
+//		
+//		// Main execution loop, find all ready modules and execute
+//		while(readyModules.size() > 0){
+//			
+//			// Normal batch of execution all ready module
+//			for(ModuleInstance currentModule : readyModules ){
+//				
+//				executionProfile.executeModule(currentModule, currentWorkflow,  resourceSpace);
+//				
+//			}
+//	
+//			//TODO Adjust to new code
+//			//currentWorkflow.updateModuleReferences();
+//			
+//		
+//			// Update ready modules, assuming that above executions updates successfully state of the modules.
+//			readyModules = currentWorkflow.modules(State.READY);
+//			
+//		}
 		
 		logModuleStatuses();
 	}
 	
 	public void logModuleStatuses(){
 		StringBuffer statuses = new StringBuffer();
-		for(State currentState: State.values()){
-			List<ModuleInstance> modules= currentWorkflow.modules(currentState);
-			if(modules.size() > 0){
-				statuses.append("\nState : " + currentState);
-				for(ModuleInstance m : modules)statuses.append("     "+m);
-			}
-		}
+//		for(State currentState: State.values()){
+//			List<ModuleInstance> modules= currentWorkflow.modules(currentState);
+//			if(modules.size() > 0){
+//				statuses.append("\nState : " + currentState);
+//				for(ModuleInstance m : modules)statuses.append("     "+m);
+//			}
+//		}
 		LOG.info(statuses.toString());
 	}
 
