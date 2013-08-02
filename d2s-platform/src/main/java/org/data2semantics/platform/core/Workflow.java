@@ -322,6 +322,7 @@ public final class Workflow {
 			public ModuleImpl(Workflow workflow, String name, Domain domain)
 			{
 				super(workflow, domain);
+				this.name = name;
 			}
 
 			public void addRefInput(String inputName, Output referencedOutput, DataType type)

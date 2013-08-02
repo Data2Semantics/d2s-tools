@@ -1,12 +1,12 @@
 workflow:
 
-   name: "An Adder"
+   name: "A Multiplier"
    
    modules:
 
    - module:
-        name: Adder
-        source: org.data2semantics.modules.AMultiplier
+        name: Multiplier
+        source: org.data2semantics.modules.MultiplierModule
         inputs:
-            first:  15
-            second: 10
+            first:  [1,2,3,4]
+            second: [10,20,30]

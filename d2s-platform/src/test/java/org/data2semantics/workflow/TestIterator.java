@@ -1,9 +1,13 @@
 package org.data2semantics.workflow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.data2semantics.platform.core.Module;
+import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
@@ -29,6 +33,15 @@ public class TestIterator {
 		
 		platformOrchestrator.execute();
 		
+		for(Module m : workflow.modules()){
+			System.out.println("\nModule " + m.name());
+			
+			for(ModuleInstance mi :  m.instances()){
+				System.out.println("Module instance inputs " + mi.inputs());
+				for(InstanceOutput io : mi.outputs())
+					System.out.print(io.name()+":"+io.value()+ " ");
+			}
+		}
 		//workflowContainer.dumpIntermediateResults();
 		platformOrchestrator.writeOutput("output_dir1");
 		
@@ -48,14 +61,66 @@ public class TestIterator {
 		
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
-		platformOrchestrator.instantiateModules();
 		platformOrchestrator.execute();
+		
+		for(ModuleInstance mi :  workflow.modules().get(0).instances())
+		for(InstanceOutput io : mi.outputs())
+			System.out.print(io.value()+ " ");
+				
+		//workflowContainer.dumpIntermediateResults();
+		platformOrchestrator.writeOutput("output_dir1");
+		
+	}
+	
+	@Test
+	public void testAMultiplier() throws Exception {
+		
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/AMultiplier.yaml");
+		
+		
+		System.out.println("Check Workflow " +workflow);
+		
+		ResourceSpace resourceSpace = new ResourceSpace();
+		
+		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
+		
+		
+		platformOrchestrator.execute();
+		
+		for(ModuleInstance mi :  workflow.modules().get(0).instances())
+		for(InstanceOutput io : mi.outputs())
+			System.out.print(io.value()+ " ");
 		
 		//workflowContainer.dumpIntermediateResults();
 		platformOrchestrator.writeOutput("output_dir1");
 		
 	}
 	
+	@Test
+	public void testAList() throws Exception {
+		
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/AListSum.yaml");
+		
+		
+		System.out.println("Check Workflow " +workflow);
+		
+		ResourceSpace resourceSpace = new ResourceSpace();
+		
+		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
+		
+		
+		platformOrchestrator.execute();
+		
+		System.out.println(workflow.modules().get(0).instances().get(0).outputs().get(0).value());
+		
+		//workflowContainer.dumpIntermediateResults();
+		platformOrchestrator.writeOutput("output_dir1");
+		
+	}
 
 	public void testUnroll (){
 			Object [] args = new Object[3];

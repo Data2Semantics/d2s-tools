@@ -403,6 +403,7 @@ public class JavaDomain implements Domain
 
 		// Case where input are defined as parameter of constructors.
 		for(Constructor c : constructors){
+			System.out.println("Constructor "+c);
 			Annotation [][] parameterAnnotations = c.getParameterAnnotations();
 			for(int i =0; i< parameterAnnotations.length;i++){
 				for(int j=0;j< parameterAnnotations[i].length;j++){

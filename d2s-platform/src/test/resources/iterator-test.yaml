@@ -34,10 +34,10 @@ workflow:
         name: Adder
         source: org.data2semantics.modules.AdderModule
         inputs:
-            first: 
-                reference: Spawn1.result
-            second:
-                reference: Spawn2.result
+            first:
+                 reference: Spawn1.result
+            second: 
+                 reference: Spawn2.result
                 
     - module:
         name: Adder10

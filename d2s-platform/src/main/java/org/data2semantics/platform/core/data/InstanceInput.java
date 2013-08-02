@@ -46,4 +46,7 @@ public class InstanceInput extends Input
 		return value;
 	}
 
+	public String toString(){
+		return name() + ": "+value;
+	}
 }

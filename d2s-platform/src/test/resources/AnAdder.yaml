@@ -8,5 +8,5 @@ workflow:
         name: Adder
         source: org.data2semantics.modules.AdderModule
         inputs:
-            first:  15
-            second: 10
+            first:  [15,10,5]
+            second: [10,20,30]

@@ -144,7 +144,7 @@ public abstract class AbstractModule implements Module
 					
 					ModuleInstance mInstance = refInstances.get(chosenIndexes[i]);
 					
-					InstanceOutput theOutput = mInstance.output(originalInput.name());
+					InstanceOutput theOutput = mInstance.output(originalInput.reference().name());
 					
 					value = theOutput.value();
 				} else
@@ -288,11 +288,18 @@ public abstract class AbstractModule implements Module
 		
 		@Override
 		public InstanceOutput output(String name) {
+			
+			if(! outputs.containsKey(name))
+				throw new IllegalArgumentException("Output '"+name+"' does not exist (module: "+module().source()+").");
 			return outputs.get(name);
 		}
 		
 		@Override
 		public InstanceInput input(String name) {
+			
+			if(! inputs.containsKey(name))
+				throw new IllegalArgumentException("Input '"+name+"' does not exist (module: "+module().source()+").");
+
 			return inputs.get(name);
 		}
 	

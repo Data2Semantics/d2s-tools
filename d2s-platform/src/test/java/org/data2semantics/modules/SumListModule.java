@@ -12,7 +12,7 @@ public class SumListModule {
 	
 	List<Integer> list;
 	
-	SumListModule(@In(name="list") List<Integer> list){
+	public SumListModule(@In(name="list") List<Integer> list){
 		this.list = list;
 	}
 	

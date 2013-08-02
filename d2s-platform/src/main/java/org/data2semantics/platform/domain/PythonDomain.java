@@ -1,6 +1,7 @@
 package org.data2semantics.platform.domain;
 
 import java.util.List;
+import java.util.Map;
 
 import org.data2semantics.platform.annotation.DomainDefinition;
 import org.data2semantics.platform.core.ModuleInstance;
@@ -58,6 +59,13 @@ public class PythonDomain implements Domain
 
 	public boolean valueMatches(Object value, DataType type)
 	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean execute(ModuleInstance instance, List<String> errors,
+			Map<String, Object> results) {
 		// TODO Auto-generated method stub
 		return false;
 	}

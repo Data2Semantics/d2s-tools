@@ -1,0 +1,12 @@
+workflow:
+
+   name: "A List Sum"
+   
+   modules:
+
+   - module:
+        name: Sum
+        source: org.data2semantics.modules.SumListModule
+        inputs:
+            list:  [15,10,12,13]
+            

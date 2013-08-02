@@ -102,6 +102,18 @@ public class CommandLineModuleAdapter  implements Module {
 		return false;
 	}
 
+	@Override
+	public String source() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String name() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 
 	

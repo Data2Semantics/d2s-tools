@@ -1,16 +1,12 @@
 package org.data2semantics.platform.execution;
 
 import java.io.File;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
-import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
-import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
-import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 
 
 /**
@@ -54,45 +50,25 @@ public class Orchestrator {
 	}
 	
 	
-	public void instantiateModules(){
-		for(Module m : workflow.modules()){
-			LOG.info("Instantiating module " + m.source());
-		
-			m.instantiate();
-		}
-	}
 	/**
 	 * Perhaps this will be the main loop where all the execution happened.
 	 */
 	public void execute(){
+		
+		// Instantiate and execute modules on stages (based on rank)
+		
 		for(Module m : workflow.modules()){
-			for(ModuleInstance mi : m.instances()){
-				LOG.info("Executing " + mi);
-				LOG.info(" execute result " +mi.execute());
+			System.out.println("Module : " +m.name() + " "+ m.rank());
+			if(m.ready()){
+				m.instantiate();
 				
-			}
+				for(ModuleInstance mi : m.instances()){
+					System.out.println(" Executing instance result " +mi.execute());
+				}
+			} else 
+				throw new IllegalStateException("Module not ready: " + m.name());
 		}
-		// Get all modules which are ready to be executed
-//		List<ModuleInstance> readyModules = currentWorkflow.modules(State.READY);
-//		
-//		// Main execution loop, find all ready modules and execute
-//		while(readyModules.size() > 0){
-//			
-//			// Normal batch of execution all ready module
-//			for(ModuleInstance currentModule : readyModules ){
-//				
-//				executionProfile.executeModule(currentModule, currentWorkflow,  resourceSpace);
-//				
-//			}
-//	
-//			//TODO Adjust to new code
-//			//currentWorkflow.updateModuleReferences();
-//			
-//		
-//			// Update ready modules, assuming that above executions updates successfully state of the modules.
-//			readyModules = currentWorkflow.modules(State.READY);
-//			
-//		}
+		
 		
 		logModuleStatuses();
 	}

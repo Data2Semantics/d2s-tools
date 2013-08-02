@@ -11,13 +11,23 @@ import org.data2semantics.platform.annotation.Module;
 @Module(name="ListModule")
 public class ListModule {
 	
+	int nOutput;
+	public ListModule(int nOutput) {
+		this.nOutput = nOutput;
+	}
+
 	@Main
-	@Factory
-	public List<Integer> getList(@In(name="nOutput") int nOutput) {
+	public List<Integer> getList() {
 		List<Integer> result = new ArrayList<Integer>();
 		for(int i=1;i<=nOutput;i++)
 			result.add(i);
 		
 		return result;
 	}
+	
+	@Factory
+	public static ListModule getModule(@In(name="nOutput") int nOutput){
+		return new ListModule(nOutput);
+	}
+	
 }
