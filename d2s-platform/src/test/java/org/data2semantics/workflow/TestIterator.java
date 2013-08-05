@@ -22,9 +22,6 @@ public class TestIterator {
 		
 		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/iterator-test.yaml");
 		
-		
-		System.out.println("Check Workflow " +workflow);
-		
 		ResourceSpace resourceSpace = new ResourceSpace();
 		
 		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
@@ -37,8 +34,7 @@ public class TestIterator {
 			System.out.println("\nModule " + m.name());
 			
 			for(ModuleInstance mi :  m.instances()){
-				System.out.println("Module instance inputs " + mi.inputs());
-				for(InstanceOutput io : mi.outputs())
+					for(InstanceOutput io : mi.outputs())
 					System.out.print(io.name()+":"+io.value()+ " ");
 			}
 		}

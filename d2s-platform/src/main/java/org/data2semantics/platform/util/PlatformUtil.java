@@ -174,9 +174,9 @@ public class PlatformUtil {
 		return true;
 	}
 
-	public static boolean isAssignableFrom(Class <?> source,  Class <?> target ){
-			Class <?> boxedSource = source.isPrimitive() ? getPrimitiveBox(source) : source;
-			Class <?> boxedTarget = target.isPrimitive() ? getPrimitiveBox(target) : target;
+	public static boolean isAssignableFrom(Class <?> superClass,  Class <?> subClass ){
+			Class <?> boxedSource = superClass.isPrimitive() ? getPrimitiveBox(superClass) : superClass;
+			Class <?> boxedTarget = subClass.isPrimitive() ? getPrimitiveBox(subClass) : subClass;
 			return boxedSource.isAssignableFrom(boxedTarget);
 	}
 

@@ -12,12 +12,16 @@ public class ReferenceInput extends Input
 {
 	private Output refOutput;
 	
+	boolean multiValue = false;
+	
 	public ReferenceInput(Module module, String name, DataType dataType,
-			Output refOutput)
+			Output refOutput, boolean multiValue)
 	{
 		super(name, dataType, module);
 		
 		this.refOutput = refOutput;
+		
+		this.multiValue = multiValue;
 	}
 	
 	public Output reference()
@@ -25,4 +29,11 @@ public class ReferenceInput extends Input
 		return refOutput;
 	}
 
+	public boolean multiValue(){
+		return multiValue;
+	}
+
+	public void setMultiValue(boolean b) {
+		multiValue = b;
+	}
 }

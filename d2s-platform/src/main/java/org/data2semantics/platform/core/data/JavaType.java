@@ -27,4 +27,8 @@ public class JavaType implements DataType
 	public Class<?> clazz(){
 		return javaClass;
 	}
+	
+	public String toString(){
+		return clazz().toString();
+	}
 }

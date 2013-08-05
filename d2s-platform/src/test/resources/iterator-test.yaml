@@ -9,7 +9,7 @@ workflow:
         name: Spawn1
         source: org.data2semantics.modules.ListModule
         inputs:
-            nOutput:   5
+            nOutput:   3
             
        
     - module:
@@ -48,10 +48,5 @@ workflow:
             second:
                 10
                 
-    - module:
-        name: SumList
-        source: org.data2semantics.modules.SumListModule
-        inputs: 
-            list:
-                reference: Adder10.result
+
                 

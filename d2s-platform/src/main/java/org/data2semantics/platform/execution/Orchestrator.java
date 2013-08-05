@@ -58,12 +58,18 @@ public class Orchestrator {
 		// Instantiate and execute modules on stages (based on rank)
 		
 		for(Module m : workflow.modules()){
-			System.out.println("Module : " +m.name() + " "+ m.rank());
+
 			if(m.ready()){
 				m.instantiate();
+
 				
 				for(ModuleInstance mi : m.instances()){
-					System.out.println(" Executing instance result " +mi.execute());
+	
+					System.out.println(" Executing instance of module  : " + mi.module().name());
+					System.out.println("    Inputs : "+mi.inputs());
+					mi.execute();
+					System.out.println("    Outputs : "+mi.outputs());
+					
 				}
 			} else 
 				throw new IllegalStateException("Module not ready: " + m.name());

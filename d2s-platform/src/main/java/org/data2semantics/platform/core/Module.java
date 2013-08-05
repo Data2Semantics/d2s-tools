@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.domain.Domain;
 
 /**
  * Define what is module, something that we can execute.
@@ -99,4 +100,10 @@ public interface Module
 		 * @return
 		 */
 		public String name();
+		
+		/**
+		 * Associated domain of this module.
+		 * @return
+		 */
+		public Domain domain();
 }

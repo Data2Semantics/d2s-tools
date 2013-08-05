@@ -35,7 +35,10 @@ public class JavaDomain implements Domain
 	@Override
 	public boolean typeMatches(Output output, Input input)
 	{
-		return false; // TODO
+		JavaType outputType = (JavaType) output.dataType();
+		JavaType inputType = (JavaType) input.dataType();
+		
+		return PlatformUtil.isAssignableFrom( inputType.clazz(), outputType.clazz());
 	}
 
 	@Override
@@ -404,7 +407,6 @@ public class JavaDomain implements Domain
 
 		// Case where input are defined as parameter of constructors.
 		for(Constructor c : constructors){
-			System.out.println("Constructor "+c);
 			Annotation [][] parameterAnnotations = c.getParameterAnnotations();
 			for(int i =0; i< parameterAnnotations.length;i++){
 				for(int j=0;j< parameterAnnotations[i].length;j++){

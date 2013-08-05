@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.core.data.JavaType;
 import org.data2semantics.platform.core.data.MultiInput;
 import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.RawInput;
@@ -257,18 +258,32 @@ public final class Workflow {
 			{
 				String moduleName = (String) reference.get(0),
 				       inputName = (String) reference.get(1),
-				       referencedModuleName = (String) reference.get(2),
-				       referencedOutputName = (String) reference.get(3);
+				       refModuleName = (String) reference.get(2),
+				       refOutputName = (String) reference.get(3);
 				
 				DataType type = (DataType) reference.get(4);
 				
 				ModuleImpl module = workflow.modules.get(moduleName),
-				           referencedModule = workflow.modules.get(referencedModuleName);
+				           refModule = workflow.modules.get(refModuleName);
 				
-				Output referencedOutput = referencedModule.output(referencedOutputName);
-				
-				module.addRefInput(inputName, referencedOutput, type);
+				Output refOutput = refModule.output(refOutputName);
+				Domain inputDomain = module.domain();
+			
+				DataType outputType = refOutput.dataType();
 
+				module.addRefInput(inputName, refOutput, type, false);
+				
+				if(inputDomain.typeMatches(refOutput, module.input(inputName))){
+					// Single reference input case
+					((ReferenceInput) module.input(inputName)).setMultiValue(false);
+					
+				} else
+				if(isList(outputType)){
+					((ReferenceInput) module.input(inputName)).setMultiValue(true);
+							
+				} else
+					throw new InconsistentWorkflowException("Input type of ("+moduleName + "."+inputName+") and output type "+refOutput+"."+refOutputName+"does not match ");
+					
 			}
 			
 			// * Kill the WorkflowBuilder
@@ -279,6 +294,12 @@ public final class Workflow {
 			return result;
 		}
 		
+		private boolean isList(DataType outputType) {
+			if(!(outputType instanceof JavaType)) return false;
+			JavaType jType = (JavaType)outputType;
+			return List.class.isAssignableFrom(jType.clazz());
+		}
+
 		/**
 		 * Determines whether the builder currently represents a consistent, 
 		 * runnable workflow.   
@@ -326,13 +347,13 @@ public final class Workflow {
 				this.name = name;
 			}
 
-			public void addRefInput(String inputName, Output referencedOutput, DataType type)
+			public void addRefInput(String inputName, Output referencedOutput, DataType type, boolean multiRef)
 			{
 				
 				if(inputs.containsKey(inputName))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+inputName+")");
 				
-				inputs.put(inputName, new ReferenceInput(this, inputName, type, referencedOutput));
+				inputs.put(inputName, new ReferenceInput(this, inputName, type, referencedOutput, multiRef));
 			}
 
 			public boolean hasOutput(String output)
@@ -351,6 +372,10 @@ public final class Workflow {
 			public void setSource(String source)
 			{
 				this.source = source;
+			}
+			
+			public void setDomain(Domain domain){
+				this.domain = domain;
 			}
 			
 			public void addMultiInput(String name, List<Object> values, DataType type)

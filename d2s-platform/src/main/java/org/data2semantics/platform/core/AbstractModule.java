@@ -1,19 +1,23 @@
 package org.data2semantics.platform.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.JavaType;
 import org.data2semantics.platform.core.data.MultiInput;
 import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.RawInput;
 import org.data2semantics.platform.core.data.ReferenceInput;
 import org.data2semantics.platform.domain.Domain;
+import org.data2semantics.platform.util.PlatformUtil;
 
 /**
  * This is a representation of a concrete module, which is annotated.
@@ -139,16 +143,36 @@ public abstract class AbstractModule implements Module
 				if(curInput instanceof ReferenceInput){
 					
 					ReferenceInput originalInput = (ReferenceInput) curInput;
+					String refOutName = originalInput.reference().name();
+					Module refModule = originalInput.reference().module();
+					Output refOutput = refModule.output(refOutName);
+						
 					
-					List<ModuleInstance> refInstances = originalInput.reference().module().instances();
+					if(originalInput.multiValue()){
+						int curIndex = chosenIndexes[i];
+						for(ModuleInstance mi : refModule.instances()){
+							InstanceOutput io = mi.output(refOutName);
+							// The assumption here is that the value of this is a collection which needs to be expanded
+							List<?> vals = (List<?>)io.value();
+							if(vals.size() > curIndex){
+								value = vals.get(curIndex);
+								break;
+							} else {
+								curIndex -= vals.size();
+							}
+						}
+						
+					} else {
 					
-					ModuleInstance mInstance = refInstances.get(chosenIndexes[i]);
-					
-					InstanceOutput theOutput = mInstance.output(originalInput.reference().name());
-					
-					value = theOutput.value();
+						List<ModuleInstance> refInstances = refModule.instances();
+						ModuleInstance mInstance = refInstances.get(chosenIndexes[i]);
+						InstanceOutput theOutput = mInstance.output(refOutName);
+						value = theOutput.value();
+					}
+				
 				} else
-				if(curInput instanceof RawInput){
+				
+					if(curInput instanceof RawInput){
 					
 					// There will only be one option
 					assert(chosenIndexes[i] == 0);
@@ -174,9 +198,7 @@ public abstract class AbstractModule implements Module
 			return;
 		} 
 		
-		System.out.println("Depth " + depth);
 		Input curInput = inputs().get(depth);
-		System.out.println(" Check " + curInput.name() + " " + curInput.dataType() + " " + curInput.getClass());
 		int nOptions = getNumberOfOptions(curInput);
 		
 		for(int i=0;i<nOptions;i++){
@@ -195,7 +217,26 @@ public abstract class AbstractModule implements Module
 		} else
 		if(curInput instanceof ReferenceInput){
 			ReferenceInput originalInput = (ReferenceInput) curInput;
-			nOptions = originalInput.reference().module().instances().size();
+			String refOutName = originalInput.reference().name();
+			Module refModule = originalInput.reference().module();
+			Output refOutput = refModule.output(refOutName);
+				
+			JavaType inputType = (JavaType) originalInput.dataType();
+			JavaType outputType = (JavaType) refOutput.dataType();
+			
+			// If input/output matches directly we will have to choose frome existing instances.
+			if(!originalInput.multiValue())
+				nOptions = refModule.instances().size();
+			else { 
+			// In the case of outputs is a List with items that matches the input
+			// We have to accumulate number of items from every instances that produce outputs.
+				nOptions = 0;
+				for(ModuleInstance mi : refModule.instances()){
+					InstanceOutput io = mi.output(refOutName);
+					assert(io.value() instanceof List<?>);
+					nOptions += ((List<?>)io.value()).size();
+				}
+			}
 		} else
 		if(curInput instanceof RawInput){
 			RawInput originalInput = (RawInput) curInput;
@@ -238,6 +279,10 @@ public abstract class AbstractModule implements Module
 	
 	public String source(){
 		return source;
+	}
+	
+	public Domain domain(){
+		return domain;
 	}
 	
 	private class ModuleInstanceImpl implements ModuleInstance

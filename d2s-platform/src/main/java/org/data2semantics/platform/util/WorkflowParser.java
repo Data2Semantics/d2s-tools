@@ -114,8 +114,11 @@ public class WorkflowParser {
 					String referencedModule = referenceString.split("\\.")[0];
 					String referencedOutput = referenceString.split("\\.")[1];
 
+					DataType inputType = domain.inputType(sourceTail, inputName);
+					
+					
 					builder.refInput(name, inputName, referencedModule,
-							referencedOutput, domain.inputType(sourceTail, inputName));
+							referencedOutput, inputType);
 					
 				} else // Raw value
 				{
