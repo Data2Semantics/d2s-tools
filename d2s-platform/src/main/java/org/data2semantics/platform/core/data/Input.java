@@ -32,4 +32,7 @@ public abstract class Input implements Data
 		return module;
 	}
 
+	public String toString(){
+		return name + " " + dataType;
+	}
 }

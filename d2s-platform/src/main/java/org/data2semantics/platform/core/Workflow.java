@@ -266,6 +266,7 @@ public final class Workflow {
 				           referencedModule = workflow.modules.get(referencedModuleName);
 				
 				Output referencedOutput = referencedModule.output(referencedOutputName);
+				
 				module.addRefInput(inputName, referencedOutput, type);
 
 			}
@@ -331,7 +332,7 @@ public final class Workflow {
 				if(inputs.containsKey(inputName))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+inputName+")");
 				
-				inputs.put(name, new ReferenceInput(this, inputName, type, referencedOutput));
+				inputs.put(inputName, new ReferenceInput(this, inputName, type, referencedOutput));
 			}
 
 			public boolean hasOutput(String output)

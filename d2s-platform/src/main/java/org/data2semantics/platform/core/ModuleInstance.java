@@ -26,6 +26,10 @@ public interface ModuleInstance
 	 */
 	public List<InstanceOutput> outputs();
 	
+	/**
+	 * This modules execute function which will use the appropriate domain for execution.
+	 * @return
+	 */
 	public boolean execute(); 
 
 	public State state();

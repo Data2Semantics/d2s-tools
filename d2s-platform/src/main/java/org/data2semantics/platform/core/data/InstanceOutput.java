@@ -47,5 +47,7 @@ public class InstanceOutput extends Output
 	public void setValue(Object val){
 		value = val;
 	}
-
+	public String toString(){
+		return name() + ": "+value;
+	}
 }
