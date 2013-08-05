@@ -114,6 +114,12 @@ public class CommandLineModuleAdapter  implements Module {
 		return null;
 	}
 
+	@Override
+	public Domain domain() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 
 	

@@ -1,6 +1,13 @@
 package org.data2semantics.platform.execution;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import org.data2semantics.platform.core.Module;
@@ -60,6 +67,9 @@ public class Orchestrator {
 		for(Module m : workflow.modules()){
 
 			if(m.ready()){
+				
+				// Instances of this module will be created
+				// Outputs from previous dependency are also provided here.
 				m.instantiate();
 
 				
@@ -77,6 +87,44 @@ public class Orchestrator {
 		
 		
 		logModuleStatuses();
+	}
+	
+	public void executeParallel(){
+		 ExecutorService executor = Executors.newFixedThreadPool(10);
+		 
+		for(Module m : workflow.modules()){
+
+			if(m.ready()){
+				
+				// Instances of this module will be created
+				// Outputs from previous dependency are also provided here.
+				m.instantiate();
+
+				List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
+				
+				for(ModuleInstance mi : m.instances()){
+	
+					Callable<Boolean> moduleInstanceWorker = new ModuleInstanceWorker(mi);
+					results.add(executor.submit(moduleInstanceWorker));
+				}
+				
+				//Make sure all the instance finished before continue to next batch of modules.
+				for(Future<Boolean> res : results ){
+					try {
+						res.get();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			} else 
+				throw new IllegalStateException("Module not ready: " + m.name());
+		}		
+		
 	}
 	
 	public void logModuleStatuses(){
