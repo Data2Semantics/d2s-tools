@@ -70,6 +70,7 @@ public class JavaDomain implements Domain
 			if(constructorMatchesInputs(instance.inputs(), curConstructor))
 				return constructorExecute(instance, curConstructor, errors, outputs);
 		
+		errors.add("No module execution available for inputs of this module" );
 		return false; 
 	}
 	
