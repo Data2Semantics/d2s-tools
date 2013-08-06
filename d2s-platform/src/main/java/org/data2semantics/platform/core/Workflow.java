@@ -117,8 +117,6 @@ public final class Workflow {
 	 */
 	public static class WorkflowBuilder
 	{	
-		private String name = null;
-		
 		private boolean dead = false;
 		
 		
@@ -152,7 +150,7 @@ public final class Workflow {
 		public WorkflowBuilder name(String name)
 		{
 			check();
-			this.name = name;
+			workflow.name = name;
 			return this;
 		}
 		
@@ -160,7 +158,7 @@ public final class Workflow {
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
-				throw new IllegalArgumentException("Module ("+name+") does not exist.");
+				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
 			module.setSource(source);
@@ -219,7 +217,7 @@ public final class Workflow {
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
-				throw new IllegalArgumentException("Module ("+name+") does not exist.");
+				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
 			references.add(Arrays.asList(moduleName, inputName, referencedModule, referencedOutput, type));
 
@@ -308,7 +306,7 @@ public final class Workflow {
 		{
 			int eSize = errors.size();
 			
-			if(name == null)
+			if(workflow.name == null)
 				errors.add("Workflow name not set.");
 
 			for(List<Object> reference : references)

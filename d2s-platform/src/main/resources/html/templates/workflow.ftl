@@ -2,9 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 
-  <link type="text/css" rel="stylesheet" media="screen" href="../css/jquery-ui/jquery-ui-1.8.21.custom.css" />
-  <link type="text/css" rel="stylesheet" media="all" href="../css/common.platform.css" />
-  <link type="text/css" rel="stylesheet" media="screen" href="../css/screen.platform.css" />
+  <link type="text/css" rel="stylesheet" media="screen" href="/css/jquery-ui/jquery-ui-1.8.21.custom.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="/css/common.platform.css" />
+  <link type="text/css" rel="stylesheet" media="screen" href="/css/screen.platform.css" />
   <link type="text/css" rel="stylesheet" href="http://peterbloem.nl/jqplot/jquery.jqplot.min.css" />
   
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
@@ -14,42 +14,40 @@
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.logAxisRenderer.js" type="text/javascript" ></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.barRenderer.min.js" type="text/javascript" ></script>  
   
-  <script src="../javascript/base.platform.js" type="text/javascript"></script>  
+  <script src="/javascript/base.platform.js" type="text/javascript"></script>  
   
   
-  <title>Instance results</title>
+  <title>Workflow results</title>
 </head>
 <body class="${tags}">
   <h1>Report: ${name}</h1>
-  <h2>Module information</h2>
+  <h2>Workflow information</h2>
   
   <dl>
   	<dt>
-  		Module
+  		Workflow
   	</dt>
   	<dd>
   		${name}
   	</dd>
   </dl>
   
-  <h2>Instances</h2>
+  <h2>Modules</h2>
   <p class="explanation">
-  	This module's instances, and their results pages.
+  	This workflow's modules.
   </p>
-  <#if instantiated >
-	  <table class="instances">
-	  	<tr>
-	  		<th>inputs</th><th>instance<th>
-	  	</tr>
-	  <#list instances as instance>
-	  	<tr>
-	  		<td>${instance.input_string}</td><td><a href="${instance.url}" target="This instance's report">report</a></td>
-	  	</tr>
-	  </#list>
-	  </table>
-  <#else>
-    Module not yet instantiated.
-  </#if>
+  <table class="instances">
+  	<tr>
+  		<th>inputs</th><th>module<th><th>instances</th>
+  	</tr>
+  <#list modules as module>
+  	<tr>
+  		<td>${module.name}</td>
+  		<td><a href="${module.url}" target="This module's report">report</a></td>
+  		<td>${module.instances}</td>
+  	</tr>
+  </#list>
+  </table>
   
   <h2>Outputs</h2>
   <p class="explanation">
@@ -64,6 +62,6 @@
   </p>
   
   TODO
-  
+    
 </body>
 </html>  

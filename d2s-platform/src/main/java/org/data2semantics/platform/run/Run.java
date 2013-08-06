@@ -5,7 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.execution.LocalExecutionProfile;
+import org.data2semantics.platform.execution.Orchestrator;
+import org.data2semantics.platform.reporting.HTMLReporter;
+import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.WorkflowParser;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -16,10 +21,10 @@ public class Run
 {	
 	private static WorkflowParser wfParser = new WorkflowParser();
 	
-    @Option(name="--classpath", usage="A colon or semicolon separatedlist of jar files and directories to be included in the classpath. (default: none)")
+    @Option(name="--classpath", usage="A directory containing source code and resources to be loaded. Each source file should be in a directory that matches the name of its controller (ie. java files should be in a directory called 'java'). (default: none)")
 	private static String classPath = "";
 
-    @Option(name="--output", usage="The output directory (default: working directory)")    
+    @Option(name="--output", usage="The output directory (default: the working directory)")    
 	private static File output = new File(".");
     
     @Argument
@@ -40,13 +45,15 @@ public class Run
 			usageExit(e.getMessage(), parser);
 		}
     	
-    	if(run.arguments.size() < 1)
-    		usageExit("No workflow file specified", parser);
-    	
     	if(run.arguments.size() > 1)
     		usageExit("Too many non-option arguments: " + run.arguments, parser);
     	
-    	File file = new File(run.arguments.get(0));
+    	File file;
+    	if(run.arguments.isEmpty())
+    		file = new File("workflow.yaml");
+    	else 
+    		file = new File(run.arguments.get(0));
+    	
     	if(! file.exists())
     		usageExit("Workflow file ("+run.arguments.get(0)+") does not exist.", parser);
     	
@@ -59,21 +66,28 @@ public class Run
     	
     	// * Read the workflow description from a yaml file into a map
     	
-    	Workflow wf = WorkflowParser.parseYAML(file);
+    	Workflow workflow = WorkflowParser.parseYAML(file);
     	
     	// -- The workflow object will check the consistency of the inputs and 
-    	//    outputs and make sure that    
+    	//    outputs and make sure that everything can be executed.  
+    	    	
+		LocalExecutionProfile localEP = new LocalExecutionProfile();
+		ResourceSpace rp = new ResourceSpace();
+		
+		HTMLReporter reporter = new HTMLReporter(workflow, new File(output, "report/"));
+    	Orchestrator orchestrator = new Orchestrator(workflow,  localEP, rp);
     	
-    	// * Pass the sorted Workflow to a workflow executor
+    	orchestrator.execute();
     	
+    	reporter.report();
     	
-    	
- 	
+    	Global.log().info("Workflow execution finished.");
     }
     
     public static void usageExit(String message, CmdLineParser parser)
     {
-        System.err.println("java -jar Platform.jar [options...] workflow.yaml");
+    	System.err.println(message);
+        System.err.println("java -jar Platform.jar [options...] [input file (default:workflow.yaml)]");
         parser.printUsage(System.err);
         
         System.exit(1);

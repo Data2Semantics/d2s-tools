@@ -61,7 +61,7 @@
     	${input.description}
     </p>
     <div class="value">
-    	${result.value}
+    	${input.value}
     </div>
   </#list>
   

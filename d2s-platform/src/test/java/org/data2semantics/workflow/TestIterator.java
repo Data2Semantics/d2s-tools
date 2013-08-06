@@ -38,6 +38,7 @@ public class TestIterator {
 					System.out.print(io.name()+":"+io.value()+ " ");
 			}
 		}
+		
 		//workflowContainer.dumpIntermediateResults();
 		platformOrchestrator.writeOutput("output_dir1");
 		

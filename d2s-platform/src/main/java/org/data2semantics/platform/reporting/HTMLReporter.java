@@ -18,6 +18,7 @@ import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
 
 import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -32,13 +33,15 @@ public class HTMLReporter implements Reporter
 	{
 		this.workflow = workflow;
 		this.root = root;
+		
+		fmConfig.setClassForTemplateLoading(getClass(), "/html/templates");
+		fmConfig.setObjectWrapper(new DefaultObjectWrapper());  
 	}
 
 	@Override
 	public void report()
 	{
-		
-		
+		new ReportWriter();
 	}
 
 	@Override
@@ -86,7 +89,7 @@ public class HTMLReporter implements Reporter
 		private void workflowOutput(Workflow workflow, File root)
 		{
 			// copy the static files
-			ReporterTools.copy("static", root);
+			ReporterTools.copy("html/static", root);
 			
 			// * The data we will pass to the template
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
@@ -100,15 +103,17 @@ public class HTMLReporter implements Reporter
 			for(Module module : workflow.modules())
 			{
 				Map<String, Object> moduleMap = new LinkedHashMap<String, Object>();
-				moduleMap.put("inputs", "TODO");
+				
+				moduleMap.put("name", module.name());
 				moduleMap.put("url", "./"+ReporterTools.safe(module.name())+"/");
+				moduleMap.put("instances", module.instances().size());
 				
 				modules.add(moduleMap);
 			}
 			
-			templateData.put("Modules", modules);
+			templateData.put("modules", modules);
 			
-			// TODO Images
+			// TODO Image of workflow
 			
 			// * Load the template
 			Template tpl = null;
@@ -158,12 +163,12 @@ public class HTMLReporter implements Reporter
 			{
 				
 				int i = 0;
-				int padding = (int)Math.log10(module.instances().size());
+				int padding = 1 + (int)Math.log10(module.instances().size());
 				
 				for(ModuleInstance instance : module.instances())
 				{
 					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
-					instanceMap.put("inputs", "TODO");
+					instanceMap.put("input_string", "TODO");
 					instanceMap.put("url", String.format("./%0"+padding+"d/", i));
 					
 					instances.add(instanceMap);
@@ -244,7 +249,7 @@ public class HTMLReporter implements Reporter
 				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
 				outputMap.put("name", output.name());
 				outputMap.put("description", "TODO");
-				outputMap.put("value", output.value());
+				outputMap.put("value", output.value().toString());
 				
 				inputs.add(outputMap);
 			}

@@ -48,6 +48,9 @@ public class ReporterTools
 	public static void copy(String cpDir, File target)
 	{
 		URL sourcePath = ReporterTools.class.getClassLoader().getResource(cpDir);
+		if(sourcePath == null)
+			throw new RuntimeException("The resource " + cpDir + " could not be found.");
+		
 		Global.log().info("Copying static files from path " + sourcePath);
 		
 		//* Copy static files (css, js, etc)
@@ -64,7 +67,6 @@ public class ReporterTools
 	public static void copyResources(URL originUrl, File destination) 
 			throws IOException 
 	{
-		System.out.println(originUrl);
 	    URLConnection urlConnection = originUrl.openConnection();
 	    
 	    File file = new File(originUrl.getPath());
