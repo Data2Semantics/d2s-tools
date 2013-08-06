@@ -1,0 +1,1 @@
+<img src="${path}" width="${width}" height="${height}" />

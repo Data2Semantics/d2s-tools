@@ -2,6 +2,8 @@ package org.data2semantics.platform;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.logging.Logger;
 
 import org.data2semantics.platform.domain.Domain;
 import org.data2semantics.platform.domain.JavaDomain;
@@ -36,5 +38,22 @@ public class Global
 	{
 		return domain("java");
 	}
+
+	/**
+	 * Shorthand for the global logger
+	 * @return
+	 */
+	public static Logger log() { return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); }
+	
+	/**
+	 * The default random seed. May be changed during runtime.
+	 */
+	public static final int RANDOM_SEED = 42;
+	
+	/**
+	 *
+	 */
+	public static Random random = new Random(RANDOM_SEED);
+	
 	
 }

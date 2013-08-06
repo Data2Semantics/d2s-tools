@@ -80,7 +80,7 @@ public final class Workflow {
 	/**
 	 * @return the name
 	 */
-	public String getName() {
+	public String name() {
 		return name;
 	}
 	

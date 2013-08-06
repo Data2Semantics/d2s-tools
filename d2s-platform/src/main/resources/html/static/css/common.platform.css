@@ -1,0 +1,56 @@
+html {
+	margin: 0;
+	padding: 1px 0 0;
+	background: white;
+}
+
+body {
+	margin:30px auto;
+	padding: 7px 30px 30px 30px;
+	
+	width: 860px;
+	background: #f0f0f0;
+	
+	border-radius: 30px;
+}
+
+body.narrow {
+	width: 560px;
+}
+
+.narrow h1 {
+	font-size: 0.7em;
+}
+
+.chart-container .plot{
+	width: 800px;
+	height: 200px;
+	position: relative;
+	padding-left: 40px;
+}
+
+.narrow .chart-container .plot {
+	width: 500px;
+}
+
+.chart-container.scatter .plot,
+.chart-container.scatter .log-plot {
+	width: 500px;
+	height: 500px;
+	padding: 0;
+}
+
+.hidden {
+	display: none;
+}
+
+.log-filter-message {
+	display: none;
+}
+
+.log .log-filter-message {
+	display: inline-block;
+	font-style: italic;
+	float: right;
+	
+}

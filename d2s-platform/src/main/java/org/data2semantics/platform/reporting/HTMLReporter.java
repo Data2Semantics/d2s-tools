@@ -1,0 +1,288 @@
+package org.data2semantics.platform.reporting;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.data2semantics.platform.Global;
+import org.data2semantics.platform.core.Module;
+import org.data2semantics.platform.core.ModuleInstance;
+import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.InstanceInput;
+import org.data2semantics.platform.core.data.InstanceOutput;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+
+public class HTMLReporter implements Reporter
+{
+	protected static Configuration fmConfig = new Configuration();
+	
+	private Workflow workflow;
+	private File root;
+	
+	public HTMLReporter(Workflow workflow, File root)
+	{
+		this.workflow = workflow;
+		this.root = root;
+	}
+
+	@Override
+	public void report()
+	{
+		
+		
+	}
+
+	@Override
+	public Workflow workflow()
+	{
+		return workflow;
+	}
+	
+	/**
+	 * A singular environment for the purpose of writing a report.
+	 * 
+	 * @author Peter
+	 *
+	 */
+	private class ReportWriter
+	{
+		public ReportWriter()
+		{
+			for(Module module : workflow.modules())
+			{
+				// * Output module information
+				File moduleDir = new File(root, ReporterTools.safe(module.name()));
+				
+				if(module.ready())
+				{
+					int i = 0;
+					for(ModuleInstance instance : module.instances())
+					{
+						// * Output the instance information
+						File instanceDir = new File(moduleDir, i+"");
+	
+						instanceOutput(instance, instanceDir, i);
+						i++;
+					}
+				}
+				
+				moduleOutput(module, moduleDir);
+					
+			}
+			
+			// * Output the workflow information
+			workflowOutput(workflow, root);
+		}
+
+		private void workflowOutput(Workflow workflow, File root)
+		{
+			// copy the static files
+			ReporterTools.copy("static", root);
+			
+			// * The data we will pass to the template
+			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
+			
+			templateData.put("name", workflow.name());
+			templateData.put("short_name", workflow.name());
+			templateData.put("tags", "");
+			
+			List<Map<String, Object>> modules = new ArrayList<Map<String, Object>>();
+			
+			for(Module module : workflow.modules())
+			{
+				Map<String, Object> moduleMap = new LinkedHashMap<String, Object>();
+				moduleMap.put("inputs", "TODO");
+				moduleMap.put("url", "./"+ReporterTools.safe(module.name())+"/");
+				
+				modules.add(moduleMap);
+			}
+			
+			templateData.put("Modules", modules);
+			
+			// TODO Images
+			
+			// * Load the template
+			Template tpl = null;
+			try
+			{
+				tpl = fmConfig.getTemplate("workflow.ftl");
+			} catch (IOException e)
+			{
+				// * Non fatal error (results may be recoverable from the log file). Log and continue
+				Global.log().warning("Failed to load module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;
+			}
+			
+			root.mkdirs();
+
+			// * Process the template
+			try
+			{
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(root, "index.html")));
+				tpl.process(templateData, out);
+				out.flush();			
+				
+			} catch (IOException e)
+			{
+				Global.log().warning("Failed to write to module directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;
+			} catch (TemplateException e)
+			{
+				Global.log().warning("Failed to process module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;			
+			}					
+		}
+
+		private void moduleOutput(Module module, File moduleDir)
+		{
+			// * The data we will pass to the template
+			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
+			
+			templateData.put("name", module.name());
+			templateData.put("short_name", module.name());
+			templateData.put("tags", "");
+
+			templateData.put("instantiated", module.instantiated());
+			
+			List<Map<String, Object>> instances = new ArrayList<Map<String, Object>>();
+			if(module.instantiated())
+			{
+				
+				int i = 0;
+				int padding = (int)Math.log10(module.instances().size());
+				
+				for(ModuleInstance instance : module.instances())
+				{
+					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
+					instanceMap.put("inputs", "TODO");
+					instanceMap.put("url", String.format("./%0"+padding+"d/", i));
+					
+					instances.add(instanceMap);
+					i ++;
+				}
+			}
+			
+			templateData.put("instances", instances);
+			
+			// TODO: Collated outputs/inputs
+			
+			
+			// * Load the template
+			Template tpl = null;
+			try
+			{
+				tpl = fmConfig.getTemplate("module.ftl");
+			} catch (IOException e)
+			{
+				// * Non fatal error (results may be recoverable from the log file). Log and continue
+				Global.log().warning("Failed to load module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;
+			}
+			
+			moduleDir.mkdirs();
+
+			// * Process the template
+			try
+			{
+				BufferedWriter out = new BufferedWriter( new FileWriter(new File(moduleDir, "index.html")));
+				tpl.process(templateData, out);
+				out.flush();			
+				
+			} catch (IOException e)
+			{
+				Global.log().warning("Failed to write to module directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;
+			} catch (TemplateException e)
+			{
+				Global.log().warning("Failed to process module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;			
+			}			
+		}
+
+		/**
+		 * Prepare and write a specific module instance to an HTML page.
+		 * @param instance
+		 * @param instanceDir
+		 */
+		private void instanceOutput(ModuleInstance instance, File instanceDir, int i)
+		{
+			
+			// * The data we will pass to the template
+			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
+			
+			templateData.put("name", instance.module().name() + "("+i+")");
+			templateData.put("short_name", instance.module().name() + "("+i+")");
+			templateData.put("tags", "");
+			
+			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
+			
+			for(InstanceInput input : instance.inputs())
+			{
+				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+				inputMap.put("name", input.name());
+				inputMap.put("description", "TODO");
+				inputMap.put("value", input.value());
+				
+				inputs.add(inputMap);
+			}
+			
+			templateData.put("inputs", inputs);
+			
+			List<Map<String, Object>> outputs = new ArrayList<Map<String, Object>>();
+			
+			for(InstanceOutput output : instance.outputs())
+			{
+				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
+				outputMap.put("name", output.name());
+				outputMap.put("description", "TODO");
+				outputMap.put("value", output.value());
+				
+				inputs.add(outputMap);
+			}
+			
+			templateData.put("outputs", outputs);
+		
+			// * Load the template
+			Template tpl = null;
+			try
+			{
+				tpl = fmConfig.getTemplate("instance.ftl");
+			} catch (IOException e)
+			{
+				// * Non fatal error (results may be recoverable from the log file). Log and continue
+				Global.log().warning("Failed to load instance template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;
+			}
+			
+			instanceDir.mkdirs();
+
+			// * Process the template
+			try
+			{
+				BufferedWriter out = new BufferedWriter( new FileWriter(new File(instanceDir, "index.html")));
+				tpl.process(templateData, out);
+				out.flush();			
+				
+			} catch (IOException e)
+			{
+				Global.log().warning("Failed to write to instance directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;
+			} catch (TemplateException e)
+			{
+				Global.log().warning("Failed to process instance template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				return;			
+			}
+		}
+		
+	}
+
+}
