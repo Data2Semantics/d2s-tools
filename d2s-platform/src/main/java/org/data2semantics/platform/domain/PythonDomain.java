@@ -69,4 +69,19 @@ public class PythonDomain implements Domain
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public String inputDescription(String source, String name)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String outputDescription(String source, String name)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

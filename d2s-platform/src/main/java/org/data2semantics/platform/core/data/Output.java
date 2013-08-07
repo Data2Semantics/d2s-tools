@@ -7,16 +7,16 @@ import org.data2semantics.platform.core.State;
 
 public class Output implements Data 
 {
-	private String name;
+	private String name, description;
 	private Module module;
 	private DataType dataType;
 	
-	public Output(String name, Module module, DataType dataType)
+	public Output(String name, String description, Module module, DataType dataType)
 	{
-		super();
 		this.name = name;
 		this.module = module;
 		this.dataType = dataType;
+		this.description = description;
 	}
 
 	/**
@@ -32,6 +32,11 @@ public class Output implements Data
 		return name;
 	}
 
+	public String description()
+	{
+		return description;
+	}
+	
 	public DataType dataType()
 	{
 		return dataType;

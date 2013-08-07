@@ -17,7 +17,7 @@ public class InstanceInput extends Input
 	
 	public InstanceInput(Module module, Input original, ModuleInstance instance, Object value)
 	{
-		super(original.name(), original.dataType(), module);
+		super(original.name(), original.description(), original.dataType(), module);
 		this.original = original;
 		this.instance = instance;
 		this.value = value;

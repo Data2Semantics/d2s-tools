@@ -18,10 +18,10 @@ public class MultiInput extends Input
 	
 	
 	
-	public MultiInput(String name, DataType dataType, Module module,
+	public MultiInput(String name, String description, DataType dataType, Module module,
 			List<RawInput> inputs)
 	{
-		super(name, dataType, module);
+		super(name, description, dataType, module);
 		this.inputs = inputs;
 	}
 

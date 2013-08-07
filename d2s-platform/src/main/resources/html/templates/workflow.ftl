@@ -2,9 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 
-  <link type="text/css" rel="stylesheet" media="screen" href="/css/jquery-ui/jquery-ui-1.8.21.custom.css" />
-  <link type="text/css" rel="stylesheet" media="all" href="/css/common.platform.css" />
-  <link type="text/css" rel="stylesheet" media="screen" href="/css/screen.platform.css" />
+  <link type="text/css" rel="stylesheet" media="screen" href="./css/jquery-ui/jquery-ui-1.8.21.custom.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="./css/common.platform.css" />
+  <link type="text/css" rel="stylesheet" media="screen" href="./css/screen.platform.css" />
   <link type="text/css" rel="stylesheet" href="http://peterbloem.nl/jqplot/jquery.jqplot.min.css" />
   
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
@@ -14,7 +14,7 @@
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.logAxisRenderer.js" type="text/javascript" ></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.barRenderer.min.js" type="text/javascript" ></script>  
   
-  <script src="/javascript/base.platform.js" type="text/javascript"></script>  
+  <script src="./javascript/base.platform.js" type="text/javascript"></script>  
   
   
   <title>Workflow results</title>

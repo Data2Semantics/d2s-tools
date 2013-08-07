@@ -4,5 +4,7 @@ public interface Data
 {	
 	public String name();
 	
+	public String description();
+	
 	public DataType dataType();
 }

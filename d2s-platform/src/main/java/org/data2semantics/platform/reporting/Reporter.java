@@ -1,5 +1,7 @@
 package org.data2semantics.platform.reporting;
 
+import java.io.IOException;
+
 import org.data2semantics.platform.core.Workflow;
 
 /**
@@ -14,7 +16,14 @@ import org.data2semantics.platform.core.Workflow;
 public interface Reporter
 {
 
-	public void report();
+	/**
+	 * Write the report. For reporters that write to disk, the IOException is 
+	 * declared. Reporters that write to other resources should wrap their 
+	 * exceptions in a RuntimeException.
+	 * 
+	 * @throws IOException
+	 */
+	public void report() throws IOException;
 	
 	/**
 	 * The workflow to which this reporter is connected.

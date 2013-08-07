@@ -121,7 +121,8 @@ public abstract class AbstractModule implements Module
 	}
 	
 	
-	private void instantiateRec(int depth, int [] chosenIndexes) {
+	private void instantiateRec(int depth, int [] chosenIndexes) 
+	{
 		if(depth == inputs().size()){
 			// here we create the module
 			ModuleInstanceImpl instance = new ModuleInstanceImpl();
@@ -187,6 +188,7 @@ public abstract class AbstractModule implements Module
 				instance.inputs.put(newInstanceInput.name(), newInstanceInput);
 			
 			}
+			
 			
 			for(Output original : outputs.values()){
 				InstanceOutput instanceOutput = new InstanceOutput( this, original, instance);
@@ -317,9 +319,8 @@ public abstract class AbstractModule implements Module
 			
 			boolean success = domain.execute(this, errors, results);
 			
-			for(String resultName : results.keySet()){
+			for(String resultName : results.keySet())
 				outputs.get(resultName).setValue(results.get(resultName));
-			}
 			
 			state = success ? State.FINISHED : State.FAILED;
 			

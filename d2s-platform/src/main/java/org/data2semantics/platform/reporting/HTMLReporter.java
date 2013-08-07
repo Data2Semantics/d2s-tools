@@ -14,8 +14,10 @@ import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.Output;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -39,7 +41,7 @@ public class HTMLReporter implements Reporter
 	}
 
 	@Override
-	public void report()
+	public void report() throws IOException
 	{
 		new ReportWriter();
 	}
@@ -59,11 +61,12 @@ public class HTMLReporter implements Reporter
 	private class ReportWriter
 	{
 		public ReportWriter()
+				throws IOException
 		{
 			for(Module module : workflow.modules())
 			{
 				// * Output module information
-				File moduleDir = new File(root, ReporterTools.safe(module.name()));
+				File moduleDir = new File(root, "/modules/"+ReporterTools.safe(module.name()));
 				
 				if(module.ready())
 				{
@@ -71,7 +74,8 @@ public class HTMLReporter implements Reporter
 					for(ModuleInstance instance : module.instances())
 					{
 						// * Output the instance information
-						File instanceDir = new File(moduleDir, i+"");
+						int padding = 1 + (int)Math.log10(module.instances().size());
+						File instanceDir = new File(moduleDir, String.format("./%0"+padding+"d/", i));
 	
 						instanceOutput(instance, instanceDir, i);
 						i++;
@@ -87,6 +91,7 @@ public class HTMLReporter implements Reporter
 		}
 
 		private void workflowOutput(Workflow workflow, File root)
+			throws IOException
 		{
 			// copy the static files
 			ReporterTools.copy("html/static", root);
@@ -105,7 +110,7 @@ public class HTMLReporter implements Reporter
 				Map<String, Object> moduleMap = new LinkedHashMap<String, Object>();
 				
 				moduleMap.put("name", module.name());
-				moduleMap.put("url", "./"+ReporterTools.safe(module.name())+"/");
+				moduleMap.put("url", "./modules/"+ReporterTools.safe(module.name())+"/index.html");
 				moduleMap.put("instances", module.instances().size());
 				
 				modules.add(moduleMap);
@@ -148,6 +153,7 @@ public class HTMLReporter implements Reporter
 		}
 
 		private void moduleOutput(Module module, File moduleDir)
+				throws IOException
 		{
 			// * The data we will pass to the template
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
@@ -169,7 +175,7 @@ public class HTMLReporter implements Reporter
 				{
 					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
 					instanceMap.put("input_string", "TODO");
-					instanceMap.put("url", String.format("./%0"+padding+"d/", i));
+					instanceMap.put("url", String.format("./%0"+padding+"d/index.html", i));
 					
 					instances.add(instanceMap);
 					i ++;
@@ -177,10 +183,33 @@ public class HTMLReporter implements Reporter
 			}
 			
 			templateData.put("instances", instances);
+						
+			List<Map<String, Object>> inputs = new ArrayList<Map<String,Object>>();
+			for(Input input : module.inputs())
+			{
+				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+				inputMap.put("name", input.name());
+				inputMap.put("description", input.description());
+				inputMap.put("value", "TODO");
+				
+				inputs.add(inputMap);
+			}
 			
-			// TODO: Collated outputs/inputs
+			templateData.put("inputs", inputs);
 			
+			List<Map<String, Object>> outputs = new ArrayList<Map<String,Object>>();
+			for(Output output : module.outputs())
+			{
+				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
+				outputMap.put("name", output.name());
+				outputMap.put("description", output.description());
+				outputMap.put("value", "TODO");
+				
+				outputs.add(outputMap);
+			}
 			
+			templateData.put("outputs", outputs);
+				
 			// * Load the template
 			Template tpl = null;
 			try
@@ -219,6 +248,7 @@ public class HTMLReporter implements Reporter
 		 * @param instanceDir
 		 */
 		private void instanceOutput(ModuleInstance instance, File instanceDir, int i)
+				throws IOException
 		{
 			
 			// * The data we will pass to the template
@@ -234,7 +264,7 @@ public class HTMLReporter implements Reporter
 			{
 				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
 				inputMap.put("name", input.name());
-				inputMap.put("description", "TODO");
+				inputMap.put("description", input.description());
 				inputMap.put("value", input.value());
 				
 				inputs.add(inputMap);
@@ -248,10 +278,10 @@ public class HTMLReporter implements Reporter
 			{
 				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
 				outputMap.put("name", output.name());
-				outputMap.put("description", "TODO");
+				outputMap.put("description", output.description());
 				outputMap.put("value", output.value().toString());
 				
-				inputs.add(outputMap);
+				outputs.add(outputMap);
 			}
 			
 			templateData.put("outputs", outputs);

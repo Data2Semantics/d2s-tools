@@ -443,7 +443,7 @@ public class JavaDomain implements Domain
 		}
 		
 		
-		return null;
+		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+".");
 	}
 
 	private Class<?> loadClass(String source)
@@ -538,7 +538,7 @@ public class JavaDomain implements Domain
 		}
 		
 		
-		return null;
+		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+".");
 	}
 
 	@Override
@@ -590,5 +590,99 @@ public class JavaDomain implements Domain
 	{
 		return domain;
 	}
+
+	@Override
+	public String inputDescription(String source, String name)
+	{
+		
+		Class<?> theClass = loadClass(source);
+		
+		Method[] methods = theClass.getMethods();
+		Field[] fields = theClass.getFields();
+		Constructor<?>[] constructors = theClass.getConstructors();
+		
+		for(Field f : fields){
+			In inputAnnotation = getInputAnnotations(f);
+			if(inputAnnotation != null && inputAnnotation.name().equals(name))
+				return inputAnnotation.description();
+		}
+
+		// Case where input are defined as parameter of constructors.
+		for(Constructor c : constructors){
+			Annotation [][] parameterAnnotations = c.getParameterAnnotations();
+			for(int i =0; i< parameterAnnotations.length;i++){
+				for(int j=0;j< parameterAnnotations[i].length;j++){
+					if (parameterAnnotations[i][j] instanceof In)
+					{ In in = (In)parameterAnnotations[i][j];
+					  if(in.name().equals(name))
+							return in.description();
+					}
+				}
+			}
+		}
+		
+		// Case where inputs are defined as parameter of input factory method.
+		for(Method m : methods){
+			if(hasFactoryAnnotation(m)){
+				Annotation [][] parameterAnnotations = m.getParameterAnnotations();
+				for(int i =0; i< parameterAnnotations.length;i++){
+					for(int j=0;j< parameterAnnotations[i].length;j++){
+						if (parameterAnnotations[i][j] instanceof In)
+						{ In in = (In)parameterAnnotations[i][j];
+						  if(in.name().equals(name))
+							  return in.description();
+						}
+					}
+				}	
+			}
+			
+		}
+		
+		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+".");
+	}
+
+	@Override
+	public String outputDescription(String source, String name)
+	{
+		Class<?> theClass = loadClass(source);
+		Method[] methods = theClass.getMethods();
+		Field[] fields = theClass.getFields();
+
+		for (Field f : fields)
+		{
+			Out outputAnnotation = getOutputAnnotations(f);
+			if (outputAnnotation != null
+					&& outputAnnotation.name().equals(name))
+				  return outputAnnotation.description();
+
+		}
+
+		for (Method m : methods)
+		{
+			if(m.getReturnType().equals(Void.TYPE)) continue;
+			
+			Annotation[] annotations = m.getAnnotations();
+			for(Annotation a : annotations){
+				if(a instanceof Out){
+					Out outAnnotation = (Out) a;
+					if(outAnnotation.name().equals(name))				
+						return outAnnotation.description();
+
+				}
+				if(a instanceof Main){
+					Main mainAnnotation = (Main)a;
+					if(mainAnnotation.name().equals(name))				 
+						return mainAnnotation.description();
+
+				}
+			}
+
+		}
+		
+		
+		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+".");
+	}
+
+
 
 }

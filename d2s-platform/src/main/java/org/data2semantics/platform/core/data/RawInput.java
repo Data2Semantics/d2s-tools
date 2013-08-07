@@ -7,10 +7,10 @@ public class RawInput extends Input
 	private Object value = null;
 
 
-	public RawInput(Object value, String name, DataType dataType,
+	public RawInput(Object value, String name, String description, DataType dataType,
 			Module module)
 	{
-		super(name, dataType, module);
+		super(name, description, dataType, module);
 		this.value = value;
 	}
 

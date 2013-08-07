@@ -14,10 +14,10 @@ public class ReferenceInput extends Input
 	
 	boolean multiValue = false;
 	
-	public ReferenceInput(Module module, String name, DataType dataType,
+	public ReferenceInput(Module module, String name, String description, DataType dataType,
 			Output refOutput, boolean multiValue)
 	{
-		super(name, dataType, module);
+		super(name, description, dataType, module);
 		
 		this.refOutput = refOutput;
 		

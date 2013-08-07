@@ -3,13 +3,16 @@ package org.data2semantics.platform.run;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
+import org.data2semantics.platform.reporting.CSVReporter;
 import org.data2semantics.platform.reporting.HTMLReporter;
+import org.data2semantics.platform.reporting.Reporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.WorkflowParser;
 import org.kohsuke.args4j.Argument;
@@ -74,12 +77,18 @@ public class Run
 		LocalExecutionProfile localEP = new LocalExecutionProfile();
 		ResourceSpace rp = new ResourceSpace();
 		
-		HTMLReporter reporter = new HTMLReporter(workflow, new File(output, "report/"));
+		
+		List<Reporter> reporters = Arrays.asList(
+					new HTMLReporter(workflow, new File(output, "report/")),
+					new CSVReporter(workflow, new File(output, "csv/"))
+				);
+		
     	Orchestrator orchestrator = new Orchestrator(workflow,  localEP, rp);
     	
     	orchestrator.execute();
     	
-    	reporter.report();
+    	for(Reporter reporter : reporters)
+    		reporter.report();
     	
     	Global.log().info("Workflow execution finished.");
     }

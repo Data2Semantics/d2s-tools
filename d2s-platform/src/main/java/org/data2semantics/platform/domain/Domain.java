@@ -116,4 +116,25 @@ public interface Domain
 	public List<String> outputs(String source);
 	
 	public boolean valueMatches(Object value, DataType type);
+	
+	/**
+	 * Returns the name for the given input of the given source. If no description 
+	 * is given, the Domain should return an empty string. 
+	 * 
+	 * @param source
+	 * @param name
+	 * @return
+	 */
+	public String inputDescription(String source, String name);
+	
+	/**
+	 * Returns the name for the given input of the given source. If no description 
+	 * is given, the Domain should return an empty string. 
+	 * 
+	 * @param source
+	 * @param name
+	 * @return
+	 */
+	public String outputDescription(String source, String name);
+
 }

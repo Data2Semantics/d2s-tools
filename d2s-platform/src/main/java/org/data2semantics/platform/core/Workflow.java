@@ -174,14 +174,14 @@ public final class Workflow {
 		 * @param value
 		 * @return
 		 */
-		public WorkflowBuilder rawInput(String moduleName, String name, Object value, DataType type)
+		public WorkflowBuilder rawInput(String moduleName, String description, String name, Object value, DataType type)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
-			module.addInput(name, value, type);
+			module.addInput(name, description, value, type);
 
 			return this;
 		}
@@ -194,14 +194,14 @@ public final class Workflow {
 		 * @param value
 		 * @return
 		 */
-		public WorkflowBuilder multiInput(String moduleName, String name, List<Object> value, DataType type)
+		public WorkflowBuilder multiInput(String moduleName, String description, String name, List<Object> value, DataType type)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
-			module.addMultiInput(name, value, type);
+			module.addMultiInput(name, description, value, type);
 
 			return this;
 		}
@@ -213,25 +213,25 @@ public final class Workflow {
 		 * @param reference
 		 * @return
 		 */
-		public WorkflowBuilder refInput(String moduleName, String inputName, String referencedModule, String referencedOutput, DataType type)
+		public WorkflowBuilder refInput(String moduleName, String inputName, String description, String referencedModule, String referencedOutput, DataType type)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
-			references.add(Arrays.asList(moduleName, inputName, referencedModule, referencedOutput, type));
+			references.add(Arrays.asList(moduleName, inputName, description, referencedModule, referencedOutput, type));
 
 			return this;
 		}
 		
-		public WorkflowBuilder output(String moduleName, String name, DataType type)
+		public WorkflowBuilder output(String moduleName, String name, String description, DataType type)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+name+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
-			module.addOutput(name, type);
+			module.addOutput(name, description, type);
 
 			return this;
 		}
@@ -256,10 +256,11 @@ public final class Workflow {
 			{
 				String moduleName = (String) reference.get(0),
 				       inputName = (String) reference.get(1),
-				       refModuleName = (String) reference.get(2),
-				       refOutputName = (String) reference.get(3);
+				       description = (String) reference.get(2),
+				       refModuleName = (String) reference.get(3),
+				       refOutputName = (String) reference.get(4);
 				
-				DataType type = (DataType) reference.get(4);
+				DataType type = (DataType) reference.get(5);
 				
 				ModuleImpl module = workflow.modules.get(moduleName),
 				           refModule = workflow.modules.get(refModuleName);
@@ -269,7 +270,7 @@ public final class Workflow {
 			
 				DataType outputType = refOutput.dataType();
 
-				module.addRefInput(inputName, refOutput, type, false);
+				module.addRefInput(inputName, description, refOutput, type, false);
 				
 				if(inputDomain.typeMatches(refOutput, module.input(inputName))){
 					// Single reference input case
@@ -313,8 +314,9 @@ public final class Workflow {
 			{
 				String moduleName = (String) reference.get(0),
 				       inputName = (String) reference.get(1),
-				       referencedModule = (String) reference.get(2),
-				       referencedOutput = (String) reference.get(3);
+				       description = (String) reference.get(2),
+				       referencedModule = (String) reference.get(3),
+				       referencedOutput = (String) reference.get(4);
 				
 				if(! workflow.modules.containsKey(moduleName))
 					errors.add("Module ("+moduleName+") does not exist.");
@@ -345,13 +347,13 @@ public final class Workflow {
 				this.name = name;
 			}
 
-			public void addRefInput(String inputName, Output referencedOutput, DataType type, boolean multiRef)
+			public void addRefInput(String inputName, String description, Output referencedOutput, DataType type, boolean multiRef)
 			{
 				
 				if(inputs.containsKey(inputName))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+inputName+")");
 				
-				inputs.put(inputName, new ReferenceInput(this, inputName, type, referencedOutput, multiRef));
+				inputs.put(inputName, new ReferenceInput(this, inputName, description, type, referencedOutput, multiRef));
 			}
 
 			public boolean hasOutput(String output)
@@ -359,12 +361,12 @@ public final class Workflow {
 				return outputs.containsKey(output);
 			}
 
-			public void addOutput(String name, DataType type)
+			public void addOutput(String name, String description, DataType type)
 			{
 				if(outputs.containsKey(name))
 					throw new IllegalArgumentException("Module ("+name()+") already contains output with the given name ("+name+")");
 				
-				outputs.put(name, new Output(name, this, type));
+				outputs.put(name, new Output(name, description, this, type));
 			}
 
 			public void setSource(String source)
@@ -376,24 +378,24 @@ public final class Workflow {
 				this.domain = domain;
 			}
 			
-			public void addMultiInput(String name, List<Object> values, DataType type)
+			public void addMultiInput(String name, String description, List<Object> values, DataType type)
 			{
 				if(inputs.containsKey(name))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+name+")");
 				
 				List<RawInput> rawInputs = new ArrayList<RawInput>(values.size());
 				for(Object value : values)
-					rawInputs.add(new RawInput(value, name, type, this));
+					rawInputs.add(new RawInput(value, name, description,  type, this));
 				
-				inputs.put(name, new MultiInput(name, type, this, rawInputs));
+				inputs.put(name, new MultiInput(name, description, type, this, rawInputs));
 			}
 
-			public void addInput(String name, Object value, DataType type)
+			public void addInput(String name, String description, Object value, DataType type)
 			{
 				if(inputs.containsKey(name))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+name+")");
 				
-				inputs.put(name, new RawInput(value, name, type, this));
+				inputs.put(name, new RawInput(value, description,  name, type, this));
 			}
 
 						

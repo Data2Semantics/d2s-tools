@@ -116,8 +116,9 @@ public class WorkflowParser {
 
 					DataType inputType = domain.inputType(sourceTail, inputName);
 					
+					String description = domain.inputDescription(sourceTail, inputName);
 					
-					builder.refInput(name, inputName, referencedModule,
+					builder.refInput(name, inputName, description, referencedModule,
 							referencedOutput, inputType);
 					
 				} else // Raw value
@@ -126,10 +127,12 @@ public class WorkflowParser {
 					
 					DataType dataType = domain.inputType(sourceTail, inputName);
 					
+					String description = domain.inputDescription(sourceTail, inputName);
+					
 					if(domain.valueMatches(value, dataType))
-						builder.rawInput(name, inputName, value, domain.inputType(sourceTail, inputName));
+						builder.rawInput(name, inputName, description, value, domain.inputType(sourceTail, inputName));
 					else if((value instanceof List<?> ) && listItemsMatch((List<Object>) value, dataType, domain))
-						builder.multiInput(name, inputName, (List<Object>)value, dataType);
+						builder.multiInput(name, inputName, description, (List<Object>)value, dataType);
 					else
 						throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+value+") does not match the required data type ("+dataType+").");
 				}
@@ -139,7 +142,10 @@ public class WorkflowParser {
 			Map<String, DataType> outputTypeMap = getOutputTypes(source, domain);
 			
 			for(String outputName : outputTypeMap.keySet())
-				builder.output(name, outputName, outputTypeMap.get(outputName));
+			{
+				String description = domain.outputDescription(sourceTail, outputName);
+				builder.output(name, outputName, description, outputTypeMap.get(outputName));
+			}
 		}
 		
 		return builder.workflow();

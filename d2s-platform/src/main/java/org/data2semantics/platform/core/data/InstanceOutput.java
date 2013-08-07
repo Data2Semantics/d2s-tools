@@ -17,7 +17,7 @@ public class InstanceOutput extends Output
 	
 	public InstanceOutput(Module module, Output original, ModuleInstance instance)
 	{
-		super(original.name(), module, original.dataType());
+		super(original.name(), original.description(), module, original.dataType());
 		this.original = original;
 		this.instance = instance;
 	}
