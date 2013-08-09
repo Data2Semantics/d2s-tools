@@ -17,7 +17,7 @@
   <script src="../../javascript/base.platform.js" type="text/javascript"></script>  
   
   
-  <title>Instance results</title>
+  <title>Module results</title>
 </head>
 <body class="${tags}">
   <h1>Report: ${name}</h1>
@@ -39,11 +39,22 @@
   <#if instantiated >
 	  <table class="instances">
 	  	<tr>
-	  		<th>inputs</th><th>instance<th>
+	  		<#list input_names as input_name>
+	  		  <td>
+	  		    ${input_name}
+	  		  </td>
+	  		</#list>
+
+			<th>instance<th>
 	  	</tr>
 	  <#list instances as instance>
 	  	<tr>
-	  		<td>${instance.input_string}</td><td><a href="${instance.url}" target="This instance's report">report</a></td>
+	  		<#list instance.inputs as input>
+	  		  <td>
+	  		    ${input}
+	  		  </td>
+	  		</#list>
+	  		<td><a href="${instance.url}" target="This instance's report">report</a></td>
 	  	</tr>
 	  </#list>
 	  </table>
@@ -61,9 +72,31 @@
     <p class="description">
     	${output.description}
     </p>
-    <div class="value">
-    	${output.value}
-    </div>
+	<table>
+		<tr>
+			<#list input_names as input_name>
+				<th class="input">
+					${input_name}
+				</th>
+			</#list>
+			<th class="output">
+				${output.name}
+			</th>
+		</tr>
+		
+		<#list output.instances as instance>
+		<tr>
+			<#list instance.inputs as input>
+				<td class="input">
+					${input}
+				</td>
+			</#list>
+			<td class="output">
+				${instance.output}
+			</td>
+		</tr>
+		</#list>
+	</table>
   </#list>
   
   <h2>Inputs</h2>
@@ -76,9 +109,13 @@
     <p class="description">
     	${input.description}
     </p>
-    <div class="value">
-    	${input.value}
-    </div>
+    <ul class="values">
+	    <#list input.values as value>
+		    <li class="value">
+		    	${value}
+		    </li>
+	    </#list>
+    </ul>
   </#list>
   
 </body>

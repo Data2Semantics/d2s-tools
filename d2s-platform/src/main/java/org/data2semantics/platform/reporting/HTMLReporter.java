@@ -188,15 +188,27 @@ public class HTMLReporter implements Reporter
 			List<Map<String, Object>> instances = new ArrayList<Map<String, Object>>();
 			if(module.instantiated())
 			{
+				// * Collect the input names
+				
+				List<String> inputNames = new ArrayList<String>();
+				for(Input input : module.inputs())
+					inputNames.add(input.name());
+				templateData.put("input_names", inputNames);
 				
 				int i = 0;
 				int padding = 1 + (int)Math.log10(module.instances().size());
 				
 				for(ModuleInstance instance : module.instances())
 				{
+					// * Collect the instance inputs
+					List<String> instanceInputs = new ArrayList<String>();
+					for(InstanceInput input : instance.inputs())
+						instanceInputs.add(input.value().toString());
+					
+					// * Collect the instance information
 					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
-					instanceMap.put("input_string", "TODO");
 					instanceMap.put("url", String.format("./%0"+padding+"d/index.html", i));
+					instanceMap.put("inputs", instanceInputs);
 					
 					instances.add(instanceMap);
 					i ++;
@@ -204,19 +216,6 @@ public class HTMLReporter implements Reporter
 			}
 			
 			templateData.put("instances", instances);
-						
-			List<Map<String, Object>> inputs = new ArrayList<Map<String,Object>>();
-			for(Input input : module.inputs())
-			{
-				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
-				inputMap.put("name", input.name());
-				inputMap.put("description", input.description());
-				inputMap.put("value", "TODO");
-				
-				inputs.add(inputMap);
-			}
-			
-			templateData.put("inputs", inputs);
 			
 			List<Map<String, Object>> outputs = new ArrayList<Map<String,Object>>();
 			for(Output output : module.outputs())
@@ -224,13 +223,48 @@ public class HTMLReporter implements Reporter
 				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
 				outputMap.put("name", output.name());
 				outputMap.put("description", output.description());
-				outputMap.put("value", "TODO");
+				
+				List<Map<String, Object>> outputInstances = new ArrayList<Map<String,Object>>();
+				
+				// * Collect values for all instances
+				for(ModuleInstance instance : module.instances())
+				{
+					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
+
+					List<String> inputs = new ArrayList<String>();
+					for(InstanceInput input : instance.inputs())
+						inputs.add(input.value().toString());
+					
+					instanceMap.put("inputs", inputs);
+					instanceMap.put("output", instance.output(output.name()).value().toString());
+					
+					outputInstances.add(instanceMap);
+				}
+				outputMap.put("instances", outputInstances);
 				
 				outputs.add(outputMap);
 			}
 			
 			templateData.put("outputs", outputs);
+			
+			
+			List<Map<String, Object>> inputs = new ArrayList<Map<String,Object>>();
+			for(Input input : module.inputs())
+			{
+				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+				inputMap.put("name", input.name());
+				inputMap.put("description", input.description());
 				
+				List<String> values = new ArrayList<String>();
+				for(ModuleInstance instance : module.instances())
+					values.add(instance.input(input.name()).value().toString());
+				
+				inputMap.put("values", values);
+				inputs.add(inputMap);
+			}
+			
+			templateData.put("inputs", inputs);
+			
 			// * Load the template
 			Template tpl = null;
 			try
