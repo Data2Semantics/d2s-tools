@@ -18,6 +18,7 @@ import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.core.data.ReferenceInput;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -90,6 +91,24 @@ public class HTMLReporter implements Reporter
 			workflowOutput(workflow, root);
 		}
 
+		private String produceDotString(){
+			StringBuffer result = new StringBuffer();
+			result.append ("digraph{");
+			for(Module module : workflow.modules()){
+					for(Input inp : module.inputs() ){
+						if(inp instanceof ReferenceInput){
+							ReferenceInput ri = (ReferenceInput) inp;
+							result.append(ri.reference().module().name()+ "->" +  module.name()  + "[label=\"" + ri.reference().name()+ "\"]");
+						}
+					}
+					
+			}
+			
+			result.append("}");
+			
+			return result.toString();
+			
+		}
 		private void workflowOutput(Workflow workflow, File root)
 			throws IOException
 		{
@@ -102,6 +121,8 @@ public class HTMLReporter implements Reporter
 			templateData.put("name", workflow.name());
 			templateData.put("short_name", workflow.name());
 			templateData.put("tags", "");
+			
+			templateData.put("dotstring", produceDotString());
 			
 			List<Map<String, Object>> modules = new ArrayList<Map<String, Object>>();
 			

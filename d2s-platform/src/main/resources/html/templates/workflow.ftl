@@ -33,6 +33,8 @@
   </dl>
   
   <h2>Modules</h2>
+  <h3> Call dependency </h3>
+  <img src='https://chart.googleapis.com/chart?cht=gv:dot&chl=${dotstring}'>
   <p class="explanation">
   	This workflow's modules.
   </p>

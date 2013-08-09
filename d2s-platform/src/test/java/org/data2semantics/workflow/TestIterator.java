@@ -1,5 +1,6 @@
 package org.data2semantics.workflow;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
+import org.data2semantics.platform.reporting.HTMLReporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.PlatformUtil;
 import org.data2semantics.platform.util.WorkflowParser;
@@ -39,9 +41,9 @@ public class TestIterator {
 			}
 		}
 		
-		//workflowContainer.dumpIntermediateResults();
-		platformOrchestrator.writeOutput("output_dir1");
-		
+				
+		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_dir_iterator"));
+		reporter.report();
 	}
 	
 	@Test
