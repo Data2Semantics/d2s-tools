@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.ReferenceInput;
+import org.data2semantics.platform.util.FrequencyModel;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -227,6 +229,7 @@ public class HTMLReporter implements Reporter
 				List<Map<String, Object>> outputInstances = new ArrayList<Map<String,Object>>();
 				
 				// * Collect values for all instances
+				List<Object> values = new ArrayList<Object>();
 				for(ModuleInstance instance : module.instances())
 				{
 					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
@@ -236,11 +239,34 @@ public class HTMLReporter implements Reporter
 						inputs.add(input.value().toString());
 					
 					instanceMap.put("inputs", inputs);
-					instanceMap.put("output", instance.output(output.name()).value().toString());
+					
+					Object value =instance.output(output.name()).value();
+					instanceMap.put("output", value.toString());
+					values.add(value);
 					
 					outputInstances.add(instanceMap);
 				}
 				outputMap.put("instances", outputInstances);
+				
+				// * Collect summary info
+				boolean isNumeric = isNumeric(values);
+				outputMap.put("is_numeric", isNumeric);
+				
+				FrequencyModel<Object> fm = new FrequencyModel<Object>(values);
+				outputMap.put("mode", fm.sorted().get(0).toString());
+				outputMap.put("mode_frequency", fm.frequency(fm.sorted().get(0)));
+				outputMap.put("num_instances", values.size());
+				outputMap.put("entropy", fm.entropy());
+				
+				if(isNumeric)
+				{
+					List<Number> numbers = numbers(values);
+					
+					outputMap.put("mean", mean(numbers));
+					outputMap.put("dev", standardDeviation(numbers));
+					outputMap.put("median", median(numbers));
+					
+				}
 				
 				outputs.add(outputMap);
 			}
@@ -373,6 +399,105 @@ public class HTMLReporter implements Reporter
 			}
 		}
 		
+	}
+	
+	/**
+	 * Whether all result values represent numbers
+	 * @return
+	 */
+	public static boolean isNumeric(List<?> values)
+	{
+		for(Object value : values)
+			if(! (value instanceof Number))
+				return false;
+		return true;
+	}
+
+	public static double mean(List<? extends Number> values)
+	{
+	
+		double sum = 0.0;
+		double num = 0.0;
+		
+		for(Object value : values)
+		{
+			double v = ((Number) value).doubleValue();
+			if(!(Double.isNaN(v) || Double.isNaN(v)))
+			{
+				sum += v; 
+				num ++;
+			}
+		}
+		
+		return sum/num;
+	}
+	
+	public static double standardDeviation(List<? extends Number> values)
+	{
+		double mean = mean(values);
+		double num = 0.0;
+		
+		double varSum = 0.0;
+		for(Object value : values)
+		{
+			double v = ((Number) value).doubleValue();
+			
+			if(!(Double.isNaN(v) || Double.isNaN(v)))
+			{
+				double diff = mean - v;
+				varSum += diff * diff;
+				num++;
+			}
+		}
+
+		double variance = varSum/(num - 1);
+		return Math.sqrt(variance);
+	}
+	
+	public static double median(List<? extends Number> values)
+	{
+		List<Double> vs = new ArrayList<Double>(values.size());
+		
+		for(Object value : values)
+		{
+			double v = ((Number) value).doubleValue();
+
+			if(!(Double.isNaN(v) || Double.isNaN(v)))
+			{
+				vs.add(v);
+			}
+		}
+		
+		if(vs.isEmpty())
+			return -1.0;
+		
+		Collections.sort(vs);
+		
+		if(vs.size() % 2 == 1)
+			return vs.get(vs.size()/2); // element s/2+1, but index s/2
+		return (vs.get(vs.size()/2 - 1) + vs.get(vs.size()/2)) / 2.0;
+	}
+	
+	public static <T> T mode(List<T> values)
+	{
+		FrequencyModel<T> model = new FrequencyModel<T>(values);
+		
+		return model.sorted().get(0);
+	}
+
+	public static List<Number> numbers(List<Object> values)
+	{
+		List<Number> numbers = new ArrayList<Number>(values.size());
+		
+		for(Object value : values)
+			try {
+				numbers.add( (Number) value);
+			} catch (ClassCastException e)
+			{
+				throw new RuntimeException("Non-number object (type: "+value.getClass()+", toString: "+value+") found in list. Cannot convert to list of numbers.");
+			}
+		
+		return numbers;
 	}
 
 }

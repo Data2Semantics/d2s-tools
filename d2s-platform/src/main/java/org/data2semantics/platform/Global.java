@@ -50,10 +50,10 @@ public class Global
 	 */
 	public static final int RANDOM_SEED = 42;
 	
-	/**
-	 *
-	 */
-	public static Random random = new Random(RANDOM_SEED);
+	private static Random random = new Random(RANDOM_SEED);
 	
-	
+	public static Random random()
+	{
+		return random;
+	}
 }

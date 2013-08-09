@@ -72,31 +72,71 @@
     <p class="description">
     	${output.description}
     </p>
-	<table>
-		<tr>
-			<#list input_names as input_name>
-				<th class="input">
-					${input_name}
-				</th>
-			</#list>
-			<th class="output">
-				${output.name}
-			</th>
-		</tr>
-		
-		<#list output.instances as instance>
-		<tr>
-			<#list instance.inputs as input>
-				<td class="input">
-					${input}
-				</td>
-			</#list>
-			<td class="output">
-				${instance.output}
-			</td>
-		</tr>
-		</#list>
-	</table>
+    
+    <div class="output js-tabs">
+	
+		<ul>
+			<li><a href="#tab-summary">Summary</a></li>
+			<li><a href="#tab-full">Full data</a></li>
+		</ul>	
+    
+    	<div id="tab-summary">
+    	
+	    	<table>
+	    			<tr>
+						<th>mode</th><td>${output.mode} (${output.mode_frequency})</td>
+					</tr>
+	    			<tr>
+						<th>instances</th><td>${output.num_instances}</td>
+					</tr>
+				<#if output.is_numeric>
+					<tr>
+						<th>mean</th><td>${output.mean}</td>
+					</tr>
+					<tr>
+						<th>std dev</th><td>${output.dev}</td>
+					</tr>
+					<tr>
+						<th>median</th><td>${output.median}</td>
+					</tr>
+				</#if>
+
+					<tr>
+						<th>entropy</th><td>${output.entropy}</td>
+					</tr>
+			</table>
+			
+    	</div>
+    	
+    	<div id="tab-full"> 
+			<table>
+				<tr>
+					<#list input_names as input_name>
+						<th class="input">
+							${input_name}
+						</th>
+					</#list>
+					<th class="output">
+						${output.name}
+					</th>
+				</tr>
+				
+				<#list output.instances as instance>
+				<tr>
+					<#list instance.inputs as input>
+						<td class="input">
+							${input}
+						</td>
+					</#list>
+					<td class="output">
+						${instance.output}
+					</td>
+				</tr>
+				</#list>
+			</table>
+		</div>
+	</div>
+	
   </#list>
   
   <h2>Inputs</h2>
