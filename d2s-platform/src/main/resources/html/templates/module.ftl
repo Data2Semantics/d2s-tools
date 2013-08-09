@@ -12,6 +12,8 @@
   
   <script src="http://peterbloem.nl/jqplot/jquery.jqplot.min.js" type="text/javascript"></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.logAxisRenderer.js" type="text/javascript" ></script>
+  <script src="http://peterbloem.nl/jqplot/plugins/jqplot.canvasTextRenderer.min.js" type="text/javascript" ></script> 
+  <script src="http://peterbloem.nl/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" type="text/javascript" ></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.barRenderer.min.js" type="text/javascript" ></script>  
   
   <script src="../../javascript/base.platform.js" type="text/javascript"></script>  
@@ -68,7 +70,8 @@
   </p>
   
   <#list outputs as output>
-    <h3>Result: ${output.name}</h3>
+    <div class="section output">
+    <h3>Result: <span class="output-name">${output.name}</span></h3>
     <p class="description">
     	${output.description}
     </p>
@@ -81,6 +84,9 @@
 		</ul>	
     
     	<div id="tab-summary">
+    	
+    		<div class="graph chart-container" data-source="data-table-${output.name}">
+			</div>
     	
 	    	<table>
 	    			<tr>
@@ -109,8 +115,8 @@
     	</div>
     	
     	<div id="tab-full"> 
-			<table>
-				<tr>
+			<table class="data-table-${output.name}">
+				<tr class="names">
 					<#list input_names as input_name>
 						<th class="input">
 							${input_name}
@@ -136,7 +142,7 @@
 			</table>
 		</div>
 	</div>
-	
+	</div>
   </#list>
   
   <h2>Inputs</h2>
@@ -145,6 +151,7 @@
   </p>
   
    <#list inputs as input>
+     <div class="section input">
     <h3>In: ${input.name}</h3>
     <p class="description">
     	${input.description}
@@ -156,6 +163,7 @@
 		    </li>
 	    </#list>
     </ul>
+    </div>
   </#list>
   
 </body>

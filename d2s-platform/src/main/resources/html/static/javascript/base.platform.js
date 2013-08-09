@@ -1,161 +1,247 @@
-$(function() {
+$(function() 
+{
+	// * Set up the tabs (basic jquery UI functionality
 	$(".js-tabs").tabs();
 	
-	
-	$('.rs-line').each(function ()
+	// * Plot the graphs where required
+	$('.graph').each(function ()
 	{
 		section = $(this);
 		
-		id = 'rs-line-' + randomString(12);
+		// * Generate an id and set up the inner container
+		id = 'graph-' + randomString(12);
 		section.append(
 			$('<div>').addClass('plot').attr('id', id)
 		);	
 			
+		// * Read the data from the raw data table
 		dataSource = section.attr('data-source');	
-		useIndex = section.attr('data-use-index') ? 
-				section.attr('data-use-index') == "true" : false;
-		data = load($('.' + dataSource), useIndex);	
-				
+		var data = load($('.' + dataSource));
 		
-		$.jqplot(id, [data],
+		// * Store the data object in the section element in case the graph 
+		//   needs to be redrawn.
+		section.data('data', data);
+		
+		// -- Choose the default value for the input
+		var defaultInput = null;
+		$.each(data, function(name, list)
 		{
-			axes: {
-				xaxis: {
-					pad: 0
-				},
-				yaxis: {
-					pad: 0
-				}
-			},
-			series: [{
-				showMarker: section.hasClass('scatter'),
-				showLine: ! section.hasClass('scatter'),
-				lineWidth: 2.5,
-				markerOptions: {size: 3.0}
-			}]
+			if(name.startsWith('i:'))
+			{
+				defaultInput = name;
+				return false;
+			}
 		});
+		
+		if(defaultInput == null)
+			defaultInput = 'index';
+		
+		plot(id, data, defaultInput, 'none');
+		
+		form = $('<form>').addClass('graph-form');
+		section.append(form);
+		
+		// * selector for x axis
+		form.append($('<label>').append('horizontal axis'));
+		
+		inputSelector = $('<select>').addClass('input-selector');
+		form.append(inputSelector);
+		
+		$.each(data, function(name, list) 
+		{
+			option =  $('<option>')
+			inputSelector.append(option);
+			
+			option.attr('value', name);
+			if(name == defaultInput)
+				option.attr('selected', 'selected');
+			option.append(name);
+			
+		});
+		
+		inputSelector.change(graphUpdate);
 
-		section.append(
-				$('<div>')
-					.addClass('log-plot')
-					.attr('id', id+'-log')
-		);	
-
-		ldata = logFilter(data)
-		filtered = data.length - ldata.length;
+		// * selector for color axis
+		form.append($('<label>').append('color'));
 		
-		$.jqplot(id+'-log', [ldata],
-				{
-					axes: {
-						xaxis: {
-							pad: 0,
-							renderer: $.jqplot.LogAxisRenderer
-						},
-						yaxis: {
-							pad: 0,
-							renderer: $.jqplot.LogAxisRenderer
-						}
-					},
-					series: [{
-						showMarker: section.hasClass('scatter'),
-						showLine: ! section.hasClass('scatter'),
-						color:'#5FAB78',
-						markerOptions: {size: 3.0}
-					}]
-				});	
+		inputSelector = $('<select>').addClass('color-selector');
+		form.append(inputSelector);
 		
-		$('#'+id+'-log').addClass('hidden');
+		$.each(data, function(name, list) 
+		{
+			option =  $('<option>')
+			inputSelector.append(option);
+			
+			option.attr('value', name);
+			option.append(name);
+		});
 		
-		section.prepend(
-			$('<div>')
-				.addClass('log-log')
-				.append(
-					$('<input>')
-						.attr('type', 'checkbox')
-						.attr('name', 'log-log')
-						.click(loglogClicked)
-				)
-				.append(
-					$('<label>')
-						.append('log-log-axes')
-				.append(
-					$('<span>')
-						.addClass('log-filter-message')
-						.append('filtered out ' + filtered + ' data point(s) containing zero values')
-						)
-				)
-		);
-	});
-	
-	$('.rs-histogram').each(function () 
-	{
-		section = $(this);
+		option =  $('<option>')
+		inputSelector.append(option);
 		
-		id = 'rs-histogram-' + randomString(12);
-		section.append(
-				$('<div>').addClass('plot').attr('id', id)
-			);	
+		option.attr('value', 'none');
+		option.attr('selected', 'selected');
+		option.append('none');
 		
-		dataSource = section.attr('data-source');
-		useIndex = section.attr('data-use-index') ? 
-				section.attr('data-use-index') == "true" : false;
-		histoData = load($('.' + dataSource), useIndex);
 		
-	    $.jqplot(id, [histoData], {series:
-	    			[{renderer:$.jqplot.BarRenderer}
-	    		]});
-		
+		inputSelector.change(graphUpdate);
 	});
 
 });
 
-	
-function loglogClicked()
+function graphUpdate()
 {
-	section = $(this).parent().parent();
+	var section = $(this).parents('.graph');
 	
-	if($(this).is(':checked'))
-	{
-		section.addClass('log');
-		section.find('.log-plot').removeClass('hidden');
-		section.find('.plot').addClass('hidden');
-	} else
-	{
-		section.removeClass('log');
-		section.find('.plot').removeClass('hidden');
-		section.find('.log-plot').addClass('hidden');		
-	}
+	var id = section.find('.jqplot-target').attr('id'); 
+	var data = section.data('data');
+	
+	var inputName = section.find('.graph-form .input-selector').val();
+	var colorName = section.find('.graph-form .color-selector').val();
+	
+	plot(id, data, inputName, colorName);
 }
+
+/**
+ * 
+ * @param id A jQuery DOM element to which the graph should be drawn. 
+ */
+function plot(id, dataTable, inputName, colorName)
+{
+	container = $('#'+id);
+	
+	// * Clear the graph if it has been drawn already.
+	if(container.hasClass('activated'))
+		container.empty();
+
+	// The div surrounding everything to do with this output
+	var section = container.parents('.section');
+	
+	var outputName = section.find('.output-name').text().trim();
+	
+	var x = dataTable[inputName];
+	var y = dataTable['output'];
+	var z = dataTable[colorName];
+
+	
+	var data = [];
+	for(i = 0; i < x.length; i++)
+		data.push([x[i], y[i]]);
+	
+	console.log(data);
+	
+	$.jqplot(id, [data],
+	{
+		axes: {
+			xaxis: {
+				pad: 0
+			},
+			yaxis: {
+				pad: 0
+			}
+		},
+		series: [{
+			showMarker: true,
+			showLine: false,
+			markerOptions: {size: 10.0}
+		}],
+	    axes:{
+	          xaxis:{
+	            label: inputName,
+	            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+	          },
+	          yaxis:{
+	            label: outputName,
+	            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+	          }
+	        }		
+	});
+	
+	container.addClass('activated');
+}
+
+
 	
 /**
- * Loads data from the given html table into an array
+ * Loads data from the given html table into a dictionary
+ * 
+ * All columns which contain all numbers are loaded.
+ * 
  * @param html
+ * 
+ * @returns A dictionary of arrays of numbers
  */
-function load(htmlTable, withIndex)
+function load(htmlTable)
 {
-	data = [];
-		
-	htmlTable.find('tr').each(function(i, value) 
-	{
-		if($(value).find('td').size() > 0)
-		{				
-			dataRow = []
-			if(withIndex)
-				dataRow[0] = i;
-
-			$(this).find('td').each(function(index, value)
-			{
-				dataRow[withIndex ? index + 1 : index] = parseFloat(
-						$(value).html().replace(/,/g,''));
-			})
+	
+	var data = {};
+	var names = [];
+	
+	// * Add an array to data for each column name
+	htmlTable.find('tr.names th').each(function(i, value)
+		{
+			th = $(this);
 			
-			data.push(dataRow);
-		}
+			if(th.hasClass('output'))
+				name = "output";
+			else
+				name = "i:" + th.text().trim();
+			
+			data[name] = [];
+			names[i] = name;
+		});
+	
+	
+	// * Load the values into the right columns
+	htmlTable.find('tr').each(function(k, value) {
+		
+		tr = $(this);
+		if(! tr.hasClass('names'))
+			tr.find('td').each(function(i, value) 
+			{
+				td = $(this);
+				value = td.text();
+				
+				if($.isNumeric(value))
+					value = value - 0;
+				else
+					value = null;
+				
+				data[names[i]].push(value);
+			});
+	});	
+	
+	// * remove any columns which contain no numeric values
+	$(names).each(function(i, name) {
+		column = data[name];
+		containsNumber = false;
+		$(column).each(function(i, value)
+		{
+			if($.isNumeric(value))
+				containsNumber = true;
+		});
+		
+		if(! containsNumber)
+			delete data[name];
 	});
+	
+	// * Add index column
+	n = data['output'].length;
+	index = [];
+	for(i = 0; i < n; i++)
+		index[i] = i;
+	
+	data['index'] = index;
 	
 	return data;
 }
 
+/**
+ * Produces a random string of the given length, to serve as a unique identifier
+ * 
+ * @param stringLength
+ * @returns {String}
+ */
 function randomString(stringLength) 
 {
 	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
