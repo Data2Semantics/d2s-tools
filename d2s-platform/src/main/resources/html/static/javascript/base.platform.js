@@ -1,6 +1,6 @@
 $(function() 
 {
-	// * Set up the tabs (basic jquery UI functionality
+	// * Set up the tabs (basic jquery UI functionality)
 	$(".js-tabs").tabs();
 	
 	// * Plot the graphs where required
@@ -36,7 +36,7 @@ $(function()
 		if(defaultInput == null)
 			defaultInput = 'index';
 		
-		plot(id, data, defaultInput, 'none');
+		plot(id, data, defaultInput, 'none', 1);
 		
 		form = $('<form>').addClass('graph-form');
 		section.append(form);
@@ -85,6 +85,16 @@ $(function()
 		
 		
 		inputSelector.change(graphUpdate);
+		
+		slider = $('<div>').addClass('alpha-slider').slider({
+			min: 0,
+			max: 255,
+			value: 255,
+			change: graphUpdate
+		});
+		
+		form.append($('<label>').append('alpha'));
+		form.append(slider);
 	});
 
 });
@@ -98,16 +108,17 @@ function graphUpdate()
 	
 	var inputName = section.find('.graph-form .input-selector').val();
 	var colorName = section.find('.graph-form .color-selector').val();
+	var alpha = section.find('.graph-form .alpha-slider').slider('value') / 255.0;
 	
-	plot(id, data, inputName, colorName);
+	plot(id, data, inputName, colorName, alpha);
 }
 
 /**
  * 
  * @param id A jQuery DOM element to which the graph should be drawn. 
  */
-function plot(id, dataTable, inputName, colorName)
-{
+function plot(id, dataTable, inputName, colorName, alpha)
+{	
 	container = $('#'+id);
 	
 	// * Clear the graph if it has been drawn already.
@@ -125,11 +136,39 @@ function plot(id, dataTable, inputName, colorName)
 
 	
 	var data = [];
+	var colors = [];
+	
 	for(i = 0; i < x.length; i++)
-		data.push([x[i], y[i]]);
+	{
+		// * Create the tooltip text
+		tip = $('<div>');
+		table = $('<table>').addClass('tooltip-values');
+		tip.append(table);
+		
+
+		$.each(dataTable, function(name, values) {
+			if(name != 'index')
+			{
+				var tr = $('<tr>');
+				tr.append($('<th>').append(name));
+				tr.append($('<td>').append(values[i]));
+				table.append(tr);
+			}
+		});
+		
+		// * add the data 
+		data.push([x[i], y[i], tip.html()]);
+		
+		if(colorName == 'none')
+			colors.push(0.5);
+		else
+			colors.push(dataTable[colorName][i]);
+	}
 	
-	console.log(data);
+	colors = rescale(colors);
 	
+	colors = multiMap(colors, 0.5, 0.5, alpha);
+			
 	$.jqplot(id, [data],
 	{
 		axes: {
@@ -143,7 +182,15 @@ function plot(id, dataTable, inputName, colorName)
 		series: [{
 			showMarker: true,
 			showLine: false,
-			markerOptions: {size: 10.0}
+			fillAlpha: alpha,
+			markerOptions: {size: 10.0},
+        	renderer: $.jqplot.DifferentColorMarkerLineRenderer,
+            rendererOptions: {
+                fill: true,
+                markerColors: colors,
+                shapeRenderer:  $.jqplot.ShapeRenderer,
+                shadowRenderer:  $.jqplot.ShadowRenderer
+            }
 		}],
 	    axes:{
 	          xaxis:{
@@ -154,7 +201,17 @@ function plot(id, dataTable, inputName, colorName)
 	            label: outputName,
 	            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
 	          }
-	        }		
+	        },
+	    highlighter: {
+	          show: true,
+	          sizeAdjust: 7.5,
+	          yvalues: 3,
+	          formatString: '<!--%s %s --> %s'	          
+	        },
+	    cursor: {
+	          show: true,
+	          zoom: true
+	        }
 	});
 	
 	container.addClass('activated');
@@ -270,4 +327,49 @@ function logFilter(data)
 	});
 	
 	return result;
+}
+
+
+function rescale(input)
+{
+	var min = Number.MAX_VALUE;
+	var max = Number.MIN_VALUE;
+	
+	$.each(input, function(i, value){
+		min = Math.min(min, value);
+		max = Math.max(max, value);
+	})
+
+	range = max - min;
+	
+	output = [];
+	
+	$.each(input, function(i, value)
+	{
+		output.push(range == 0.0 ? 0.5 : (value - min) / range);
+	})
+	
+	return output;
+}
+
+function multiMap(inputs, saturation, lightness, alpha)
+{
+	colors = [];
+	$.each(inputs, function(i, value) {
+		colors.push(map(value, saturation, lightness, alpha));
+	});
+	
+	return colors;
+}
+
+function map(input, saturation, lightness, alpha)
+{
+	color =  $.Color().hsla({ 
+		hue: input * 255.0, 
+		saturation: saturation, 
+		lightness: lightness, 
+		alpha: alpha
+	})
+	
+	return color.toRgbaString();
 }

@@ -7,17 +7,23 @@
   <link type="text/css" rel="stylesheet" media="screen" href="../../css/screen.platform.css" />
   <link type="text/css" rel="stylesheet" href="http://peterbloem.nl/jqplot/jquery.jqplot.min.css" />
   
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+  
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/javascript"></script>
+  
+  <script src="http://code.jquery.com/color/jquery.color-2.1.2.min.js" type="text/javascript"></script>
   
   <script src="http://peterbloem.nl/jqplot/jquery.jqplot.min.js" type="text/javascript"></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.logAxisRenderer.js" type="text/javascript" ></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.canvasTextRenderer.min.js" type="text/javascript" ></script> 
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" type="text/javascript" ></script>
   <script src="http://peterbloem.nl/jqplot/plugins/jqplot.barRenderer.min.js" type="text/javascript" ></script>  
-  
+  <script src="http://peterbloem.nl/jqplot/plugins/jqplot.highlighter.min.js" type="text/javascript"></script>
+  <script src="http://peterbloem.nl/jqplot/plugins/jqplot.cursor.min.js" type="text/javascript"></script>
+
+  <script src="../../javascript/jqplot.differentColorMarkerLineRenderer.js" type="text/javascript"></script>  
   <script src="../../javascript/base.platform.js" type="text/javascript"></script>  
-  
   
   <title>Module results</title>
 </head>
