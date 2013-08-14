@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.data2semantics.exp.utils.RDFLinearKernelExperiment;
+import org.data2semantics.platform.annotation.Factory;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
@@ -20,8 +21,37 @@ import org.openrdf.model.Value;
 @Module(name="LinearKernelExperiment")
 public class LinearKernelExperimentModule {
 	
-	@Main
-	public void mainKernelMethod(
+	private LibLINEARParameters linParms;
+	private RDFDataSet dataset;
+	private ArrayList<Resource> instances;
+	private ArrayList<Value> labels;
+	private ArrayList<Statement> blackList;
+	private List<Double> target;
+	private int seed;
+	private int iteration;
+	private int depth;
+	
+	public LinearKernelExperimentModule(
+			LibLINEARParameters linParms,
+			RDFDataSet dataset, ArrayList<Resource> instances,
+			ArrayList<Value> labels, ArrayList<Statement> blackList,
+			List<Double> target, int seed, int iteration, int depth
+			
+			) {
+		super();
+		this.linParms = linParms;
+		this.dataset = dataset;
+		this.instances = instances;
+		this.labels = labels;
+		this.blackList = blackList;
+		this.target = target;
+		this.seed = seed;
+		this.iteration = iteration;
+		this.depth = depth;
+	}
+
+	@Factory
+	public static LinearKernelExperimentModule getLinearKernelExperiment(
 			@In(name="linParms") LibLINEARParameters linParms,
 			@In(name="dataset") RDFDataSet dataset,
 			@In(name="instances") ArrayList<Resource> instances, 
@@ -32,6 +62,12 @@ public class LinearKernelExperimentModule {
 			@In(name="iteration") int iteration,
 			@In(name="depth") int depth
 			){
+		
+		return new LinearKernelExperimentModule(linParms, dataset, instances, labels, blackList, target, seed, iteration, depth);
+	}
+	
+	@Main
+	public void mainKernelMethod(){
 		
 		List<EvaluationFunction> evalFuncs = new ArrayList<EvaluationFunction>();
 		evalFuncs.add(new Accuracy());

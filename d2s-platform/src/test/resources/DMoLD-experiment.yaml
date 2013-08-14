@@ -1,42 +1,46 @@
 #Pre processor which in the ends produces instances, labels, blacklist, and dataset
 workflow:
 
-         
-- module:
-    name: RDFPreProcessor
-    source: 'org.data2semantics.modules.RDFDataPreProcessorModule'
-    inputs:
-        fraction: 0.1
-        dataDir : 'E:\\Projects\\MLPlatform\\data\\data_bgs_ac_uk_ALL'
-        predicateFilter1 : 'http://www.w3.org/2000/01/rdf-schema#isDefinedBy'
-        objectFilter1 : 'http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit'
-        predicateFilter2 : 'http://data.bgs.ac.uk/ref/Lexicon/hasTheme'
+      
+   name: "D Mol-D workflow"
+   
+   modules:   
+   
+    - module:
+         name: RDFPreProcessor
+         source: 'org.data2semantics.modules.RDFDataPreProcessorModule'
+         inputs:
+            fraction: 0.1
+            dataDir : 'E:\\Projects\\MLPlatform\\data\\data_bgs_ac_uk_ALL'
+            predicateFilter1 : 'http://www.w3.org/2000/01/rdf-schema#isDefinedBy'
+            objectFilter1 : 'http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit'
+            predicateFilter2 : 'http://data.bgs.ac.uk/ref/Lexicon/hasTheme'
+            
+    - module:
+        name: LibLinearWrapper
+        source: 'org.data2semantics.modules.LibLinearWrapperModule'
+        inputs:
+            cs: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+            labels:
+                reference: RDFPreProcessor.labels
         
-- module:
-    name: LibLinearWrapper
-    source: 'org.data2semantics.modules.LibLinearWrapperModule'
-    inputs:
-        cs: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
-        labels:
-            reference: RDFPreProcessor.labels
-    
-- module:
-    name: LinearKernelExperiment
-    source: 'org.data2semantics.modules.LinearKernelExperimentModule'
-    inputs:
-        dataset:
-            reference: RDFPreProcessor.dataset
-        instances: 
-            reference: RDFPreProcessor.instances
-        labels:
-            reference: RDFPreProcessor.labels
-        linParms:
-             reference: LibLinearWrapper.params
-        blacklist:
-            reference: RDFPreProcessor.blacklist
-        target:
-            reference: LibLinearWrapper.target
-        seed: 11
-        iteration: 3
-        depth: 2
-                                
+    - module:
+        name: LinearKernelExperiment
+        source: 'org.data2semantics.modules.LinearKernelExperimentModule'
+        inputs:
+            dataset:
+                reference: RDFPreProcessor.dataset
+            instances: 
+                reference: RDFPreProcessor.instances
+            labels:
+                reference: RDFPreProcessor.labels
+            linParms:
+                 reference: LibLinearWrapper.params
+            blacklist:
+                reference: RDFPreProcessor.blacklist
+            target:
+                reference: LibLinearWrapper.target
+            seed: 11
+            iteration: 3
+            depth: 2
+                                    
