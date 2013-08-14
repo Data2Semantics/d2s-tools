@@ -99,7 +99,7 @@ public class WorkflowParser {
 
 			// get the inputs
 			Map inputMap = (Map) module.get("inputs");
-
+			
 			for (Object inputKey : inputMap.keySet())
 			{
 				String inputName = inputKey.toString();
@@ -132,7 +132,7 @@ public class WorkflowParser {
 					if(domain.valueMatches(value, dataType))
 						builder.rawInput(name, inputName, description, value, domain.inputType(sourceTail, inputName));
 					else if((value instanceof List<?> ) && listItemsMatch((List<Object>) value, dataType, domain))
-						builder.multiInput(name, inputName, description, (List<Object>)value, dataType);
+						builder.multiInput(name,  description, inputName, (List<Object>)value, dataType);
 					else
 						throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+value+") does not match the required data type ("+dataType+").");
 				}
