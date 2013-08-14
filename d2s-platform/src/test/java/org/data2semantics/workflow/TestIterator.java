@@ -30,7 +30,7 @@ public class TestIterator {
 		
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
-		platformOrchestrator.executeParallel();
+		platformOrchestrator.execute();
 		
 		for(Module m : workflow.modules()){
 			System.out.println("\nModule " + m.name());

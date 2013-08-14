@@ -306,6 +306,7 @@ public class JavaDomain implements Domain
 		Annotation [][] paramAnnotations = m.getParameterAnnotations();
 		Class<?> [] paramTypes = m.getParameterTypes();
 		
+		System.out.println("F Method "+m + " inputs " + inputs);
 		return methodMatchesInputs(inputs, paramAnnotations, paramTypes);
 	}
 

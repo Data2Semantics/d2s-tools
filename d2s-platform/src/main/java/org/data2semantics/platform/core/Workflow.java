@@ -178,7 +178,7 @@ public final class Workflow {
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
-				throw new IllegalArgumentException("Module ("+name+") does not exist.");
+				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
 			module.addInput(name, description, value, type);
@@ -395,7 +395,7 @@ public final class Workflow {
 				if(inputs.containsKey(name))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+name+")");
 				
-				inputs.put(name, new RawInput(value, description,  name, type, this));
+				inputs.put(name, new RawInput(value,  name, description,  type, this));
 			}
 
 						
