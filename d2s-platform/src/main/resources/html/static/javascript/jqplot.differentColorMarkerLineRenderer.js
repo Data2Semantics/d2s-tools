@@ -251,7 +251,7 @@
 
             // now draw the markers
             if (this.markerRenderer.show && !fill) {
-                for (i=0; i<gd.length; i++) {
+                for (i=0; i < gd.length; i++) {
                     // Grab each color and send it to a new markerRenderer. 
                     opts.markerOptions = {
                         color: this.markerColors[i]

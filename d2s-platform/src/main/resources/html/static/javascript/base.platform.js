@@ -36,7 +36,7 @@ $(function()
 		if(defaultInput == null)
 			defaultInput = 'index';
 		
-		plot(id, data, defaultInput, 'none', 1);
+		plot(id, data, defaultInput, 'none', 1, 0);
 		
 		form = $('<form>').addClass('graph-form');
 		section.append(form);
@@ -95,6 +95,16 @@ $(function()
 		
 		form.append($('<label>').append('alpha'));
 		form.append(slider);
+		
+		slider = $('<div>').addClass('jitter-slider').slider({
+			min: 0,
+			max: 255,
+			value: 0,
+			change: graphUpdate
+		});
+		
+		form.append($('<label>').append('jitter'));
+		form.append(slider);		
 	});
 
 });
@@ -108,16 +118,18 @@ function graphUpdate()
 	
 	var inputName = section.find('.graph-form .input-selector').val();
 	var colorName = section.find('.graph-form .color-selector').val();
-	var alpha = section.find('.graph-form .alpha-slider').slider('value') / 255.0;
 	
-	plot(id, data, inputName, colorName, alpha);
+	var alpha = section.find('.graph-form .alpha-slider').slider('value') / 255.0;
+	var jitter = section.find('.graph-form .jitter-slider').slider('value') / 255.0;
+	
+	plot(id, data, inputName, colorName, alpha, jitter);
 }
 
 /**
  * 
  * @param id A jQuery DOM element to which the graph should be drawn. 
  */
-function plot(id, dataTable, inputName, colorName, alpha)
+function plot(id, dataTable, inputName, colorName, alpha, jitter)
 {	
 	container = $('#'+id);
 	
@@ -125,15 +137,13 @@ function plot(id, dataTable, inputName, colorName, alpha)
 	if(container.hasClass('activated'))
 		container.empty();
 
-	// The div surrounding everything to do with this output
+	// * The div surrounding everything to do with this output
 	var section = container.parents('.section');
 	
 	var outputName = section.find('.output-name').text().trim();
 	
 	var x = dataTable[inputName];
 	var y = dataTable['output'];
-	var z = dataTable[colorName];
-
 	
 	var data = [];
 	var colors = [];
@@ -157,7 +167,10 @@ function plot(id, dataTable, inputName, colorName, alpha)
 		});
 		
 		// * add the data 
-		data.push([x[i], y[i], tip.html()]);
+		data.push(
+				[x[i] + (Math.random()-0.5) * jitter, 
+				 y[i] + (Math.random()-0.5) * jitter, 
+				 tip.html()]);
 		
 		if(colorName == 'none')
 			colors.push(0.5);
@@ -168,6 +181,9 @@ function plot(id, dataTable, inputName, colorName, alpha)
 	colors = rescale(colors);
 	
 	colors = multiMap(colors, 0.5, 0.5, alpha);
+	
+	for(i = 0; i < colors.length; i++)
+		console.log((colorName == 'none' ? 'none' : dataTable[colorName][i]) + ' ' + colors[i] + ' ' + data[i][0]);
 			
 	$.jqplot(id, [data],
 	{
