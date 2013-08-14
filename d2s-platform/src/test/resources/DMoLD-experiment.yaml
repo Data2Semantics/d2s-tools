@@ -7,7 +7,7 @@ workflow:
     source: 'org.data2semantics.modules.RDFDataPreProcessorModule'
     inputs:
         fraction: 0.1
-        dataDir : 'E:\\Projects\\MLPlatform\\data\\data_bgs_ac_uk_ALL'
+        dataDir : 'C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL\\'
         predicateFilter1 : 'http://www.w3.org/2000/01/rdf-schema#isDefinedBy'
         objectFilter1 : 'http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit'
         predicateFilter2 : 'http://data.bgs.ac.uk/ref/Lexicon/hasTheme'
@@ -37,6 +37,6 @@ workflow:
         target:
             reference: LibLinearWrapper.target
         seed: 11
-        iteration: 3
+        iteration: 4
         depth: 2
                                 
