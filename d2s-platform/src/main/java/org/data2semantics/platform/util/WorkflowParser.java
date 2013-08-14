@@ -130,7 +130,7 @@ public class WorkflowParser {
 					String description = domain.inputDescription(sourceTail, inputName);
 					
 					if(domain.valueMatches(value, dataType))
-						builder.rawInput(name, inputName, description, value, domain.inputType(sourceTail, inputName));
+						builder.rawInput(name, description, inputName, value, domain.inputType(sourceTail, inputName));
 					else if((value instanceof List<?> ) && listItemsMatch((List<Object>) value, dataType, domain))
 						builder.multiInput(name,  description, inputName, (List<Object>)value, dataType);
 					else

@@ -85,7 +85,7 @@ public class Run
 		
     	Orchestrator orchestrator = new Orchestrator(workflow,  localEP, rp);
     	
-    	orchestrator.execute();
+    	orchestrator.executeParallel();
     	
     	for(Reporter reporter : reporters)
     		reporter.report();
