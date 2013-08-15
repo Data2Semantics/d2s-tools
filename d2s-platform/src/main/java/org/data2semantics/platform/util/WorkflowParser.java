@@ -100,6 +100,13 @@ public class WorkflowParser {
 			// get the inputs
 			Map inputMap = (Map) module.get("inputs");
 			
+			List<String> errors = new ArrayList<String>();
+			
+			if(!domain.validate(source, errors)){
+				throw new InconsistentWorkflowException(errors);
+			}
+			
+			// Process all the inputs.
 			for (Object inputKey : inputMap.keySet())
 			{
 				String inputName = inputKey.toString();

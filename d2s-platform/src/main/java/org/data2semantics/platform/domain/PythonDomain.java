@@ -83,5 +83,11 @@ public class PythonDomain implements Domain
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean validate(String source, List<String> errors) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }
