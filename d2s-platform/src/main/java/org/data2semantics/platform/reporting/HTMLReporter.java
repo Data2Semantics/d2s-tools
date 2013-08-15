@@ -24,6 +24,7 @@ import org.data2semantics.platform.core.data.ReferenceInput;
 import org.data2semantics.platform.util.FrequencyModel;
 
 import de.neuland.jade4j.Jade4J;
+import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.JadeTemplate;
 
 public class HTMLReporter implements Reporter
@@ -61,9 +62,13 @@ public class HTMLReporter implements Reporter
 	{
 		private final File temp = new File("./tmp/");
 		
+		JadeConfiguration config = new JadeConfiguration();
+		
 		public ReportWriter()
 				throws IOException
-		{
+		{	
+			config.setPrettyPrint(true);
+			
 			// * Copy the templates to a temporary directory
 			temp.mkdirs();
 			ReporterTools.copy("html/templates", temp);
@@ -153,7 +158,7 @@ public class HTMLReporter implements Reporter
 			try
 			{
 				BufferedWriter out = new BufferedWriter(new FileWriter(new File(root, "index.html")));
-				Jade4J.render(tpl, templateData, out);
+				config.renderTemplate(tpl, templateData, out);
 				out.flush();			
 			} catch (IOException e)
 			{
@@ -171,6 +176,7 @@ public class HTMLReporter implements Reporter
 			templateData.put("name", module.name());
 			templateData.put("short_name", module.name());
 			templateData.put("tags", "");
+			templateData.put("workflow_name", module.workflow().name());
 
 			templateData.put("instantiated", module.instantiated());
 			
@@ -281,13 +287,13 @@ public class HTMLReporter implements Reporter
 			// * Load the template
 			JadeTemplate tpl = getTemplate("module");
 			
-			root.mkdirs();
+			moduleDir.mkdirs();
 
 			// * Process the template
 			try
 			{
-				BufferedWriter out = new BufferedWriter(new FileWriter(new File(root, "index.html")));
-				Jade4J.render(tpl, templateData, out);
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(moduleDir, "index.html")));
+				config.renderTemplate(tpl, templateData, out);
 				out.flush();			
 			} catch (IOException e)
 			{
@@ -307,10 +313,13 @@ public class HTMLReporter implements Reporter
 			
 			// * The data we will pass to the template
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
-			
-			templateData.put("name", instance.module().name() + "("+i+")");
+
+			templateData.put("workflow_name", instance.module().workflow().name());
+			templateData.put("name", instance.module().name());
 			templateData.put("short_name", instance.module().name() + "("+i+")");
 			templateData.put("tags", "");
+			templateData.put("instance", i);
+			
 			
 			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
 			
@@ -343,13 +352,13 @@ public class HTMLReporter implements Reporter
 			// * Load the template
 			JadeTemplate tpl = getTemplate("instance");
 			
-			root.mkdirs();
+			instanceDir.mkdirs();
 
 			// * Process the template
 			try
 			{
-				BufferedWriter out = new BufferedWriter(new FileWriter(new File(root, "index.html")));
-				Jade4J.render(tpl, templateData, out);
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(instanceDir, "index.html")));
+				config.renderTemplate(tpl, templateData, out);
 				out.flush();			
 			} catch (IOException e)
 			{
@@ -360,7 +369,7 @@ public class HTMLReporter implements Reporter
 		
 		private JadeTemplate getTemplate(String string) throws IOException
 		{
-				return Jade4J.getTemplate(temp.getCanonicalPath() + File.separator + string);
+				return config.getTemplate(temp.getCanonicalPath() + File.separator + string);
 		}	
 	}
 		

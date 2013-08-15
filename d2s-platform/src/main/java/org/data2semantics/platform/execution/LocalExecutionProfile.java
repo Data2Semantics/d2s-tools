@@ -25,7 +25,7 @@ public class LocalExecutionProfile extends ExecutionProfile {
 				
 				// Instances of this module will be created
 				// Outputs from previous dependency are also provided here.
-				m.instantiate();
+				m.instantiate(); 
 
 				
 				for(ModuleInstance mi : m.instances()){

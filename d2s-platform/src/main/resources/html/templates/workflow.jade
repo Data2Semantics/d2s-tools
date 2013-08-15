@@ -7,6 +7,10 @@ html
     link(type="text/css", rel="stylesheet", media="screen", href="./css/screen.platform.css")
     link(type="text/css", rel="stylesheet", href="http://peterbloem.nl/jqplot/jquery.jqplot.min.css")
     
+    //- Google web font Titillium
+    link(href="http://fonts.googleapis.com/css?family=Titillium+Web:400,300,200,700", rel="stylesheet", type="text/css")
+    
+    
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js", type="text/javascript")
     script(src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js", type="text/javascript")
     
@@ -18,16 +22,17 @@ html
     
     title Workflow results
 
-  body(class="workflow ${tags}")
-    h1 Report: #{name}
-    h2 Workflow information
+  body#body(class="workflow ${tags}")
   
-    dl
-      dt Workflow
-      dd #{name}
+    ul.menu
+      li
+        span.inner
+          | Workflow: 
+          span #{name} 
+
+    img(class="overview", src="https://chart.googleapis.com/chart?cht=gv:dot&chs=900x300&chl=#{dotstring}")
 
     h2 Modules
-      img(src="https://chart.googleapis.com/chart?cht=gv:dot&chl=#{dotstring}")
 
     p.explanation This workflow's modules.
     table.modules
