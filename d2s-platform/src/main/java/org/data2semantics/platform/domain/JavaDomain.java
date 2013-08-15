@@ -515,13 +515,15 @@ public class JavaDomain implements Domain
 
 		for (Method m : methods)
 		{
-			if(m.getReturnType().equals(Void.TYPE)) continue;
 			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
 				if(a instanceof Out){
 					Out outAnnotation = (Out) a;
 					if(outAnnotation.name().equals(name)){
+						if(m.getReturnType().equals(Void.TYPE)){
+							throw new IllegalArgumentException("@Out method with name "+((Out)a).name()+" has a void return type.");
+						}
 						JavaType jType = new JavaType(m.getReturnType());
 						return jType;
 					}
@@ -550,7 +552,6 @@ public class JavaDomain implements Domain
 		
 		Method[] methods = theClass.getMethods();
 		for(Method m : methods){
-			if(m.getReturnType().equals(Void.TYPE)) continue;
 			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
@@ -558,6 +559,9 @@ public class JavaDomain implements Domain
 					outputNames.add(0,((Main)a).name());
 				}
 				if(a instanceof Out){
+					if(m.getReturnType().equals(Void.TYPE)){
+						throw new IllegalArgumentException("@Out method with name "+((Out)a).name()+" has a void return type.");
+					}
 					outputNames.add(((Out)a).name());
 				}
 				
