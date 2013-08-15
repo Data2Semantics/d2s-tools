@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.data2semantics.platform.annotation.Factory;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
@@ -33,10 +34,25 @@ public class LibLinearWrapperModule {
 		@Out(name="target")
 		public List<Double> target;
 		
-		@Main
-		public LibLINEARParameters getLibLInearParam(
+		
+		private ArrayList<Value> labels;
+		private ArrayList<Double> csArray;
+		
+		public LibLinearWrapperModule(ArrayList<Value> labels,
+				ArrayList<Double> csArray) {
+			this.labels = labels;
+			this.csArray = csArray;
+		}
+		
+		@Factory
+		public static LibLinearWrapperModule getLibLinearWrapperModule(
 				@In(name="labels") ArrayList<Value> labels, 
 				@In(name="cs") ArrayList<Double> csArray){
+			
+			return new LibLinearWrapperModule(labels, csArray);
+		}
+		@Main
+		public LibLINEARParameters getLibLInearParam(){
 			
 			double[] cs = new double[csArray.size()];
 			for(int i=0;i<cs.length;i++)cs[i] = csArray.get(i);

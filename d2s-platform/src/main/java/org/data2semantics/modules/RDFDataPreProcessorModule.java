@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.data2semantics.exp.RDFMLExperiment;
+import org.data2semantics.platform.annotation.Factory;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
@@ -38,14 +39,39 @@ public class RDFDataPreProcessorModule extends RDFMLExperiment {
 	@Out(name = "dataset")
 	public RDFFileDataSet dataset;
 	
-	@Main
-	public RDFFileDataSet processRDFData(@In(name="fraction") Double fraction, 
+	private Double fraction;
+	private String dataDirectory;
+	private String objectFilter;
+	private String predicateFilter1;
+	private String predicateFilter2;
+	
+	
+	public RDFDataPreProcessorModule(Double fraction, String dataDirectory,
+			String objectFilter, String predicateFilter1,
+			String predicateFilter2) {
+		super();
+		this.fraction = fraction;
+		this.dataDirectory = dataDirectory;
+		this.objectFilter = objectFilter;
+		this.predicateFilter1 = predicateFilter1;
+		this.predicateFilter2 = predicateFilter2;
+	}
+
+	@Factory
+	public static RDFDataPreProcessorModule processRDFData(
+										 @In(name="fraction") Double fraction, 
 										 @In(name="dataDir") String dataDirectory, 
 										 @In(name="objectFilter1") String objectFilter1,
 										 @In(name="predicateFilter1") String predicateFilter1,
 										 @In(name="predicateFilter2") String predicateFilter2
 			)	{
 		
+			
+			return new RDFDataPreProcessorModule(fraction, dataDirectory, objectFilter1, predicateFilter1, predicateFilter2);
+	}
+	
+	@Main
+	public RDFFileDataSet getDataSet(){
 		LOG.info("In module, creating dataset");
 		dataset=new RDFFileDataSet(dataDirectory, RDFFormat.NTRIPLES);
 		createGeoDataSet(10,fraction,123, predicateFilter2);

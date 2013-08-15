@@ -136,5 +136,15 @@ public interface Domain
 	 * @return
 	 */
 	public String outputDescription(String source, String name);
+	
+	/**
+	 * Validate source, check validity of module source within this domain
+	 * 
+	 * @param source
+	 * @param errors  If the method returns false, the errors encountered will be 
+	 * added to this list. 
+	 * @return Whether or not the source contains any errors
+	 */
+	public boolean validate(String source, List<String> errors);
 
 }

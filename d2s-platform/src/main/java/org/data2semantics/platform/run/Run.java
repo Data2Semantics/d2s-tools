@@ -75,6 +75,8 @@ public class Run
     	//    outputs and make sure that everything can be executed.  
     	    	
 		LocalExecutionProfile localEP = new LocalExecutionProfile();
+		
+		
 		ResourceSpace rp = new ResourceSpace();
 		
 		
@@ -85,7 +87,7 @@ public class Run
 		
     	Orchestrator orchestrator = new Orchestrator(workflow,  localEP, rp);
     	
-    	orchestrator.execute();
+    	orchestrator.orchestrate();
     	
     	for(Reporter reporter : reporters)
     		reporter.report();

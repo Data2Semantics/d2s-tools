@@ -60,72 +60,15 @@ public class Orchestrator {
 	/**
 	 * Perhaps this will be the main loop where all the execution happened.
 	 */
-	public void execute(){
+	public void orchestrate(){
 		
 		// Instantiate and execute modules on stages (based on rank)
 		
-		for(Module m : workflow.modules()){
-
-			if(m.ready()){
-				
-				// Instances of this module will be created
-				// Outputs from previous dependency are also provided here.
-				m.instantiate();
-
-				
-				for(ModuleInstance mi : m.instances()){
-	
-					System.out.println(" Executing instance of module  : " + mi.module().name());
-					System.out.println("    Inputs : "+mi.inputs());
-					mi.execute();
-					System.out.println("    Outputs : "+mi.outputs());
-					
-				}
-			} else 
-				throw new IllegalStateException("Module not ready: " + m.name());
-		}
-		
+		executionProfile.executeModules(workflow.modules());
 		
 		logModuleStatuses();
 	}
-	
-	public void executeParallel(){
-		 ExecutorService executor = Executors.newFixedThreadPool(10);
-		 
-		for(Module m : workflow.modules()){
 
-			if(m.ready()){
-				
-				// Instances of this module will be created
-				// Outputs from previous dependency are also provided here.
-				m.instantiate();
-
-				List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
-				
-				for(ModuleInstance mi : m.instances()){
-	
-					Callable<Boolean> moduleInstanceWorker = new ModuleInstanceWorker(mi);
-					results.add(executor.submit(moduleInstanceWorker));
-				}
-				
-				//Make sure all the instance finished before continue to next batch of modules.
-				for(Future<Boolean> res : results ){
-					try {
-						res.get();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				
-			} else 
-				throw new IllegalStateException("Module not ready: " + m.name());
-		}		
-		
-	}
 	
 	public void logModuleStatuses(){
 		StringBuffer statuses = new StringBuffer();
@@ -142,5 +85,8 @@ public class Orchestrator {
 	public void writeOutput(String output_directory) {
 		resourceSpace.generateReport(new File(output_directory));	
 	}
-	
+
+	public void setExecutionProfile(ExecutionProfile profile){
+		executionProfile = profile;
+	}
 }
