@@ -22,7 +22,7 @@ public class TestWorkflowResourceSpace {
 		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
 		Orchestrator platformOrchestrator = new Orchestrator(workflowContainer, localExecutionProfile, resourceSpace);
 		
-		platformOrchestrator.execute();
+		platformOrchestrator.orchestrate();
 		
 		//workflowContainer.dumpIntermediateResults();
 

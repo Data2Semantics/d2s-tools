@@ -22,7 +22,7 @@ public class TestKernelExperiment {
 		
 		Orchestrator platformOrchestrator = new Orchestrator(workflowContainer, localExecutionProfile, resourceSpace);
 		
-		platformOrchestrator.execute();
+		platformOrchestrator.orchestrate();
 		
 		//workflowContainer.dumpIntermediateResults();
 		
