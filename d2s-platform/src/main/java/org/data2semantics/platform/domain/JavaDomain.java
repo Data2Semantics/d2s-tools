@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -305,8 +306,7 @@ public class JavaDomain implements Domain
 		if(!hasFactoryAnnotation(m)) return false;
 		Annotation [][] paramAnnotations = m.getParameterAnnotations();
 		Class<?> [] paramTypes = m.getParameterTypes();
-		
-		System.out.println("F Method "+m + " inputs " + inputs);
+
 		return methodMatchesInputs(inputs, paramAnnotations, paramTypes);
 	}
 
@@ -516,13 +516,15 @@ public class JavaDomain implements Domain
 
 		for (Method m : methods)
 		{
-			if(m.getReturnType().equals(Void.TYPE)) continue;
 			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
 				if(a instanceof Out){
 					Out outAnnotation = (Out) a;
 					if(outAnnotation.name().equals(name)){
+						if(m.getReturnType().equals(Void.TYPE)){
+							throw new IllegalArgumentException("@Out method with name "+((Out)a).name()+" has a void return type.");
+						}
 						JavaType jType = new JavaType(m.getReturnType());
 						return jType;
 					}
@@ -551,7 +553,6 @@ public class JavaDomain implements Domain
 		
 		Method[] methods = theClass.getMethods();
 		for(Method m : methods){
-			if(m.getReturnType().equals(Void.TYPE)) continue;
 			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
@@ -559,6 +560,9 @@ public class JavaDomain implements Domain
 					outputNames.add(0,((Main)a).name());
 				}
 				if(a instanceof Out){
+					if(m.getReturnType().equals(Void.TYPE)){
+						throw new IllegalArgumentException("@Out method with name "+((Out)a).name()+" has a void return type.");
+					}
 					outputNames.add(((Out)a).name());
 				}
 				
@@ -682,6 +686,30 @@ public class JavaDomain implements Domain
 		
 		
 		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+".");
+	}
+
+	@Override
+	public boolean validate(String source, List<String> errors) {
+		Class<?> theClass = loadClass(source);
+		Method[] methods = theClass.getDeclaredMethods();
+		
+		
+		// Check if @Out, @Factory, @Main annotations are only used in public methods.
+		for(Method m : methods){
+			
+			//We ignore all public methods, since they will have no problem with respect to our annotations
+			if((m.getModifiers() & Modifier.PUBLIC) != 0) continue;
+			
+			Annotation[] annotations = m.getAnnotations();
+			for(Annotation a : annotations){
+				if(a instanceof Out || a instanceof Main || a instanceof Factory){
+					errors.add( "Method " +m.getName()+ " from " +source+ " is not public while it is annotated as "+a);
+				}
+			}
+			
+		}
+		
+		return errors.size()==0;
 	}
 
 

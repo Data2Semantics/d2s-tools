@@ -1,6 +1,10 @@
 html {
 	margin: 0;
 	padding: 1px 0 0;
+	
+	
+	font-family: "Titillium web", sans-serif;
+	
 	background: white;
 }
 
@@ -9,9 +13,7 @@ body {
 	padding: 7px 30px 30px 30px;
 	
 	width: 860px;
-	background: #f0f0f0;
-	
-	border-radius: 30px;
+	background: white;
 }
 
 body.narrow {
@@ -23,21 +25,9 @@ body.narrow {
 }
 
 .chart-container .plot{
-	width: 800px;
-	height: 200px;
+	height: 300px;
 	position: relative;
 	padding-left: 40px;
-}
-
-.narrow .chart-container .plot {
-	width: 500px;
-}
-
-.chart-container.scatter .plot,
-.chart-container.scatter .log-plot {
-	width: 500px;
-	height: 500px;
-	padding: 0;
 }
 
 .hidden {
@@ -51,6 +41,88 @@ body.narrow {
 .log .log-filter-message {
 	display: inline-block;
 	font-style: italic;
-	float: right;
+	float: right;	
+}
+
+.chart-container {
+  border-bottom: solid 1px #0d1425;
+  margin-bottom: 30px;
+}
+
+.graph-form {
+  max-width: 800px;
+
+  margin: 20px auto 5px auto;
+  padding: 15px 0 15px 0;
+}
+
+.graph-form .field
+{
+	clear:left;
+	height: 40px;
+}
+
+.graph-form .field label
+{
+	min-width: 150px;
+	padding-right: 10px;
+	float: left;
+}
+
+.graph-form .right .field  label
+{
+	min-width: 60px;
+}
+
+.graph-form .field select {
+	float: left;
 	
+}
+
+.graph-form .field .ui-slider {
+	width: 200px;
+	float: left;
+	position: relative;
+	top: 5px;
+}
+
+
+a {
+  display: inline-block;
+  text-decoration: none;
+  border-bottom: none;
+  padding-bottom: 2px;
+  color: #0078ff
+}
+
+a:hover {
+  border-bottom: dotted #0078ff 2px;
+  padding-bottom: 0px;
+}
+
+.ui-tabs-nav a {
+  border: none;
+  padding: 0;
+}
+
+th {
+  text-align: left;
+}
+
+
+img {
+  max-width: 100%;
+}
+
+img.overview {
+  display: block;
+  margin: 30px;
+}
+
+.clear{
+	clear: left;
+}
+.left, .right {
+	width: 50%;
+	float: left;
 }

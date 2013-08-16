@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
@@ -22,25 +23,21 @@ import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.ReferenceInput;
 import org.data2semantics.platform.util.FrequencyModel;
 
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import de.neuland.jade4j.Jade4J;
+import de.neuland.jade4j.JadeConfiguration;
+import de.neuland.jade4j.template.JadeTemplate;
 
 public class HTMLReporter implements Reporter
-{
-	protected static Configuration fmConfig = new Configuration();
-	
+{		
 	private Workflow workflow;
 	private File root;
+	
+	
 	
 	public HTMLReporter(Workflow workflow, File root)
 	{
 		this.workflow = workflow;
 		this.root = root;
-		
-		fmConfig.setClassForTemplateLoading(getClass(), "/html/templates");
-		fmConfig.setObjectWrapper(new DefaultObjectWrapper());  
 	}
 
 	@Override
@@ -63,9 +60,19 @@ public class HTMLReporter implements Reporter
 	 */
 	private class ReportWriter
 	{
+		private final File temp = new File("./tmp/");
+		
+		JadeConfiguration config = new JadeConfiguration();
+		
 		public ReportWriter()
 				throws IOException
-		{
+		{	
+			config.setPrettyPrint(true);
+			
+			// * Copy the templates to a temporary directory
+			temp.mkdirs();
+			ReporterTools.copy("html/templates", temp);
+						
 			for(Module module : workflow.modules())
 			{
 				// * Output module information
@@ -86,11 +93,12 @@ public class HTMLReporter implements Reporter
 				}
 				
 				moduleOutput(module, moduleDir);
-					
 			}
 			
 			// * Output the workflow information
 			workflowOutput(workflow, root);
+			
+			FileUtils.deleteDirectory(temp);
 		}
 
 		private String produceDotString(){
@@ -141,19 +149,8 @@ public class HTMLReporter implements Reporter
 			
 			templateData.put("modules", modules);
 			
-			// TODO Image of workflow
-			
 			// * Load the template
-			Template tpl = null;
-			try
-			{
-				tpl = fmConfig.getTemplate("workflow.ftl");
-			} catch (IOException e)
-			{
-				// * Non fatal error (results may be recoverable from the log file). Log and continue
-				Global.log().warning("Failed to load module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
-				return;
-			}
+			JadeTemplate tpl = getTemplate("workflow");
 			
 			root.mkdirs();
 
@@ -161,18 +158,13 @@ public class HTMLReporter implements Reporter
 			try
 			{
 				BufferedWriter out = new BufferedWriter(new FileWriter(new File(root, "index.html")));
-				tpl.process(templateData, out);
+				config.renderTemplate(tpl, templateData, out);
 				out.flush();			
-				
 			} catch (IOException e)
 			{
-				Global.log().warning("Failed to write to module directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				Global.log().warning("Failed to write to workflow directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
 				return;
-			} catch (TemplateException e)
-			{
-				Global.log().warning("Failed to process module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
-				return;			
-			}					
+			} 			
 		}
 
 		private void moduleOutput(Module module, File moduleDir)
@@ -184,6 +176,7 @@ public class HTMLReporter implements Reporter
 			templateData.put("name", module.name());
 			templateData.put("short_name", module.name());
 			templateData.put("tags", "");
+			templateData.put("workflow_name", module.workflow().name());
 
 			templateData.put("instantiated", module.instantiated());
 			
@@ -292,35 +285,21 @@ public class HTMLReporter implements Reporter
 			templateData.put("inputs", inputs);
 			
 			// * Load the template
-			Template tpl = null;
-			try
-			{
-				tpl = fmConfig.getTemplate("module.ftl");
-			} catch (IOException e)
-			{
-				// * Non fatal error (results may be recoverable from the log file). Log and continue
-				Global.log().warning("Failed to load module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
-				return;
-			}
+			JadeTemplate tpl = getTemplate("module");
 			
 			moduleDir.mkdirs();
 
 			// * Process the template
 			try
 			{
-				BufferedWriter out = new BufferedWriter( new FileWriter(new File(moduleDir, "index.html")));
-				tpl.process(templateData, out);
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(moduleDir, "index.html")));
+				config.renderTemplate(tpl, templateData, out);
 				out.flush();			
-				
 			} catch (IOException e)
 			{
-				Global.log().warning("Failed to write to module directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				Global.log().warning("Failed to write to workflow directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
 				return;
-			} catch (TemplateException e)
-			{
-				Global.log().warning("Failed to process module template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
-				return;			
-			}			
+			} 				
 		}
 
 		/**
@@ -334,10 +313,13 @@ public class HTMLReporter implements Reporter
 			
 			// * The data we will pass to the template
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
-			
-			templateData.put("name", instance.module().name() + "("+i+")");
+
+			templateData.put("workflow_name", instance.module().workflow().name());
+			templateData.put("name", instance.module().name());
 			templateData.put("short_name", instance.module().name() + "("+i+")");
 			templateData.put("tags", "");
+			templateData.put("instance", i);
+			
 			
 			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
 			
@@ -368,39 +350,29 @@ public class HTMLReporter implements Reporter
 			templateData.put("outputs", outputs);
 		
 			// * Load the template
-			Template tpl = null;
-			try
-			{
-				tpl = fmConfig.getTemplate("instance.ftl");
-			} catch (IOException e)
-			{
-				// * Non fatal error (results may be recoverable from the log file). Log and continue
-				Global.log().warning("Failed to load instance template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
-				return;
-			}
+			JadeTemplate tpl = getTemplate("instance");
 			
 			instanceDir.mkdirs();
 
 			// * Process the template
 			try
 			{
-				BufferedWriter out = new BufferedWriter( new FileWriter(new File(instanceDir, "index.html")));
-				tpl.process(templateData, out);
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(instanceDir, "index.html")));
+				config.renderTemplate(tpl, templateData, out);
 				out.flush();			
-				
 			} catch (IOException e)
 			{
-				Global.log().warning("Failed to write to instance directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
+				Global.log().warning("Failed to write to workflow directory. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
 				return;
-			} catch (TemplateException e)
-			{
-				Global.log().warning("Failed to process instance template. Continuing without writing report. IOException: " + e.getMessage() + " -  " + Arrays.toString(e.getStackTrace()));
-				return;			
-			}
+			} 			
 		}
 		
+		private JadeTemplate getTemplate(String string) throws IOException
+		{
+				return config.getTemplate(temp.getCanonicalPath() + File.separator + string);
+		}	
 	}
-	
+		
 	/**
 	 * Whether all result values represent numbers
 	 * @return

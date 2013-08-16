@@ -9,8 +9,10 @@ import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.execution.ExecutionProfile;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
+import org.data2semantics.platform.execution.ThreadedLocalExecutionProfile;
 import org.data2semantics.platform.reporting.HTMLReporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.PlatformUtil;
@@ -26,11 +28,11 @@ public class TestIterator {
 		
 		ResourceSpace resourceSpace = new ResourceSpace();
 		
-		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		ExecutionProfile localExecutionProfile = new ThreadedLocalExecutionProfile();
 		
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
-		platformOrchestrator.execute();
+		platformOrchestrator.orchestrate();
 		
 		for(Module m : workflow.modules()){
 			System.out.println("\nModule " + m.name());
@@ -56,11 +58,11 @@ public class TestIterator {
 		
 		ResourceSpace resourceSpace = new ResourceSpace();
 		
-		LocalExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		ExecutionProfile localExecutionProfile = new ThreadedLocalExecutionProfile();
 		
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
-		platformOrchestrator.execute();
+		platformOrchestrator.orchestrate();
 		
 		for(ModuleInstance mi :  workflow.modules().get(0).instances())
 		for(InstanceOutput io : mi.outputs())
@@ -86,7 +88,7 @@ public class TestIterator {
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
 		
-		platformOrchestrator.execute();
+		platformOrchestrator.orchestrate();
 		
 		for(ModuleInstance mi :  workflow.modules().get(0).instances())
 		for(InstanceOutput io : mi.outputs())
@@ -112,7 +114,7 @@ public class TestIterator {
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
 		
-		platformOrchestrator.execute();
+		platformOrchestrator.orchestrate();
 		
 		System.out.println(workflow.modules().get(0).instances().get(0).outputs().get(0).value());
 		

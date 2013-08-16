@@ -21,11 +21,6 @@ import org.data2semantics.platform.core.data.Output;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-
 public class CSVReporter implements Reporter
 {
 	private Workflow workflow;

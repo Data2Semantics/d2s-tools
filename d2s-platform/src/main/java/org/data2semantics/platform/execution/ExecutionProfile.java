@@ -92,4 +92,6 @@ abstract public class ExecutionProfile {
 			return success;
 		}
 
+
+		public abstract void executeModules(List<Module> modules);
 }

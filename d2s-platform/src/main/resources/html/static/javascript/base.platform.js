@@ -41,11 +41,18 @@ $(function()
 		form = $('<form>').addClass('graph-form');
 		section.append(form);
 		
+		left = $('<div>').addClass('left');
+		right = $('<div>').addClass('right');
+		form.append(left);
+		form.append(right);
+		
 		// * selector for x axis
-		form.append($('<label>').append('horizontal axis'));
+		field = $('<div>').addClass('field');
+		left.append(field);
+		field.append($('<label>').append('horizontal axis'));
 		
 		inputSelector = $('<select>').addClass('input-selector');
-		form.append(inputSelector);
+		field.append(inputSelector);
 		
 		$.each(data, function(name, list) 
 		{
@@ -62,10 +69,12 @@ $(function()
 		inputSelector.change(graphUpdate);
 
 		// * selector for color axis
-		form.append($('<label>').append('color'));
+		field = $('<div>').addClass('field');
+		left.append(field);
+		field.append($('<label>').append('color'));
 		
 		inputSelector = $('<select>').addClass('color-selector');
-		form.append(inputSelector);
+		field.append(inputSelector);
 		
 		$.each(data, function(name, list) 
 		{
@@ -83,9 +92,9 @@ $(function()
 		option.attr('selected', 'selected');
 		option.append('none');
 		
-		
 		inputSelector.change(graphUpdate);
 		
+		// * Slider for alpha
 		slider = $('<div>').addClass('alpha-slider').slider({
 			min: 0,
 			max: 255,
@@ -93,9 +102,14 @@ $(function()
 			change: graphUpdate
 		});
 		
-		form.append($('<label>').append('alpha'));
-		form.append(slider);
+		field = $('<div>').addClass('field');
+		right.append(field);
 		
+		field.append($('<label>').append('alpha'));
+		field.append(slider);
+		
+		
+		// * Slider for jitter
 		slider = $('<div>').addClass('jitter-slider').slider({
 			min: 0,
 			max: 255,
@@ -103,14 +117,21 @@ $(function()
 			change: graphUpdate
 		});
 		
-		form.append($('<label>').append('jitter'));
-		form.append(slider);		
+		field = $('<div>').addClass('field');
+		right.append(field);
+		field.append($('<label>').append('jitter'));
+		field.append(slider);
+		
+		form.append($('<div>').addClass('clear'));
 	});
 
+	$(window).resize(function(){
+		$('.graph-form').each(graphUpdate);
+	});
 });
 
 function graphUpdate()
-{
+{	
 	var section = $(this).parents('.graph');
 	
 	var id = section.find('.jqplot-target').attr('id'); 

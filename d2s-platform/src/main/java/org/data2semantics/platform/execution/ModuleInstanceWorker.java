@@ -13,8 +13,12 @@ public class ModuleInstanceWorker implements Callable<Boolean> {
 
 	@Override
 	public Boolean call() throws Exception {
-		System.out.println("Executing " + mi.module().name());
-		return mi.execute();
+		System.out.println("Starting instance " + mi.module().name() + " thread "+Thread.currentThread().getName());
+		Boolean result= mi.execute();
+		System.out.println("Finish instance " + mi.module().name() + " thread "+Thread.currentThread().getName());
+		
+		
+		return result;
 	}
 
 	

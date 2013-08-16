@@ -3,6 +3,78 @@
  *
  */
  
-body {
-	font-family: Georgia, serif;
+html {
+	border-top: solid 60px #0d1425;
+	
+	background: #f1f1f1;
 }
+
+body {
+	border-top: solid 60px #0d1425;
+
+	margin:-61px auto 0 auto;
+	padding: 1px 30px 30px 30px;
+	
+	min-width: 860px;
+	max-width: 1200px;
+	width: auto;
+	
+	background: white;
+}
+
+ul.menu {
+  display: block;
+  margin: -61px 0 0 0;
+  padding: 0;
+  height: 60px;
+}
+
+ul.menu li {
+  display: block;
+  float: left;
+  
+  margin: 0 0 0 0;
+  padding: 0;
+ 
+  font-size: 24px;
+  color: #0078ff; 
+
+  background: white;
+  height : 100%;
+}
+
+ul.menu li .inner {
+  padding: 10px 20px 0 20px;
+  
+  display: block;
+  margin: 0;
+  
+  height: 50px;
+  width: 100%;  
+  
+}
+
+ul.menu li a.inner {
+  background: #0d1425;
+  border: none; 
+}
+
+ul.menu li a:hover {
+  border: none;
+}
+
+ul.menu li .inner span {
+  color: #0d1425;
+}
+
+ul.menu li a.inner span {
+  color: white;
+}
+
+.menu a:visited, 
+.menu a:hover, 
+.menu a:link,
+.menu a:active
+{
+  color: #0078ff;
+} 
