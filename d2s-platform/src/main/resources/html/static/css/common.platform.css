@@ -126,3 +126,21 @@ img.overview {
 	width: 50%;
 	float: left;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 15px 0 15px 0;
+  padding: 0 0 0 0;
+}
+
+h1 {
+  font-size: 20px;
+  line-height: 30px;
+}
+
+h2 {
+  border-bottom: solid 1px black;
+}
+
+.output {
+	margin: 0 0 30px 0; 
+}

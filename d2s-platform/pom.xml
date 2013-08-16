@@ -32,11 +32,7 @@
 	    <version>0.3.12</version>
 	  </dependency>
 
-	<dependency>
-        	<groupId>Data2Semantics</groupId>
-        	<artifactId>kernelexperiments</artifactId>
-        	<version>0.0.1-SNAPSHOT</version>
-    	</dependency>
+
 	<dependency>
 		<groupId>args4j</groupId>
 		<artifactId>args4j</artifactId>

@@ -25,6 +25,7 @@ import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.core.data.JavaType;
 import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.exception.InconsistentWorkflowException;
 import org.data2semantics.platform.exception.WorkflowCodeMatchException;
 import org.data2semantics.platform.util.PlatformUtil;
 
@@ -690,6 +691,7 @@ public class JavaDomain implements Domain
 
 	@Override
 	public boolean validate(String source, List<String> errors) {
+		
 		Class<?> theClass = loadClass(source);
 		Method[] methods = theClass.getDeclaredMethods();
 		
@@ -709,7 +711,85 @@ public class JavaDomain implements Domain
 			
 		}
 		
+		// Check if there are more than one input type, whether their type are consistent.
+		
+		checkInputConsistency(source, errors);
+		
 		return errors.size()==0;
+	}
+
+	private void checkInputConsistency(String source, List<String> errors) {
+		
+		Class<?> theClass = loadClass(source);
+		
+		Method[] methods = theClass.getMethods();
+		Field[] fields = theClass.getFields();
+		Constructor<?>[] constructors = theClass.getConstructors();
+		
+		Map<String, JavaType> inputNameToTypeMap = new LinkedHashMap<String, JavaType>();
+		
+		for(Field f : fields){
+			In inputAnnotation = getInputAnnotations(f);
+			if(inputAnnotation != null){
+				JavaType jType = new JavaType(f.getType());
+				if(inputNameToTypeMap.containsKey(inputAnnotation.name())){
+					JavaType storedType = inputNameToTypeMap.get(inputAnnotation.name());
+					if(!storedType.equals(jType)){
+						errors.add("Inputs named as : '"+inputAnnotation.name() + "' are declared using  different types : " + storedType.clazz()+ " != "+jType.clazz());
+					}
+				} else {
+					inputNameToTypeMap.put(inputAnnotation.name(), jType);
+				}
+			}
+		}
+
+		// Case where input are defined as parameter of constructors.
+		for(Constructor c : constructors){
+			Annotation [][] parameterAnnotations = c.getParameterAnnotations();
+			for(int i =0; i< parameterAnnotations.length;i++){
+				for(int j=0;j< parameterAnnotations[i].length;j++){
+					if (parameterAnnotations[i][j] instanceof In)
+					{ In in = (In)parameterAnnotations[i][j];
+					  Class<?>[] paramTypes = c.getParameterTypes();
+					  JavaType jType = new JavaType(paramTypes[i]);
+						if(inputNameToTypeMap.containsKey(in.name())){
+							JavaType storedType = inputNameToTypeMap.get(in.name());
+							if(!storedType.equals(jType)){
+								errors.add("Inputs named as : '"+in.name() + "' are declared using  different types : " + storedType.clazz()+ " != "+jType.clazz());
+							}
+						} else {
+							inputNameToTypeMap.put(in.name(), jType);
+						}
+					}
+				}
+			}
+		}
+		
+		// Case where inputs are defined as parameter of input factory method.
+		for(Method m : methods){
+			if(hasFactoryAnnotation(m)){
+				Annotation [][] parameterAnnotations = m.getParameterAnnotations();
+				for(int i =0; i< parameterAnnotations.length;i++){
+					for(int j=0;j< parameterAnnotations[i].length;j++){
+						if (parameterAnnotations[i][j] instanceof In)
+						{ In in = (In)parameterAnnotations[i][j];
+						  Class <?>[] paramTypes = m.getParameterTypes();
+						  JavaType jType = new JavaType(paramTypes[i]);
+						  if(inputNameToTypeMap.containsKey(in.name())){
+								JavaType storedType = inputNameToTypeMap.get(in.name());
+								if(!storedType.equals(jType)){
+									errors.add("Inputs named as : '"+in.name() + "' are declared using  different types : " + storedType.clazz()+ " != "+jType.clazz());
+								}
+							} else {
+								inputNameToTypeMap.put(in.name(), jType);
+						      }	  
+						}
+					}
+				}	
+			}
+			
+		}
+		
 	}
 
 
