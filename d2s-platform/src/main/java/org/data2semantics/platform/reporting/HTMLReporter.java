@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -369,7 +370,12 @@ public class HTMLReporter implements Reporter
 		
 		private JadeTemplate getTemplate(String string) throws IOException
 		{
-				return config.getTemplate(temp.getCanonicalPath() + File.separator + string);
+			String raw = temp.getAbsolutePath() + File.separator + string;
+			
+			// String uri = URLEncoder.encode(raw, "UTF-8");
+			// String uri = raw.replace(" ", "%20");
+			
+			return config.getTemplate(raw);
 		}	
 	}
 		

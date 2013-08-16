@@ -201,7 +201,7 @@ function plot(id, dataTable, inputName, colorName, alpha, jitter)
 	
 	colors = rescale(colors);
 	
-	colors = multiMap(colors, 0.5, 0.5, alpha);
+	colors = multiMap(colors, 1.0, 0.5, alpha);
 	
 	for(i = 0; i < colors.length; i++)
 		console.log((colorName == 'none' ? 'none' : dataTable[colorName][i]) + ' ' + colors[i] + ' ' + data[i][0]);
@@ -383,7 +383,7 @@ function rescale(input)
 	
 	$.each(input, function(i, value)
 	{
-		output.push(range == 0.0 ? 0.5 : (value - min) / range);
+		output.push(range == 0.0 ? 212.0/255.0 : (value - min) / range);
 	})
 	
 	return output;
@@ -408,5 +408,5 @@ function map(input, saturation, lightness, alpha)
 		alpha: alpha
 	})
 	
-	return color.toRgbaString();
+	return color.toHslaString();
 }
