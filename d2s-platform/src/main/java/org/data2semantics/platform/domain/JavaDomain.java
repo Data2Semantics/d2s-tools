@@ -665,7 +665,7 @@ public class JavaDomain implements Domain
 
 		for (Method m : methods)
 		{
-			if(m.getReturnType().equals(Void.TYPE)) continue;
+			//if(m.getReturnType().equals(Void.TYPE)) continue;
 			
 			Annotation[] annotations = m.getAnnotations();
 			for(Annotation a : annotations){
