@@ -31,4 +31,10 @@ public class JavaType implements DataType
 	public String toString(){
 		return clazz().toString();
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+	
+		return javaClass.equals(((JavaType)obj).clazz());
+	}
 }
