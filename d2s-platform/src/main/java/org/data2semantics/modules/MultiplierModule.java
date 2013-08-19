@@ -18,7 +18,7 @@ public class MultiplierModule {
 	@Main
 	public int result(){
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(0);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

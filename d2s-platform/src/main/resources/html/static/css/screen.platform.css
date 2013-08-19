@@ -112,28 +112,77 @@ ul.menu li a.inner span {
     border-top-left-radius: 0px;
 }
 
-.ui-widget-header {
+.ui-tabs-nav {
     background: none repeat-x scroll 50% 50% #0d1425;
-    border: none
+    border: none;
     color: white;
-    font-weight: light;
+    font-weight: 200;
 }
 
 .ui-tabs {
     padding: 0;
     position: relative;
+    border: none;
 }
 
-.ui-state-active a, 
-.ui-state-active a:link, 
-.ui-state-active a:visited {
+.ui-tabs-nav .ui-state-active a, 
+.ui-tabs-nav .ui-state-active a:link, 
+.ui-tabs-nav .ui-state-active a:visited {
     color: #0078ff;
     text-decoration: none;
 }
 
-.ui-state-default a, 
-.ui-state-default a:link, 
-.ui-state-default a:visited {
-    color: #0d14;
+#body .ui-tabs li.ui-state-active {
+	background: white;
+}
+
+#body .ui-tabs-nav .ui-state-active a, 
+#body .ui-tabs-nav .ui-state-active a:link, 
+#body .ui-tabs-nav .ui-state-active a:visited {
+    color: #0d1425;
     text-decoration: none;
 }
+
+.ui-tabs .ui-tabs-nav .ui-state-default, 
+.ui-tabs .ui-tabs-nav .ui-widget-content,
+.ui-tabs .ui-tabs-nav .ui-state-default, 
+.ui-tabs .ui-tabs-nav .ui-state-hover,
+.ui-tabs .ui-tabs-nav .ui-widget-header .ui-state-default {
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: 200;
+}
+
+.ui-tabs .ui-tabs-nav .ui-state-default a, 
+.ui-tabs .ui-tabs-nav .ui-widget-content a,
+.ui-tabs .ui-tabs-nav .ui-state-default a, 
+.ui-tabs .ui-tabs-nav .ui-state-hover a,
+.ui-tabs .ui-tabs-nav .ui-widget-header .ui-state-default a {
+    color: white;
+    font-weight: 300;
+}
+
+.ui-widget {
+    font-family: "Titillium Web",sans-serif;
+}
+
+#body .ui-slider-handle 
+{
+	width: 1.2em;
+	height:1.2em;
+	border-radius: 0.6em;
+	background-image: none;
+	background-color: #0d1425;
+	border: none;
+	padding: 0;
+	
+}
+
+#body .ui-slider-horizontal 
+{
+	height: 3px;
+	border: none;
+	background: #0078ff;
+}
+
