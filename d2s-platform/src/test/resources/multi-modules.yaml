@@ -48,7 +48,7 @@ workflow:
                 
              
     - module:
-        name: Multiplier1
+        name: Multiplier3
         source: org.data2semantics.modules.MultiplierModule
         inputs:
             first: 
