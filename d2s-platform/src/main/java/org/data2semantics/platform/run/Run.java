@@ -8,8 +8,10 @@ import java.util.List;
 
 import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.execution.ExecutionProfile;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
+import org.data2semantics.platform.execution.ThreadedLocalExecutionProfile;
 import org.data2semantics.platform.reporting.CSVReporter;
 import org.data2semantics.platform.reporting.HTMLReporter;
 import org.data2semantics.platform.reporting.Reporter;
@@ -24,6 +26,10 @@ public class Run
 {	
 	private static WorkflowParser wfParser = new WorkflowParser();
 	
+	enum ExecutionProfiles {LOCAL, THREADED, HADOOP}
+	@Option(name="--profile", usage="Execution profile to be used LOCAL THREADED HADOOP (default: LOCAL) ")
+	private static ExecutionProfiles execProfile = ExecutionProfiles.LOCAL;
+	  
     @Option(name="--classpath", usage="A directory containing source code and resources to be loaded. Each source file should be in a directory that matches the name of its controller (ie. java files should be in a directory called 'java'). (default: none)")
 	private static String classPath = "";
 
@@ -74,8 +80,18 @@ public class Run
     	// -- The workflow object will check the consistency of the inputs and 
     	//    outputs and make sure that everything can be executed.  
     	    	
-		LocalExecutionProfile localEP = new LocalExecutionProfile();
+		ExecutionProfile executionProfile;
 		
+		switch(execProfile){
+			case LOCAL:
+				executionProfile = new LocalExecutionProfile();
+				break;
+			case THREADED:
+				executionProfile = new ThreadedLocalExecutionProfile();
+				break;
+			default:
+				executionProfile = new LocalExecutionProfile();
+		}
 		
 		ResourceSpace rp = new ResourceSpace();
 		
@@ -85,7 +101,7 @@ public class Run
 					new CSVReporter(workflow, new File(output, "csv/"))
 				);
 		
-    	Orchestrator orchestrator = new Orchestrator(workflow,  localEP, rp);
+    	Orchestrator orchestrator = new Orchestrator(workflow,  executionProfile, rp);
     	
     	orchestrator.orchestrate();
     	
