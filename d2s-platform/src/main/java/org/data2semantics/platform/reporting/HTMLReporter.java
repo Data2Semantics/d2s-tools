@@ -23,6 +23,7 @@ import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.ReferenceInput;
 import org.data2semantics.platform.util.FrequencyModel;
+import org.data2semantics.platform.util.Functions;
 
 import de.neuland.jade4j.Jade4J;
 import de.neuland.jade4j.JadeConfiguration;
@@ -343,7 +344,7 @@ public class HTMLReporter implements Reporter
 				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
 				outputMap.put("name", output.name());
 				outputMap.put("description", output.description());
-				outputMap.put("value", output.value().toString());
+				outputMap.put("value", Functions.toString(output.value().toString()));
 				
 				outputs.add(outputMap);
 			}
