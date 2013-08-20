@@ -1,0 +1,42 @@
+workflow:
+  name: F scores
+  description: This workflow shows basic sweeping behavior
+  
+  modules: 
+    - module:
+        name: data
+        source: ...
+        # Loads a dataset from a file
+        
+        inputs:
+          file: ['data1.csv', 'data2.csv']
+        # outputs: data
+    
+    - module:
+        name: experiment
+        source: ...
+        # Performs an experiment on a dataset, and calculates two performance
+        # measures: precision and recall.
+        
+        inputs:
+          data: data.data
+        # outputs: precision, recall 
+    
+    - module:
+        name: F score
+        # Combines a precision and a recall value into a combined performance
+        # measure
+        
+        inputs:
+          precision: experiment.precision
+          recall: experiment.recall
+          weighting: 0.5
+        
+        # outputs: f score     
+      
+# This workflow produces two instances of the F score module. The sweep on line
+# 9 causes an execution branch. When the F score module is instantiated it has 
+# two inputs from modules with multiple instances. It matches up the inputs 
+# belonging to the same branches. 
+        
+        

@@ -1,0 +1,22 @@
+workflow:
+  name: Entropy of sequences
+  description: | 
+  	This workflow shows a corner case of sweeping over a dynamically
+  	generated list of lists. This forces the branches of the sweep to be created
+  	during module instantiation.
+  	
+  modules:
+    - module:
+        name: sequences
+        description: Loads a text file and generates a sample of random n-grams
+      
+      inputs:
+        data: 'alice in wonderland.txt'
+        sample size: 6
+        
+      #output: n-grams - a <list<List<String>> of 6 n-grams
+      
+  	- module:
+  	    name: occurrences
+  	    
+      
