@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -15,7 +16,7 @@ import org.openrdf.rio.RDFFormat;
 
 public class RDFWLSubTreeKernelTest {
 
-	@Test
+	@Ignore
 	public void test() {
 		// Read in data set
 		RDFFileDataSet dataset = new RDFFileDataSet("src/test/resources/aifb-fixed_complete.n3", RDFFormat.N3);

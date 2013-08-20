@@ -5,19 +5,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>d2stools</name>
   <description>Some generic utilities for the D2S project</description>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+
   <dependencies>
  	<dependency>
 <groupId>org.openrdf.sesame</groupId><artifactId>sesame-runtime</artifactId><version>2.7.1</version>

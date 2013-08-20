@@ -9,7 +9,6 @@ public class Edge<Label> implements Comparable<Edge<Label>> {
 
 	
 	
-	@Override
 	public int compareTo(Edge<Label> edge2) {
 		if (this.label instanceof Comparable) {
 			return ((Comparable) this.label).compareTo(edge2.label);
