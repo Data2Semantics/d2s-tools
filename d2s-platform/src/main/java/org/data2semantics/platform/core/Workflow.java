@@ -123,6 +123,8 @@ public final class Workflow {
 		// * Cached references (stored until all modules have been created).
 		private List<List<Object>> references = new ArrayList<List<Object>>();
 		
+		private List<List<Object>> multiReferences = new ArrayList<List<Object>>();
+		
 		private Workflow workflow;
 		
 		private WorkflowBuilder() {
@@ -194,7 +196,7 @@ public final class Workflow {
 		 * @param value
 		 * @return
 		 */
-		public WorkflowBuilder multiInput(String moduleName, String description, String name, List<Object> value, DataType type)
+		public WorkflowBuilder multiInput(String moduleName, String description, String name, List<?> value, DataType type)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
@@ -205,6 +207,19 @@ public final class Workflow {
 
 			return this;
 		}
+		
+
+		public WorkflowBuilder multiInputRef(String moduleName, String description, String inputName, List<?> value, DataType type)
+		{
+			check();
+			if(! workflow.modules.containsKey(moduleName))
+				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
+			
+			multiReferences.add(Arrays.asList(moduleName, inputName, description, value, type));
+			
+			return this;
+		}
+
 		
 		/**
 		 * Add a reference input to the workflow
@@ -285,6 +300,21 @@ public final class Workflow {
 					
 			}
 			
+			for(List<Object> multiRef : multiReferences){
+				String  moduleName 	= (String) multiRef.get(0),
+						inputName 	= (String) multiRef.get(1),
+						description = (String) multiRef.get(2);
+				
+				List<?> multiValues = (List<?>) multiRef.get(3);
+				DataType type = (DataType) multiRef.get(4);
+				
+				ModuleImpl module = workflow.modules.get(moduleName);
+				
+				
+				module.addMultiRefInput(inputName, description, multiValues, type);
+					
+			}
+			
 			// * Kill the WorkflowBuilder
 			Workflow result = workflow;
 			dead = true;
@@ -322,10 +352,38 @@ public final class Workflow {
 					errors.add("Module ("+moduleName+") does not exist.");
 
 				if(! workflow.modules.containsKey(referencedModule))
-					errors.add("Module ("+referencedModule+") does not exist.");
+					errors.add("Module ("+referencedModule+") does not exist, referenced by "+inputName + " " + description);
 				else if(! workflow.modules.get(referencedModule).hasOutput(referencedOutput))
 					errors.add("Referenced module ("+referencedModule+") does not have output "+referencedOutput+".");
 
+			}
+			
+			for(List<Object> multiRef : multiReferences){
+				String  moduleName 	= (String) multiRef.get(0),
+						inputName 	= (String) multiRef.get(1),
+						description = (String) multiRef.get(2);
+				List<?> multiValues = (List<?>) multiRef.get(3);
+				
+				if(! workflow.modules.containsKey(moduleName))
+					errors.add("Module ("+moduleName+") does not exist.");
+				
+				for(Object value : multiValues){
+					if(value instanceof Map){
+						
+						Map ref = (Map) value;
+						String referenceString = (String) ref.get("reference");
+
+						// Reference is in : module.output format, we split using .
+						String referencedModule = referenceString.split("\\.")[0];
+						String referencedOutput = referenceString.split("\\.")[1];
+						if(! workflow.modules.containsKey(referencedModule))
+							errors.add("Module ("+referencedModule+") does not exist, referenced by "+inputName + " " + description);
+						else if(! workflow.modules.get(referencedModule).hasOutput(referencedOutput))
+							errors.add("Referenced module ("+referencedModule+") does not have output "+referencedOutput+".");
+						
+					}
+				}
+				
 			}
 			
 			return eSize == errors.size();
@@ -345,6 +403,40 @@ public final class Workflow {
 			{
 				super(workflow, domain);
 				this.name = name;
+			}
+
+			public void addMultiRefInput(String inputName, String description,
+					List<?> multiValues, DataType type) {
+				List< Input> multiInputRefs = new ArrayList<Input>();
+				
+				for(Object value : multiValues){
+					if(value instanceof Map){
+						
+						Map ref = (Map) value;
+						String referenceString = (String) ref.get("reference");
+
+						// Reference is in : module.output format, we split using .
+						String referencedModule = referenceString.split("\\.")[0];
+						String referencedOutput = referenceString.split("\\.")[1];
+		
+
+				        Module  refModule = workflow.modules.get(referencedModule);
+				
+				        Output refOutput = refModule.output(referencedOutput);
+				      
+				        ReferenceInput newInput = new ReferenceInput(this, inputName, description, type, refOutput, false);
+				        
+					
+				        multiInputRefs.add(newInput);
+				        
+					} else {
+						
+						RawInput newInput = new RawInput(value, inputName, description,  type, this);
+						multiInputRefs.add(newInput);
+					}
+				}
+				
+				inputs.put(name, new MultiInput(inputName, description, type, this, multiInputRefs));
 			}
 
 			public void addRefInput(String inputName, String description, Output referencedOutput, DataType type, boolean multiRef)
@@ -378,7 +470,7 @@ public final class Workflow {
 				this.domain = domain;
 			}
 			
-			public void addMultiInput(String name, String description, List<Object> values, DataType type)
+			public void addMultiInput(String name, String description, List<?> values, DataType type)
 			{
 				if(inputs.containsKey(name))
 					throw new IllegalArgumentException("Module ("+name()+") already contains input with the given name ("+name+")");

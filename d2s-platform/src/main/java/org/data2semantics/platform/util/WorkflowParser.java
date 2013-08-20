@@ -3,7 +3,6 @@ package org.data2semantics.platform.util;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,12 +12,8 @@ import java.util.Map;
 import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.DataType;
-import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.domain.Domain;
-import org.data2semantics.platform.domain.JavaDomain;
-import org.data2semantics.platform.domain.PythonDomain;
 import org.data2semantics.platform.exception.InconsistentWorkflowException;
-import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -111,10 +106,11 @@ public class WorkflowParser {
 			{
 				String inputName = inputKey.toString();
 
+				Object inputValue = inputMap.get(inputKey);
 				// If the input is a map, then it is actually a reference input
-				if (inputMap.get(inputKey) instanceof Map)
+				if (inputValue instanceof Map)
 				{
-					Map ref = (Map) inputMap.get(inputKey);
+					Map ref = (Map) inputValue;
 					String referenceString = (String) ref.get("reference");
 
 					// Reference is in : module.output format, we split using .
@@ -128,20 +124,38 @@ public class WorkflowParser {
 					builder.refInput(name, inputName, description, referencedModule,
 							referencedOutput, inputType);
 					
-				} else // Raw value
+				} else
 				{
-					Object value = inputMap.get(inputKey);
 					
 					DataType dataType = domain.inputType(sourceTail, inputName);
 					
 					String description = domain.inputDescription(sourceTail, inputName);
 					
-					if(domain.valueMatches(value, dataType))
-						builder.rawInput(name, description, inputName, value, domain.inputType(sourceTail, inputName));
-					else if((value instanceof List<?> ) && listItemsMatch((List<Object>) value, dataType, domain))
-						builder.multiInput(name,  description, inputName, (List<Object>)value, dataType);
+					
+					// First handle multi input case, now we include  the case that items in this list this might also be reference.
+					if(inputValue instanceof List<?>){
+						
+						if(listItemMatch((List<?>) inputValue, dataType, domain)){
+							builder.multiInput(name,  description, inputName, (List<?>)inputValue, dataType);
+						} else 
+						if(listItemMatchOrReference((List<?>)inputValue, dataType, domain)){
+							builder.multiInputRef(name, description, inputName, (List<?>) inputValue, dataType);
+						} else
+						if(domain.valueMatches(inputValue, dataType)){
+							builder.rawInput(name, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
+								
+						} else
+							throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
+						
+					}
+					else 
+					if(domain.valueMatches(inputValue, dataType)){
+						builder.rawInput(name, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
+						
+					}
+					
 					else
-						throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+value+") does not match the required data type ("+dataType+").");
+						throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
 				}
 			}
 
@@ -157,16 +171,41 @@ public class WorkflowParser {
 		
 		return builder.workflow();
 	}
-
-	private static boolean listItemsMatch(List<Object> list, DataType type, Domain domain)
+	
+	private static boolean listItemMatch(List<?> list, DataType type, Domain domain)
 	{
-		for(Object item : list)
-			if(! domain.valueMatches(item, type))
+		for(Object item : list) {
+		
+			if(! domain.valueMatches(item, type)){
 				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	private static boolean listItemMatchOrReference(List<?> list, DataType type, Domain domain)
+	{
+		for(Object item : list) {
+		
+			if(!isAReference(item) && ! domain.valueMatches(item, type)){
+				return false;
+			}
+		}
 		
 		return true;
 	}
 	
+	// A reference is a map which has "reference" as key
+	private static boolean isAReference(Object item) {
+		if((item instanceof Map)) {
+			Map mitem = (Map) item;
+			 return mitem.containsKey("reference");
+		}
+		
+		return false;
+	}
+
 	private static Map<String, DataType> getOutputTypes(String source, Domain domain)
 	{
 		Map<String, DataType> result = new LinkedHashMap<String, DataType>();

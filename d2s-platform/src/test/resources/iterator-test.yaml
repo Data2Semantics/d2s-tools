@@ -40,13 +40,24 @@ workflow:
                  reference: Spawn2.result
                 
     - module:
-        name: Adder10
+        name: Adder1
         source: org.data2semantics.modules.AdderModule
         inputs:
             first: 
                 reference: Multiplier.result
             second:
                 10
-                
-
-                
+ 
+    - module:
+        name: Adder2
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first: 
+                - reference: Adder.result
+                - 2
+                - 3
+            second:
+                10
+                   
+     
+   

@@ -90,7 +90,16 @@ public abstract class AbstractModule implements Module
 			{
 				int dependencyRank = ((ReferenceInput)input).reference().module().rank();
 				rank = Math.max(rank, dependencyRank);
-			}
+			}else 
+				if(input instanceof MultiInput){
+					MultiInput mi = (MultiInput) input;
+					for(Input i : mi.inputs()){
+						if(i instanceof ReferenceInput){
+							int dependencyRank = ((ReferenceInput)i).reference().module().rank();
+							rank = Math.max(rank, dependencyRank);
+						}
+					}
+				}
 		
 		return rank + 1; 
 	}
@@ -137,9 +146,16 @@ public abstract class AbstractModule implements Module
 					
 					MultiInput originalInput = (MultiInput)curInput;
 					
-					RawInput rawInput = originalInput.inputs().get(chosenIndexes[i]);
-					
-					value = rawInput.value();
+					Input chosenInput = originalInput.inputs().get(chosenIndexes[i]);
+					if(chosenInput instanceof RawInput) {
+						RawInput rawInput = (RawInput) chosenInput;
+						value = rawInput.value();
+					} else
+					if(chosenInput instanceof ReferenceInput){
+						ReferenceInput refInput = (ReferenceInput) chosenInput;
+						
+						value = refInput.reference().module().instances().get(0).output(refInput.reference().name()).value();
+					}
 				} else
 				if(curInput instanceof ReferenceInput){
 					
@@ -275,6 +291,15 @@ public abstract class AbstractModule implements Module
 			{
 				if(!((ReferenceInput)input).reference().module().finished())
 					return false;
+			} else 
+			if(input instanceof MultiInput){
+				MultiInput mi = (MultiInput) input;
+				for(Input i : mi.inputs()){
+					if(i instanceof ReferenceInput){
+						if(!((ReferenceInput)i).reference().module().finished())
+							return false;
+					}
+				}
 			}
 		return true;
 	}
@@ -311,14 +336,15 @@ public abstract class AbstractModule implements Module
 		{
 			return new ArrayList<InstanceOutput>(outputs.values());
 		}
-
+		
 		public boolean execute()
 		{
 			ArrayList<String> errors = new ArrayList<String>();
 			Map<String, Object> results = new LinkedHashMap<String, Object>();
 			
 			boolean success = domain.execute(this, errors, results);
-			
+		
+			// After execution, set values of output so that it can be referenced later on.
 			for(String resultName : results.keySet())
 				outputs.get(resultName).setValue(results.get(resultName));
 			

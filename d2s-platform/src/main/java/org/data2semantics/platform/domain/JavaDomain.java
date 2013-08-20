@@ -458,8 +458,7 @@ public class JavaDomain implements Domain
 			theClass = classLoader.loadClass(source);
 		} catch (ClassNotFoundException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalArgumentException("Source class can not be loaded " + source);
 		}
 		return theClass;
 	}
