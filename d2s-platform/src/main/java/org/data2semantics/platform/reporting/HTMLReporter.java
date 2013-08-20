@@ -74,7 +74,7 @@ public class HTMLReporter implements Reporter
 			// * Copy the templates to a temporary directory
 			temp.mkdirs();
 			ReporterTools.copy("html/templates", temp);
-						
+
 			for(Module module : workflow.modules())
 			{
 				// * Output module information

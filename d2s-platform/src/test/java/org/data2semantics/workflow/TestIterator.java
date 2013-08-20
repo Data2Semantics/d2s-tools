@@ -28,7 +28,7 @@ public class TestIterator {
 		
 		ResourceSpace resourceSpace = new ResourceSpace();
 		
-		ExecutionProfile localExecutionProfile = new ThreadedLocalExecutionProfile();
+		ExecutionProfile localExecutionProfile = new LocalExecutionProfile();
 		
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
