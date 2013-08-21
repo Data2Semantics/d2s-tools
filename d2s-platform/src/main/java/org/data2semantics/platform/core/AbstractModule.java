@@ -142,62 +142,51 @@ public abstract class AbstractModule implements Module
 				InstanceInput newInstanceInput = null;
 				Object value = null;
 				
-				if(curInput instanceof MultiInput){
-					
-					MultiInput originalInput = (MultiInput)curInput;
-					
-					Input chosenInput = originalInput.inputs().get(chosenIndexes[i]);
-					if(chosenInput instanceof RawInput) {
-						RawInput rawInput = (RawInput) chosenInput;
-						value = rawInput.value();
-					} else
-					if(chosenInput instanceof ReferenceInput){
-						ReferenceInput refInput = (ReferenceInput) chosenInput;
-						
-						value = refInput.reference().module().instances().get(0).output(refInput.reference().name()).value();
-					}
-				} else
-				if(curInput instanceof ReferenceInput){
-					
-					ReferenceInput originalInput = (ReferenceInput) curInput;
-					String refOutName = originalInput.reference().name();
-					Module refModule = originalInput.reference().module();
-					Output refOutput = refModule.output(refOutName);
-						
-					
-					if(originalInput.multiValue()){
-						int curIndex = chosenIndexes[i];
-						for(ModuleInstance mi : refModule.instances()){
-							InstanceOutput io = mi.output(refOutName);
-							// The assumption here is that the value of this is a collection which needs to be expanded
-							List<?> vals = (List<?>)io.value();
-							if(vals.size() > curIndex){
-								value = vals.get(curIndex);
-								break;
-							} else {
-								curIndex -= vals.size();
-							}
-						}
-						
-					} else {
-					
-						List<ModuleInstance> refInstances = refModule.instances();
-						ModuleInstance mInstance = refInstances.get(chosenIndexes[i]);
-						InstanceOutput theOutput = mInstance.output(refOutName);
-						value = theOutput.value();
-					}
+
+				if(curInput instanceof RawInput){
 				
-				} else
-				
-					if(curInput instanceof RawInput){
-					
-					// There will only be one option
 					assert(chosenIndexes[i] == 0);
 					
 					RawInput originalInput = (RawInput) curInput;
 					
-					value = originalInput.value();
-				}
+					value = originalInput.value();					
+				} 
+				else
+				if(curInput instanceof ReferenceInput){
+						
+					value = getNthReferencedInstance(chosenIndexes[i], (ReferenceInput)curInput);	
+				} 
+				else
+				if(curInput instanceof MultiInput){
+					
+					MultiInput originalInput = (MultiInput)curInput;
+					
+					int curIndex = chosenIndexes[i];
+					
+					for(Input inp : originalInput.inputs()){
+						if(inp instanceof RawInput){
+							if(curIndex == 0){
+								value = ((RawInput)inp).value();
+								break;
+							} else {
+								curIndex --;
+							}
+						} else
+						if(inp instanceof ReferenceInput){
+							int referenceInstanceCount = countReferencedInstances((ReferenceInput)inp);
+							
+							if(referenceInstanceCount > curIndex){
+								value = getNthReferencedInstance(curIndex, (ReferenceInput) inp);
+							} else {
+								curIndex -= referenceInstanceCount;
+							}
+						}
+						
+					}
+					
+					
+				} 
+				
 				
 				newInstanceInput = new InstanceInput( this, curInput, instance, value);
 				
@@ -217,7 +206,8 @@ public abstract class AbstractModule implements Module
 		} 
 		
 		Input curInput = inputs().get(depth);
-		int nOptions = getNumberOfOptions(curInput);
+		
+		int nOptions = countNumberOfInstancesForThisInput(curInput);
 		
 		for(int i=0;i<nOptions;i++){
 			chosenIndexes[depth] = i;
@@ -226,42 +216,80 @@ public abstract class AbstractModule implements Module
 		
 	}
 
-	private int getNumberOfOptions(Input curInput) {
+	private Object getNthReferencedInstance(int curIndex,
+			ReferenceInput curInput) {
+		Object value=null;
+	
+		String refOutName = curInput.reference().name();
+		Module refModule = curInput.reference().module();
+		
+		if(curInput.multiValue()){
+			for(ModuleInstance mi : refModule.instances()){
+				InstanceOutput io = mi.output(refOutName);
+				
+				// The assumption here is that the value of this is a collection which needs to be expanded
+				List<?> vals = (List<?>)io.value();
+				if(vals.size() > curIndex){
+					value = vals.get(curIndex);
+					break;
+				} else {
+					curIndex -= vals.size();
+				}
+			}
+			
+		} else {
+			List<ModuleInstance> refInstances = refModule.instances();
+			ModuleInstance mInstance = refInstances.get(curIndex);
+			InstanceOutput theOutput = mInstance.output(refOutName);
+			value = theOutput.value();
+		}
+		
+		return value;
+	}
+
+	private int countNumberOfInstancesForThisInput(Input curInput) {
 		int nOptions = 0;
 		
-		if(curInput instanceof MultiInput){
-			MultiInput originalInput = (MultiInput)curInput;
-			nOptions = originalInput.inputs().size();
+		if(curInput instanceof RawInput){
+			nOptions = 1;
 		} else
 		if(curInput instanceof ReferenceInput){
-			ReferenceInput originalInput = (ReferenceInput) curInput;
-			String refOutName = originalInput.reference().name();
-			Module refModule = originalInput.reference().module();
-			Output refOutput = refModule.output(refOutName);
-				
-			JavaType inputType = (JavaType) originalInput.dataType();
-			JavaType outputType = (JavaType) refOutput.dataType();
-			
-			// If input/output matches directly we will have to choose frome existing instances.
-			if(!originalInput.multiValue())
-				nOptions = refModule.instances().size();
-			else { 
-			// In the case of outputs is a List with items that matches the input
-			// We have to accumulate number of items from every instances that produce outputs.
-				nOptions = 0;
-				for(ModuleInstance mi : refModule.instances()){
-					InstanceOutput io = mi.output(refOutName);
-					assert(io.value() instanceof List<?>);
-					nOptions += ((List<?>)io.value()).size();
+			nOptions = countReferencedInstances((ReferenceInput) curInput);
+		} else
+		if(curInput instanceof MultiInput){
+			MultiInput originalInput = (MultiInput)curInput;
+			for(Input i : originalInput.inputs()){
+				if(i instanceof RawInput){
+					nOptions ++;
+				} else 
+				if(i instanceof ReferenceInput){
+					nOptions += countReferencedInstances((ReferenceInput)i);
 				}
 			}
 		} else
-		if(curInput instanceof RawInput){
-			RawInput originalInput = (RawInput) curInput;
-			nOptions = 1;
-		} else
 			throw new IllegalStateException("Instantiation can't handle unknown Input type ");
 		
+		return nOptions;
+	}
+
+	private int countReferencedInstances(ReferenceInput originalInput) {
+		int nOptions=0;
+		
+		String refOutName = originalInput.reference().name();
+		Module refModule = originalInput.reference().module();
+		
+		// If input/output matches directly we will have to choose from existing instances.
+		if(!originalInput.multiValue())
+			nOptions = refModule.instances().size();
+		else { 
+			// In the case of outputs is a List with items that matches the input
+			// We have to accumulate number of items from every instances that produce outputs.
+			for(ModuleInstance mi : refModule.instances()){
+				InstanceOutput io = mi.output(refOutName);
+				assert(io.value() instanceof List<?>);
+				nOptions += ((List<?>)io.value()).size();
+			}
+		}
 		return nOptions;
 	}
 
