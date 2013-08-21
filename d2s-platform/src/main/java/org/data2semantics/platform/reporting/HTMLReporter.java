@@ -100,7 +100,8 @@ public class HTMLReporter implements Reporter
 			// * Output the workflow information
 			workflowOutput(workflow, root);
 			
-			FileUtils.deleteDirectory(temp);
+			// Problems deleting template in windows
+			FileUtils.deleteQuietly(temp);
 		}
 
 		private String produceDotString(){
