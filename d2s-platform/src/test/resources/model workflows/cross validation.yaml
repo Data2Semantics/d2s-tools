@@ -1,0 +1,62 @@
+workflow:
+  name: cross validation
+  description: |  
+    Deterministic cross validation on a classifier
+        
+  modules:
+    - module:
+        name: data
+        # Read a dataset
+                
+        inputs:
+          file: 'dataset.csv'
+        # outputs: data, labels
+        
+    - module:
+        name: split
+        # splits a dataset into a training and test set
+        
+        inputs:
+          data: data.data
+          labels: data.labels
+          total folds: 10
+          fold: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+          
+        # outputs: train data, train labels, test data, test labels
+
+        
+    - module: 
+        name: train decision tree
+        
+        inputs: 
+          data: split.train data
+          labels: split.train labels
+          prune: no
+          
+        # output: classifier
+          
+    - module: 
+        name: train neural network
+        
+        inputs: 
+          data: split.train data
+          labels: split.train labels
+          hidden nodes: 15
+          learning rate: 0.01
+          
+        # output: classifier
+          
+    - module:
+        name: test
+        
+        inputs:
+          classifier: [train neural network.classifier, train decision tree.classifier]
+          test data: split.test data
+          test labels: split.test labels
+          
+        # output: accuracy
+          
+# The module test is run 20 times, once for each classifier. The HTMLReporter for 
+# test module plots accuracy values and plots classifier vs accuracy or fold
+# vs accuracy (ie. inputs that causes a branch should be easily retrieveble and
+# added to the output table)
