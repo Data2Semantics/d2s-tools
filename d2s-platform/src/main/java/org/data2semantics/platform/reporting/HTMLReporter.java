@@ -20,6 +20,7 @@ import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.MultiInput;
 import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.core.data.ReferenceInput;
 import org.data2semantics.platform.util.FrequencyModel;
@@ -112,6 +113,14 @@ public class HTMLReporter implements Reporter
 						if(inp instanceof ReferenceInput){
 							ReferenceInput ri = (ReferenceInput) inp;
 							result.append(ri.reference().module().name()+ "->" +  module.name()  + "[label=\"" + ri.reference().name()+ "\"]");
+						} else 
+						if(inp instanceof MultiInput){
+							for(Input i : ((MultiInput) inp).inputs()){
+								if(i instanceof ReferenceInput){
+									ReferenceInput ri = (ReferenceInput) i;
+									result.append(ri.reference().module().name()+ "->" +  module.name()  + "[label=\"" + ri.reference().name()+ "\"]");
+								}
+							}
 						}
 					}
 					
