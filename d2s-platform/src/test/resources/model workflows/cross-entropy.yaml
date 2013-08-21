@@ -1,0 +1,40 @@
+workflow:
+  name: cross entropy
+  description: | 
+    This workflow shows a situation where we want a cartesian cross product on 
+    inputs from thesame branch.
+  
+  modules:
+    - module:
+        name: random text 
+        # uses a grammar to generate human-looking text
+        
+        inputs:
+          language: [english, german, italian]  
+        
+        #outputs: text
+        
+    - module:
+        name: cross entropy
+        # calculates the cross entropy between two texts
+        
+        inputs:
+          first text: 
+            reference: random text.text
+            sweep instances: yes
+          second text: 
+            reference: random text.text
+        
+        # outputs cross entropy
+        
+# In default mode, the cross entropy module only runs three times, for the 
+# inputs (english, english), (german, german) and (italian, italian).  
+
+# However, when we set the sweep instances flag, we force the workflow to sweep 
+# over all instances of the module and create new branches for each. For the 
+# inputs without this flag, the inputs of upstream instances are still grouped 
+# by existing branch. 
+
+# If we were to set both inputs to sweep instances, we would get 27 instances 
+# for the cross entropy module. Both would ignore the current branch and create
+# their own branches.

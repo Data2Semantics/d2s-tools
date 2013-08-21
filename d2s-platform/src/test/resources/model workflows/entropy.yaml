@@ -1,0 +1,38 @@
+workflow:
+  name: entropy
+  description: | 
+    This workflow demonstrates the mixing of references and raw values in a 
+    sweep
+  
+  modules:
+    - module: 
+        name: phonebook
+        source: CSVLoader
+        
+        inputs:
+          file: 'phonebook data.csv'
+         
+        # outputs: data
+        
+    - module: 
+        name: alice in wonderland
+        source: NaturalLanguageLoader
+        
+        inputs:
+          file: 'alice in wonderland.txt'
+         
+        # outputs: data      
+        
+    - module:
+        name: calculate entropy
+        source: EntropyModule
+        
+        inputs:
+          data: # List<Object>
+            - reference: phonebook.data
+            - reference: alice in wonderland.data
+            - raw: [a, a, a, b, b, c]
+            
+        # outputs: entropy
+        
+# The list input in line 31 causes a sweep with three branches.        

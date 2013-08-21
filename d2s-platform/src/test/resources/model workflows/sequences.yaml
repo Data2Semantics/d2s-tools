@@ -10,13 +10,31 @@ workflow:
         name: sequences
         description: Loads a text file and generates a sample of random n-grams
       
-      inputs:
-        data: 'alice in wonderland.txt'
-        sample size: 6
+        inputs:
+          data: 'alice in wonderland.txt'
+          sample size: 6
+          sample method: uniform
         
-      #output: n-grams - a <list<List<String>> of 6 n-grams
+      #output: n-grams - a <list<List<String>> of 6 sampled n-grams
       
   	- module:
-  	    name: occurrences
+  	    name: spread
+  	    description: | 
+  	      analyzes the spread of the occurrences of the given n-gram 
+  	      in the given text 
+  	    
+  	    inputs:
+  	      text file: 'alice in wonderland.txt'
+  	      n-gram: sequences.n-gram # List<String>, sweep
+  	      
+  	    # outputs: spread
+  	    
+# Edge case: at compile time the workflow parser cannot establish whether the 
+# the reference in line 28 represents a single matched type or a sweep. Only 
+# at instantiation of the spread module, we can check whether the 
+# referenced list is a list of strings (ie, single reference) or a list of lists 
+# (sweep).
+
+  	    
   	    
       
