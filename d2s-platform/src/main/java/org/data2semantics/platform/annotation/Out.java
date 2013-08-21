@@ -22,5 +22,10 @@ public @interface Out {
 	public String name();
 	
 	public String description() default "";
-
+	
+	/**
+	 * Whether the value is printed in reports
+	 * @return
+	 */
+	public boolean print() default true;
 }
