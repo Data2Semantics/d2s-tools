@@ -1,0 +1,28 @@
+workflow:
+   name: "Pairing workflow"
+   modules:
+
+    - module:
+        name: A
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  [1,2]
+            second: 1
+    - module:
+        name: B
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  [30,40]
+            second: 1
+            
+    - module:
+        name: C
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first: 
+               - reference: A.result
+               - reference: B.result
+            second: 
+               - reference: A.product
+               - reference: B.product
+   

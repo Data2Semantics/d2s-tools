@@ -10,7 +10,10 @@ import java.util.List;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.Output;
 import org.data2semantics.platform.execution.ExecutionProfile;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
@@ -149,6 +152,42 @@ public class TestDiamonds {
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(4, workflow.getModuleByName("B").instances().size());
+		assertEquals(4, workflow.getModuleByName("C").instances().size());
+
+					
+	}
+	
+	@Test
+	public void testPairing() throws Exception {
+		
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/Pairing.yaml");
+		
+		ResourceSpace resourceSpace = new ResourceSpace();
+		
+		ExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
+		
+		platformOrchestrator.orchestrate();
+		
+		for(Module m : workflow.modules()){
+
+			for(ModuleInstance mi :  m.instances()){
+				System.out.println("Instance Input");
+				for(InstanceInput io : mi.inputs())
+					System.out.print("   " +io.name()+":"+io.value()+ " ");
+				System.out.println("Instance Output");
+				for(InstanceOutput io : mi.outputs())
+						System.out.print("   " +io.name()+":"+io.value()+ " ");
+			}
+		}
+		
+				
+		HTMLReporter reporter = new HTMLReporter(workflow, new File("outputPairing"));
+		reporter.report();
+		
+		assertEquals(2, workflow.getModuleByName("A").instances().size());
+		assertEquals(2, workflow.getModuleByName("B").instances().size());
 		assertEquals(4, workflow.getModuleByName("C").instances().size());
 
 					
