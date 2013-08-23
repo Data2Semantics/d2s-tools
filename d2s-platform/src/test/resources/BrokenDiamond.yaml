@@ -1,0 +1,33 @@
+workflow:
+   name: "Test workflow"
+   modules:
+
+    - module:
+        name: A
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  [1,2]
+            second: 1
+    - module:
+        name: B
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  
+               reference: A.result
+            second: [3,4]
+            
+    - module:
+        name: C
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  
+               reference: A.result
+            second: [5,6]
+    - module:
+        name: D
+        source: org.data2semantics.modules.AdderModule
+        inputs:
+            first:  
+               reference: B.result
+            second:  1
+            

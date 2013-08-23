@@ -1,5 +1,7 @@
 package org.data2semantics.workflow;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +22,7 @@ import org.data2semantics.platform.util.WorkflowParser;
 import org.junit.Test;
 
 public class TestIterator {
+
 
 	@Test
 	public void testIterators() throws Exception {
@@ -63,13 +66,8 @@ public class TestIterator {
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
 		platformOrchestrator.orchestrate();
-		
-		for(ModuleInstance mi :  workflow.modules().get(0).instances())
-		for(InstanceOutput io : mi.outputs())
-			System.out.print(io.value()+ " ");
-				
-		//workflowContainer.dumpIntermediateResults();
-		platformOrchestrator.writeOutput("output_dir1");
+		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_dir"));
+		reporter.report();
 		
 	}
 	
