@@ -39,4 +39,7 @@ public interface ModuleInstance
 
 	public InstanceInput input(String name);
 	
+	public Branch branch();
+	
+	
 }

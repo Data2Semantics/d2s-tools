@@ -1,11 +1,17 @@
 package org.data2semantics.platform.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.security.auth.login.AccountNotFoundException;
 
 import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
@@ -113,6 +119,192 @@ public abstract class AbstractModule implements Module
 		return 0;
 	}
 
+	
+	private void chooseBranch(List<Branch> choices, List<Branch> inAccessible, int depth){
+		
+		Module curModule = workflow().modules().get(depth);
+		
+		// We only choose branches with lower ranks, if we reach our rank we're done.
+		if(rank() == curModule.rank()){
+		
+			chooseRaws(choices);
+			return;
+		} 
+		else
+		if(curModule.instantiated() && (!this.equals(curModule)) && this.dependsOn(curModule) ){
+				
+			for(ModuleInstance mi : curModule.instances()){
+					
+					Branch accesibleBranch = mi.branch();
+					
+					// We make sure this one is accessible
+					if(!inAccessible.contains(accesibleBranch)){
+							List<Branch> nextChoices = new ArrayList<Branch>(choices);
+							nextChoices.add(accesibleBranch);
+					
+							List<Branch> nextInaccessible = new ArrayList<Branch>(inAccessible);
+							nextInaccessible.addAll(accesibleBranch.siblings());
+							
+							for(Branch s : accesibleBranch.siblings()){
+								nextInaccessible.addAll(s.descendants());
+							}
+
+							chooseBranch(nextChoices, nextInaccessible, depth+1);
+					
+					}
+			}
+		}else
+			// Handling broken branch
+			chooseBranch(choices, inAccessible, depth+1);
+		
+	}
+	
+	public boolean dependsOn(Module curModule) {
+		if(parents().contains(curModule))
+			return true;
+		
+		for(Module p : parents()){
+			if(p.dependsOn(curModule))
+				return true;
+		}
+		
+		return false;
+	}
+
+	private Collection<Module> parents() {
+		
+		Set<Module> result = new LinkedHashSet<Module>();
+		
+		for(Input i : inputs()){
+			if(i instanceof ReferenceInput){
+				result.add(((ReferenceInput) i).reference().module());
+			} else
+			if(i instanceof MultiInput){
+				for(Input ii : ((MultiInput) i).inputs()){
+					if(ii instanceof ReferenceInput){
+						result.add(((ReferenceInput) ii).reference().module());
+					}
+				}
+			}
+		}
+		
+		return result;
+	}
+
+	private void chooseRaws(List<Branch> choices) {
+		
+		Map<Module, ModuleInstance> moduleMap = new LinkedHashMap<Module, ModuleInstance>();
+		
+		for(Branch b : choices){
+			moduleMap.put(b.point().module(), b.point());
+		}
+		
+		chooseRawsRec(new ArrayList<Object>(), 0, moduleMap, choices);
+		
+		instantiated = true;
+	}
+
+	private void chooseRawsRec(ArrayList<Object> values, int depth,
+			Map<Module, ModuleInstance> moduleMap, List<Branch> choices) {
+		
+		if(depth == inputs.size()){
+			
+			ModuleInstanceImpl newInstance = new ModuleInstanceImpl();
+			System.out.println(values);
+			for(int i=0;i<inputs().size();i++){
+				InstanceInput ii = new InstanceInput(this, inputs().get(i), newInstance, values.get(i));
+				newInstance.inputs.put(ii.name(), ii);
+			}
+			
+			for(Output original : outputs.values()){
+				InstanceOutput instanceOutput = new InstanceOutput( this, original, newInstance);
+				newInstance.outputs.put(instanceOutput.name(), instanceOutput);
+			}
+			
+			
+			List<BranchImpl> parentBranches = new ArrayList<BranchImpl>();
+			
+			for(Branch b :  choices){
+				if(parents().contains(b.point().module())){
+					parentBranches.add((BranchImpl)b);
+				}
+			}
+			
+			if(parentBranches.size() == 0)
+				parentBranches.add((BranchImpl)workflow().rootBranch);
+			
+			Branch newBranch = BranchImpl.createChild(newInstance, parentBranches);
+			
+			newInstance.setBranch(newBranch);
+			
+			instances.add(newInstance);
+			
+			return;
+		}
+		
+		Input i = inputs().get(depth);
+		
+		if(i instanceof RawInput){
+			ArrayList<Object> nextValues = new ArrayList<Object>(values);
+			nextValues.add(((RawInput) i).value());
+			chooseRawsRec(nextValues, depth+1, moduleMap, choices);
+		
+		} else
+		if(i instanceof ReferenceInput){
+			
+			Module referredModule = ((ReferenceInput) i).reference().module();
+			ModuleInstance parentInstance = moduleMap.get(referredModule);
+			
+			ReferenceInput ri = (ReferenceInput) i;
+			Object value = parentInstance.output(((ReferenceInput) i).reference().name()).value();
+			
+			if(!ri.multiValue()){
+			
+				ArrayList<Object> nextValues = new ArrayList<Object>(values);
+				nextValues.add(value);
+				chooseRawsRec(nextValues, depth+1, moduleMap, choices);
+			} else {
+				ArrayList<Object> multiValues = (ArrayList<Object>) value;
+				for(Object v : multiValues ){
+					ArrayList<Object> nextValues = new ArrayList<Object>(values);
+					nextValues.add(v);
+					chooseRawsRec(nextValues, depth+1, moduleMap, choices);
+				}
+			}
+		
+		} else
+		if(i instanceof MultiInput){
+			
+			for(Input ii : ((MultiInput) i).inputs()){
+				
+				if(ii instanceof RawInput){
+					
+					ArrayList<Object> nextValues = new ArrayList<Object>(values);
+					nextValues.add(((RawInput) ii).value());
+					chooseRawsRec(nextValues, depth+1, moduleMap, choices);
+					
+				} else
+				if(ii instanceof ReferenceInput){
+					
+					Module referredModule = ((ReferenceInput) ii).reference().module();
+					ModuleInstance parentInstance = moduleMap.get(referredModule);
+					
+					ArrayList<Object> nextValues = new ArrayList<Object>(values);
+					
+					Object value = parentInstance.output(((ReferenceInput) ii).reference().name()).value();
+					nextValues.add(value);
+					
+					chooseRawsRec(nextValues, depth+1, moduleMap, choices);
+					
+				} else
+					throw new IllegalArgumentException("Input type not recognized " + ii);
+				
+			}
+			
+		}
+		
+	}
+
 	@Override
 	public void instantiate() {
 		
@@ -122,176 +314,13 @@ public abstract class AbstractModule implements Module
 		if(instantiated)
 			throw new IllegalStateException("Module can't be instantiated twice");
 		
-		int [] inpIndexes = new int[inputs.size()];
-		
-		instantiateRec(0, inpIndexes);
-		
-		instantiated = true;
+		ArrayList<Branch> choices = new ArrayList<Branch>();
+		ArrayList<Branch> inaccessibles = new ArrayList<Branch>();
+
+		chooseBranch(choices, inaccessibles, 0);
 	}
 	
 	
-	private void instantiateRec(int depth, int [] chosenIndexes) 
-	{
-		if(depth == inputs().size()){
-			// here we create the module
-			ModuleInstanceImpl instance = new ModuleInstanceImpl();
-			
-			for(int i=0;i<inputs().size();i++){
-				Input curInput = inputs().get(i);
-				
-				InstanceInput newInstanceInput = null;
-				Object value = null;
-				
-
-				if(curInput instanceof RawInput){
-				
-					assert(chosenIndexes[i] == 0);
-					
-					RawInput originalInput = (RawInput) curInput;
-					
-					value = originalInput.value();					
-				} 
-				else
-				if(curInput instanceof ReferenceInput){
-						
-					value = getNthReferencedInstance(chosenIndexes[i], (ReferenceInput)curInput);	
-				} 
-				else
-				if(curInput instanceof MultiInput){
-					
-					MultiInput originalInput = (MultiInput)curInput;
-					
-					int curIndex = chosenIndexes[i];
-					
-					for(Input inp : originalInput.inputs()){
-						if(inp instanceof RawInput){
-							if(curIndex == 0){
-								value = ((RawInput)inp).value();
-								break;
-							} else {
-								curIndex --;
-							}
-						} else
-						if(inp instanceof ReferenceInput){
-							int referenceInstanceCount = countReferencedInstances((ReferenceInput)inp);
-							
-							if(referenceInstanceCount > curIndex){
-								value = getNthReferencedInstance(curIndex, (ReferenceInput) inp);
-							} else {
-								curIndex -= referenceInstanceCount;
-							}
-						}
-						
-					}
-					
-					
-				} 
-				
-				
-				newInstanceInput = new InstanceInput( this, curInput, instance, value);
-				
-				instance.inputs.put(newInstanceInput.name(), newInstanceInput);
-			
-			}
-			
-			
-			for(Output original : outputs.values()){
-				InstanceOutput instanceOutput = new InstanceOutput( this, original, instance);
-				instance.outputs.put(instanceOutput.name(), instanceOutput);
-			}
-			
-			instances.add(instance);
-		
-			return;
-		} 
-		
-		Input curInput = inputs().get(depth);
-		
-		int nOptions = countNumberOfInstancesForThisInput(curInput);
-		
-		for(int i=0;i<nOptions;i++){
-			chosenIndexes[depth] = i;
-			instantiateRec(depth+1, chosenIndexes);
-		}
-		
-	}
-
-	private Object getNthReferencedInstance(int curIndex,
-			ReferenceInput curInput) {
-		Object value=null;
-	
-		String refOutName = curInput.reference().name();
-		Module refModule = curInput.reference().module();
-		
-		if(curInput.multiValue()){
-			for(ModuleInstance mi : refModule.instances()){
-				InstanceOutput io = mi.output(refOutName);
-				
-				// The assumption here is that the value of this is a collection which needs to be expanded
-				List<?> vals = (List<?>)io.value();
-				if(vals.size() > curIndex){
-					value = vals.get(curIndex);
-					break;
-				} else {
-					curIndex -= vals.size();
-				}
-			}
-			
-		} else {
-			List<ModuleInstance> refInstances = refModule.instances();
-			ModuleInstance mInstance = refInstances.get(curIndex);
-			InstanceOutput theOutput = mInstance.output(refOutName);
-			value = theOutput.value();
-		}
-		
-		return value;
-	}
-
-	private int countNumberOfInstancesForThisInput(Input curInput) {
-		int nOptions = 0;
-		
-		if(curInput instanceof RawInput){
-			nOptions = 1;
-		} else
-		if(curInput instanceof ReferenceInput){
-			nOptions = countReferencedInstances((ReferenceInput) curInput);
-		} else
-		if(curInput instanceof MultiInput){
-			MultiInput originalInput = (MultiInput)curInput;
-			for(Input i : originalInput.inputs()){
-				if(i instanceof RawInput){
-					nOptions ++;
-				} else 
-				if(i instanceof ReferenceInput){
-					nOptions += countReferencedInstances((ReferenceInput)i);
-				}
-			}
-		} else
-			throw new IllegalStateException("Instantiation can't handle unknown Input type ");
-		
-		return nOptions;
-	}
-
-	private int countReferencedInstances(ReferenceInput originalInput) {
-		int nOptions=0;
-		
-		String refOutName = originalInput.reference().name();
-		Module refModule = originalInput.reference().module();
-		
-		// If input/output matches directly we will have to choose from existing instances.
-		if(!originalInput.multiValue())
-			nOptions = refModule.instances().size();
-		else { 
-			// In the case of outputs is a List with items that matches the input
-			// We have to accumulate number of items from every instances that produce outputs.
-			for(ModuleInstance mi : refModule.instances()){
-				InstanceOutput io = mi.output(refOutName);
-				assert(io.value() instanceof List<?>);
-				nOptions += ((List<?>)io.value()).size();
-			}
-		}
-		return nOptions;
-	}
 
 	@Override
 	public boolean finished() {
@@ -346,7 +375,8 @@ public abstract class AbstractModule implements Module
 		protected Map<String, InstanceInput> inputs = new LinkedHashMap<String, InstanceInput>();
 		protected Map<String, InstanceOutput> outputs = new LinkedHashMap<String, InstanceOutput>();
 		
-	
+		Branch branch;
+		
 		public ModuleInstanceImpl() {
 		}
 
@@ -402,8 +432,94 @@ public abstract class AbstractModule implements Module
 
 			return inputs.get(name);
 		}
+		
+		@Override
+		public Branch branch() {
+			return branch;
+		}
+		
+		public void setBranch(Branch b){
+			this.branch = b;
+
+		}
 	
 	}
-	
+
+	static class BranchImpl implements Branch {
+		
+		List<Branch> parents 	= new ArrayList<Branch>();
+		List<Branch> children 	= new ArrayList<Branch>();
+		
+		ModuleInstance creationPoint = null;
+		
+		@Override
+		public List<Branch> parents() {
+			return Collections.unmodifiableList(parents);
+		}
+
+		@Override
+		public List<Branch> children() {
+			return Collections.unmodifiableList(children);
+		}
+
+		@Override
+		public Collection<Branch> ancestors() {
+			Set<Branch> result = new LinkedHashSet<Branch>();
+			
+			result.addAll(parents);
+			for(Branch parent : parents)
+				result.addAll(parent.ancestors());
+			
+			return result;
+		}
+
+		@Override
+		public Collection<Branch> descendants() {
+			Set<Branch> result = new LinkedHashSet<Branch>();
+			
+			result.addAll(children);
+			for(Branch child : children)
+				result.addAll(child.descendants());
+			
+			return result;
+		}
+
+		@Override
+		public ModuleInstance point() {
+			
+			return creationPoint;
+		} 
+		
+		
+		static Branch createChild(ModuleInstance childPoint, List<BranchImpl> parents){
+				
+				BranchImpl newBranch = new BranchImpl();
+				newBranch.creationPoint = childPoint;
+			
+				for(BranchImpl p : parents){
+					p.children.add(newBranch);
+				}
+				
+				newBranch.parents.addAll(parents);
+				
+				
+				return newBranch;
+		}
+
+		@Override
+		public Collection<Branch> siblings() {
+			List<ModuleInstance> instanceSiblings = point().module().instances();
+			Set<Branch> result = new HashSet<Branch>();
+			for(ModuleInstance mi : instanceSiblings){
+				if(mi.branch().equals(this)) continue;
+				result.add(mi.branch());
+			}
+			
+			return result;
+		}
+		
+		
+		
+	}
 }
 

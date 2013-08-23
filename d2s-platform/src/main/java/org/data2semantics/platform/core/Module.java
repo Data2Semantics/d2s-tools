@@ -106,4 +106,6 @@ public interface Module
 		 * @return
 		 */
 		public Domain domain();
+
+		public boolean dependsOn(Module curModule);
 }

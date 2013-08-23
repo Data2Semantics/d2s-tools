@@ -17,13 +17,13 @@ public class AdderModule {
 	public Integer second;
 	
 	@Main
-	public int result()	{
+	public Integer result()	{
 		difference = first - second;
 		return first + second;
 	}
 
 	@Out(name="product", description="The product (ie. the result of multiplication) of the two arguments.")
-	public int product(){
+	public Integer product(){
 		return first*second;
 	}
 	

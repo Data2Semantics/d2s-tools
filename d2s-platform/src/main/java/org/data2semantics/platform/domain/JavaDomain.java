@@ -587,6 +587,7 @@ public class JavaDomain implements Domain
 			return false;
 		
 		JavaType jType = (JavaType)type;
+		
 		return PlatformUtil.isAssignableFrom(jType.clazz(), value.getClass());
 		
 	}

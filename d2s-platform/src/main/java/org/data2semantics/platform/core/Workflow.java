@@ -46,7 +46,8 @@ public final class Workflow {
 	
 	private ArrayList<Module> sortedList = null;
 	
-		
+	Branch rootBranch = new AbstractModule.BranchImpl();
+			
 	/**
 	 * Name of this workflow
 	 */
@@ -90,6 +91,14 @@ public final class Workflow {
 			sortedList = new ArrayList<Module>(modules.values());
 			Collections.sort(sortedList, new ModuleComparator());
 			return sortedList;
+	}
+	
+	public Module getModuleByName(String name){
+		return modules.get(name);
+	}
+	
+	public Branch rootBranch(){
+			return rootBranch;
 	}
 	
 	private class ModuleComparator implements Comparator<Module>
@@ -263,6 +272,7 @@ public final class Workflow {
 		public Workflow workflow()
 		{
 			List<String> errors = new ArrayList<String>();
+			
 			
 			if(! consistent(errors))
 				throw new InconsistentWorkflowException(errors);

@@ -120,6 +120,12 @@ public class CommandLineModuleAdapter  implements Module {
 		return null;
 	}
 
+	@Override
+	public boolean dependsOn(Module curModule) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	
 
 	
