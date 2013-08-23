@@ -204,13 +204,19 @@ public abstract class AbstractModule implements Module
 		instantiated = true;
 	}
 
+	Set<ArrayList<Object>> removeDuplicateHacks = new LinkedHashSet<ArrayList<Object>>();
+	
 	private void chooseRawsRec(ArrayList<Object> values, int depth,
 			Map<Module, ModuleInstance> moduleMap, List<Branch> choices) {
 		
 		if(depth == inputs.size()){
+			if(removeDuplicateHacks.contains(values))
+				return;
+			else
+				removeDuplicateHacks.add(values);
 			
 			ModuleInstanceImpl newInstance = new ModuleInstanceImpl();
-			System.out.println(values);
+			
 			for(int i=0;i<inputs().size();i++){
 				InstanceInput ii = new InstanceInput(this, inputs().get(i), newInstance, values.get(i));
 				newInstance.inputs.put(ii.name(), ii);
