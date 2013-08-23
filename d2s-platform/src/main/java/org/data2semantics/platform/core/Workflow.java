@@ -446,7 +446,7 @@ public final class Workflow {
 					}
 				}
 				
-				inputs.put(name, new MultiInput(inputName, description, type, this, multiInputRefs));
+				inputs.put(inputName, new MultiInput(inputName, description, type, this, multiInputRefs));
 			}
 
 			public void addRefInput(String inputName, String description, Output referencedOutput, DataType type, boolean multiRef)
