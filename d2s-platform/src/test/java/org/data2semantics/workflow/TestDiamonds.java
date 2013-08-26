@@ -137,15 +137,7 @@ public class TestDiamonds {
 		
 		platformOrchestrator.orchestrate();
 		
-		for(Module m : workflow.modules()){
-			System.out.println("\nModule " + m.name());
-			
-			for(ModuleInstance mi :  m.instances()){
-					for(InstanceOutput io : mi.outputs())
-					System.out.print(io.name()+":"+io.value()+ " ");
-			}
-		}
-		
+
 				
 		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_diamond_ref"));
 		reporter.report();
@@ -187,8 +179,9 @@ public class TestDiamonds {
 		reporter.report();
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
-		assertEquals(2, workflow.getModuleByName("B").instances().size());
-		assertEquals(4, workflow.getModuleByName("C").instances().size());
+		assertEquals(3, workflow.getModuleByName("B").instances().size());
+		assertEquals(5, workflow.getModuleByName("C").instances().size());
+
 
 					
 	}
