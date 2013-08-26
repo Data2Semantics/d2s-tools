@@ -67,8 +67,8 @@ html
             
           //- The tab with the summary of this output (graph, means etc).
           #tab-summary 
-            
-            .graph.chart-container(data-source="data-table-#{output.name}")
+            if output.is_numeric
+              .graph.chart-container(data-source="data-table-#{output.name}")
             table
               tr
                 th mode
@@ -100,7 +100,7 @@ html
               tr.names
                 for input_name in input_names
                   th.input #{input_name}
-                  th.output #{output.name}
+                th.output #{output.name}
               
               for instance in output.instances
                 tr

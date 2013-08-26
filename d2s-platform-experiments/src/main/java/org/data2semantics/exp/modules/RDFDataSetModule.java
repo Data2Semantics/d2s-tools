@@ -2,11 +2,13 @@ package org.data2semantics.exp.modules;
 
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
+import org.data2semantics.platform.annotation.Module;
 import org.data2semantics.platform.annotation.Out;
 import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
 import org.openrdf.rio.RDFFormat;
 
+@Module(name="RDFDataSet")
 public class RDFDataSetModule {
 	private RDFDataSet dataset;
 	private String filename;
