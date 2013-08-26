@@ -1,3 +1,14 @@
+/*
+ * What to do for the golden demo?
+ * 
+ * Predict whether a cell is part of a table? - shitload of instances... We would need only the problem cases I think
+ * Platform could be used to discover the best parameters
+ * The intersection tree path kernel might be very useful for this, because of the speed
+ * 
+ * 
+ */
+
+
 package org.data2semantics.exp;
 
 import java.util.ArrayList;
@@ -90,14 +101,6 @@ public class GoldenDemoExperiment extends RDFMLExperiment {
 		}
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
-
-
-
-
-
-
-
-
 
 
 	}

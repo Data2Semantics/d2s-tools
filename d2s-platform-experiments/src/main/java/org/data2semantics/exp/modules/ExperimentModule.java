@@ -8,6 +8,7 @@ import java.util.Random;
 
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
+import org.data2semantics.platform.annotation.Module;
 import org.data2semantics.platform.annotation.Out;
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.SparseVector;
@@ -16,7 +17,7 @@ import org.data2semantics.proppred.learners.evaluation.F1;
 import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 
-
+@Module(name="Experiment")
 public class ExperimentModule {
 	private SparseVector[] fv;
 	private List<Double> target;
