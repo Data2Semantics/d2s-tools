@@ -120,44 +120,7 @@ public abstract class AbstractModule implements Module
 	}
 
 	
-	private void chooseBranch(List<Branch> choices, List<Branch> inAccessible, int depth){
-		
-		Module curModule = workflow().modules().get(depth);
-		
-		// We only choose branches with lower ranks, if we reach our rank we're done.
-		if(rank() == curModule.rank()){
-		
-			chooseRaws(choices);
-			return;
-		} 
-		else
-		if(curModule.instantiated() && (!this.equals(curModule)) && this.dependsOn(curModule) ){
-				
-			for(ModuleInstance mi : curModule.instances()){
-					
-					Branch accesibleBranch = mi.branch();
-					
-					// We make sure this one is accessible
-					if(!inAccessible.contains(accesibleBranch)){
-							List<Branch> nextChoices = new ArrayList<Branch>(choices);
-							nextChoices.add(accesibleBranch);
-					
-							List<Branch> nextInaccessible = new ArrayList<Branch>(inAccessible);
-							nextInaccessible.addAll(accesibleBranch.siblings());
-							
-							for(Branch s : accesibleBranch.siblings()){
-								nextInaccessible.addAll(s.descendants());
-							}
 
-							chooseBranch(nextChoices, nextInaccessible, depth+1);
-					
-					}
-			}
-		}else
-			// Handling broken branch
-			chooseBranch(choices, inAccessible, depth+1);
-		
-	}
 	
 	public boolean dependsOn(Module curModule) {
 		if(parents().contains(curModule))
@@ -191,142 +154,129 @@ public abstract class AbstractModule implements Module
 		return result;
 	}
 
-	private void chooseRaws(List<Branch> choices) {
-		
-		Map<Module, ModuleInstance> moduleMap = new LinkedHashMap<Module, ModuleInstance>();
-		
-		for(Branch b : choices){
-			moduleMap.put(b.point().module(), b.point());
-		}
-		
-		chooseRawsRec(new ArrayList<Object>(), 0, moduleMap, choices);
-		
+
+	
+
+	@Override
+	public void instantiate(){
+
+		instantiateUniverse();
 		instantiated = true;
 	}
 
-	Set<ArrayList<Object>> removeDuplicateHacks = new LinkedHashSet<ArrayList<Object>>();
 	
-	private void chooseRawsRec(ArrayList<Object> values, int depth,
-			Map<Module, ModuleInstance> moduleMap, List<Branch> choices) {
-		
-		if(depth == inputs.size()){
-			if(removeDuplicateHacks.contains(values))
-				return;
-			else
-				removeDuplicateHacks.add(values);
-			
-			ModuleInstanceImpl newInstance = new ModuleInstanceImpl();
-			
-			for(int i=0;i<inputs().size();i++){
-				InstanceInput ii = new InstanceInput(this, inputs().get(i), newInstance, values.get(i));
-				newInstance.inputs.put(ii.name(), ii);
-			}
-			
-			for(Output original : outputs.values()){
-				InstanceOutput instanceOutput = new InstanceOutput( this, original, newInstance);
-				newInstance.outputs.put(instanceOutput.name(), instanceOutput);
-			}
-			
-			
-			List<BranchImpl> parentBranches = new ArrayList<BranchImpl>();
-			
-			for(Branch b :  choices){
-				if(parents().contains(b.point().module())){
-					parentBranches.add((BranchImpl)b);
-				}
-			}
-			
-			if(parentBranches.size() == 0)
-				parentBranches.add((BranchImpl)workflow().rootBranch);
-			
-			Branch newBranch = BranchImpl.createChild(newInstance, parentBranches);
-			
-			newInstance.setBranch(newBranch);
-			
-			instances.add(newInstance);
-			
-			return;
-		}
-		
-		Input i = inputs().get(depth);
-		
-		if(i instanceof RawInput){
-			ArrayList<Object> nextValues = new ArrayList<Object>(values);
-			nextValues.add(((RawInput) i).value());
-			chooseRawsRec(nextValues, depth+1, moduleMap, choices);
-		
-		} else
-		if(i instanceof ReferenceInput){
-			
-			Module referredModule = ((ReferenceInput) i).reference().module();
-			ModuleInstance parentInstance = moduleMap.get(referredModule);
-			
-			ReferenceInput ri = (ReferenceInput) i;
-			Object value = parentInstance.output(((ReferenceInput) i).reference().name()).value();
-			
-			if(!ri.multiValue()){
-			
-				ArrayList<Object> nextValues = new ArrayList<Object>(values);
-				nextValues.add(value);
-				chooseRawsRec(nextValues, depth+1, moduleMap, choices);
-			} else {
-				ArrayList<Object> multiValues = (ArrayList<Object>) value;
-				for(Object v : multiValues ){
-					ArrayList<Object> nextValues = new ArrayList<Object>(values);
-					nextValues.add(v);
-					chooseRawsRec(nextValues, depth+1, moduleMap, choices);
-				}
-			}
-		
-		} else
-		if(i instanceof MultiInput){
-			
-			for(Input ii : ((MultiInput) i).inputs()){
-				
-				if(ii instanceof RawInput){
-					
-					ArrayList<Object> nextValues = new ArrayList<Object>(values);
-					nextValues.add(((RawInput) ii).value());
-					chooseRawsRec(nextValues, depth+1, moduleMap, choices);
-					
-				} else
-				if(ii instanceof ReferenceInput){
-					
-					Module referredModule = ((ReferenceInput) ii).reference().module();
-					ModuleInstance parentInstance = moduleMap.get(referredModule);
-					
-					ArrayList<Object> nextValues = new ArrayList<Object>(values);
-					
-					Object value = parentInstance.output(((ReferenceInput) ii).reference().name()).value();
-					nextValues.add(value);
-					
-					chooseRawsRec(nextValues, depth+1, moduleMap, choices);
-					
-				} else
-					throw new IllegalArgumentException("Input type not recognized " + ii);
-				
-			}
-			
-		}
-		
-	}
-
-	@Override
-	public void instantiate() {
-		
+	public void instantiateUniverse(){
 		if(!ready())
 			throw new IllegalStateException("Failed to instantiate, because the module is not ready");
 		
 		if(instantiated)
 			throw new IllegalStateException("Module can't be instantiated twice");
 		
-		ArrayList<Branch> choices = new ArrayList<Branch>();
-		ArrayList<Branch> inaccessibles = new ArrayList<Branch>();
-
-		chooseBranch(choices, inaccessibles, 0);
+		ArrayList<Object> values = new ArrayList<Object>();
+		Map<String, Object> universe = new LinkedHashMap<String, Object>();
+		List<AbstractModule.BranchImpl> parentBranches = new ArrayList<AbstractModule.BranchImpl>();
+		
+		instantiateInputRec(values, universe, parentBranches, 0);
 	}
-	
-	
+
+	private void instantiateInputRec(ArrayList<Object> values,
+			Map<String, Object> universe, List<AbstractModule.BranchImpl> parentBranches,  int depth) {
+		
+			if(depth == inputs().size()){
+				
+				ModuleInstanceImpl newInstance = new ModuleInstanceImpl();
+				
+				for(int i=0;i<inputs().size();i++){
+					InstanceInput ii = new InstanceInput(this, inputs().get(i), newInstance, values.get(i));
+					newInstance.inputs.put(ii.name(), ii);
+				}
+				
+				for(Output original : outputs.values()){
+					InstanceOutput instanceOutput = new InstanceOutput( this, original, newInstance);
+					newInstance.outputs.put(instanceOutput.name(), instanceOutput);
+				}
+				
+				
+				if(parentBranches.size() == 0)
+					parentBranches.add((BranchImpl)workflow().rootBranch);
+				
+				Branch newBranch = BranchImpl.createChild(newInstance, parentBranches);
+				
+				newInstance.setBranch(newBranch);
+				
+				instances.add(newInstance);
+				
+				return;
+			}
+			
+			Input curInput = inputs().get(depth);
+			if(curInput instanceof RawInput){
+				ArrayList<Object> nextValues = new ArrayList<Object>(values);
+				nextValues.add(((RawInput) curInput).value());
+				instantiateInputRec(nextValues, universe, parentBranches, depth+1);
+			
+			} else
+			if(curInput instanceof ReferenceInput){
+				handleReferenceInput(values, universe, parentBranches, depth, curInput);
+			
+			} else
+			if(curInput instanceof MultiInput){
+				
+				for(Input curMultiRefInput : ((MultiInput) curInput).inputs()){
+					
+					if(curMultiRefInput instanceof RawInput){
+						
+						ArrayList<Object> nextValues = new ArrayList<Object>(values);
+						nextValues.add(((RawInput) curMultiRefInput).value());
+						instantiateInputRec(nextValues, universe, parentBranches, depth+1);
+						
+					} else
+					if(curMultiRefInput instanceof ReferenceInput){
+						
+						handleReferenceInput(values, universe, parentBranches,	depth, curMultiRefInput);
+						
+					} else
+						throw new IllegalArgumentException("Input type not recognized " + curMultiRefInput);
+					
+				}
+				
+			}
+		
+	}
+
+	private void handleReferenceInput(ArrayList<Object> values,
+			Map<String, Object> universe,
+			List<AbstractModule.BranchImpl> parentBranches, int depth,
+			Input curMultiRefInput) {
+		ReferenceInput ri = (ReferenceInput) curMultiRefInput;
+		List<ModuleInstance> parentInstances = ri.reference().module().instances();
+		for(ModuleInstance mi : parentInstances){
+			if(mi.withinUniverse(universe) ){
+					Map<String, Object> nextUniverse = new LinkedHashMap<String, Object>(universe);
+					nextUniverse.putAll(mi.universe());
+					
+					
+					List<AbstractModule.BranchImpl> nextParentBranches = new ArrayList<AbstractModule.BranchImpl>(parentBranches);
+					nextParentBranches.add((BranchImpl)mi.branch());
+					
+					Object value = mi.output(((ReferenceInput) curMultiRefInput).reference().name()).value();
+					
+					if(!ri.multiValue()){
+						ArrayList<Object> nextValues = new ArrayList<Object>(values);
+						nextValues.add(value);
+
+						instantiateInputRec(nextValues, nextUniverse, nextParentBranches, depth+1);
+					} else {
+						for(Object v : (List<Object>)value){
+							ArrayList<Object> nextValues = new ArrayList<Object>(values);
+							nextValues.add(v);
+
+							instantiateInputRec(nextValues, nextUniverse, nextParentBranches, depth+1);
+						}
+					}
+			}
+		}
+	}
 
 	@Override
 	public boolean finished() {
@@ -349,6 +299,7 @@ public abstract class AbstractModule implements Module
 	
 	@Override
 	public boolean ready(){
+		
 		for(Input input : inputs())
 			if(input instanceof ReferenceInput)
 			{
@@ -449,6 +400,34 @@ public abstract class AbstractModule implements Module
 
 		}
 	
+		public Map<String, Object> universe(){
+			Map<String, Object> valueMap = new LinkedHashMap<String, Object>();
+			
+			for(InstanceInput i : inputs()){
+				valueMap.put(name()+"."+i.name(), i.value() );
+			}
+			for(Branch b : branch().parents()){
+				if(b.point() != null)
+				 valueMap.putAll((b.point()).universe());
+			}
+			return valueMap;
+		}
+		
+		@Override
+		public boolean withinUniverse(Map <String, Object> otherParentValueMap) {
+			Map <String, Object> curParentValueMap = universe();
+			
+			for(String moduleInputKey : otherParentValueMap.keySet()){
+				// Ignoring Different set of module/input
+				if(!curParentValueMap.containsKey(moduleInputKey)) continue;
+				
+				// If the same module/input key are assigned different value we are on different universe/scope
+				if(!curParentValueMap.get(moduleInputKey).equals(otherParentValueMap.get(moduleInputKey)))
+					return false;
+			}
+			
+			return true;
+		}
 	}
 
 	static class BranchImpl implements Branch {

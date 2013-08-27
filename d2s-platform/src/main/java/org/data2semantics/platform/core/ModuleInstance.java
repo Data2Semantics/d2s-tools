@@ -1,6 +1,7 @@
 package org.data2semantics.platform.core;
 
 import java.util.List;
+import java.util.Map;
 
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
@@ -34,12 +35,26 @@ public interface ModuleInstance
 
 	public State state();
 
+	// Output instances of this current module
 	public InstanceOutput output(String name);
 	
 
+	// Input instances of this current module
 	public InstanceInput input(String name);
 	
+	/**
+	 * Branch associated with this module instance
+	 * @return
+	 */
 	public Branch branch();
+
+	/**
+	 * Universe which is defined as Maps of moduleName.inputName to values, of all parent modules for this current instance.
+	 * @return
+	 */
+	public Map<String, Object> universe();
+	
+	public boolean withinUniverse(Map<String, Object> universe);
 	
 	
 }
