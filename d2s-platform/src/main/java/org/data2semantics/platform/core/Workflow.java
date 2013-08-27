@@ -45,8 +45,6 @@ public final class Workflow {
 	private Map<String, WorkflowBuilder.ModuleImpl> modules = new LinkedHashMap<String, WorkflowBuilder.ModuleImpl>();
 	
 	private ArrayList<Module> sortedList = null;
-	
-	Branch rootBranch = new AbstractModule.BranchImpl();
 			
 	/**
 	 * Name of this workflow
@@ -96,10 +94,7 @@ public final class Workflow {
 	public Module getModuleByName(String name){
 		return modules.get(name);
 	}
-	
-	public Branch rootBranch(){
-			return rootBranch;
-	}
+
 	
 	private class ModuleComparator implements Comparator<Module>
 	{

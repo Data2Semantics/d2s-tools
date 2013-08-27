@@ -154,40 +154,31 @@ public abstract class AbstractModule implements Module
 		return result;
 	}
 
-
-	
-
 	@Override
 	public void instantiate(){
 
-		instantiateUniverse();
-		instantiated = true;
-	}
-
-	
-	public void instantiateUniverse(){
 		if(!ready())
 			throw new IllegalStateException("Failed to instantiate, because the module is not ready");
 		
 		if(instantiated)
 			throw new IllegalStateException("Module can't be instantiated twice");
 		
-		ArrayList<Object> values = new ArrayList<Object>();
 		Map<String, Object> universe = new LinkedHashMap<String, Object>();
-		List<AbstractModule.BranchImpl> parentBranches = new ArrayList<AbstractModule.BranchImpl>();
 		
-		instantiateInputRec(values, universe, parentBranches, 0);
+		instantiateInputRec(universe,  0);
+		instantiated = true;
+	
 	}
 
-	private void instantiateInputRec(ArrayList<Object> values,
-			Map<String, Object> universe, List<AbstractModule.BranchImpl> parentBranches,  int depth) {
+	private void instantiateInputRec( Map<String, Object> universe,  int depth) {
 		
 			if(depth == inputs().size()){
 				
-				ModuleInstanceImpl newInstance = new ModuleInstanceImpl();
+				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe);
 				
 				for(int i=0;i<inputs().size();i++){
-					InstanceInput ii = new InstanceInput(this, inputs().get(i), newInstance, values.get(i));
+					Input inp = inputs().get(i);
+					InstanceInput ii = new InstanceInput(this, inp, newInstance, universe.get(name()+"."+inp.name()));
 					newInstance.inputs.put(ii.name(), ii);
 				}
 				
@@ -196,28 +187,21 @@ public abstract class AbstractModule implements Module
 					newInstance.outputs.put(instanceOutput.name(), instanceOutput);
 				}
 				
-				
-				if(parentBranches.size() == 0)
-					parentBranches.add((BranchImpl)workflow().rootBranch);
-				
-				Branch newBranch = BranchImpl.createChild(newInstance, parentBranches);
-				
-				newInstance.setBranch(newBranch);
-				
 				instances.add(newInstance);
 				
 				return;
 			}
 			
 			Input curInput = inputs().get(depth);
+			
 			if(curInput instanceof RawInput){
-				ArrayList<Object> nextValues = new ArrayList<Object>(values);
-				nextValues.add(((RawInput) curInput).value());
-				instantiateInputRec(nextValues, universe, parentBranches, depth+1);
+				
+				handleRawInput( universe, depth, curInput);
 			
 			} else
 			if(curInput instanceof ReferenceInput){
-				handleReferenceInput(values, universe, parentBranches, depth, curInput);
+				
+				handleReferenceInput(universe,  depth, curInput);
 			
 			} else
 			if(curInput instanceof MultiInput){
@@ -226,14 +210,12 @@ public abstract class AbstractModule implements Module
 					
 					if(curMultiRefInput instanceof RawInput){
 						
-						ArrayList<Object> nextValues = new ArrayList<Object>(values);
-						nextValues.add(((RawInput) curMultiRefInput).value());
-						instantiateInputRec(nextValues, universe, parentBranches, depth+1);
+						handleRawInput(universe, depth, curMultiRefInput);
 						
 					} else
 					if(curMultiRefInput instanceof ReferenceInput){
 						
-						handleReferenceInput(values, universe, parentBranches,	depth, curMultiRefInput);
+						handleReferenceInput(universe, 	depth, curMultiRefInput);
 						
 					} else
 						throw new IllegalArgumentException("Input type not recognized " + curMultiRefInput);
@@ -244,35 +226,50 @@ public abstract class AbstractModule implements Module
 		
 	}
 
-	private void handleReferenceInput(ArrayList<Object> values,
-			Map<String, Object> universe,
-			List<AbstractModule.BranchImpl> parentBranches, int depth,
-			Input curMultiRefInput) {
-		ReferenceInput ri = (ReferenceInput) curMultiRefInput;
+	// Handling raw input, add current value to values, and update universe with current assignment
+	private void handleRawInput(Map<String, Object> universe, int depth, Input curInput) {
+		
+		
+		Map<String, Object> nextUniverse = new LinkedHashMap<String, Object>(universe);
+		nextUniverse.put(name()+"."+curInput.name(), ((RawInput) curInput).value());
+		
+		instantiateInputRec(nextUniverse,  depth+1);
+	}
+
+
+
+	private void handleReferenceInput(Map<String, Object> universe, int depth,
+			Input curInput) {
+		
+		ReferenceInput ri = (ReferenceInput) curInput;
 		List<ModuleInstance> parentInstances = ri.reference().module().instances();
+		
 		for(ModuleInstance mi : parentInstances){
+		
 			if(mi.withinUniverse(universe) ){
+				
 					Map<String, Object> nextUniverse = new LinkedHashMap<String, Object>(universe);
 					nextUniverse.putAll(mi.universe());
 					
-					
-					List<AbstractModule.BranchImpl> nextParentBranches = new ArrayList<AbstractModule.BranchImpl>(parentBranches);
-					nextParentBranches.add((BranchImpl)mi.branch());
-					
-					Object value = mi.output(((ReferenceInput) curMultiRefInput).reference().name()).value();
+					Object value = mi.output(((ReferenceInput) curInput).reference().name()).value();
 					
 					if(!ri.multiValue()){
-						ArrayList<Object> nextValues = new ArrayList<Object>(values);
-						nextValues.add(value);
-
-						instantiateInputRec(nextValues, nextUniverse, nextParentBranches, depth+1);
+					
+						nextUniverse = new LinkedHashMap<String, Object>(nextUniverse);
+						nextUniverse.put(name()+"."+curInput.name(), value);
+						
+						instantiateInputRec( nextUniverse,  depth+1);
+					
 					} else {
+							
 						for(Object v : (List<Object>)value){
-							ArrayList<Object> nextValues = new ArrayList<Object>(values);
-							nextValues.add(v);
-
-							instantiateInputRec(nextValues, nextUniverse, nextParentBranches, depth+1);
+					
+							nextUniverse = new LinkedHashMap<String, Object>(nextUniverse);
+							nextUniverse.put(name()+"."+curInput.name(), v);
+							
+							instantiateInputRec( nextUniverse, depth+1);
 						}
+						
 					}
 			}
 		}
@@ -331,11 +328,14 @@ public abstract class AbstractModule implements Module
 		protected State state = State.READY;
 		protected Map<String, InstanceInput> inputs = new LinkedHashMap<String, InstanceInput>();
 		protected Map<String, InstanceOutput> outputs = new LinkedHashMap<String, InstanceOutput>();
+		protected Map<String, Object> universe = new LinkedHashMap<String, Object>();
 		
 		Branch branch;
 		
-		public ModuleInstanceImpl() {
+		public ModuleInstanceImpl(Map<String, Object> universe) {
+			this.universe = universe;
 		}
+
 
 		public Module module()
 		{
@@ -389,122 +389,104 @@ public abstract class AbstractModule implements Module
 
 			return inputs.get(name);
 		}
-		
-		@Override
-		public Branch branch() {
-			return branch;
-		}
-		
-		public void setBranch(Branch b){
-			this.branch = b;
-
-		}
 	
 		public Map<String, Object> universe(){
-			Map<String, Object> valueMap = new LinkedHashMap<String, Object>();
-			
-			for(InstanceInput i : inputs()){
-				valueMap.put(name()+"."+i.name(), i.value() );
-			}
-			for(Branch b : branch().parents()){
-				if(b.point() != null)
-				 valueMap.putAll((b.point()).universe());
-			}
-			return valueMap;
+			return universe;
 		}
 		
 		@Override
 		public boolean withinUniverse(Map <String, Object> otherParentValueMap) {
-			Map <String, Object> curParentValueMap = universe();
 			
 			for(String moduleInputKey : otherParentValueMap.keySet()){
 				// Ignoring Different set of module/input
-				if(!curParentValueMap.containsKey(moduleInputKey)) continue;
+				if(!universe.containsKey(moduleInputKey)) continue;
 				
 				// If the same module/input key are assigned different value we are on different universe/scope
-				if(!curParentValueMap.get(moduleInputKey).equals(otherParentValueMap.get(moduleInputKey)))
+				if(!universe.get(moduleInputKey).equals(otherParentValueMap.get(moduleInputKey)))
 					return false;
 			}
 			
 			return true;
 		}
+
+		@Override
+		public Branch branch() {
+			return null;
+		}
 	}
 
 	static class BranchImpl implements Branch {
-		
-		List<Branch> parents 	= new ArrayList<Branch>();
-		List<Branch> children 	= new ArrayList<Branch>();
-		
-		ModuleInstance creationPoint = null;
-		
-		@Override
-		public List<Branch> parents() {
-			return Collections.unmodifiableList(parents);
-		}
-
-		@Override
-		public List<Branch> children() {
-			return Collections.unmodifiableList(children);
-		}
-
-		@Override
-		public Collection<Branch> ancestors() {
-			Set<Branch> result = new LinkedHashSet<Branch>();
-			
-			result.addAll(parents);
-			for(Branch parent : parents)
-				result.addAll(parent.ancestors());
-			
-			return result;
-		}
-
-		@Override
-		public Collection<Branch> descendants() {
-			Set<Branch> result = new LinkedHashSet<Branch>();
-			
-			result.addAll(children);
-			for(Branch child : children)
-				result.addAll(child.descendants());
-			
-			return result;
-		}
-
-		@Override
-		public ModuleInstance point() {
-			
-			return creationPoint;
-		} 
-		
-		
-		static Branch createChild(ModuleInstance childPoint, List<BranchImpl> parents){
 				
-				BranchImpl newBranch = new BranchImpl();
-				newBranch.creationPoint = childPoint;
-			
-				for(BranchImpl p : parents){
-					p.children.add(newBranch);
+				List<Branch> parents 	= new ArrayList<Branch>();
+				List<Branch> children 	= new ArrayList<Branch>();
+				
+				ModuleInstance creationPoint = null;
+				
+				@Override
+				public List<Branch> parents() {
+					return Collections.unmodifiableList(parents);
+				}
+		
+				@Override
+				public List<Branch> children() {
+					return Collections.unmodifiableList(children);
+				}
+		
+				@Override
+				public Collection<Branch> ancestors() {
+					Set<Branch> result = new LinkedHashSet<Branch>();
+					
+					result.addAll(parents);
+					for(Branch parent : parents)
+						result.addAll(parent.ancestors());
+					
+					return result;
+				}
+		
+				@Override
+				public Collection<Branch> descendants() {
+					Set<Branch> result = new LinkedHashSet<Branch>();
+					
+					result.addAll(children);
+					for(Branch child : children)
+						result.addAll(child.descendants());
+					
+					return result;
+				}
+		
+				@Override
+				public ModuleInstance point() {
+					
+					return creationPoint;
+				} 
+				
+				
+				static Branch createChild(ModuleInstance childPoint, List<BranchImpl> parents){
+						
+						BranchImpl newBranch = new BranchImpl();
+						newBranch.creationPoint = childPoint;
+					
+						for(BranchImpl p : parents){
+							p.children.add(newBranch);
+						}
+						
+						newBranch.parents.addAll(parents);
+						
+						
+						return newBranch;
+				}
+		
+				@Override
+				public Collection<Branch> siblings() {
+					List<ModuleInstance> instanceSiblings = point().module().instances();
+					Set<Branch> result = new HashSet<Branch>();
+					for(ModuleInstance mi : instanceSiblings){
+						if(mi.branch().equals(this)) continue;
+						result.add(mi.branch());
+					}
+					
+					return result;
 				}
 				
-				newBranch.parents.addAll(parents);
-				
-				
-				return newBranch;
-		}
-
-		@Override
-		public Collection<Branch> siblings() {
-			List<ModuleInstance> instanceSiblings = point().module().instances();
-			Set<Branch> result = new HashSet<Branch>();
-			for(ModuleInstance mi : instanceSiblings){
-				if(mi.branch().equals(this)) continue;
-				result.add(mi.branch());
 			}
-			
-			return result;
-		}
-		
-		
-		
-	}
 }
-
