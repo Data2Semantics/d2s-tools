@@ -87,7 +87,7 @@ public class TestDiamonds {
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(4, workflow.getModuleByName("B").instances().size());
 		assertEquals(4, workflow.getModuleByName("C").instances().size());
-		assertEquals(24, workflow.getModuleByName("D").instances().size());
+		assertEquals(16, workflow.getModuleByName("D").instances().size());
 					
 	}
 	

@@ -6,7 +6,7 @@ workflow:
         name: A
         source: org.data2semantics.modules.AdderModule
         inputs:
-            first:  [1,2]
+            first:  [1,5]
             second: 1
     - module:
         name: B
