@@ -1,0 +1,33 @@
+workflow:
+  name: Dot product
+  description: | 
+    This workflow illustrates the possibility of sweeping over a list of modules
+    rather than module outputs
+    
+  modules:
+    - module:
+        name: data source A
+        # outputs: dataset, normalization constant 
+        
+    - module:
+        name: data source B
+        # outputs: dataset, normalization constant         
+
+    - module sweep:
+        name: dataset
+        modules: [data source A, data source B]
+        
+    - module:
+        name: experiment
+        # outputs: dataset, normalization constant
+        
+        inputs: 
+          dataset:
+            reference: dataset.dataset
+
+          normalization constant: 
+            reference: dataset.normalization constant
+            
+     # If this is implemented, the universe should include which module was
+     # chosen for each module sweep which is relevant for the current module
+     # being instantiated.

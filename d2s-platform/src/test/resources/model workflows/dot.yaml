@@ -1,0 +1,32 @@
+workflow:
+  name: Dot product
+  description: | 
+    This workflow illustrates the possibility of dot products for swept inputs
+    in a single module
+    
+  modules:
+    - module:
+        name: data source A
+        # outputs: dataset, normalization constant 
+        
+    - module:
+        name: data source B
+        # outputs: dataset, normalization constant         
+
+    - module:
+        name: experiment
+        # outputs: dataset, normalization constant
+        
+        inputs: 
+          dataset:
+            - reference: A.dataset
+            - reference: B.dataset
+          normalization constant: 
+            - reference: A.normalization constant
+            - reference: B.normalization constant
+            
+        couple: [dataset, normalization constant] # This is where the magic happens
+        
+        # Couple contains one or more lists with two or more of the inputs if 
+        # this module each. Coupled inputs should have multi-inputs of the same 
+        # length (to be checked during parsing if possible).
