@@ -186,18 +186,7 @@ public abstract class AbstractModule implements Module
 			if(depth == inputs().size()){
 				
 				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe);
-				
-				for(Input i : inputs()){
-					
-						  InstanceInput ii = universe.get(i);
-				          ii.setInstance(newInstance);
-				          newInstance.inputs.put(ii.name(), ii);
-				}
-				
-				for(Output original : outputs.values()){
-					InstanceOutput instanceOutput = new InstanceOutput( this, original, newInstance);
-					newInstance.outputs.put(instanceOutput.name(), instanceOutput);
-				}
+		
 				
 				instances.add(newInstance);
 				
@@ -347,6 +336,17 @@ public abstract class AbstractModule implements Module
 		public ModuleInstanceImpl(Map<Input, InstanceInput> universe) {
 			this.universe = universe;
 			
+			for(Input i : module().inputs()){
+				
+					  InstanceInput ii = universe.get(i);
+			          ii.setInstance(this);
+			          this.inputs.put(ii.name(), ii);
+			}
+			
+			for(Output original : module().outputs()){
+				InstanceOutput instanceOutput = new InstanceOutput( module(), original, this);
+				outputs.put(instanceOutput.name(), instanceOutput);
+			}
 
 		}
 
