@@ -15,6 +15,7 @@ import org.data2semantics.platform.execution.ExecutionProfile;
 import org.data2semantics.platform.execution.LocalExecutionProfile;
 import org.data2semantics.platform.execution.Orchestrator;
 import org.data2semantics.platform.execution.ThreadedLocalExecutionProfile;
+import org.data2semantics.platform.reporting.CSVReporter;
 import org.data2semantics.platform.reporting.HTMLReporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.PlatformUtil;
@@ -46,8 +47,7 @@ public class TestIterator {
 			}
 		}
 		
-				
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_dir_iterator"));
+		CSVReporter reporter = new CSVReporter(workflow, new File("output_dir_iterator"));
 		reporter.report();
 	}
 	
