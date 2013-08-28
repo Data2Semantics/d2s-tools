@@ -169,7 +169,18 @@ public abstract class AbstractModule implements Module
 		instantiated = true;
 	
 	}
-
+	
+	/**
+	 * Recursively assign values to inputs of this module, create an instance when all inputs are selected.
+	 * 
+	 * Reference inputs get values from its referred module instance outputs. 
+	 * 
+	 * We only select module instance which is compatible with current universe.
+	 * 
+	 * 
+	 * @param universe
+	 * @param depth
+	 */
 	private void instantiateInputRec( Map<String, Object> universe,  int depth) {
 		
 			if(depth == inputs().size()){
@@ -228,7 +239,6 @@ public abstract class AbstractModule implements Module
 
 	// Handling raw input, add current value to values, and update universe with current assignment
 	private void handleRawInput(Map<String, Object> universe, int depth, Input curInput) {
-		
 		
 		Map<String, Object> nextUniverse = new LinkedHashMap<String, Object>(universe);
 		nextUniverse.put(name()+"."+curInput.name(), ((RawInput) curInput).value());
@@ -488,5 +498,5 @@ public abstract class AbstractModule implements Module
 					return result;
 				}
 				
-			}
+	 }
 }

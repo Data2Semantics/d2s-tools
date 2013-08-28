@@ -52,6 +52,14 @@ public interface ModuleInstance
 	 */
 	public Map<String, Object> universe();
 	
+	/**
+	 * Check whether this module instance is compatible with given {@param universe}.
+	 * 
+	 * Module instances within a universe have similar input value assigned for parents that they share.
+	 * 
+	 * @param universe
+	 * @return
+	 */
 	public boolean withinUniverse(Map<String, Object> universe);
 	
 	
