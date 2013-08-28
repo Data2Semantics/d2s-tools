@@ -38,6 +38,6 @@ public abstract class Input implements Data
 	}
 
 	public String toString(){
-		return name + " " + dataType;
+		return module().name()+"."+name;
 	}
 }

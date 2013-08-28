@@ -163,7 +163,7 @@ public abstract class AbstractModule implements Module
 		if(instantiated)
 			throw new IllegalStateException("Module can't be instantiated twice");
 		
-		Map<String, Object> universe = new LinkedHashMap<String, Object>();
+		Map<Input, InstanceInput> universe = new LinkedHashMap<Input, InstanceInput>();
 		
 		instantiateInputRec(universe,  0);
 		instantiated = true;
@@ -181,16 +181,17 @@ public abstract class AbstractModule implements Module
 	 * @param universe
 	 * @param depth
 	 */
-	private void instantiateInputRec( Map<String, Object> universe,  int depth) {
+	private void instantiateInputRec( Map<Input, InstanceInput> universe,  int depth) {
 		
 			if(depth == inputs().size()){
 				
 				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe);
 				
-				for(int i=0;i<inputs().size();i++){
-					Input inp = inputs().get(i);
-					InstanceInput ii = new InstanceInput(this, inp, newInstance, universe.get(name()+"."+inp.name()));
-					newInstance.inputs.put(ii.name(), ii);
+				for(Input i : inputs()){
+					
+						  InstanceInput ii = universe.get(i);
+				          ii.setInstance(newInstance);
+				          newInstance.inputs.put(ii.name(), ii);
 				}
 				
 				for(Output original : outputs.values()){
@@ -207,12 +208,12 @@ public abstract class AbstractModule implements Module
 			
 			if(curInput instanceof RawInput){
 				
-				handleRawInput( universe, depth, curInput);
+				handleRawInput( universe, depth, curInput, curInput);
 			
 			} else
 			if(curInput instanceof ReferenceInput){
 				
-				handleReferenceInput(universe,  depth, curInput);
+				handleReferenceInput(universe,  depth, curInput, curInput);
 			
 			} else
 			if(curInput instanceof MultiInput){
@@ -221,12 +222,12 @@ public abstract class AbstractModule implements Module
 					
 					if(curMultiRefInput instanceof RawInput){
 						
-						handleRawInput(universe, depth, curMultiRefInput);
+						handleRawInput(universe, depth, curMultiRefInput, curInput);
 						
 					} else
 					if(curMultiRefInput instanceof ReferenceInput){
 						
-						handleReferenceInput(universe, 	depth, curMultiRefInput);
+						handleReferenceInput(universe, 	depth, curMultiRefInput, curInput);
 						
 					} else
 						throw new IllegalArgumentException("Input type not recognized " + curMultiRefInput);
@@ -238,35 +239,36 @@ public abstract class AbstractModule implements Module
 	}
 
 	// Handling raw input, add current value to values, and update universe with current assignment
-	private void handleRawInput(Map<String, Object> universe, int depth, Input curInput) {
+	private void handleRawInput(Map<Input, InstanceInput> universe, int depth, Input curInput, Input origin) {
 		
-		Map<String, Object> nextUniverse = new LinkedHashMap<String, Object>(universe);
-		nextUniverse.put(name()+"."+curInput.name(), ((RawInput) curInput).value());
+		Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
+		nextUniverse.put(origin, new InstanceInput(this, origin, ((RawInput) curInput).value()));
 		
 		instantiateInputRec(nextUniverse,  depth+1);
 	}
 
 
 
-	private void handleReferenceInput(Map<String, Object> universe, int depth,
-			Input curInput) {
+	private void handleReferenceInput(Map<Input, InstanceInput> universe, int depth,
+			Input curInput, Input origin) {
 		
 		ReferenceInput ri = (ReferenceInput) curInput;
 		List<ModuleInstance> parentInstances = ri.reference().module().instances();
 		
+			
 		for(ModuleInstance mi : parentInstances){
 		
 			if(mi.withinUniverse(universe) ){
 				
-					Map<String, Object> nextUniverse = new LinkedHashMap<String, Object>(universe);
+					Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
 					nextUniverse.putAll(mi.universe());
 					
 					Object value = mi.output(((ReferenceInput) curInput).reference().name()).value();
 					
 					if(!ri.multiValue()){
 					
-						nextUniverse = new LinkedHashMap<String, Object>(nextUniverse);
-						nextUniverse.put(name()+"."+curInput.name(), value);
+						nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
+						nextUniverse.put(origin, new InstanceInput(this, origin, value));
 						
 						instantiateInputRec( nextUniverse,  depth+1);
 					
@@ -274,8 +276,8 @@ public abstract class AbstractModule implements Module
 							
 						for(Object v : (List<Object>)value){
 					
-							nextUniverse = new LinkedHashMap<String, Object>(nextUniverse);
-							nextUniverse.put(name()+"."+curInput.name(), v);
+							nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
+							nextUniverse.put(origin, new InstanceInput(this, origin, v));
 							
 							instantiateInputRec( nextUniverse, depth+1);
 						}
@@ -338,12 +340,14 @@ public abstract class AbstractModule implements Module
 		protected State state = State.READY;
 		protected Map<String, InstanceInput> inputs = new LinkedHashMap<String, InstanceInput>();
 		protected Map<String, InstanceOutput> outputs = new LinkedHashMap<String, InstanceOutput>();
-		protected Map<String, Object> universe = new LinkedHashMap<String, Object>();
+		protected Map<Input,  InstanceInput> universe = new LinkedHashMap<Input, InstanceInput>();
 		
 		Branch branch;
 		
-		public ModuleInstanceImpl(Map<String, Object> universe) {
+		public ModuleInstanceImpl(Map<Input, InstanceInput> universe) {
 			this.universe = universe;
+			
+
 		}
 
 
@@ -400,14 +404,14 @@ public abstract class AbstractModule implements Module
 			return inputs.get(name);
 		}
 	
-		public Map<String, Object> universe(){
+		public Map<Input, InstanceInput> universe(){
 			return universe;
 		}
 		
 		@Override
-		public boolean withinUniverse(Map <String, Object> otherParentValueMap) {
+		public boolean withinUniverse(Map <Input, InstanceInput> otherParentValueMap) {
 			
-			for(String moduleInputKey : otherParentValueMap.keySet()){
+			for(Input moduleInputKey : otherParentValueMap.keySet()){
 				// Ignoring Different set of module/input
 				if(!universe.containsKey(moduleInputKey)) continue;
 				

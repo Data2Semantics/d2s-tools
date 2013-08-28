@@ -34,8 +34,10 @@ public class LocalExecutionProfile extends ExecutionProfile {
 					System.out.println("    Inputs : "+mi.inputs());
 					mi.execute();
 					System.out.println("    Outputs : "+mi.outputs());
-					
+					System.out.println(mi+" "+mi.state());
+							
 				}
+				System.out.println(m.name()+" "+m.finished());
 			} else 
 				throw new IllegalStateException("Module not ready: " + m.name());
 		}

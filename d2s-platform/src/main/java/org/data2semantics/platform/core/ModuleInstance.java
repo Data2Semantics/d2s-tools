@@ -50,7 +50,7 @@ public interface ModuleInstance
 	 * Universe which is defined as Maps of moduleName.inputName to values, of all parent modules for this current instance.
 	 * @return
 	 */
-	public Map<String, Object> universe();
+	public Map<Input, InstanceInput> universe();
 	
 	/**
 	 * Check whether this module instance is compatible with given {@param universe}.
@@ -60,7 +60,7 @@ public interface ModuleInstance
 	 * @param universe
 	 * @return
 	 */
-	public boolean withinUniverse(Map<String, Object> universe);
+	public boolean withinUniverse(Map<Input, InstanceInput> universe);
 	
 	
 }
