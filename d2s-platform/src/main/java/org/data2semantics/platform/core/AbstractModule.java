@@ -223,7 +223,11 @@ public abstract class AbstractModule implements Module
 			else
 			if(curInput instanceof RawInput){
 				
-				handleRawInput( universe, depth, curInput, curInput);
+				Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
+				Object nextValue =  ((RawInput) curInput).value();
+				
+				nextUniverse.put(curInput, new InstanceInput(this, curInput, nextValue));
+				instantiateInputRec(nextUniverse,  depth+1);
 			
 			} else
 			if(curInput instanceof ReferenceInput){
@@ -233,19 +237,23 @@ public abstract class AbstractModule implements Module
 			} else
 			if(curInput instanceof MultiInput){
 				
-				for(Input curMultiRefInput : ((MultiInput) curInput).inputs()){
+				List<? extends Input> curMultiInputs = ((MultiInput) curInput).inputs();
+				
+				for(int i =0;i < curMultiInputs.size();i++){
 					
-					if(curMultiRefInput instanceof RawInput){
+					Input curMultiInput = curMultiInputs.get(i);
+					
+					if(curMultiInput instanceof RawInput){
 						
-						handleRawInput(universe, depth, curMultiRefInput, curInput);
-						
-					} else
-					if(curMultiRefInput instanceof ReferenceInput){
-						
-						handleReferenceInput(universe, 	depth, curMultiRefInput, curInput);
+						handleMultiRawInput(universe, depth, (RawInput) curMultiInput, curInput, i);
 						
 					} else
-						throw new IllegalArgumentException("Input type not recognized " + curMultiRefInput);
+					if(curMultiInput instanceof ReferenceInput){
+						
+						handleMultiReferenceInput(universe, depth, (ReferenceInput) curMultiInput, curInput, i);
+						
+					} else
+						throw new IllegalArgumentException("Input type not recognized " + curMultiInput);
 					
 				}
 				
@@ -253,32 +261,110 @@ public abstract class AbstractModule implements Module
 		
 	}
 
-	// Handling raw input, add current value to values, and update universe with current assignment
-	private void handleRawInput(Map<Input, InstanceInput> universe, int depth, Input curInput, Input origin) {
-		
-		Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
-		Object nextValue =  ((RawInput) curInput).value();
-		
-		assignInputValues(origin, nextUniverse, nextValue);
-		instantiateInputRec(nextUniverse,  depth+1);
-
-	}
-
-	private void assignInputValues(Input origin,
-			Map<Input, InstanceInput> nextUniverse, Object nextValue) {
-		
-		Set<String> coupledInputs = coupledInputsFor(origin.name());
-		if(coupledInputs == null){
-			nextUniverse.put(origin, new InstanceInput(this, origin, nextValue));
-		}
-		else {
-			// Immediately put all coupled inputs for this value.
-			for(String ciName : coupledInputs){
-				Input ci = input(ciName);
-				nextUniverse.put(ci, new InstanceInput(this, ci, nextValue));
+	private void handleMultiReferenceInput(Map<Input, InstanceInput> universe,
+			int depth, ReferenceInput curMultiRefInput, Input originInput, int idx) {
+			
+			
+			List<ModuleInstance> parentInstances = curMultiRefInput.reference().module().instances();
+			
+			boolean coupledInputs = coupledInputsFor(originInput.name()) != null;
+			
+			for(ModuleInstance curModuleInstance : parentInstances){
+				
+				if(curModuleInstance.withinUniverse(universe) ){
+					
+					Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
+					nextUniverse.putAll(curModuleInstance.universe());
+					
+					Object nextValue = curModuleInstance.output(curMultiRefInput.reference().name()).value();
+					
+					if(!curMultiRefInput.multiValue()){
+					
+						nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
+						
+						if(!coupledInputs){
+						
+							nextUniverse.put(originInput, new InstanceInput(this, originInput, nextValue));
+							
+						} else {
+							for(String ciName : coupledInputsFor(originInput.name())){
+								
+								// we are only coupling multi inputs
+								if(!(input(ciName) instanceof MultiInput))
+									throw new IllegalStateException(" can't couple non multiple inputs");
+							
+								MultiInput coupledMi = (MultiInput) input(ciName);
+								
+								if(coupledMi.inputs().size() != ((MultiInput)originInput).inputs().size())
+									throw new IllegalStateException("These multiple inputs have different length and can't be coupled");
+								
+								// Raw inputs can only be coupled with another reference input
+								if(!(coupledMi.inputs().get(idx) instanceof ReferenceInput))
+									throw new IllegalStateException(" Reference can only be paired with another reference ");
+						
+								ReferenceInput ri = (ReferenceInput) coupledMi.inputs().get(idx);
+								if(!(ri.reference().module().equals(curMultiRefInput.reference().module())))
+									throw new IllegalStateException(" Reference can only be paired with another reference from the same module");
+						
+								// We are selecting next avlue from the same module instance
+								nextValue = curModuleInstance.output(ri.reference().name()).value();
+								System.out.println("Assigning "+ri.reference().module().name()+"."+ri.reference().name()+" into "+name()+"."+coupledMi.name());
+								nextUniverse.put(coupledMi, new InstanceInput(this, coupledMi, nextValue));
+							}
+						}
+						
+						instantiateInputRec( nextUniverse,  depth+1);
+						
+					
+					} else {
+						// Can't handle multi valued coupled inputs	
+						for(Object v : (List<Object>)nextValue){
+					
+							nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
+							nextUniverse.put(originInput, new InstanceInput(this, originInput, v));
+							
+							instantiateInputRec( nextUniverse, depth+1);
+						}
+						
+					}
+				}
 			}
-		}
+		
 	}
+
+	private void handleMultiRawInput(Map<Input, InstanceInput> universe,
+			int depth, RawInput curMultiInput, Input originInput, int idx) {
+			
+			Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
+		
+			if( coupledInputsFor(originInput.name()) == null){
+				Object nextValue =  curMultiInput.value();
+				
+				nextUniverse.put(originInput, new InstanceInput(this, originInput, nextValue));
+				instantiateInputRec(nextUniverse,  depth+1);
+				
+			} else {
+				for(String ciName : coupledInputsFor(originInput.name())){
+					
+					// we are only coupling multi inputs
+					if(!(input(ciName) instanceof MultiInput))
+						throw new IllegalStateException("Can't pair non multiple inputs");
+					
+					MultiInput mi = (MultiInput) input(ciName);
+					
+					// Raw inputs can only be coupled with another raw input
+					if(!(mi.inputs().get(idx) instanceof RawInput))
+						throw new IllegalStateException("Raw inputs can only be paired with another raw inputs ");
+					
+					RawInput ri = (RawInput) mi.inputs().get(idx);
+					
+					nextUniverse.put(mi, new InstanceInput(this, mi, ri.value()));
+				}
+				
+				instantiateInputRec(nextUniverse,  depth+1);
+			}
+	}
+
 
 
 
@@ -301,9 +387,8 @@ public abstract class AbstractModule implements Module
 					if(!ri.multiValue()){
 					
 						nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-						//nextUniverse.put(origin, new InstanceInput(this, origin, nextValue));
+						nextUniverse.put(origin, new InstanceInput(this, origin, nextValue));
 						
-						assignInputValues(origin, nextUniverse, nextValue);
 						instantiateInputRec( nextUniverse,  depth+1);
 					
 					} else {
@@ -311,9 +396,8 @@ public abstract class AbstractModule implements Module
 						for(Object v : (List<Object>)nextValue){
 					
 							nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-							//nextUniverse.put(origin, new InstanceInput(this, origin, v));
+							nextUniverse.put(origin, new InstanceInput(this, origin, v));
 							
-							assignInputValues(origin, nextUniverse, v);
 							instantiateInputRec( nextUniverse, depth+1);
 						}
 						
@@ -321,6 +405,8 @@ public abstract class AbstractModule implements Module
 			}
 		}
 	}
+
+
 
 	@Override
 	public boolean finished() {
