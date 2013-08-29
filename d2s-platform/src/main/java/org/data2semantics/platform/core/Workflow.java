@@ -247,14 +247,25 @@ public final class Workflow {
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
-				throw new IllegalArgumentException("Module ("+name+") does not exist.");
+				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
 			module.addOutput(name, description, type);
 
 			return this;
 		}
+		
+		public WorkflowBuilder coupledInputs(String moduleName, List<String> coupledInputs)
+		{
+			check();
+			if(! workflow.modules.containsKey(moduleName))
+				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
+			
+			ModuleImpl module = workflow.modules.get(moduleName);
+			module.addCoupledInputs(coupledInputs);
 
+			return this;
+		}
 		/**
 		 * Returns the workflow object
 		 * 
@@ -410,6 +421,12 @@ public final class Workflow {
 				this.name = name;
 			}
 
+			public void addCoupledInputs(List<String> cInputs){
+				Set<String> coupledSet = new HashSet<String>(cInputs);
+				for(String inputName : coupledSet)
+				coupledInputs.put(inputName, coupledSet);
+			}
+			
 			public void addMultiRefInput(String inputName, String description,
 					List<?> multiValues, DataType type) {
 				List< Input> multiInputRefs = new ArrayList<Input>();
@@ -494,6 +511,8 @@ public final class Workflow {
 				
 				inputs.put(name, new RawInput(value,  name, description,  type, this));
 			}
+
+
 
 						
 		}

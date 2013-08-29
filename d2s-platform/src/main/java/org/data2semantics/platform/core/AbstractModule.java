@@ -45,6 +45,7 @@ public abstract class AbstractModule implements Module
 
 	protected Map<String, Input>  inputs = new LinkedHashMap<String, Input>();
 	protected Map<String, Output> outputs = new LinkedHashMap<String, Output>();
+	protected Map<String, Set<String>> coupledInputs = new LinkedHashMap<String, Set<String>>();
 	
 	protected List<ModuleInstance> instances = new ArrayList<ModuleInstance>();
 	
@@ -80,6 +81,23 @@ public abstract class AbstractModule implements Module
 			throw new IllegalArgumentException("Output "+name+" does not exist.");
 
 		return outputs.get(name);	
+	}
+	
+
+	public Set<String> coupledInputsFor(String x) {
+		return coupledInputs.get(x);
+	}
+
+	public boolean coupledInputs(String x, String y) {
+		if(!coupledInputs.containsKey(x)) 
+			return false;
+		
+		Set<String> coupledOfX = coupledInputs.get(x);
+		
+		if(!coupledOfX.contains(y)) 
+			return false;
+		
+		return true;
 	}
 	
 	public String name() 
@@ -195,6 +213,14 @@ public abstract class AbstractModule implements Module
 			
 			Input curInput = inputs().get(depth);
 			
+			// if curInput is already in the universe this means it was coupled with previous inputs.
+			// first coupled input will immediately assign other related/coupled inputs.
+			if(universe.containsKey(curInput)){
+			
+				instantiateInputRec(universe, depth+1);
+			
+			}
+			else
 			if(curInput instanceof RawInput){
 				
 				handleRawInput( universe, depth, curInput, curInput);
@@ -231,9 +257,27 @@ public abstract class AbstractModule implements Module
 	private void handleRawInput(Map<Input, InstanceInput> universe, int depth, Input curInput, Input origin) {
 		
 		Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
-		nextUniverse.put(origin, new InstanceInput(this, origin, ((RawInput) curInput).value()));
+		Object nextValue =  ((RawInput) curInput).value();
 		
+		assignInputValues(origin, nextUniverse, nextValue);
 		instantiateInputRec(nextUniverse,  depth+1);
+
+	}
+
+	private void assignInputValues(Input origin,
+			Map<Input, InstanceInput> nextUniverse, Object nextValue) {
+		
+		Set<String> coupledInputs = coupledInputsFor(origin.name());
+		if(coupledInputs == null){
+			nextUniverse.put(origin, new InstanceInput(this, origin, nextValue));
+		}
+		else {
+			// Immediately put all coupled inputs for this value.
+			for(String ciName : coupledInputs){
+				Input ci = input(ciName);
+				nextUniverse.put(ci, new InstanceInput(this, ci, nextValue));
+			}
+		}
 	}
 
 
@@ -252,22 +296,24 @@ public abstract class AbstractModule implements Module
 					Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
 					nextUniverse.putAll(mi.universe());
 					
-					Object value = mi.output(((ReferenceInput) curInput).reference().name()).value();
+					Object nextValue = mi.output(((ReferenceInput) curInput).reference().name()).value();
 					
 					if(!ri.multiValue()){
 					
 						nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-						nextUniverse.put(origin, new InstanceInput(this, origin, value));
+						//nextUniverse.put(origin, new InstanceInput(this, origin, nextValue));
 						
+						assignInputValues(origin, nextUniverse, nextValue);
 						instantiateInputRec( nextUniverse,  depth+1);
 					
 					} else {
 							
-						for(Object v : (List<Object>)value){
+						for(Object v : (List<Object>)nextValue){
 					
 							nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-							nextUniverse.put(origin, new InstanceInput(this, origin, v));
+							//nextUniverse.put(origin, new InstanceInput(this, origin, v));
 							
+							assignInputValues(origin, nextUniverse, v);
 							instantiateInputRec( nextUniverse, depth+1);
 						}
 						

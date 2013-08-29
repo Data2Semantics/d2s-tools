@@ -1,6 +1,7 @@
 package org.data2semantics.platform.domain;
 
 import java.util.List;
+import java.util.Set;
 
 import org.data2semantics.platform.core.IterationStrategy;
 import org.data2semantics.platform.core.Module;
@@ -122,6 +123,18 @@ public class CommandLineModuleAdapter  implements Module {
 
 	@Override
 	public boolean dependsOn(Module curModule) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Set<String> coupledInputsFor(String x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean coupledInputs(String x, String y) {
 		// TODO Auto-generated method stub
 		return false;
 	}

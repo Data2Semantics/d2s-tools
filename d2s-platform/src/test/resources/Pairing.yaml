@@ -23,4 +23,8 @@ workflow:
                  - reference: A.result
                  - reference: B.result
              second:
-                 0 
+                 - reference: A.result
+                 - reference: B.result
+         couple:
+            - [ first, second ]
+                  

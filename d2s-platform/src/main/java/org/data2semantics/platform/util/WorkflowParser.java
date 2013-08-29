@@ -60,7 +60,7 @@ public class WorkflowParser {
 		{
 			Map module = (Map) m.get("module");
 
-			String name = (String) module.get("name");
+			String moduleName = (String) module.get("name");
 			String source = (String) module.get("source");
 
 			// Default domain
@@ -80,20 +80,24 @@ public class WorkflowParser {
 				if(! Global.domainExists(domainPrefix))
 					throw new RuntimeException("Domain "+domainPrefix+" is not known");
 				
-				domain = Global.domain(name);
+				domain = Global.domain(moduleName);
 			}
 			
 			
 		
 
 			// get name
-			builder.module(name, domain);
+			builder.module(moduleName, domain);
 
 			// get the source
-			builder.source(name, sourceTail);
+			builder.source(moduleName, sourceTail);
 
 			// get the inputs
 			Map inputMap = (Map) module.get("inputs");
+			
+			// Get the coupled inputs
+			List<?> couples = (List <?>) module.get("couple");
+		
 			
 			List<String> errors = new ArrayList<String>();
 			
@@ -121,7 +125,7 @@ public class WorkflowParser {
 					
 					String description = domain.inputDescription(sourceTail, inputName);
 					
-					builder.refInput(name, inputName, description, referencedModule,
+					builder.refInput(moduleName, inputName, description, referencedModule,
 							referencedOutput, inputType);
 					
 				} else
@@ -136,36 +140,50 @@ public class WorkflowParser {
 					if(inputValue instanceof List<?>){
 						
 						if(listItemMatch((List<?>) inputValue, dataType, domain)){
-							builder.multiInput(name,  description, inputName, (List<?>)inputValue, dataType);
+							builder.multiInput(moduleName,  description, inputName, (List<?>)inputValue, dataType);
 						} else 
 						if(listItemMatchOrReference((List<?>)inputValue, dataType, domain)){
-							builder.multiInputRef(name, description, inputName, (List<?>) inputValue, dataType);
+							builder.multiInputRef(moduleName, description, inputName, (List<?>) inputValue, dataType);
 						} else
 						if(domain.valueMatches(inputValue, dataType)){
-							builder.rawInput(name, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
+							builder.rawInput(moduleName, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
 								
 						} else
-							throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
+							throw new InconsistentWorkflowException("Module "+moduleName+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
 						
 					}
 					else 
 					if(domain.valueMatches(inputValue, dataType)){
-						builder.rawInput(name, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
+						builder.rawInput(moduleName, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
 						
 					}
 					
 					else
-						throw new InconsistentWorkflowException("Module "+name+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
+						throw new InconsistentWorkflowException("Module "+moduleName+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
 				}
 			}
-
+			
+			// Process the couple lists
+			if(couples != null)
+			for(Object couple : couples){
+				if(!(couple instanceof List)) throw new InconsistentWorkflowException("Couple info is not a list, it should be a list of input names in this module");
+				List <String> coupleLS = (List<String>) couple;
+				for(String inputName : coupleLS){
+					if(!inputMap.containsKey(inputName)){
+						throw new InconsistentWorkflowException("Couple list contains input "+inputName+" which is not defined for this module ");
+					}
+				}
+				
+				builder.coupledInputs(moduleName, coupleLS);
+			}
+			
 			// ask the domain object for the outputs
 			Map<String, DataType> outputTypeMap = getOutputTypes(source, domain);
 			
 			for(String outputName : outputTypeMap.keySet())
 			{
 				String description = domain.outputDescription(sourceTail, outputName);
-				builder.output(name, outputName, description, outputTypeMap.get(outputName));
+				builder.output(moduleName, outputName, description, outputTypeMap.get(outputName));
 			}
 		}
 		

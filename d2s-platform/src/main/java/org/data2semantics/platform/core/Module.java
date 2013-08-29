@@ -1,6 +1,7 @@
 package org.data2semantics.platform.core;
 
 import java.util.List;
+import java.util.Set;
 
 import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.Output;
@@ -20,15 +21,54 @@ import org.data2semantics.platform.domain.Domain;
 public interface Module 
 {
 		
+		/**
+		 * 
+		 * @return workflow containing current module.
+		 */
 		public Workflow workflow();
 
+		/**
+		 * 
+		 * @return list of current module's outputs
+		 */
 		public abstract List<Output> outputs();
 
+		/**
+		 * 
+		 * @return list of current module's inputs
+		 */
 		public abstract List<Input> inputs();
-
+		
+		/**
+		 * Get set of Inputs which is coupled with current inputs.
+		 * Returns null if there are no such coupled input.
+		 * @param x input name
+		 * @return
+		 */
+		public abstract Set<String> coupledInputsFor(String x);
+		
+		/**
+		 * Check whether the input names given in the argument inputs are coupled
+		 * @param x
+		 * @param y
+		 * @return true if x and y are coupled.
+		 */
+		public boolean coupledInputs(String x, String y);
+		
+		/**
+		 * Function to get input with argument name
+		 * @param name the name of the input requested
+		 *  
+		 **/
 		public Input input(String name);
 		
+		/**
+		 * Function to get output with argument name
+		 * @param name the name of the output requested
+		 *  
+		 **/
 		public Output output(String name);
+		
 		
 		/**
 		 * Function to return all instances of this module, will return null unless the module is {@link #ready}
