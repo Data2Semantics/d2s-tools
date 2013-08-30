@@ -105,77 +105,7 @@ public class WorkflowParser {
 				throw new InconsistentWorkflowException(errors);
 			}
 			
-			// Process all the inputs.
-			for (Object inputKey : inputMap.keySet())
-			{
-				String inputName = inputKey.toString();
-
-				Object inputValue = inputMap.get(inputKey);
-				// If the input is a map, then it is actually a reference input
-				if (inputValue instanceof Map)
-				{
-					Map ref = (Map) inputValue;
-					String referenceString = (String) ref.get("reference");
-
-					// Reference is in : module.output format, we split using .
-					String referencedModule = referenceString.split("\\.")[0];
-					String referencedOutput = referenceString.split("\\.")[1];
-
-					DataType inputType = domain.inputType(sourceTail, inputName);
-					
-					String description = domain.inputDescription(sourceTail, inputName);
-					
-					builder.refInput(moduleName, inputName, description, referencedModule,
-							referencedOutput, inputType);
-					
-				} else
-				{
-					
-					DataType dataType = domain.inputType(sourceTail, inputName);
-					
-					String description = domain.inputDescription(sourceTail, inputName);
-					
-					
-					// First handle multi input case, now we include  the case that items in this list this might also be reference.
-					if(inputValue instanceof List<?>){
-						
-						if(listItemMatch((List<?>) inputValue, dataType, domain)){
-							builder.multiInput(moduleName,  description, inputName, (List<?>)inputValue, dataType);
-						} else 
-						if(listItemMatchOrReference((List<?>)inputValue, dataType, domain)){
-							builder.multiInputRef(moduleName, description, inputName, (List<?>) inputValue, dataType);
-						} else
-						if(domain.valueMatches(inputValue, dataType)){
-							builder.rawInput(moduleName, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
-								
-						} else
-							throw new InconsistentWorkflowException("Module "+moduleName+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
-						
-					}
-					else 
-					if(domain.valueMatches(inputValue, dataType)){
-						builder.rawInput(moduleName, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
-						
-					}
-					
-					else
-						throw new InconsistentWorkflowException("Module "+moduleName+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+dataType+").");
-				}
-			}
-			
-			// Process the couple lists
-			if(couples != null)
-			for(Object couple : couples){
-				if(!(couple instanceof List)) throw new InconsistentWorkflowException("Couple info is not a list, it should be a list of input names in this module");
-				List <String> coupleLS = (List<String>) couple;
-				for(String inputName : coupleLS){
-					if(!inputMap.containsKey(inputName)){
-						throw new InconsistentWorkflowException("Couple list contains input "+inputName+" which is not defined for this module ");
-					}
-				}
-				
-				builder.coupledInputs(moduleName, coupleLS);
-			}
+			parseInputAndCouples(builder, moduleName, domain, sourceTail, inputMap, couples);
 			
 			// ask the domain object for the outputs
 			Map<String, DataType> outputTypeMap = getOutputTypes(source, domain);
@@ -189,7 +119,88 @@ public class WorkflowParser {
 		
 		return builder.workflow();
 	}
+
+	private static void parseInputAndCouples(Workflow.WorkflowBuilder builder,
+			String moduleName, Domain domain, String sourceTail, Map inputMap,
+			List<?> couples) {
+		// Process all the inputs.
+		for (Object inputKey : inputMap.keySet())
+		{
+			String inputName = inputKey.toString();
+
+			Object inputValue = inputMap.get(inputKey);
+			
+			// If the input is a map, then it is actually a reference input
+			if (inputValue instanceof Map)
+			{
+				Map ref = (Map) inputValue;
+				String referenceString = (String) ref.get("reference");
+
+				// Reference is in : module.output format, we split using .
+				String referencedModule = referenceString.split("\\.")[0];
+				String referencedOutput = referenceString.split("\\.")[1];
+
+				DataType inputType = domain.inputType(sourceTail, inputName);
+				
+				String description = domain.inputDescription(sourceTail, inputName);
+				
+				builder.refInput(moduleName, inputName, description, referencedModule,
+						referencedOutput, inputType);
+				
+			} else
+			{
+				
+				DataType inputDataType = domain.inputType(sourceTail, inputName);
+				
+				String description = domain.inputDescription(sourceTail, inputName);
+				
+				
+				// First handle multi input case, now we include  the case that items in this list this might also be reference.
+				if(inputValue instanceof List<?>){
+					
+					// Each item in the list matches the expected input datatype in this domain, we are doing a sweep a.k.a. multi value solely consisting of raw inputs.
+					if(listItemMatch((List<?>) inputValue, inputDataType, domain)){
+						builder.multiInput(moduleName,  description, inputName, (List<?>)inputValue, inputDataType);
+					} else 
+					// Either items in the list are references or they match the expected input data type
+					if(listItemMatchOrReference((List<?>)inputValue, inputDataType, domain)){
+						builder.multiInputRef(moduleName, description, inputName, (List<?>) inputValue, inputDataType);
+					} else
+					// The input are expecting a list.
+					if(domain.valueMatches(inputValue, inputDataType)){
+						builder.rawInput(moduleName, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
+							
+					} else
+						throw new InconsistentWorkflowException("Module "+moduleName+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+inputDataType+").");
+					
+				}
+				else 
+				if(domain.valueMatches(inputValue, inputDataType)){
+					builder.rawInput(moduleName, description, inputName, inputValue, domain.inputType(sourceTail, inputName));
+					
+				}
+				
+				else
+					throw new InconsistentWorkflowException("Module "+moduleName+", input " + inputName + ": value ("+inputValue+") does not match the required data type ("+inputDataType+").");
+			}
+		}
+		
+		// Process the couple lists
+		if(couples != null)
+		for(Object couple : couples){
+			if(!(couple instanceof List)) throw new InconsistentWorkflowException("Couple info is not a list, it should be a list of input names in this module");
+			List <String> coupleLS = (List<String>) couple;
+			for(String inputName : coupleLS){
+				if(!inputMap.containsKey(inputName)){
+					throw new InconsistentWorkflowException("Couple list contains input "+inputName+" which is not defined for this module ");
+				}
+			}
+			
+			builder.coupledInputs(moduleName, coupleLS);
+		}
+	}
 	
+	// Check if list of values provided in workflow description matches the input datatype expected in this domain.
 	private static boolean listItemMatch(List<?> list, DataType type, Domain domain)
 	{
 		for(Object item : list) {

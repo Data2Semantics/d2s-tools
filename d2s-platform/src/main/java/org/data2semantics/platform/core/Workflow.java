@@ -200,26 +200,26 @@ public final class Workflow {
 		 * @param value
 		 * @return
 		 */
-		public WorkflowBuilder multiInput(String moduleName, String description, String name, List<?> value, DataType type)
+		public WorkflowBuilder multiInput(String moduleName, String description, String name, List<?> value, DataType inputDataType)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
 			ModuleImpl module = workflow.modules.get(moduleName);
-			module.addMultiInput(name, description, value, type);
+			module.addMultiInput(name, description, value, inputDataType);
 
 			return this;
 		}
 		
 
-		public WorkflowBuilder multiInputRef(String moduleName, String description, String inputName, List<?> value, DataType type)
+		public WorkflowBuilder multiInputRef(String moduleName, String description, String inputName, List<?> value, DataType inputDataType)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
-			multiReferences.add(Arrays.asList(moduleName, inputName, description, value, type));
+			multiReferences.add(Arrays.asList(moduleName, inputName, description, value, inputDataType));
 			
 			return this;
 		}
@@ -232,13 +232,13 @@ public final class Workflow {
 		 * @param reference
 		 * @return
 		 */
-		public WorkflowBuilder refInput(String moduleName, String inputName, String description, String referencedModule, String referencedOutput, DataType type)
+		public WorkflowBuilder refInput(String moduleName, String inputName, String description, String referencedModule, String referencedOutput, DataType inputType)
 		{
 			check();
 			if(! workflow.modules.containsKey(moduleName))
 				throw new IllegalArgumentException("Module ("+moduleName+") does not exist.");
 			
-			references.add(Arrays.asList(moduleName, inputName, description, referencedModule, referencedOutput, type));
+			references.add(Arrays.asList(moduleName, inputName, description, referencedModule, referencedOutput, inputType));
 
 			return this;
 		}
@@ -322,12 +322,12 @@ public final class Workflow {
 						description = (String) multiRef.get(2);
 				
 				List<?> multiValues = (List<?>) multiRef.get(3);
-				DataType type = (DataType) multiRef.get(4);
+				DataType inputType = (DataType) multiRef.get(4);
 				
 				ModuleImpl module = workflow.modules.get(moduleName);
 				
 				
-				module.addMultiRefInput(inputName, description, multiValues, type);
+				module.addMultiRefInput(inputName, description, multiValues, inputType);
 					
 			}
 			
@@ -339,7 +339,7 @@ public final class Workflow {
 			return result;
 		}
 		
-		private boolean isList(DataType outputType) {
+		private static boolean isList(DataType outputType) {
 			if(!(outputType instanceof JavaType)) return false;
 			JavaType jType = (JavaType)outputType;
 			return List.class.isAssignableFrom(jType.clazz());
@@ -428,7 +428,7 @@ public final class Workflow {
 			}
 			
 			public void addMultiRefInput(String inputName, String description,
-					List<?> multiValues, DataType type) {
+					List<?> multiValues, DataType inputType) {
 				List< Input> multiInputRefs = new ArrayList<Input>();
 				
 				for(Object value : multiValues){
@@ -446,19 +446,24 @@ public final class Workflow {
 				
 				        Output refOutput = refModule.output(referencedOutput);
 				      
-				        ReferenceInput newInput = new ReferenceInput(this, inputName, description, type, refOutput, false);
+				        ReferenceInput newInput = new ReferenceInput(this, inputName, description, inputType, refOutput, false);
 				        
-					
+				        if(domain().typeMatches(refOutput, newInput))
+				        	newInput.setMultiValue(false);
+				        else
+				        if(isList(refOutput.dataType())){
+				        	newInput.setMultiValue(true);
+					    }
 				        multiInputRefs.add(newInput);
 				        
 					} else {
 						
-						RawInput newInput = new RawInput(value, inputName, description,  type, this);
+						RawInput newInput = new RawInput(value, inputName, description,  inputType, this);
 						multiInputRefs.add(newInput);
 					}
 				}
 				
-				inputs.put(inputName, new MultiInput(inputName, description, type, this, multiInputRefs));
+				inputs.put(inputName, new MultiInput(inputName, description, inputType, this, multiInputRefs));
 			}
 
 			public void addRefInput(String inputName, String description, Output referencedOutput, DataType type, boolean multiRef)
