@@ -1,0 +1,157 @@
+package org.data2semantics.platform.domain;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.data2semantics.platform.core.ModuleInstance;
+import org.data2semantics.platform.core.data.DataType;
+import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.core.data.Output;
+import org.yaml.snakeyaml.Yaml;
+
+public class CommandLineDomain implements Domain {
+
+	private static CommandLineDomain domain = new CommandLineDomain();
+
+	
+	@Override
+	public boolean execute(ModuleInstance instance, List<String> errors,
+			Map<String, Object> results) {
+		// TODO 
+		// implement execute module, using pipe/runtime
+		// input and output perhaps either passed through file or environment variables
+		return false;
+	}
+	
+	@Override
+	public boolean typeMatches(Output output, Input input) {
+		// TODO
+		// Implement conversions, we so far only have JavaType datatype
+		return false;
+	}
+
+	@Override
+	public List<DataType> conversions(DataType type) {
+		// TODO
+		// Implement conversions, we so far only have JavaType datatype
+		return null;
+	}
+
+
+	@Override
+	public DataType inputType(String source, String inputName) {
+	
+		return null;
+	}
+
+	@Override
+	public DataType outputType(String source, String outputName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean valueMatches(Object value, DataType type) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<String> outputs(String source) {
+
+		return CommandLineConfigParser.outputs(source);
+	}
+	
+	public List<String> inputs(String source) {
+
+		return CommandLineConfigParser.inputs(source);
+	}
+
+
+	@Override
+	public String inputDescription(String source, String name) {
+		for(Map<String,String> input : CommandLineConfigParser.getInputList(source)){
+			if(input.get("name").equals(name))
+				return input.get("description");
+		}
+		return null;
+	}
+
+	@Override
+	public String outputDescription(String source, String name) {
+		for(Map<String,String> output : CommandLineConfigParser.getOutputList(source)){
+			if(output.get("name").equals(name))
+				return output.get("description");
+		}
+		return null;
+	}
+
+	@Override
+	public boolean check(ModuleInstance instance, List<String> errors) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean validate(String source, List<String> errors) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+	public static CommandLineDomain domain(){
+		return domain;
+	}
+	
+	
+	private static class CommandLineConfigParser{
+	
+
+		
+		static List<String> outputs(String source){
+			List<String> result = new ArrayList<String>();
+			List<Map<String,String>> outputs = getOutputList(source);
+			for(Map<?,?> output: outputs){
+				result.add((String)output.get("name"));
+			}
+			return result;
+		}
+		
+		public static List<String> inputs(String source) {
+			List<String> result = new ArrayList<String>();
+			List<Map<String,String>> inputs = getInputList(source);
+			for(Map<?,?> input: inputs){
+				result.add((String)input.get("name"));
+			}
+			return result;
+		}
+
+		@SuppressWarnings("unchecked")
+		static List<Map<String, String>> getOutputList(String source){
+			Map<?,?> configMap = getConfigMap(source);
+			return  (List<Map<String,String>>)configMap.get("Outputs");
+		}
+		
+		@SuppressWarnings("unchecked")
+		static List<Map<String, String>> getInputList(String source){
+			Map<?,?> configMap = getConfigMap(source);
+			return  (List<Map<String,String>>)configMap.get("Inputs");
+		}
+		private static Map<?,?> getConfigMap(String source) {
+			Map<?,?> result = null;
+			try{
+				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(source));
+				result = (Map<?, ?>) new Yaml().load(bis);
+			} catch(FileNotFoundException e){
+				throw new IllegalArgumentException("Command line source configuration file " +source +" can not be found ");
+			}
+			return result;
+		}
+		
+	}
+
+}

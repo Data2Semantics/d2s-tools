@@ -83,28 +83,28 @@ public interface Domain
 	public List<DataType> conversions(DataType type);
 	
 	/**
-	 * Executes the given module. 
+	 * Executes the given module instance, store all the outputs in results map.
 	 * 
 	 * @return
 	 */
 	public boolean execute(ModuleInstance instance, List<String> errors, Map<String, Object> results);
 	
 	/**
-	 * 
+	 * Return the datatype of a given outputName as defined in the source
 	 * @param source The source description without the domain prefix
-	 * @param name
+	 * @param inputName
 	 * @return
 	 */
-	public DataType inputType(String source, String name);
+	public DataType inputType(String source, String inputName);
 	
 	
 	/**
-	 * 
+	 * Return the datatype of a given outputName as defined in the source
 	 * @param source The source description without the domain prefix
-	 * @param name
+	 * @param outputName
 	 * @return
 	 */
-	public DataType outputType(String source, String name);
+	public DataType outputType(String source, String outputName);
 
 	/**
 	 * Listing the annotated output names of the current module.
