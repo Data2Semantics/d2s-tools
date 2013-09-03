@@ -13,19 +13,21 @@ public class CommandLineDomainTests {
 	public void testArithConfigFile(){
 			CommandLineDomain domain = new CommandLineDomain();
 			
-			final String SOURCE= "src/main/resources/ArithModule.cfg";
+			final String SOURCE= "src/test/resources/ArithModule.cfg";
 			
 			final String [] expectedOutputs = new String[]{"product","sum","difference"};
 			final String [] expectedInputs  = new String[]{"first","second"};
 			final String expectedFirstDescription = "this is the first input";
 			final String expectedProductDescription = "this is the product of the inputs";
+			final String expectedCommandLine ="set /a product=%first%*%second% && set /a sum=%first%+%second% && set /a difference=%first%-%second%";
 			
-			assertEquals(domain.outputs(SOURCE), Arrays.asList(expectedOutputs));
-			assertEquals(domain.inputs(SOURCE), Arrays.asList(expectedInputs));
+			assertEquals(Arrays.asList(expectedOutputs), domain.outputs(SOURCE));
+			assertEquals(Arrays.asList(expectedInputs), domain.inputs(SOURCE));
 			
-			assertEquals(domain.inputDescription(SOURCE, "first"), expectedFirstDescription);
-			assertEquals(domain.outputDescription(SOURCE, "product"), expectedProductDescription);
+			assertEquals(expectedFirstDescription, domain.inputDescription(SOURCE, "first"));
+			assertEquals(expectedProductDescription, domain.outputDescription(SOURCE, "product"));
 			
+			assertEquals( expectedCommandLine, domain.getCommand(SOURCE));
 			
 				
 			

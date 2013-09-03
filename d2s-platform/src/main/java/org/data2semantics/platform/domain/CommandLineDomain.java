@@ -3,6 +3,7 @@ package org.data2semantics.platform.domain;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.Output;
 import org.yaml.snakeyaml.Yaml;
 
@@ -23,7 +25,32 @@ public class CommandLineDomain implements Domain {
 			Map<String, Object> results) {
 		// TODO 
 		// implement execute module, using pipe/runtime
+		
+		String cmdLineSource = instance.module().source();
+		
+		String command = CommandLineConfigParser.getCommand(cmdLineSource);
+		
 		// input and output perhaps either passed through file or environment variables
+		// Setup inputs from module instance
+		
+		List<InstanceInput> inputs = instance.inputs();
+		String []inputEnvironments = new String[inputs.size()];
+		
+		for(int i=0;i<inputEnvironments.length;i++){
+			inputEnvironments[i] = inputs.get(i).name()+"="+inputs.get(i).value();
+		}
+		// Call the main method of the command line
+		try {
+			Runtime.getRuntime().exec(command, inputEnvironments);
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to execute command line module");
+		}
+		
+		// Set back the output to list of results.
+		// The assumption here is that outputs are stored in the environments variables also.
+		
+		
+		
 		return false;
 	}
 	
@@ -69,6 +96,10 @@ public class CommandLineDomain implements Domain {
 	public List<String> inputs(String source) {
 
 		return CommandLineConfigParser.inputs(source);
+	}
+	
+	public String getCommand(String source){
+		return CommandLineConfigParser.getCommand(source);
 	}
 
 
@@ -141,6 +172,14 @@ public class CommandLineDomain implements Domain {
 			Map<?,?> configMap = getConfigMap(source);
 			return  (List<Map<String,String>>)configMap.get("Inputs");
 		}
+		
+		static String getCommand(String source){
+			Map<?,?> configMap = getConfigMap(source);
+			return (String) configMap.get("Command");
+		}
+		
+		
+		
 		private static Map<?,?> getConfigMap(String source) {
 			Map<?,?> result = null;
 			try{
