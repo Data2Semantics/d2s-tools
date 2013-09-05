@@ -1,18 +1,26 @@
 package org.data2semantics.platform.domain;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.data.DataType;
 import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.InstanceInput;
+import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.JavaType;
 import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.util.PlatformUtil;
 import org.yaml.snakeyaml.Yaml;
 
 public class CommandLineDomain implements Domain {
@@ -41,14 +49,48 @@ public class CommandLineDomain implements Domain {
 		}
 		// Call the main method of the command line
 		try {
-			Runtime.getRuntime().exec(command, inputEnvironments);
-		} catch (IOException e) {
-			throw new IllegalStateException("Failed to execute command line module");
+
+			ProcessBuilder pb = new ProcessBuilder( command, "&&set");
+
+			Map<String, String> env = pb.environment();
+			
+			for(InstanceInput input: inputs){
+				env.put(input.name(), input.value().toString());
+				System.out.println("Setting env " + input.name()+" = "+input.value());
+			}
+			
+
+			Process process = pb.start();       
+			pb.redirectErrorStream(true);
+
+			process.waitFor();
+			
+			InputStream stdout = process.getInputStream ();
+			BufferedReader stdOutReader = new BufferedReader (new InputStreamReader(stdout));
+
+			String outLine;
+
+			Map<String, String> envResults = new LinkedHashMap<String, String>();
+			while ((outLine = stdOutReader.readLine ()) != null) {
+			    if(outLine.trim().length() > 0){
+			    	if(!outLine.contains("="))continue;
+			    	String [] keyValue = outLine.split("=");
+			    	envResults.put(keyValue[0], keyValue[1]);
+			    }    
+			}
+			
+			for(InstanceOutput output : instance.outputs()){
+				results.put(output.name(), envResults.get(output.name()));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IllegalStateException("Failed to execute command line module "+e.getMessage());
+			
 		}
 		
 		// Set back the output to list of results.
 		// The assumption here is that outputs are stored in the environments variables also.
-		
 		
 		
 		return false;
@@ -72,19 +114,22 @@ public class CommandLineDomain implements Domain {
 	@Override
 	public DataType inputType(String source, String inputName) {
 	
-		return null;
+		return new JavaType(Integer.class);
 	}
 
 	@Override
 	public DataType outputType(String source, String outputName) {
 		// TODO Auto-generated method stub
-		return null;
+		return new JavaType(Integer.class);
 	}
 
 	@Override
 	public boolean valueMatches(Object value, DataType type) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		
+		JavaType jType = (JavaType)type;
+		
+		return PlatformUtil.isAssignableFrom(jType.clazz(), value.getClass());
 	}
 
 	@Override
@@ -129,8 +174,9 @@ public class CommandLineDomain implements Domain {
 
 	@Override
 	public boolean validate(String source, List<String> errors) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		
+		return true;
 	}
 
 	
@@ -182,6 +228,7 @@ public class CommandLineDomain implements Domain {
 		
 		private static Map<?,?> getConfigMap(String source) {
 			Map<?,?> result = null;
+			if(source.contains(":")) source = source.split(":")[1];
 			try{
 				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(source));
 				result = (Map<?, ?>) new Yaml().load(bis);

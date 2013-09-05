@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import org.data2semantics.platform.domain.CommandLineDomain;
 import org.data2semantics.platform.domain.Domain;
 import org.data2semantics.platform.domain.JavaDomain;
 import org.data2semantics.platform.domain.PythonDomain;
@@ -19,6 +20,7 @@ public class Global
 		// for now 
 		domains.put("java", new JavaDomain());
 		domains.put("python", new PythonDomain());
+		domains.put("cli", new CommandLineDomain());
 	}
 
 	public static boolean domainExists(String name)

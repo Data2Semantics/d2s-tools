@@ -80,7 +80,7 @@ public class WorkflowParser {
 				if(! Global.domainExists(domainPrefix))
 					throw new RuntimeException("Domain "+domainPrefix+" is not known");
 				
-				domain = Global.domain(moduleName);
+				domain = Global.domain(domainPrefix);
 			}
 			
 			
