@@ -497,6 +497,10 @@ public class JavaDomain implements Domain
 	}
 
 	@Override
+	/**
+	 * Look within annotated source code and tries to find output named name.
+	 * Return its java type as datatype.
+	 */
 	public DataType outputType(String source, String name)
 	{
 		Class<?> theClass = loadClass(source);

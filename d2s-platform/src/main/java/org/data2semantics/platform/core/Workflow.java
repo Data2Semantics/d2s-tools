@@ -312,7 +312,7 @@ public final class Workflow {
 					((ReferenceInput) module.input(inputName)).setMultiValue(true);
 							
 				} else
-					throw new InconsistentWorkflowException("Input type of ("+moduleName + "."+inputName+") and output type "+refOutput+"."+refOutputName+"does not match ");
+					throw new InconsistentWorkflowException("Input type of "+moduleName + "."+inputName+" ("+module.input(inputName).dataType()+") and output type "+refModuleName+"."+refOutputName+" ("+outputType+") does not match ");
 					
 			}
 			
