@@ -31,7 +31,7 @@ public class CommandLineDomainTests {
 			final String [] expectedInputs  = new String[]{"first","second"};
 			final String expectedFirstDescription = "this is the first input";
 			final String expectedProductDescription = "this is the product of the inputs";
-			final String expectedCommandLine ="src/test/resources/arith.bat";
+			final String expectedCommandLine ="src/test/resources/commandLine/arith.bat";
 			
 			assertEquals(Arrays.asList(expectedOutputs), domain.outputs(SOURCE));
 			assertEquals(Arrays.asList(expectedInputs), domain.inputs(SOURCE));

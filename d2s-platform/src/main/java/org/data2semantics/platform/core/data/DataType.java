@@ -5,4 +5,7 @@ public interface DataType {
 		public String name();
 				
 		public String domain();
+
+		public Class<?> clazz();
+		
 }

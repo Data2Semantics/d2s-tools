@@ -1,0 +1,10 @@
+workflow:
+   name: "Test workflow"
+   modules:
+
+    - module:
+        name: A
+        source: cli:src/test/resources/ArithModule.cfg
+        inputs:
+            first:  10
+            second: 1111

@@ -20,11 +20,11 @@ workflow:
             
             
     - module:
-        name: Multiplier
-        source: org.data2semantics.modules.MultiplierModule
+        name: ArithModule
+        source: cli:src/test/resources/commandLine/ArithModule.cfg
         inputs:
             first: 
-                reference: Spawn2.result
+                reference: Spawn1.result
             second: 
                 reference: Adder.result
                 
@@ -44,7 +44,7 @@ workflow:
         source: org.data2semantics.modules.AdderModule
         inputs:
             first: 
-                reference: Multiplier.result
+                reference: ArithModule.result
             second:
                 10
  

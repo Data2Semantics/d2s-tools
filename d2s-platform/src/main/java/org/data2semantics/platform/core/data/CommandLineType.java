@@ -1,40 +1,60 @@
 package org.data2semantics.platform.core.data;
 
-public class CommandLineType implements DataType
-{
-	
-	protected Class<?> javaClass;
-	
-	
-	public CommandLineType(Class<?> javaClass)
-	{
-		super();
-		this.javaClass = javaClass;
+public class CommandLineType implements DataType {
+
+	public static enum Types {
+		INTEGER("integer"), STRING("string");
+
+		String v;
+
+		private Types(String v) {
+			this.v = v;
+		}
+
+		public String toString() {
+			return v;
+		}
+	}
+
+	Types type;
+
+	public CommandLineType(Types type) {
+		this.type = type;
 	}
 
 	@Override
-	public String name()
-	{
-		return javaClass.getCanonicalName();
+	public String name() {
+		return type.toString();
 	}
 
 	@Override
-	public String domain()
-	{
-		return "java";
+	public String domain() {
+		return "cli";
 	}
 
-	public Class<?> clazz(){
-		return javaClass;
+	// Getting java equivalent
+	public Class<?> clazz() {
+		switch (type) {
+		case INTEGER:
+			return Integer.class;
+
+		}
+
+		return String.class;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return clazz().toString();
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-	
-		return javaClass.equals(((CommandLineType)obj).clazz());
+
+	public Object valueOf(String stringValue) {
+
+		switch (type) {
+			case INTEGER:
+				return Integer.valueOf(stringValue);
+
+		}
+
+		return String.class;
 	}
 }

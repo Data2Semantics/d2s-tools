@@ -506,9 +506,10 @@ public abstract class AbstractModule implements Module
 			boolean success = domain.execute(this, errors, results);
 		
 			// After execution, set values of output so that it can be referenced later on.
-			for(String resultName : results.keySet())
+			for(String resultName : results.keySet()){
+				System.out.println("Setting result " + resultName+" value "+ results.get(resultName));
 				outputs.get(resultName).setValue(results.get(resultName));
-			
+			}
 			state = success ? State.FINISHED : State.FAILED;
 			
 			return success;

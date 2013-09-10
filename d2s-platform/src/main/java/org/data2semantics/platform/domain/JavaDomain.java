@@ -37,8 +37,8 @@ public class JavaDomain implements Domain
 	@Override
 	public boolean typeMatches(Output output, Input input)
 	{
-		JavaType outputType = (JavaType) output.dataType();
-		JavaType inputType = (JavaType) input.dataType();
+		DataType outputType = output.dataType();
+		DataType inputType =  input.dataType();
 		
 		return PlatformUtil.isAssignableFrom( inputType.clazz(), outputType.clazz());
 	}
