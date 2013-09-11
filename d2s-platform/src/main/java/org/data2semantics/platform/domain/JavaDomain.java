@@ -445,7 +445,7 @@ public class JavaDomain implements Domain
 		}
 		
 		
-		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+".");
+		throw new IllegalArgumentException("@In field with name "+name+" not found in "+source+" (perhaps it isn't public?).");
 	}
 
 	private Class<?> loadClass(String source)

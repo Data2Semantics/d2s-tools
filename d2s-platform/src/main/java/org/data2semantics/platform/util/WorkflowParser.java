@@ -122,7 +122,8 @@ public class WorkflowParser {
 
 	private static void parseInputAndCouples(Workflow.WorkflowBuilder builder,
 			String moduleName, Domain domain, String sourceTail, Map inputMap,
-			List<?> couples) {
+			List<?> couples) 
+	{
 		// Process all the inputs.
 		for (Object inputKey : inputMap.keySet())
 		{

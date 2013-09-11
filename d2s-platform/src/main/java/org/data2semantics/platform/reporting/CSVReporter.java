@@ -24,6 +24,7 @@ import org.data2semantics.platform.core.data.Input;
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
 import org.data2semantics.platform.core.data.Output;
+import org.data2semantics.platform.util.Functions;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -136,7 +137,7 @@ public class CSVReporter implements Reporter
 				line[i++]=""; // Blank to separate inputs with outputs
 									
 				for(InstanceOutput output : instance.outputs())
-					line[i++] = output.value().toString(); 
+					line[i++] = Functions.toString(output.value()); 
 				
 						
 			
