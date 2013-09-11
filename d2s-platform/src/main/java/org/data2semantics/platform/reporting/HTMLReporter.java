@@ -1,5 +1,7 @@
 package org.data2semantics.platform.reporting;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,6 +13,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.data2semantics.platform.Global;
@@ -32,6 +36,13 @@ import de.neuland.jade4j.template.JadeTemplate;
 
 public class HTMLReporter implements Reporter
 {
+	public static List<Parser> parsers = new ArrayList<Parser>();
+	
+	static  {
+		parsers.add(new ImageParser());
+		parsers.add(new ToStringParser());
+	}
+	
 	private Workflow workflow;
 	private File root;
 
@@ -103,6 +114,10 @@ public class HTMLReporter implements Reporter
 
 			// Problems deleting template in windows
 			FileUtils.deleteQuietly(temp);
+		}
+		public JadeConfiguration jadeConfig()
+		{
+			return config;
 		}
 
 		private String produceDotString()
@@ -378,7 +393,9 @@ public class HTMLReporter implements Reporter
 					Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
 					inputMap.put("name", input.name());
 					inputMap.put("description", input.description());
-					inputMap.put("value", input.value());
+					inputMap.put("value",
+							parse(input.value(), input.name(), instanceDir)
+						);
 	
 					inputs.add(inputMap);
 				}
@@ -394,7 +411,9 @@ public class HTMLReporter implements Reporter
 					outputMap.put("name", output.name());
 					outputMap.put("description", output.description());
 	
-					outputMap.put("value", Functions.toString(output.value()));
+					outputMap.put("value", 
+							parse(output.value(), output.name(), instanceDir)
+						);
 	
 					outputs.add(outputMap);
 				}
@@ -434,8 +453,18 @@ public class HTMLReporter implements Reporter
 
 			return config.getTemplate(raw);
 		}
-	}
+		
+		public String parse(Object value, String name, File dir)
+		{
+			for(Parser parser : parsers)
+				if(parser.accept(value))
+					return parser.parse(value, name, this, dir);
+				
+			throw new RuntimeException("No parser found for value: "+ value);
+		}
 
+	}
+	
 	/**
 	 * Whether all result values represent numbers
 	 * 
@@ -537,6 +566,84 @@ public class HTMLReporter implements Reporter
 			}
 
 		return numbers;
+	}
+	
+	public static interface Parser 
+	{
+		/**
+		 * Whether thiw parser accepts this value
+		 * @return
+		 */
+		public boolean accept(Object value);
+		
+		public String parse(Object value, String name, ReportWriter writer, File dir);
+	} 
+	
+	public static class ToStringParser implements Parser
+	{
+
+		@Override
+		public boolean accept(Object value)
+		{
+			return true;
+		}
+
+		@Override
+		public String parse(Object value, String name, ReportWriter writer, File dir)
+		{
+			return Functions.toString(value);
+		}
+		
+	}
+	
+	public static class ImageParser implements Parser {
+
+		@Override
+		public boolean accept(Object value)
+		{
+			return value instanceof RenderedImage;
+		}
+
+		@Override
+		public String parse(Object value, String name, ReportWriter writer, File dir)
+		{
+			RenderedImage image = (RenderedImage) value;
+			
+			// * Write the image
+			File imageDir = new File(dir, "images/");
+			imageDir.mkdirs();
+			
+			String filename = name + "-" + Functions.randomString(5) + ".png";
+			File imageFile = new File(imageDir, filename);
+			try
+			{
+				ImageIO.write(image, "PNG", imageFile);
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+			
+			// * Collate the data
+			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
+			
+			templateData.put("name", name);
+			templateData.put("url", imageFile.toString());
+			
+			// * Load the template
+			JadeTemplate tpl;
+			try
+			{
+				tpl = writer.getTemplate("parser.image.jade");
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+
+			// * Process the template
+
+			return writer.jadeConfig().renderTemplate(tpl, templateData);
+		}
+	
 	}
 
 }
