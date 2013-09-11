@@ -23,4 +23,6 @@ public @interface Main {
 	public String name() default "result";
 	
 	public String description() default "";
+	
+	public boolean print() default true;
 }

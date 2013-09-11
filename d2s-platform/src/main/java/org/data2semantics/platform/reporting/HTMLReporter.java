@@ -218,7 +218,9 @@ public class HTMLReporter implements Reporter
 
 				List<String> inputNames = new ArrayList<String>();
 				for (Input input : module.inputs())
-					inputNames.add(input.name());
+					if(input.print())
+						inputNames.add(input.name());
+				
 				templateData.put("input_names", inputNames);
 
 				int i = 0;
@@ -229,7 +231,8 @@ public class HTMLReporter implements Reporter
 					// * Collect the instance inputs
 					List<String> instanceInputs = new ArrayList<String>();
 					for (InstanceInput input : instance.inputs())
-						instanceInputs.add(input.value().toString());
+						if(input.original().print())
+							instanceInputs.add(input.value().toString());
 
 					// * Collect the instance information
 					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
@@ -248,74 +251,77 @@ public class HTMLReporter implements Reporter
 
 			List<Map<String, Object>> outputs = new ArrayList<Map<String, Object>>();
 			for (Output output : module.outputs())
-			{
-				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
-				outputMap.put("name", output.name());
-				outputMap.put("description", output.description());
-
-				List<Map<String, Object>> outputInstances = new ArrayList<Map<String, Object>>();
-
-				// * Collect values for all instances
-				List<Object> values = new ArrayList<Object>();
-				for (ModuleInstance instance : module.instances())
+				if(output.print())
 				{
-					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
-
-					List<String> inputs = new ArrayList<String>();
-					for (InstanceInput input : instance.inputs())
-						inputs.add(input.value().toString());
-
-					instanceMap.put("inputs", inputs);
-
-					Object value = instance.output(output.name()).value();
-					instanceMap.put("output", Functions.toString(value));
-					values.add(value);
-
-					outputInstances.add(instanceMap);
+					Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
+					outputMap.put("name", output.name());
+					outputMap.put("description", output.description());
+	
+					List<Map<String, Object>> outputInstances = new ArrayList<Map<String, Object>>();
+	
+					// * Collect values for all instances
+					List<Object> values = new ArrayList<Object>();
+					for (ModuleInstance instance : module.instances())
+					{
+						Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
+	
+						List<String> inputs = new ArrayList<String>();
+						for (InstanceInput input : instance.inputs())
+							if(input.original().print())
+								inputs.add(input.value().toString());
+	
+						instanceMap.put("inputs", inputs);
+	
+						Object value = instance.output(output.name()).value();
+						instanceMap.put("output", Functions.toString(value));
+						values.add(value);
+	
+						outputInstances.add(instanceMap);
+					}
+					outputMap.put("instances", outputInstances);
+	
+					// * Collect summary info
+					boolean isNumeric = isNumeric(values);
+					outputMap.put("is_numeric", isNumeric);
+	
+					FrequencyModel<Object> fm = new FrequencyModel<Object>(values);
+					outputMap.put("mode", Functions.toString(fm.sorted().get(0)));
+					outputMap.put("mode_frequency",
+							fm.frequency(fm.sorted().get(0)));
+					outputMap.put("num_instances", values.size());
+					outputMap.put("entropy", fm.entropy());
+	
+					if (isNumeric)
+					{
+						List<Number> numbers = numbers(values);
+	
+						outputMap.put("mean", mean(numbers));
+						outputMap.put("dev", standardDeviation(numbers));
+						outputMap.put("median", median(numbers));
+	
+					}
+	
+					outputs.add(outputMap);
 				}
-				outputMap.put("instances", outputInstances);
-
-				// * Collect summary info
-				boolean isNumeric = isNumeric(values);
-				outputMap.put("is_numeric", isNumeric);
-
-				FrequencyModel<Object> fm = new FrequencyModel<Object>(values);
-				outputMap.put("mode", Functions.toString(fm.sorted().get(0)));
-				outputMap.put("mode_frequency",
-						fm.frequency(fm.sorted().get(0)));
-				outputMap.put("num_instances", values.size());
-				outputMap.put("entropy", fm.entropy());
-
-				if (isNumeric)
-				{
-					List<Number> numbers = numbers(values);
-
-					outputMap.put("mean", mean(numbers));
-					outputMap.put("dev", standardDeviation(numbers));
-					outputMap.put("median", median(numbers));
-
-				}
-
-				outputs.add(outputMap);
-			}
 
 			templateData.put("outputs", outputs);
 
 			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
 			for (Input input : module.inputs())
-			{
-				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
-				inputMap.put("name", input.name());
-				inputMap.put("description", input.description());
-
-				List<String> values = new ArrayList<String>();
-				for (ModuleInstance instance : module.instances())
-					values.add(Functions.toString(instance.input(input.name())
-							.value()));
-
-				inputMap.put("values", values);
-				inputs.add(inputMap);
-			}
+				if(input.print())
+				{
+					Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+					inputMap.put("name", input.name());
+					inputMap.put("description", input.description());
+	
+					List<String> values = new ArrayList<String>();
+					for (ModuleInstance instance : module.instances())
+						values.add(Functions.toString(instance.input(input.name())
+								.value()));
+	
+					inputMap.put("values", values);
+					inputs.add(inputMap);
+				}
 
 			templateData.put("inputs", inputs);
 
@@ -349,8 +355,8 @@ public class HTMLReporter implements Reporter
 		 * @param instance
 		 * @param instanceDir
 		 */
-		private void instanceOutput(ModuleInstance instance, File instanceDir,
-				int i) throws IOException
+		private void instanceOutput(
+				ModuleInstance instance, File instanceDir, int i) throws IOException
 		{
 
 			// * The data we will pass to the template
@@ -367,29 +373,31 @@ public class HTMLReporter implements Reporter
 			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
 
 			for (InstanceInput input : instance.inputs())
-			{
-				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
-				inputMap.put("name", input.name());
-				inputMap.put("description", input.description());
-				inputMap.put("value", input.value());
-
-				inputs.add(inputMap);
-			}
+				if(input.original().print())
+				{
+					Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+					inputMap.put("name", input.name());
+					inputMap.put("description", input.description());
+					inputMap.put("value", input.value());
+	
+					inputs.add(inputMap);
+				}
 
 			templateData.put("inputs", inputs);
 
 			List<Map<String, Object>> outputs = new ArrayList<Map<String, Object>>();
 
 			for (InstanceOutput output : instance.outputs())
-			{
-				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
-				outputMap.put("name", output.name());
-				outputMap.put("description", output.description());
-
-				outputMap.put("value", Functions.toString(output.value()));
-
-				outputs.add(outputMap);
-			}
+				if(output.original().print())
+				{
+					Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
+					outputMap.put("name", output.name());
+					outputMap.put("description", output.description());
+	
+					outputMap.put("value", Functions.toString(output.value()));
+	
+					outputs.add(outputMap);
+				}
 
 			templateData.put("outputs", outputs);
 

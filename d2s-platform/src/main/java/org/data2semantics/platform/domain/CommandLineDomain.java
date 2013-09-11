@@ -306,4 +306,19 @@ public class CommandLineDomain implements Domain {
 		
 	}
 
+
+	@Override
+	public boolean printInput(String source, String input)
+	{
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean printOutput(String source, String input)
+	{
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 }

@@ -17,8 +17,6 @@ public class MultiInput extends Input
 	// Not only raw input but allowing these multiple inputs to be also reference inputs.
 	private List<? extends Input> inputs;
 	
-	
-	
 	public MultiInput(String name, String description, DataType dataType, Module module,
 			List<? extends Input> inputs)
 	{

@@ -146,5 +146,10 @@ public interface Domain
 	 * @return Whether or not the source contains any errors
 	 */
 	public boolean validate(String source, List<String> errors);
+	
+	public boolean printInput(String source, String input);
+	
+	public boolean printOutput(String source, String input);
+
 
 }

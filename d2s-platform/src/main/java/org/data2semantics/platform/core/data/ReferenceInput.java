@@ -24,6 +24,16 @@ public class ReferenceInput extends Input
 		this.multiValue = multiValue;
 	}
 	
+	public ReferenceInput(Module module, String name, String description, DataType dataType,
+			Output refOutput, boolean multiValue, boolean print)
+	{
+		super(name, description, dataType, module, print);
+		
+		this.refOutput = refOutput;
+		
+		this.multiValue = multiValue;
+	}	
+	
 	public Output reference()
 	{
 		return refOutput;
