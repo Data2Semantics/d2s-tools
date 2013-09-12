@@ -69,4 +69,12 @@ public class CommandLineDomainTests {
 		CSVReporter reporter = new CSVReporter(workflow, new File("output_dir_iterator"));
 		reporter.report();
 	}
+	
+	@Test
+	public void testProcessBuilder() throws IOException{
+		
+		ProcessBuilder pb = new ProcessBuilder("src/test/resources/commandLine/arith.bat");
+		Process p = pb.start();
+		
+	}
 }

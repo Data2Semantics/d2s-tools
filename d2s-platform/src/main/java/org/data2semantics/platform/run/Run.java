@@ -101,7 +101,7 @@ public class Run
 					new CSVReporter(workflow, new File(output, "csv/"))
 				);
 		
-    	Orchestrator orchestrator = new Orchestrator(workflow,  executionProfile, rp);
+    	Orchestrator orchestrator = new Orchestrator(workflow,  executionProfile, rp, reporters);
     	
     	orchestrator.orchestrate();
     	

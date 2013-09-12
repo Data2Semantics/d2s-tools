@@ -1,11 +1,13 @@
 package org.data2semantics.platform.execution;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.reporting.Reporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 
 
@@ -17,7 +19,7 @@ import org.data2semantics.platform.resourcespace.ResourceSpace;
 public class LocalExecutionProfile extends ExecutionProfile {
 
 	@Override
-	public void executeModules(List<Module> modules) {
+	public void executeModules(List<Module> modules, List<Reporter> reporters) {
 		
 		for(Module m : modules){
 
@@ -38,6 +40,16 @@ public class LocalExecutionProfile extends ExecutionProfile {
 							
 				}
 				System.out.println(m.name()+" "+m.finished());
+				
+				for(Reporter reporter : reporters){
+					
+					try {
+						reporter.report();
+				
+					} catch (IOException e) {
+						
+					}
+				}
 			} else 
 				throw new IllegalStateException("Module not ready: " + m.name());
 		}

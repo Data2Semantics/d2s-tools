@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.reporting.Reporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 
 
@@ -39,13 +40,22 @@ public class Orchestrator {
 	// Result space, where we will have the results stored
 	private ResourceSpace resourceSpace;
 	
-	// Retries policy, how many times a failed modules should be retried
+	List<Reporter> reporters;
 	public Orchestrator(Workflow w, ExecutionProfile ep, ResourceSpace rs)
 	{
 		workflow = w;
 		executionProfile = ep;
 		resourceSpace = rs;
-		
+		reporters = new ArrayList<Reporter>();
+		//currentWorkflow.setResourceSpace(resourceSpace);
+	}
+	// Retries policy, how many times a failed modules should be retried
+	public Orchestrator(Workflow w, ExecutionProfile ep, ResourceSpace rs, List<Reporter> rep)
+	{
+		workflow = w;
+		executionProfile = ep;
+		resourceSpace = rs;
+		reporters = rep;
 		//currentWorkflow.setResourceSpace(resourceSpace);
 	}
 	
@@ -64,7 +74,7 @@ public class Orchestrator {
 		
 		// Instantiate and execute modules on stages (based on rank)
 		
-		executionProfile.executeModules(workflow.modules());
+		executionProfile.executeModules(workflow.modules(), reporters);
 		
 		logModuleStatuses();
 	}

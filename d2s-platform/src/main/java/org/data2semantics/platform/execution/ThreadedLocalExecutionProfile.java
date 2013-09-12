@@ -1,5 +1,6 @@
 package org.data2semantics.platform.execution;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -10,6 +11,7 @@ import java.util.concurrent.Future;
 
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
+import org.data2semantics.platform.reporting.Reporter;
 
 public class ThreadedLocalExecutionProfile extends ExecutionProfile {
 
@@ -21,7 +23,7 @@ public class ThreadedLocalExecutionProfile extends ExecutionProfile {
 	
 	
 	@Override
-	public void executeModules(List<Module> modules) {
+	public void executeModules(List<Module> modules, List<Reporter> reporters) {
 		
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
 		 
@@ -56,6 +58,16 @@ public class ThreadedLocalExecutionProfile extends ExecutionProfile {
 				
 			} else 
 				throw new IllegalStateException("Module not ready: " + m.name());
+			
+			for(Reporter reporter : reporters){
+				
+				try {
+					reporter.report();
+			
+				} catch (IOException e) {
+					
+				}
+			}
 		}		
 		
 		
