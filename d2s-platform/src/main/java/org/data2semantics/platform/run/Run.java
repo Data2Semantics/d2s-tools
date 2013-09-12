@@ -14,6 +14,7 @@ import org.data2semantics.platform.execution.Orchestrator;
 import org.data2semantics.platform.execution.ThreadedLocalExecutionProfile;
 import org.data2semantics.platform.reporting.CSVReporter;
 import org.data2semantics.platform.reporting.HTMLReporter;
+import org.data2semantics.platform.reporting.PROVReporter;
 import org.data2semantics.platform.reporting.Reporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.util.WorkflowParser;
@@ -98,7 +99,8 @@ public class Run
 		
 		List<Reporter> reporters = Arrays.asList(
 					new HTMLReporter(workflow, new File(output, "report/")),
-					new CSVReporter(workflow, new File(output, "csv/"))
+					new CSVReporter(workflow, new File(output, "csv/")),
+					new PROVReporter(workflow, new File(output, "prov/"))
 				);
 		
     	Orchestrator orchestrator = new Orchestrator(workflow,  executionProfile, rp);
