@@ -65,7 +65,7 @@ public class Run
     		file = new File(run.arguments.get(0));
     	
     	if(! file.exists())
-    		usageExit("Workflow file ("+run.arguments.get(0)+") does not exist.", parser);
+    		usageExit("Workflow file ("+file+") does not exist.", parser);
     	
     	// -- Beyond this point, errors are not the user's fault, and should not
     	//    cause a usage print. 
