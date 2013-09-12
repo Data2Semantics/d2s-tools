@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.commons.jexl2.parser.JexlNode.Literal;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
@@ -19,7 +20,9 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.util.Literals;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
@@ -77,7 +80,7 @@ public class PROVReporter implements Reporter {
 		URI agURI = factory.createURI(PROV_NAMESPACE, "Agent");
 		URI watURI  = factory.createURI(PROV_NAMESPACE, "wasAttributedTo");
 		URI wawURI  = factory.createURI(PROV_NAMESPACE, "wasAssociatedWith");
-		*/
+		*/	
 		
 		for (Module module : workflow.modules()) {
 			//URI moduleURI = factory.createURI(NAMESPACE, module.name());
@@ -93,24 +96,31 @@ public class PROVReporter implements Reporter {
 					stmts.add(factory.createStatement(ioURI, RDF.TYPE, eURI)); // entity
 					stmts.add(factory.createStatement(ioURI, wgbURI, miURI)); // wasGeneratedBy
 					//stmts.add(factory.createStatement(ioURI, watURI, moduleURI)); // wasAttributedTo
+					
+					// If we can create a literal
+					if (Literals.canCreateLiteral(io.value())) {
+						stmts.add(factory.createStatement(ioURI, valueURI, Literals.createLiteral(factory, io.value())));
+						stmts.add(factory.createStatement(ioURI, RDFS.LABEL, Literals.createLiteral(factory, io)));
+					}
 				}
 				
 				for (InstanceInput ii : mi.inputs()) {
 					URI iiURI = null;
 					
-					if (ii.original() instanceof ReferenceInput) {
+					if (ii.instanceOutput() != null) {
 						iiURI = factory.createURI(NAMESPACE + "module/", ii.instanceOutput().module().name() 
 								+ ii.instanceOutput().instance().moduleID() + "/output/" + ii.name());
 					} else {
 						iiURI = factory.createURI(NAMESPACE + "module/", module.name() + mi.moduleID()
 								+ "/input/" + ii.name());
+						
+						// If we can create a literal
+						if (Literals.canCreateLiteral(ii.value())) {
+							stmts.add(factory.createStatement(iiURI, valueURI, Literals.createLiteral(factory, ii.value())));
+							stmts.add(factory.createStatement(iiURI, RDFS.LABEL, Literals.createLiteral(factory, ii)));
+						}			
 					}
-					
-					// If we have a displayable value we add this is a property
-					if (ii.print()) {
-						stmts.add(factory.createStatement(iiURI, valueURI, factory.createLiteral(Functions.toString(ii.value()))));
-					}
-					
+							
 					stmts.add(factory.createStatement(iiURI, RDF.TYPE, eURI)); // entity
 					stmts.add(factory.createStatement(miURI, usedURI, iiURI)); // used					
 				}
