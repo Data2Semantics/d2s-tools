@@ -16,6 +16,10 @@ public interface ModuleInstance
 {
 	public Module module();
 
+	
+	public int moduleID();
+	
+	
 	/**
 	 * This module's singular inputs.
 	 * @return
