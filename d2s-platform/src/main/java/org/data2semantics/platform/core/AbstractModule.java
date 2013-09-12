@@ -203,7 +203,7 @@ public abstract class AbstractModule implements Module
 		
 			if(depth == inputs().size()){
 				
-				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe);
+				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe, instances.size());
 		
 				
 				instances.add(newInstance);
@@ -468,9 +468,11 @@ public abstract class AbstractModule implements Module
 		protected Map<String, InstanceOutput> outputs = new LinkedHashMap<String, InstanceOutput>();
 		protected Map<Input,  InstanceInput> universe = new LinkedHashMap<Input, InstanceInput>();
 		
-		Branch branch;
+		protected Branch branch;
+		protected int moduleID=0;
 		
-		public ModuleInstanceImpl(Map<Input, InstanceInput> universe) {
+		public ModuleInstanceImpl(Map<Input, InstanceInput> universe, int id) {
+			this.moduleID=id;
 			this.universe = universe;
 			
 			for(Input i : module().inputs()){
@@ -487,7 +489,10 @@ public abstract class AbstractModule implements Module
 
 		}
 
-
+		public int moduleID(){
+			return moduleID;
+		}
+		
 		public Module module()
 		{
 			return AbstractModule.this;
