@@ -103,7 +103,7 @@ public class Run
 					new PROVReporter(workflow, new File(output, "prov/"))
 				);
 		
-    	Orchestrator orchestrator = new Orchestrator(workflow,  executionProfile, rp);
+    	Orchestrator orchestrator = new Orchestrator(workflow,  executionProfile, rp, reporters);
     	
     	orchestrator.orchestrate();
     	
