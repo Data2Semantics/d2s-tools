@@ -22,7 +22,16 @@ public class LocalExecutionProfile extends ExecutionProfile {
 	public void executeModules(List<Module> modules, List<Reporter> reporters) {
 		
 		for(Module m : modules){
-
+			for(Reporter reporter : reporters){
+				
+				try {
+					reporter.report();
+			
+				} catch (IOException e) {
+					
+				}
+			}
+			
 			if(m.ready()){
 				
 				// Instances of this module will be created
@@ -41,15 +50,7 @@ public class LocalExecutionProfile extends ExecutionProfile {
 				}
 				System.out.println(m.name()+" "+m.finished());
 				
-				for(Reporter reporter : reporters){
-					
-					try {
-						reporter.report();
-				
-					} catch (IOException e) {
-						
-					}
-				}
+			
 			} else 
 				throw new IllegalStateException("Module not ready: " + m.name());
 		}

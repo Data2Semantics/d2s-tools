@@ -28,7 +28,17 @@ public class ThreadedLocalExecutionProfile extends ExecutionProfile {
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
 		 
 		for(Module m : modules){
-
+			
+			for(Reporter reporter : reporters){
+				
+				try {
+					reporter.report();
+			
+				} catch (IOException e) {
+					
+				}
+			}
+			
 			if(m.ready()){
 				
 				// Instances of this module will be created
@@ -59,15 +69,7 @@ public class ThreadedLocalExecutionProfile extends ExecutionProfile {
 			} else 
 				throw new IllegalStateException("Module not ready: " + m.name());
 			
-			for(Reporter reporter : reporters){
-				
-				try {
-					reporter.report();
 			
-				} catch (IOException e) {
-					
-				}
-			}
 		}		
 		
 		
