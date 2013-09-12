@@ -300,9 +300,9 @@ public class HTMLReporter implements Reporter
 					outputMap.put("is_numeric", isNumeric);
 	
 					FrequencyModel<Object> fm = new FrequencyModel<Object>(values);
-					outputMap.put("mode", Functions.toString(fm.sorted().get(0)));
+					outputMap.put("mode", (fm.distinct() > 0) ? Functions.toString(fm.sorted().get(0)) : "");
 					outputMap.put("mode_frequency",
-							fm.frequency(fm.sorted().get(0)));
+							(fm.distinct()>0) ? fm.frequency(fm.sorted().get(0)) : 0);
 					outputMap.put("num_instances", values.size());
 					outputMap.put("entropy", fm.entropy());
 	
