@@ -87,12 +87,12 @@ public class PROVReporter implements Reporter {
 			//stmts.add(factory.createStatement(moduleURI, RDF.TYPE, agURI));
 			
 			for (ModuleInstance mi : module.instances()) {
-				URI miURI = factory.createURI(NAMESPACE + "module/", module.name() + mi.moduleID());
+				URI miURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID());
 				stmts.add(factory.createStatement(miURI, RDF.TYPE, acURI)); // Activity
 				//stmts.add(factory.createStatement(miURI, wawURI, moduleURI)); // wasAssociatedWith
 				
 				for (InstanceOutput io : mi.outputs()) {
-					URI ioURI = factory.createURI(NAMESPACE + "module/", module.name() + mi.moduleID() + "/output/" + io.name());
+					URI ioURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID() + "/output/" + io.name());
 					stmts.add(factory.createStatement(ioURI, RDF.TYPE, eURI)); // entity
 					stmts.add(factory.createStatement(ioURI, wgbURI, miURI)); // wasGeneratedBy
 					//stmts.add(factory.createStatement(ioURI, watURI, moduleURI)); // wasAttributedTo
@@ -108,10 +108,10 @@ public class PROVReporter implements Reporter {
 					URI iiURI = null;
 					
 					if (ii.instanceOutput() != null) {
-						iiURI = factory.createURI(NAMESPACE + "module/", ii.instanceOutput().module().name() 
+						iiURI = factory.createURI(NAMESPACE + "module/instance/", ii.instanceOutput().module().name() 
 								+ ii.instanceOutput().instance().moduleID() + "/output/" + ii.name());
 					} else {
-						iiURI = factory.createURI(NAMESPACE + "module/", module.name() + mi.moduleID()
+						iiURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID()
 								+ "/input/" + ii.name());
 						
 						// If we can create a literal

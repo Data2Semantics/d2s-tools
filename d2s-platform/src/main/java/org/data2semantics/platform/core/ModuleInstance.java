@@ -21,6 +21,10 @@ public interface ModuleInstance
 	
 	public long creationTime();
 	
+	public long startTime();
+	
+	public long endTime();
+	
 	/**
 	 * This module's singular inputs.
 	 * @return

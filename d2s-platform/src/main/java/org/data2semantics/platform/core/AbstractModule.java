@@ -471,6 +471,8 @@ public abstract class AbstractModule implements Module
 		protected Branch branch;
 		protected int moduleID=0;
 		protected long creationTime = 0;
+		protected long startTime = 0;
+		protected long endTime = 0;
 		public ModuleInstanceImpl(Map<Input, InstanceInput> universe, int id) {
 			this.moduleID=id;
 			this.universe = universe;
@@ -492,6 +494,15 @@ public abstract class AbstractModule implements Module
 		public long creationTime(){
 			return creationTime;
 		}
+		
+		public long startTime() {
+			return startTime;
+		}
+		
+		public long endTime() {
+			return endTime;
+		}
+		
 		public int moduleID(){
 			return moduleID;
 		}
@@ -516,8 +527,10 @@ public abstract class AbstractModule implements Module
 			ArrayList<String> errors = new ArrayList<String>();
 			Map<String, Object> results = new LinkedHashMap<String, Object>();
 			
+			startTime = System.currentTimeMillis();
 			boolean success = domain.execute(this, errors, results);
-		
+			endTime = System.currentTimeMillis();
+			
 			// After execution, set values of output so that it can be referenced later on.
 			for(String resultName : results.keySet()){
 				System.out.println("Setting result " + resultName+" value "+ results.get(resultName));
