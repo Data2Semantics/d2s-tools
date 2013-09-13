@@ -1,0 +1,82 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>data2semantics</groupId>
+  <artifactId>RDFmodel</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>RDFmodel</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+   <build>
+     <resources>
+       <resource>
+         <directory>src/main/resources</directory>
+       </resource>
+     </resources>
+     <pluginManagement>
+       <plugins>
+         <plugin>
+<artifactId>maven-compiler-plugin</artifactId>
+           <version>2.3.2</version>
+           <configuration>
+               <source>1.6</source>
+               <target>1.6</target>
+               <encoding>UTF-8</encoding>
+            </configuration>
+           <executions>
+             <execution>
+               <id>default-testCompile</id>
+               <phase>test-compile</phase>
+               <goals>
+                 <goal>testCompile</goal>
+               </goals>
+             </execution>
+             <execution>
+               <id>default-compile</id>
+               <phase>compile</phase>
+               <goals>
+                 <goal>compile</goal>
+               </goals>
+             </execution>
+           </executions>
+         </plugin>
+       </plugins>
+     </pluginManagement>
+ </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.openrdf.sesame</groupId>
+    	<artifactId>sesame-runtime</artifactId>
+    	<version>2.7.5</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.openrdf.sesame</groupId>
+    	<artifactId>sesame-rio-turtle</artifactId>
+    	<version>2.7.5</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.openrdf.sesame</groupId>
+    	<artifactId>sesame-rio-n3</artifactId>
+    	<version>2.7.5</version>
+    </dependency>
+    <dependency>
+    	<groupId>data2semantics</groupId>
+    	<artifactId>d2s-platform</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+</project>

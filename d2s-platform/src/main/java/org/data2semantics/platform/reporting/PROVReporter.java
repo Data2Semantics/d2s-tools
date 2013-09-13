@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.jexl2.parser.JexlNode.Literal;
 import org.data2semantics.platform.core.Module;
@@ -73,6 +74,9 @@ public class PROVReporter implements Reporter {
 		URI acURI = factory.createURI(PROV_NAMESPACE, "Activity");
 		URI usedURI = factory.createURI(PROV_NAMESPACE, "used");
 		URI wgbURI  = factory.createURI(PROV_NAMESPACE, "wasGeneratedBy");
+		URI	genAtURI  = factory.createURI(PROV_NAMESPACE, "generatedAtTime");
+		URI	startAtURI  = factory.createURI(PROV_NAMESPACE, "startedAtTime");
+		URI	endAtURI  = factory.createURI(PROV_NAMESPACE, "endedAtTime");
 		
 		URI valueURI = factory.createURI(NAMESPACE, "value");
 		
@@ -89,15 +93,19 @@ public class PROVReporter implements Reporter {
 			for (ModuleInstance mi : module.instances()) {
 				URI miURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID());
 				stmts.add(factory.createStatement(miURI, RDF.TYPE, acURI)); // Activity
+				stmts.add(factory.createStatement(miURI, startAtURI, Literals.createLiteral(factory, new Date(mi.startTime())))); // Start time
+				stmts.add(factory.createStatement(miURI, endAtURI, Literals.createLiteral(factory, new Date(mi.endTime())))); // end time
+				
 				//stmts.add(factory.createStatement(miURI, wawURI, moduleURI)); // wasAssociatedWith
 				
 				for (InstanceOutput io : mi.outputs()) {
 					URI ioURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID() + "/output/" + io.name());
 					stmts.add(factory.createStatement(ioURI, RDF.TYPE, eURI)); // entity
 					stmts.add(factory.createStatement(ioURI, wgbURI, miURI)); // wasGeneratedBy
+					stmts.add(factory.createStatement(ioURI, genAtURI, Literals.createLiteral(factory, new Date(io.creationTime())))); // generated at time
 					//stmts.add(factory.createStatement(ioURI, watURI, moduleURI)); // wasAttributedTo
 					
-					// If we can create a literal
+					// If we can create a literal of the value, save it and create a rdfs-label
 					if (Literals.canCreateLiteral(io.value())) {
 						stmts.add(factory.createStatement(ioURI, valueURI, Literals.createLiteral(factory, io.value())));
 						stmts.add(factory.createStatement(ioURI, RDFS.LABEL, Literals.createLiteral(factory, io)));
