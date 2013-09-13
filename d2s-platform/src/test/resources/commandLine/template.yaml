@@ -1,0 +1,20 @@
+
+workflow:
+   name: "Template workflow"
+   modules:
+
+    - module:
+        name: Replicate 
+        source: cli:src/test/resources/commandLine/replicate.cfg
+        inputs:
+            filepath: "src/test/resources/commandLine/arith.bat"
+            nReplicate: 3
+
+    - module:
+        name: Dump 
+        source: cli:src/test/resources/commandLine/dumptext.cfg
+        inputs:
+            filepath: 
+                reference: Replicate.result
+
+   

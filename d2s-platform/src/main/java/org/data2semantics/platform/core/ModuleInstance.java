@@ -16,6 +16,15 @@ public interface ModuleInstance
 {
 	public Module module();
 
+	
+	public int moduleID();
+	
+	public long creationTime();
+	
+	public long startTime();
+	
+	public long endTime();
+	
 	/**
 	 * This module's singular inputs.
 	 * @return

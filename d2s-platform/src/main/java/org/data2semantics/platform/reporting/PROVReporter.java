@@ -2,12 +2,17 @@ package org.data2semantics.platform.reporting;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.commons.jexl2.parser.JexlNode.Literal;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
+import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
+import org.data2semantics.platform.core.data.ReferenceInput;
+import org.data2semantics.platform.util.Functions;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -15,7 +20,9 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.util.Literals;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
@@ -45,6 +52,7 @@ public class PROVReporter implements Reporter {
 		super();
 		this.workflow = workflow;
 		this.root = root;
+		root.mkdirs();
 	}
 
 	@Override
@@ -62,36 +70,65 @@ public class PROVReporter implements Reporter {
 		Model stmts = new LinkedHashModel();
 		
 		URI eURI = factory.createURI(PROV_NAMESPACE, "Entity");
-		URI agURI = factory.createURI(PROV_NAMESPACE, "Agent");
 		URI acURI = factory.createURI(PROV_NAMESPACE, "Activity");
 		URI usedURI = factory.createURI(PROV_NAMESPACE, "used");
-		URI wgbURI  = factory.createURI(NAMESPACE, "wasGeneratedBy");
-		URI watURI  = factory.createURI(NAMESPACE, "wasAttributedTo");
-		URI wawURI  = factory.createURI(NAMESPACE, "wasAssociatedWith");
+		URI wgbURI  = factory.createURI(PROV_NAMESPACE, "wasGeneratedBy");
+		
+		URI valueURI = factory.createURI(NAMESPACE, "value");
+		
+		/* agent uri's
+		URI agURI = factory.createURI(PROV_NAMESPACE, "Agent");
+		URI watURI  = factory.createURI(PROV_NAMESPACE, "wasAttributedTo");
+		URI wawURI  = factory.createURI(PROV_NAMESPACE, "wasAssociatedWith");
+		*/	
 		
 		for (Module module : workflow.modules()) {
-			URI moduleURI = factory.createURI(NAMESPACE, module.name());
-			stmts.add(factory.createStatement(moduleURI, RDF.TYPE, agURI));
+			//URI moduleURI = factory.createURI(NAMESPACE, module.name());
+			//stmts.add(factory.createStatement(moduleURI, RDF.TYPE, agURI));
 			
-			int id = 1;
 			for (ModuleInstance mi : module.instances()) {
-				URI miURI = factory.createURI(NAMESPACE, module.name() + "_" + id);
-				id++;
+				URI miURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID());
 				stmts.add(factory.createStatement(miURI, RDF.TYPE, acURI)); // Activity
-				stmts.add(factory.createStatement(miURI, wawURI, moduleURI)); // wasAssociatedWith
+				//stmts.add(factory.createStatement(miURI, wawURI, moduleURI)); // wasAssociatedWith
 				
-				for(InstanceOutput io : mi.outputs()) {
-					URI ioURI = factory.createURI(NAMESPACE, io.name() + "_" + io.value().toString());
+				for (InstanceOutput io : mi.outputs()) {
+					URI ioURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID() + "/output/" + io.name());
 					stmts.add(factory.createStatement(ioURI, RDF.TYPE, eURI)); // entity
-					stmts.add(factory.createStatement(miURI, usedURI, ioURI)); // used
 					stmts.add(factory.createStatement(ioURI, wgbURI, miURI)); // wasGeneratedBy
-					stmts.add(factory.createStatement(ioURI, watURI, moduleURI)); // wasAttributedTo
+					//stmts.add(factory.createStatement(ioURI, watURI, moduleURI)); // wasAttributedTo
+					
+					// If we can create a literal
+					if (Literals.canCreateLiteral(io.value())) {
+						stmts.add(factory.createStatement(ioURI, valueURI, Literals.createLiteral(factory, io.value())));
+						stmts.add(factory.createStatement(ioURI, RDFS.LABEL, Literals.createLiteral(factory, io)));
+					}
+				}
+				
+				for (InstanceInput ii : mi.inputs()) {
+					URI iiURI = null;
+					
+					if (ii.instanceOutput() != null) {
+						iiURI = factory.createURI(NAMESPACE + "module/instance/", ii.instanceOutput().module().name() 
+								+ ii.instanceOutput().instance().moduleID() + "/output/" + ii.name());
+					} else {
+						iiURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID()
+								+ "/input/" + ii.name());
+						
+						// If we can create a literal
+						if (Literals.canCreateLiteral(ii.value())) {
+							stmts.add(factory.createStatement(iiURI, valueURI, Literals.createLiteral(factory, ii.value())));
+							stmts.add(factory.createStatement(iiURI, RDFS.LABEL, Literals.createLiteral(factory, ii)));
+						}			
+					}
+							
+					stmts.add(factory.createStatement(iiURI, RDF.TYPE, eURI)); // entity
+					stmts.add(factory.createStatement(miURI, usedURI, iiURI)); // used					
 				}
 			}
 		}
 		
 		File file = new File(root, PROV_FILE);
-		RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, new FileOutputStream(file));
+		RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, new FileWriter(file));
 		
 		try {
 			writer.startRDF();
