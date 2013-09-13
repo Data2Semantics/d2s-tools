@@ -69,7 +69,7 @@ html
             //- The tab with the summary of this output (graph, means etc).
             #tab-summary 
               if output.is_numeric
-                .graph.chart-container(data-source="data-table-#{output.name}")
+                .graph.chart-container(data-source="data-table-#{output.safe_name}")
               table
                 tr
                   th mode
