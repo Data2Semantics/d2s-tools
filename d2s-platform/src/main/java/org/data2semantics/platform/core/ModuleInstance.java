@@ -19,6 +19,7 @@ public interface ModuleInstance
 	
 	public int moduleID();
 	
+	public long creationTime();
 	
 	/**
 	 * This module's singular inputs.

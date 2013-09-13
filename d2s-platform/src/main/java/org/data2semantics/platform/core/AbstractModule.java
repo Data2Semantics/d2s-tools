@@ -470,7 +470,7 @@ public abstract class AbstractModule implements Module
 		
 		protected Branch branch;
 		protected int moduleID=0;
-		
+		protected long creationTime = 0;
 		public ModuleInstanceImpl(Map<Input, InstanceInput> universe, int id) {
 			this.moduleID=id;
 			this.universe = universe;
@@ -486,9 +486,12 @@ public abstract class AbstractModule implements Module
 				InstanceOutput instanceOutput = new InstanceOutput( module(), original, this);
 				outputs.put(instanceOutput.name(), instanceOutput);
 			}
-
+			creationTime = System.currentTimeMillis();
 		}
 
+		public long creationTime(){
+			return creationTime;
+		}
 		public int moduleID(){
 			return moduleID;
 		}
