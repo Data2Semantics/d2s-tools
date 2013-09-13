@@ -1,5 +1,7 @@
 package org.data2semantics.platform.reporting;
 
+import static org.data2semantics.platform.reporting.ReporterTools.safe;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
@@ -270,6 +272,7 @@ public class HTMLReporter implements Reporter
 				{
 					Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
 					outputMap.put("name", output.name());
+					outputMap.put("safe-name", safe(output.name()));
 					outputMap.put("description", output.description());
 	
 					List<Map<String, Object>> outputInstances = new ArrayList<Map<String, Object>>();
