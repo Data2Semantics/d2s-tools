@@ -68,5 +68,37 @@ public class CommandLineDomainTests {
 		
 		CSVReporter reporter = new CSVReporter(workflow, new File("output_dir_iterator"));
 		reporter.report();
+		
+	}
+	
+	@Test 
+	public void testTemplateWorkflow() throws IOException{
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/commandLine/template.yaml");
+		
+		ResourceSpace resourceSpace = new ResourceSpace();
+		
+		ExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
+		
+		platformOrchestrator.orchestrate();
+		
+		for(Module m : workflow.modules()){
+			System.out.println("\nModule " + m.name());
+			
+			for(ModuleInstance mi :  m.instances()){
+					for(InstanceOutput io : mi.outputs())
+					System.out.print(io.name()+":"+io.value()+ " ");
+			}
+		}
+		
+		
+	}
+	@Test
+	public void testProcessBuilder() throws IOException{
+		
+		ProcessBuilder pb = new ProcessBuilder("src/test/resources/commandLine/arith.bat");
+		Process p = pb.start();
+		
 	}
 }

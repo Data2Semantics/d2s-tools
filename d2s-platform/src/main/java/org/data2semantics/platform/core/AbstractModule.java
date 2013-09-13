@@ -203,7 +203,7 @@ public abstract class AbstractModule implements Module
 		
 			if(depth == inputs().size()){
 				
-				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe);
+				ModuleInstanceImpl newInstance = new ModuleInstanceImpl(universe, instances.size());
 		
 				
 				instances.add(newInstance);
@@ -276,7 +276,8 @@ public abstract class AbstractModule implements Module
 					Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
 					nextUniverse.putAll(curModuleInstance.universe());
 					
-					Object nextValue = curModuleInstance.output(curMultiRefInput.reference().name()).value();
+					InstanceOutput refInstanceOutput= curModuleInstance.output(curMultiRefInput.reference().name());
+					Object nextValue = refInstanceOutput.value();
 					
 					if(!curMultiRefInput.multiValue()){
 					
@@ -284,7 +285,7 @@ public abstract class AbstractModule implements Module
 						
 						if(!coupledInputs){
 						
-							nextUniverse.put(originInput, new InstanceInput(this, originInput, nextValue));
+							nextUniverse.put(originInput, new InstanceInput(this, originInput, nextValue, refInstanceOutput));
 							
 						} else {
 							for(String ciName : coupledInputsFor(originInput.name())){
@@ -307,9 +308,10 @@ public abstract class AbstractModule implements Module
 									throw new IllegalStateException(" Reference can only be paired with another reference from the same module");
 						
 								// We are selecting next avlue from the same module instance
-								nextValue = curModuleInstance.output(ri.reference().name()).value();
+								InstanceOutput refIO = curModuleInstance.output(ri.reference().name()); 
+								nextValue = refIO.value();
 								System.out.println("Assigning "+ri.reference().module().name()+"."+ri.reference().name()+" into "+name()+"."+coupledMi.name());
-								nextUniverse.put(coupledMi, new InstanceInput(this, coupledMi, nextValue));
+								nextUniverse.put(coupledMi, new InstanceInput(this, coupledMi, nextValue, refIO));
 							}
 						}
 						
@@ -321,7 +323,7 @@ public abstract class AbstractModule implements Module
 						for(Object v : (List<Object>)nextValue){
 					
 							nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-							nextUniverse.put(originInput, new InstanceInput(this, originInput, v));
+							nextUniverse.put(originInput, new InstanceInput(this, originInput, v, refInstanceOutput));
 							
 							instantiateInputRec( nextUniverse, depth+1);
 						}
@@ -382,12 +384,15 @@ public abstract class AbstractModule implements Module
 					Map<Input, InstanceInput> nextUniverse = new LinkedHashMap<Input, InstanceInput>(universe);
 					nextUniverse.putAll(mi.universe());
 					
-					Object nextValue = mi.output(((ReferenceInput) curInput).reference().name()).value();
+					InstanceOutput refInstanceOutput = mi.output(((ReferenceInput) curInput).reference().name());
+					Object nextValue = refInstanceOutput.value();
+					
+					
 					
 					if(!ri.multiValue()){
 					
 						nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-						nextUniverse.put(origin, new InstanceInput(this, origin, nextValue));
+						nextUniverse.put(origin, new InstanceInput(this, origin, nextValue, refInstanceOutput));
 						
 						instantiateInputRec( nextUniverse,  depth+1);
 					
@@ -396,7 +401,7 @@ public abstract class AbstractModule implements Module
 						for(Object v : (List<Object>)nextValue){
 					
 							nextUniverse = new LinkedHashMap<Input, InstanceInput>(nextUniverse);
-							nextUniverse.put(origin, new InstanceInput(this, origin, v));
+							nextUniverse.put(origin, new InstanceInput(this, origin, v, refInstanceOutput));
 							
 							instantiateInputRec( nextUniverse, depth+1);
 						}
@@ -463,9 +468,13 @@ public abstract class AbstractModule implements Module
 		protected Map<String, InstanceOutput> outputs = new LinkedHashMap<String, InstanceOutput>();
 		protected Map<Input,  InstanceInput> universe = new LinkedHashMap<Input, InstanceInput>();
 		
-		Branch branch;
-		
-		public ModuleInstanceImpl(Map<Input, InstanceInput> universe) {
+		protected Branch branch;
+		protected int moduleID=0;
+		protected long creationTime = 0;
+		protected long startTime = 0;
+		protected long endTime = 0;
+		public ModuleInstanceImpl(Map<Input, InstanceInput> universe, int id) {
+			this.moduleID=id;
 			this.universe = universe;
 			
 			for(Input i : module().inputs()){
@@ -479,10 +488,25 @@ public abstract class AbstractModule implements Module
 				InstanceOutput instanceOutput = new InstanceOutput( module(), original, this);
 				outputs.put(instanceOutput.name(), instanceOutput);
 			}
-
+			creationTime = System.currentTimeMillis();
 		}
 
-
+		public long creationTime(){
+			return creationTime;
+		}
+		
+		public long startTime() {
+			return startTime;
+		}
+		
+		public long endTime() {
+			return endTime;
+		}
+		
+		public int moduleID(){
+			return moduleID;
+		}
+		
 		public Module module()
 		{
 			return AbstractModule.this;
@@ -503,8 +527,10 @@ public abstract class AbstractModule implements Module
 			ArrayList<String> errors = new ArrayList<String>();
 			Map<String, Object> results = new LinkedHashMap<String, Object>();
 			
+			startTime = System.currentTimeMillis();
 			boolean success = domain.execute(this, errors, results);
-		
+			endTime = System.currentTimeMillis();
+			
 			// After execution, set values of output so that it can be referenced later on.
 			for(String resultName : results.keySet()){
 				System.out.println("Setting result " + resultName+" value "+ results.get(resultName));

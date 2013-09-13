@@ -14,6 +14,7 @@ public class InstanceOutput extends Output
 	private Output original;
 	private ModuleInstance instance;
 	private Object value = null;
+	private long creationTime = 0;
 	
 	public InstanceOutput(Module module, Output original, ModuleInstance instance)
 	{
@@ -46,7 +47,13 @@ public class InstanceOutput extends Output
 	
 	public void setValue(Object val){
 		value = val;
+		creationTime = System.currentTimeMillis();
 	}
+	
+	public long creationTime() {
+		return creationTime;
+	}
+	
 	public String toString(){
 		return name() + ": "+value;
 	}

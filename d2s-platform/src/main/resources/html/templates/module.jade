@@ -60,54 +60,57 @@ html
           
         p.description #{output.description}
       
-        .output.js-tabs
-          ul
-            li: a(href="#tab-summary") Summary
-            li: a(href="#tab-full") Full data
-            
-          //- The tab with the summary of this output (graph, means etc).
-          #tab-summary 
-            if output.is_numeric
-              .graph.chart-container(data-source="data-table-#{output.name}")
-            table
-              tr
-                th mode
-                td #{output.mode} (#{output.mode_frequency})
-              tr
-                th instances
-                td #{output.num_instances}
-      
-              if output.is_numeric
-                tr
-                  th mean 
-                  td #{output.mean}
-                  
-                tr
-                  th std dev
-                  td #{output.dev}
-                   
-                tr
-                  th median
-                  td #{output.median}
-        
-              tr
-                th entropy
-                td #{output.entropy}
-                        
-          //- The tab with the full data for this output          
-          #tab-full 
-            table(class="data-table-#{output.name}")
-              tr.names
-                for input_name in input_names
-                  th.input #{input_name}
-                th.output #{output.name}
+        if instantiated
+          .output.js-tabs
+            ul
+              li: a(href="#tab-summary") Summary
+              li: a(href="#tab-full") Full data
               
-              for instance in output.instances
+            //- The tab with the summary of this output (graph, means etc).
+            #tab-summary 
+              if output.is_numeric
+                .graph.chart-container(data-source="data-table-#{output.name}")
+              table
                 tr
-                  for input in instance.inputs
-                    td.input #{input}
-                  td.output #{instance.output}
+                  th mode
+                  td #{output.mode} (#{output.mode_frequency})
+                tr
+                  th instances
+                  td #{output.num_instances}
           
+                if output.is_numeric
+                  tr
+                    th mean 
+                    td #{output.mean}
+                    
+                  tr
+                    th std dev
+                    td #{output.dev}
+                     
+                  tr
+                    th median
+                    td #{output.median}
+          
+                tr
+                  th entropy
+                  td #{output.entropy}
+                          
+            //- The tab with the full data for this output          
+            #tab-full 
+              table(class="data-table-#{output.name}")
+                tr.names
+                  for input_name in input_names
+                    th.input #{input_name}
+                  th.output #{output.name}
+                
+                for instance in output.instances
+                  tr
+                    for input in instance.inputs
+                      td.input #{input}
+                    td.output #{instance.output}
+        else 
+          Module not yet instantiated.
+        
     h2 Instances
     p.explanation This module's instances, and their results pages.
     

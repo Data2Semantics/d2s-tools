@@ -89,5 +89,19 @@ public class PythonDomain implements Domain
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public boolean printInput(String source, String input)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean printOutput(String source, String input)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }

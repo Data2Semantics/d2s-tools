@@ -8,6 +8,7 @@ public abstract class Input implements Data
 	private String name, description;
 	private DataType dataType;
 	private Module module;
+	private boolean print = true;
 	
 	public Input(String name, String description,  DataType dataType, Module module)
 	{
@@ -16,6 +17,16 @@ public abstract class Input implements Data
 		this.module = module;
 		this.description = description;
 	}
+	
+	public Input(String name, String description,  DataType dataType, Module module, boolean print)
+	{
+		this.name = name;
+		this.dataType = dataType;
+		this.module = module;
+		this.description = description;
+		this.print = print;
+	}
+
 	
 	public String name()
 	{
@@ -40,4 +51,10 @@ public abstract class Input implements Data
 	public String toString(){
 		return module().name()+"."+name;
 	}
+	
+	public boolean print()
+	{
+		return print;
+	}
+
 }

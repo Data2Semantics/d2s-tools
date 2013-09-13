@@ -1,5 +1,7 @@
 package org.data2semantics.platform.reporting;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,6 +13,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.data2semantics.platform.Global;
@@ -32,6 +36,13 @@ import de.neuland.jade4j.template.JadeTemplate;
 
 public class HTMLReporter implements Reporter
 {
+	public static List<Parser> parsers = new ArrayList<Parser>();
+	
+	static  {
+		parsers.add(new ImageParser());
+		parsers.add(new ToStringParser());
+	}
+	
 	private Workflow workflow;
 	private File root;
 
@@ -103,6 +114,10 @@ public class HTMLReporter implements Reporter
 
 			// Problems deleting template in windows
 			FileUtils.deleteQuietly(temp);
+		}
+		public JadeConfiguration jadeConfig()
+		{
+			return config;
 		}
 
 		private String produceDotString()
@@ -218,7 +233,9 @@ public class HTMLReporter implements Reporter
 
 				List<String> inputNames = new ArrayList<String>();
 				for (Input input : module.inputs())
-					inputNames.add(input.name());
+					if(input.print())
+						inputNames.add(input.name());
+				
 				templateData.put("input_names", inputNames);
 
 				int i = 0;
@@ -229,7 +246,8 @@ public class HTMLReporter implements Reporter
 					// * Collect the instance inputs
 					List<String> instanceInputs = new ArrayList<String>();
 					for (InstanceInput input : instance.inputs())
-						instanceInputs.add(input.value().toString());
+						if(input.original().print())
+							instanceInputs.add(input.value().toString());
 
 					// * Collect the instance information
 					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
@@ -248,74 +266,77 @@ public class HTMLReporter implements Reporter
 
 			List<Map<String, Object>> outputs = new ArrayList<Map<String, Object>>();
 			for (Output output : module.outputs())
-			{
-				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
-				outputMap.put("name", output.name());
-				outputMap.put("description", output.description());
-
-				List<Map<String, Object>> outputInstances = new ArrayList<Map<String, Object>>();
-
-				// * Collect values for all instances
-				List<Object> values = new ArrayList<Object>();
-				for (ModuleInstance instance : module.instances())
+				if(output.print())
 				{
-					Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
-
-					List<String> inputs = new ArrayList<String>();
-					for (InstanceInput input : instance.inputs())
-						inputs.add(input.value().toString());
-
-					instanceMap.put("inputs", inputs);
-
-					Object value = instance.output(output.name()).value();
-					instanceMap.put("output", Functions.toString(value));
-					values.add(value);
-
-					outputInstances.add(instanceMap);
+					Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
+					outputMap.put("name", output.name());
+					outputMap.put("description", output.description());
+	
+					List<Map<String, Object>> outputInstances = new ArrayList<Map<String, Object>>();
+	
+					// * Collect values for all instances
+					List<Object> values = new ArrayList<Object>();
+					for (ModuleInstance instance : module.instances())
+					{
+						Map<String, Object> instanceMap = new LinkedHashMap<String, Object>();
+	
+						List<String> inputs = new ArrayList<String>();
+						for (InstanceInput input : instance.inputs())
+							if(input.original().print())
+								inputs.add(input.value().toString());
+	
+						instanceMap.put("inputs", inputs);
+	
+						Object value = instance.output(output.name()).value();
+						instanceMap.put("output", Functions.toString(value));
+						values.add(value);
+	
+						outputInstances.add(instanceMap);
+					}
+					outputMap.put("instances", outputInstances);
+	
+					// * Collect summary info
+					boolean isNumeric = isNumeric(values);
+					outputMap.put("is_numeric", isNumeric);
+	
+					FrequencyModel<Object> fm = new FrequencyModel<Object>(values);
+					outputMap.put("mode", (fm.distinct() > 0) ? Functions.toString(fm.sorted().get(0)) : "");
+					outputMap.put("mode_frequency",
+							(fm.distinct()>0) ? fm.frequency(fm.sorted().get(0)) : 0);
+					outputMap.put("num_instances", values.size());
+					outputMap.put("entropy", fm.entropy());
+	
+					if (isNumeric)
+					{
+						List<Number> numbers = numbers(values);
+	
+						outputMap.put("mean", mean(numbers));
+						outputMap.put("dev", standardDeviation(numbers));
+						outputMap.put("median", median(numbers));
+	
+					}
+	
+					outputs.add(outputMap);
 				}
-				outputMap.put("instances", outputInstances);
-
-				// * Collect summary info
-				boolean isNumeric = isNumeric(values);
-				outputMap.put("is_numeric", isNumeric);
-
-				FrequencyModel<Object> fm = new FrequencyModel<Object>(values);
-				outputMap.put("mode", Functions.toString(fm.sorted().get(0)));
-				outputMap.put("mode_frequency",
-						fm.frequency(fm.sorted().get(0)));
-				outputMap.put("num_instances", values.size());
-				outputMap.put("entropy", fm.entropy());
-
-				if (isNumeric)
-				{
-					List<Number> numbers = numbers(values);
-
-					outputMap.put("mean", mean(numbers));
-					outputMap.put("dev", standardDeviation(numbers));
-					outputMap.put("median", median(numbers));
-
-				}
-
-				outputs.add(outputMap);
-			}
 
 			templateData.put("outputs", outputs);
 
 			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
 			for (Input input : module.inputs())
-			{
-				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
-				inputMap.put("name", input.name());
-				inputMap.put("description", input.description());
-
-				List<String> values = new ArrayList<String>();
-				for (ModuleInstance instance : module.instances())
-					values.add(Functions.toString(instance.input(input.name())
-							.value()));
-
-				inputMap.put("values", values);
-				inputs.add(inputMap);
-			}
+				if(input.print())
+				{
+					Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+					inputMap.put("name", input.name());
+					inputMap.put("description", input.description());
+	
+					List<String> values = new ArrayList<String>();
+					for (ModuleInstance instance : module.instances())
+						values.add(Functions.toString(instance.input(input.name())
+								.value()));
+	
+					inputMap.put("values", values);
+					inputs.add(inputMap);
+				}
 
 			templateData.put("inputs", inputs);
 
@@ -349,8 +370,8 @@ public class HTMLReporter implements Reporter
 		 * @param instance
 		 * @param instanceDir
 		 */
-		private void instanceOutput(ModuleInstance instance, File instanceDir,
-				int i) throws IOException
+		private void instanceOutput(
+				ModuleInstance instance, File instanceDir, int i) throws IOException
 		{
 
 			// * The data we will pass to the template
@@ -367,29 +388,35 @@ public class HTMLReporter implements Reporter
 			List<Map<String, Object>> inputs = new ArrayList<Map<String, Object>>();
 
 			for (InstanceInput input : instance.inputs())
-			{
-				Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
-				inputMap.put("name", input.name());
-				inputMap.put("description", input.description());
-				inputMap.put("value", input.value());
-
-				inputs.add(inputMap);
-			}
+				if(input.original().print())
+				{
+					Map<String, Object> inputMap = new LinkedHashMap<String, Object>();
+					inputMap.put("name", input.name());
+					inputMap.put("description", input.description());
+					inputMap.put("value",
+							parse(input.value(), input.name(), instanceDir)
+						);
+	
+					inputs.add(inputMap);
+				}
 
 			templateData.put("inputs", inputs);
 
 			List<Map<String, Object>> outputs = new ArrayList<Map<String, Object>>();
 
 			for (InstanceOutput output : instance.outputs())
-			{
-				Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
-				outputMap.put("name", output.name());
-				outputMap.put("description", output.description());
-
-				outputMap.put("value", Functions.toString(output.value()));
-
-				outputs.add(outputMap);
-			}
+				if(output.original().print())
+				{
+					Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
+					outputMap.put("name", output.name());
+					outputMap.put("description", output.description());
+	
+					outputMap.put("value", 
+							parse(output.value(), output.name(), instanceDir)
+						);
+	
+					outputs.add(outputMap);
+				}
 
 			templateData.put("outputs", outputs);
 
@@ -426,8 +453,18 @@ public class HTMLReporter implements Reporter
 
 			return config.getTemplate(raw);
 		}
-	}
+		
+		public String parse(Object value, String name, File dir)
+		{
+			for(Parser parser : parsers)
+				if(parser.accept(value))
+					return parser.parse(value, name, this, dir);
+				
+			throw new RuntimeException("No parser found for value: "+ value);
+		}
 
+	}
+	
 	/**
 	 * Whether all result values represent numbers
 	 * 
@@ -529,6 +566,84 @@ public class HTMLReporter implements Reporter
 			}
 
 		return numbers;
+	}
+	
+	public static interface Parser 
+	{
+		/**
+		 * Whether thiw parser accepts this value
+		 * @return
+		 */
+		public boolean accept(Object value);
+		
+		public String parse(Object value, String name, ReportWriter writer, File dir);
+	} 
+	
+	public static class ToStringParser implements Parser
+	{
+
+		@Override
+		public boolean accept(Object value)
+		{
+			return true;
+		}
+
+		@Override
+		public String parse(Object value, String name, ReportWriter writer, File dir)
+		{
+			return Functions.toString(value);
+		}
+		
+	}
+	
+	public static class ImageParser implements Parser {
+
+		@Override
+		public boolean accept(Object value)
+		{
+			return value instanceof RenderedImage;
+		}
+
+		@Override
+		public String parse(Object value, String name, ReportWriter writer, File dir)
+		{
+			RenderedImage image = (RenderedImage) value;
+			
+			// * Write the image
+			File imageDir = new File(dir, "images/");
+			imageDir.mkdirs();
+			
+			String filename = name + "-" + Functions.randomString(5) + ".png";
+			File imageFile = new File(imageDir, filename);
+			try
+			{
+				ImageIO.write(image, "PNG", imageFile);
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+			
+			// * Collate the data
+			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
+			
+			templateData.put("name", name);
+			templateData.put("url", imageFile.toString());
+			
+			// * Load the template
+			JadeTemplate tpl;
+			try
+			{
+				tpl = writer.getTemplate("parser.image.jade");
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+
+			// * Process the template
+
+			return writer.jadeConfig().renderTemplate(tpl, templateData);
+		}
+	
 	}
 
 }

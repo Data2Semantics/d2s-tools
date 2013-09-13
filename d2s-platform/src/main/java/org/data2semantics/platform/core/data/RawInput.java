@@ -13,6 +13,13 @@ public class RawInput extends Input
 		super(name, description, dataType, module);
 		this.value = value;
 	}
+	
+	public RawInput(Object value, String name, String description, DataType dataType,
+			Module module, boolean print)
+	{
+		super(name, description, dataType, module, print);
+		this.value = value;
+	}
 
 	public Object value()
 	{

@@ -26,40 +26,40 @@ html
     
 
     // jqPlot local plugins
-    script(src="../../javascript/jqplot.differentColorMarkerLineRenderer.js", type="text/javascript")
+    script(src="../../../javascript/jqplot.differentColorMarkerLineRenderer.js", type="text/javascript")
     
     // Platform JS 
-    script(src="../../javascript/base.platform.js", type="text/javascript")  
+    script(src="../../../javascript/base.platform.js", type="text/javascript")  
     
     // Patform styling
-    link(type="text/css", rel="stylesheet", media="all", href="../../css/common.platform.css")
-    link(type="text/css", rel="stylesheet", media="screen", href="../../css/screen.platform.css")
+    link(type="text/css", rel="stylesheet", media="all", href="../../../css/common.platform.css")
+    link(type="text/css", rel="stylesheet", media="screen", href="../../../css/screen.platform.css")
     
     title Instance results/title
 
 body#body(class="instance #{tags}")
 
-    ul.menu
-      li
-        a.inner(href="../../../index.html")
-          | Workflow: 
-          span #{workflow_name}
-      li
-        a.inner(href="../index.html")
-          | Module: 
-          span #{name}
-      li
-        span.inner
-          | Instance: 
-          span #{instance}
+  ul.menu
+    li
+      a.inner(href="../../../index.html")
+        | Workflow: 
+        span #{workflow_name}
+    li
+      a.inner(href="../index.html")
+        | Module: 
+        span #{name}
+    li
+      span.inner
+        | Instance: 
+        span #{instance}
   
   h2 Results  
   for output in outputs
     h3 Result: #{output.name}
     p.description
       #{output.description}
-    .value
-      #{output.value}
+    .value 
+      !{output.value}
   
   h2 Inputs
   p.explanation Inputs for this instance
@@ -70,4 +70,4 @@ body#body(class="instance #{tags}")
     p.description
       #{input.description}
     .value
-      #{input.value}
+      !{input.value}

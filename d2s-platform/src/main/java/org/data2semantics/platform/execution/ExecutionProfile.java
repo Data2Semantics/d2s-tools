@@ -13,6 +13,7 @@ import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.State;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.Input;
+import org.data2semantics.platform.reporting.Reporter;
 import org.data2semantics.platform.resourcespace.ResourceSpace;
 import org.data2semantics.platform.wrapper.SimpleModuleWrapper;
 
@@ -93,5 +94,5 @@ abstract public class ExecutionProfile {
 		}
 
 
-		public abstract void executeModules(List<Module> modules);
+		public abstract void executeModules(List<Module> modules, List<Reporter> reporters);
 }

@@ -14,6 +14,7 @@ public class InstanceInput extends Input
 	private Input original;
 	private ModuleInstance instance;
 	private Object value;
+	private InstanceOutput instanceOutput;
 	
 	public InstanceInput(Module module, Input original, Object value)
 	{
@@ -21,6 +22,8 @@ public class InstanceInput extends Input
 		this.original = original;
 		this.value = value;
 		this.instance = null;
+		this.instanceOutput = null;
+
 	}
 
 	public InstanceInput(Module module, Input original, ModuleInstance instance, Object value)
@@ -29,9 +32,20 @@ public class InstanceInput extends Input
 		this.original = original;
 		this.instance = instance;
 		this.value = value;
+		this.instanceOutput = null;
 	}
 
 	
+	public InstanceInput(Module module, Input original,
+			Object nextValue, InstanceOutput refInstanceOutput) {
+		super(original.name(), original.description(), original.dataType(), module);
+		
+		this.original = original;
+		this.value = nextValue;
+		this.instance = null;
+		this.instanceOutput = refInstanceOutput;
+	}
+
 	/**
 	 * The original input of which this is an instance
 	 * @return
@@ -48,6 +62,10 @@ public class InstanceInput extends Input
 	public ModuleInstance instance()
 	{
 		return instance;
+	}
+	
+	public InstanceOutput instanceOutput(){
+		return instanceOutput;
 	}
 	
 	public void setInstance(ModuleInstance instance){
