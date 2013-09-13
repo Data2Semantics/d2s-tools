@@ -47,17 +47,26 @@ public class CommandLineDomain implements Domain {
 		for(int i=0;i<inputEnvironments.length;i++){
 			inputEnvironments[i] = inputs.get(i).name()+"="+inputs.get(i).value();
 		}
+		
 		// Call the main method of the command line
 		try {
 			
 			// Adding an additional command set to show environment variables, in unix this would be env.
-			ProcessBuilder pb = new ProcessBuilder( command, "&&set");
+			ProcessBuilder pb = new ProcessBuilder( command );
 
+			if(command.endsWith(".py")){
+				String osname = System.getProperty("os.name");
+				if(osname.startsWith("Windows"))
+					pb = new ProcessBuilder("C:\\python27\\python.exe", command);
+				else
+					pb = new ProcessBuilder("/usr/bin/python", command);
+			}
+			
 			Map<String, String> env = pb.environment();
 			
 			for(InstanceInput input: inputs){
 				env.put(input.name(), input.value().toString());
-				
+				System.out.println("Setting env "+ input.name()+ " " +input.value());
 			}
 			
 			Process process = pb.start();       
@@ -65,25 +74,19 @@ public class CommandLineDomain implements Domain {
 
 			process.waitFor();
 			
+			System.out.println("Exit value : "+		process.exitValue());
 			InputStream stdout = process.getInputStream ();
 			BufferedReader stdOutReader = new BufferedReader (new InputStreamReader(stdout));
 
 			String outLine;
+			StringBuffer result = new StringBuffer();
 
-
-			Map<String, String> envResults = new LinkedHashMap<String, String>();
 			while ((outLine = stdOutReader.readLine ()) != null) {
-			    if(outLine.trim().length() > 0){
-			    	if(!outLine.contains("="))continue;
-			    	String [] keyValue = outLine.split("=");
-			    	envResults.put(keyValue[0], keyValue[1]);
-			    }    
+				result.append(outLine);
 			}
 			
-			for(InstanceOutput output : instance.outputs()){
-
-				results.put(output.name(), castOutputType(output, envResults.get(output.name())));
-			}
+			results.put("result", result);
+		
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -257,7 +260,6 @@ public class CommandLineDomain implements Domain {
 		static String getInputType(String source, String inputName){
 			Map<?,?> configMap = getConfigMap(source);
 			List<Map<String,String>> inputList = (List<Map<String,String>>)configMap.get(INPUTS);
-			System.out.println("Check " + inputList + " "+inputName);
 			String result = null;
 			for(Map<String,String> input : inputList)
 				if(input.get(NAME).equals(inputName)){
