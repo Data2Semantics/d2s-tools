@@ -55,6 +55,9 @@ public class WorkflowParser {
 		// workflow name
 		String workflowName= (String) workflowMap.get("name");
 		builder.name(workflowName);
+		builder.file(yamlFile);
+		
+		
 		/**
 		 * First setup the workflow to contain all modules.
 		 */

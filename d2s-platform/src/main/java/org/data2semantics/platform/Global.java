@@ -1,5 +1,6 @@
 package org.data2semantics.platform;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -10,8 +11,13 @@ import org.data2semantics.platform.domain.Domain;
 import org.data2semantics.platform.domain.JavaDomain;
 import org.data2semantics.platform.domain.PythonDomain;
 
-public class Global
+public class Global implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6847885952040544661L;
+
 	private static Map<String, Domain> domains = new HashMap<String, Domain>();
 	static {
 		// Search the classpath for classes tagged with @DomainDefinition
@@ -58,4 +64,10 @@ public class Global
 	{
 		return random;
 	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+	
 }
