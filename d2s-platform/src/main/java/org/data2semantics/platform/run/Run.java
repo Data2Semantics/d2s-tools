@@ -81,6 +81,10 @@ public class Run
     	// -- The workflow object will check the consistency of the inputs and 
     	//    outputs and make sure that everything can be executed.  
     	    	
+    	// Set the status file
+    	File statusRunning = new File(output, "status.running");
+    	statusRunning.createNewFile();
+    	
 		ExecutionProfile executionProfile;
 		
 		switch(execProfile){
@@ -109,6 +113,12 @@ public class Run
     	
     	for(Reporter reporter : reporters)
     		reporter.report();
+    	
+    	// Set status to finished
+    	File statusFinished = new File(output, "status.finished");
+    	statusFinished.createNewFile();
+    	
+    	statusRunning.delete();
     	
     	Global.log().info("Workflow execution finished.");
     }
