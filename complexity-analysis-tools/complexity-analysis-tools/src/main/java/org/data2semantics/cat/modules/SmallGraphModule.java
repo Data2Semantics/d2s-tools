@@ -1,5 +1,7 @@
 package org.data2semantics.cat.modules;
 
+import java.util.logging.Logger;
+
 import org.data2semantics.cat.SmallGraph;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
@@ -13,6 +15,8 @@ public class SmallGraphModule <N> extends SmallGraph<N>{
 	
 	public SmallGraphModule(@In(name="data")  Graph<N> graph) {
 		super(graph);
+		this.logger = Logger.getLogger(this.getClass().toString());
+		
 	}
 	
 	@Main

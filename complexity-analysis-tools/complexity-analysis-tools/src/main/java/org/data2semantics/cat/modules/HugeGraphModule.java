@@ -1,5 +1,7 @@
 package org.data2semantics.cat.modules;
 
+import java.util.logging.Logger;
+
 import org.data2semantics.cat.HugeGraph;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
@@ -10,6 +12,8 @@ public class HugeGraphModule <N> extends HugeGraph<N>{
 
 	public HugeGraphModule(@In(name="data")  Graph<N> graph) {
 		super(graph);
+		this.logger = Logger.getLogger(this.getClass().toString());
+		
 	}
 
 	@Main

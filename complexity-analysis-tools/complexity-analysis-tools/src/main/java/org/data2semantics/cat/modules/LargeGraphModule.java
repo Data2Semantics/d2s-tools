@@ -3,6 +3,7 @@ package org.data2semantics.cat.modules;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.data2semantics.cat.LargeGraph;
 import org.data2semantics.platform.annotation.In;
@@ -19,6 +20,8 @@ public class LargeGraphModule <N> extends LargeGraph<N>{
 	
 	public LargeGraphModule(@In(name="data") Graph<N> graph) {
 		super(graph);
+		this.logger = Logger.getLogger(this.getClass().toString());
+		
 	}
 
 	@Main
