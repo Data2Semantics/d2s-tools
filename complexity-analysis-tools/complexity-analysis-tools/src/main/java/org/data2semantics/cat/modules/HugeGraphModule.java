@@ -20,7 +20,9 @@ public class HugeGraphModule <N> extends HugeGraph<N>{
 	@Override
 	public void body()
 	{
-			super.body();
+
+		super.setup();
+		super.body();
 	}
 	@Out(name="Mean degree")
 	public double meanDegree()

@@ -23,6 +23,8 @@ public class SmallGraphModule <N> extends SmallGraph<N>{
 	@Override
 	public void body()
 	{
+
+		super.setup();
 		super.body();
 	}
 

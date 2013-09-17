@@ -28,6 +28,8 @@ public class LargeGraphModule <N> extends LargeGraph<N>{
 	@Override
 	public void body()
 	{
+		
+		super.setup();
 		super.body();
 	}
 	
