@@ -14,7 +14,7 @@ public class HugeGraphModule <N> extends HugeGraph<N>{
 
 	@Main
 	@Override
-	protected void body()
+	public void body()
 	{
 			super.body();
 	}

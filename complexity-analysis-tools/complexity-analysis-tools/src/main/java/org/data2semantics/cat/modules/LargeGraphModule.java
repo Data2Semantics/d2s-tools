@@ -23,7 +23,7 @@ public class LargeGraphModule <N> extends LargeGraph<N>{
 
 	@Main
 	@Override
-	protected void body()
+	public void body()
 	{
 		super.body();
 	}

@@ -17,7 +17,7 @@ public class SmallGraphModule <N> extends SmallGraph<N>{
 	
 	@Main
 	@Override
-	protected void body()
+	public void body()
 	{
 		super.body();
 	}
