@@ -66,7 +66,7 @@ public class CommandLineDomain implements Domain {
 			
 			for(InstanceInput input: inputs){
 				env.put(input.name(), input.value().toString());
-				System.out.println("Setting env "+ input.name()+ " " +input.value());
+//				System.out.println("Setting env "+ input.name()+ " " +input.value());
 			}
 			
 			Process process = pb.start();       
@@ -74,7 +74,7 @@ public class CommandLineDomain implements Domain {
 
 			process.waitFor();
 			
-			System.out.println("Exit value : "+		process.exitValue());
+//			System.out.println("Exit value : "+		process.exitValue());
 			InputStream stdout = process.getInputStream ();
 			BufferedReader stdOutReader = new BufferedReader (new InputStreamReader(stdout));
 
