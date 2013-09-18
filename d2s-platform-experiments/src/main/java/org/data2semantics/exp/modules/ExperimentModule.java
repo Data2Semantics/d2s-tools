@@ -26,6 +26,24 @@ public class ExperimentModule {
 	private long seed;
 	private int folds;
 	private Prediction[] pred;
+	private int depth;
+	
+	public ExperimentModule(
+			@In(name="featureVectors") SparseVector[] fv, 
+			@In(name="target") List<Double> target,
+			@In(name="parms") LibLINEARParameters parms, 
+			@In(name="folds") int folds,
+			@In(name="seed") int seed,
+			@In(name="depth") int depth) {
+		
+		this.depth = depth;
+		this.fv = fv;
+		this.target = target;
+		this.parms = parms;
+		this.seed = seed;
+		this.folds = folds;
+	}
+	
 	
 	public ExperimentModule(
 			@In(name="featureVectors") SparseVector[] fv, 

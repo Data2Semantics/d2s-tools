@@ -27,6 +27,7 @@ public class LibLINEARParameters {
 	private boolean doCrossValidation;
 	private int numFolds;
 	private float splitFraction;
+	private boolean doWeightLabels;
 	
 	private EvaluationFunction evalFunction;
 	
@@ -67,6 +68,7 @@ public class LibLINEARParameters {
 		verbose = false;
 		bias = -1;
 		doCrossValidation = true;
+		doWeightLabels = false;
 		numFolds = 5;
 		splitFraction = (float) 0.7;
 		ps = new double[1];
@@ -162,5 +164,13 @@ public class LibLINEARParameters {
 
 	public void setWeights(double[] weights) {
 		params.setWeights(weights, weightLabels);
+	}
+	
+	public boolean isDoWeightLabels() {
+		return doWeightLabels;
+	}
+
+	public void setDoWeightLabels(boolean doWeightLabels) {
+		this.doWeightLabels = doWeightLabels;
 	}
 }

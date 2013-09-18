@@ -19,6 +19,7 @@ public class RDFIntersectionTreeEdgeVertexPathKernelModule extends RDFIntersecti
 	private List<Resource> instances;
 	private List<Statement> blacklist;
 	private SparseVector[] fv;
+	private int depth;
 	
 	public RDFIntersectionTreeEdgeVertexPathKernelModule(
 			@In(name="depth") int depth,
@@ -29,6 +30,7 @@ public class RDFIntersectionTreeEdgeVertexPathKernelModule extends RDFIntersecti
 			@In(name="instances") List<Resource> instances,
 			@In(name="blacklist") List<Statement> blacklist) {
 		super(depth, probabilities, inference, normalize);
+		this.depth = depth;
 		this.dataset = dataset;
 		this.instances = instances;
 		this.blacklist = blacklist;
@@ -45,6 +47,11 @@ public class RDFIntersectionTreeEdgeVertexPathKernelModule extends RDFIntersecti
 		return fv;
 	}
 
+	@Out(name="depth")
+	public int getDepth() {
+		return depth;
+	}
+	
 	
 	
 	

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.SparseVector;
+import org.data2semantics.proppred.learners.evaluation.EvaluationUtils;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 
 import de.bwaldvogel.liblinear.Feature;
@@ -53,10 +54,19 @@ public class LibLINEAR {
 
 		if (params.isDoCrossValidation()) {
 			target = prob.y;
+			if (params.isDoWeightLabels()) {
+				params.setWeightLabels(EvaluationUtils.computeWeightLabels(EvaluationUtils.doubles2target(prob.y)));
+				params.setWeights(EvaluationUtils.computeWeights(EvaluationUtils.doubles2target(prob.y)));
+			}
+
 		} else {
 			trainProb = createProblemTrainSplit(prob, params.getSplitFraction());
 			testProb  = createProblemTestSplit(prob, params.getSplitFraction());
-			target = testProb.y;
+			target = testProb.y;	
+			if (params.isDoWeightLabels()) {
+				params.setWeightLabels(EvaluationUtils.computeWeightLabels(EvaluationUtils.doubles2target(trainProb.y)));
+				params.setWeights(EvaluationUtils.computeWeights(EvaluationUtils.doubles2target(trainProb.y)));
+			}
 		}
 
 		Parameter linearParams = params.getParams();
@@ -125,7 +135,7 @@ public class LibLINEAR {
 		}		
 		return pred;
 	}
-	
+
 	private static Prediction[] crossValidate(Problem prob, Parameter linearParams, int folds) {
 		double[] prediction = new double[prob.l];
 		Linear.crossValidation(prob, linearParams, folds, prediction);
@@ -295,7 +305,7 @@ public class LibLINEAR {
 		}			
 		return testP;
 	}
-	
+
 	static Prediction[] addFold2Prediction(Prediction[] foldPred, Prediction[] pred, int numberOfFolds, int fold) {
 		int foldStart = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold - 1));
 		int foldEnd   = Math.round((pred.length / ((float) numberOfFolds)) * ((float) fold));
