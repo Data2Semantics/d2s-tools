@@ -16,9 +16,6 @@ public class LoadRDF
 	@In(name="file")
 	public String file;
 	
-	@In(name="type")
-	public String type;
-	
 	@Main(name="data", print=false)
 	public DTGraph<String, String> load()
 	{
@@ -30,7 +27,7 @@ public class LoadRDF
 		if(format == RDFFormat.RDFXML)
 			return RDF.read(new File(file));
 		
-		throw new RuntimeException("RDF type "+type+" not recognized");
+		throw new RuntimeException("RDF file "+file+" not recognized");
 	}
 	
 }
