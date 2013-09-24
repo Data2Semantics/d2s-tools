@@ -630,7 +630,7 @@ public class HTMLReporter implements Reporter
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
 			
 			templateData.put("name", name);
-			templateData.put("url", imageFile.toString());
+			templateData.put("url", "images/"+filename);
 			
 			// * Load the template
 			JadeTemplate tpl;
