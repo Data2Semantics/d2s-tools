@@ -2,8 +2,14 @@ package org.data2semantics.exp;
 
 import java.util.Arrays;
 
+import org.data2semantics.exp.old.utils.datasets.DataSetFactory;
+import org.data2semantics.exp.old.utils.datasets.GeneralPredictionDataSetParameters;
+import org.data2semantics.exp.old.utils.datasets.PropertyPredictionDataSet;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
+import org.data2semantics.proppred.kernels.graphkernels.FeatureVectorKernel;
+import org.data2semantics.proppred.kernels.graphkernels.GraphKernel;
+import org.data2semantics.proppred.kernels.graphkernels.WLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
@@ -171,10 +177,10 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 
 
 
-			/*
-		resTable.newRow("WL FV");
-		for (double frac : fractionsSlow) {
-			double[] comp = new double[seeds.length];
+			
+		//resTable.newRow("WL FV");
+		//for (double frac : fractionsSlow) {
+			comp = new double[seeds.length];
 			for (int i = 0; i < seeds.length; i++) {
 				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 				tic = System.currentTimeMillis();
@@ -190,15 +196,15 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 				toc = System.currentTimeMillis();
 				comp[i] = (toc-tic) + dsComp;
 			}
-			Result res = new Result(comp, "comp time");
+			res = new Result(comp, "comp time");
 			resTable.addResult(res);
-		}		
-		System.out.println(resTable);
+		//}		
+		//System.out.println(resTable);
 
 
-		resTable.newRow("WL Kernel");
-		for (double frac : fractionsSlow) {
-			double[] comp = new double[seeds.length];
+		//resTable.newRow("WL Kernel");
+		//for (double frac : fractionsSlow) {
+			comp = new double[seeds.length];
 			for (int i = 0; i < seeds.length; i++) {
 				createGeoDataSet((int)(1000 * frac), frac, seeds[i], "http://data.bgs.ac.uk/ref/Lexicon/hasTheme");		
 				tic = System.currentTimeMillis();
@@ -214,13 +220,10 @@ public class FullThemeRunningTimeExperiment extends FullThemeExperiment {
 				toc = System.currentTimeMillis();
 				comp[i] = (toc-tic) + dsComp;
 			}
-			Result res = new Result(comp, "comp time");
+			res = new Result(comp, "comp time");
 			resTable.addResult(res);
 		}		
-		System.out.println(resTable);
-			 */
-			System.out.println(resTable);
-		}
+		//}
 		System.out.println(resTable);
 	}
 }
