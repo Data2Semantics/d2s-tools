@@ -133,8 +133,8 @@ public class HTMLReporter implements Reporter
 					if (inp instanceof ReferenceInput)
 					{
 						ReferenceInput ri = (ReferenceInput) inp;
-						result.append(ri.reference().module().name() + "->"
-								+ module.name() + "[label=\""
+						result.append("\""+ri.reference().module().name() + "\" -> \""
+								+ module.name() + "\" [label=\""
 								+ ri.reference().name() + "\"]");
 					} else if (inp instanceof MultiInput)
 					{
@@ -143,8 +143,8 @@ public class HTMLReporter implements Reporter
 							if (i instanceof ReferenceInput)
 							{
 								ReferenceInput ri = (ReferenceInput) i;
-								result.append(ri.reference().module().name()
-										+ "->" + module.name() + "[label=\""
+								result.append("\""+ri.reference().module().name()
+										+ "\" ->" + module.name() + "[label=\""
 										+ ri.reference().name() + "\"]");
 							}
 						}
@@ -630,7 +630,7 @@ public class HTMLReporter implements Reporter
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
 			
 			templateData.put("name", name);
-			templateData.put("url", imageFile.toString());
+			templateData.put("url", "images/"+filename);
 			
 			// * Load the template
 			JadeTemplate tpl;

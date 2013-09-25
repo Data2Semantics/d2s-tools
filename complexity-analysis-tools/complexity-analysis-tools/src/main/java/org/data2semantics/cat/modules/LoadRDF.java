@@ -1,12 +1,16 @@
 package org.data2semantics.cat.modules;
 
 import java.io.File;
+import java.util.List;
 
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
 import org.lilian.graphs.DTGraph;
 import org.lilian.graphs.data.RDF;
+import org.lilian.graphs.data.RDFDataSet;
+import org.lilian.graphs.data.RDFFileDataSet;
+import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 
 @Module(name="Load RDF")
@@ -21,13 +25,16 @@ public class LoadRDF
 	{
 		
 		RDFFormat format = RDFFormat.forFileName(file);
-		if(format == RDFFormat.TURTLE)
-			return RDF.readTurtle(new File(file));
 		
-		if(format == RDFFormat.RDFXML)
-			return RDF.read(new File(file));
+		if(format == null)
+			throw new RuntimeException("RDF file "+file+" not recognized");
+			
+		RDFDataSet testSet = new RDFFileDataSet(file, format);
+
+		List<Statement> triples = testSet.getFullGraph();	
 		
-		throw new RuntimeException("RDF file "+file+" not recognized");
+		return RDF.createDirectedGraph(triples, null, null);
+		
 	}
 	
 }

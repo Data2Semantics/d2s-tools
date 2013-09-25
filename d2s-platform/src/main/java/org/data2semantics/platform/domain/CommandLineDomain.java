@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.data.CommandLineType;
 import org.data2semantics.platform.core.data.DataType;
@@ -75,15 +76,8 @@ public class CommandLineDomain implements Domain {
 			process.waitFor();
 			
 //			System.out.println("Exit value : "+		process.exitValue());
-			InputStream stdout = process.getInputStream ();
-			BufferedReader stdOutReader = new BufferedReader (new InputStreamReader(stdout));
-
-			String outLine;
-			StringBuffer result = new StringBuffer();
-
-			while ((outLine = stdOutReader.readLine ()) != null) {
-				result.append(outLine);
-			}
+			InputStream inputStream = process.getInputStream ();
+			String result = IOUtils.toString(inputStream, "UTF-8");
 			
 			results.put("result", result);
 		

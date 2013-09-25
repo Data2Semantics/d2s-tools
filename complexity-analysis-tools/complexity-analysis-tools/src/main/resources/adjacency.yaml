@@ -1,0 +1,21 @@
+workflow:
+
+   name: Adjacency Matrices
+   
+   modules:
+
+    - module:
+        name: load rdf
+        source: org.data2semantics.cat.modules.LoadRDF
+        inputs:
+          file: src/main/resources/d2r_mapping_aers.n3
+
+    - module:
+         name: adjacency
+         source: org.data2semantics.cat.modules.AdjacencyMatrix
+         inputs:
+           data: 
+             reference: load rdf.data  
+                
+
+                
