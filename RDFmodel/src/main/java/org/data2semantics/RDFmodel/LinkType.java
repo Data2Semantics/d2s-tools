@@ -31,25 +31,19 @@ public class LinkType {
 		return _obj_type == other._obj_type && _pred_ix == other._pred_ix;
 	}
 	
-}
-
-// Learns the distribution on object types for each predicate separately 
-class LinkTypeCoder extends Coder<LinkType> {
-	
-	private BundleMaker<Integer>    _pred_mapper = new BundleMaker<Integer>();
-	private Coder<Bundle<Integer>>  _pred_bundle_coder;
-	private Conditioner<Integer, Integer> _type_coder;
-
-	public LinkTypeCoder(CLAccountant acc, String prefix, int nnamed) {
-		init(acc, prefix);
-		_pred_bundle_coder = new BundleRefCoder<Integer>(new UniformCoder(acc, prefix, nnamed));
-		_type_coder = new Conditioner<Integer,Integer>(new KTFactory<Integer>(acc, prefix, TermType.SIZE));
+	public static CoderFactory<LinkType> getFactory() {
+		return new CoderFactory<LinkType>() {
+			@Override public Coder<LinkType> build() {
+				return new ObjRefCoder<LinkType>(new BasicLinkTypeCoder());
+			}
+		};
 	}
-	
-	@Override
-	public void encode(LinkType lt) {
-		Bundle<Integer> predb = _pred_mapper.bundle(lt.getPredIx());
-		_pred_bundle_coder.encode(predb);
-		_type_coder.get(predb).encode(lt.getObjType());
+
+	// Learns the distribution on object types for each predicate separately 
+	private static class BasicLinkTypeCoder implements Coder<LinkType> {		
+		@Override public void encode(CoderContext C, LinkType lt) {
+			C._c_pred.encode(C, lt.getPredIx());
+			C._c_objtype.encode(C, lt.getObjType());
+		}
 	}
 }

@@ -4,9 +4,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Set;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -29,12 +29,13 @@ public class RDFLoader extends RDFHandlerBase {
 	// mappings of value types to integer identifiers
 	public IndexMap<BNode>      _bnodes2ix  = new IndexMap<BNode>();
 	public IndexMap<URI>        _named2ix   = new IndexMap<URI>();
+	public Set<Integer>         _pred_ixs   = new HashSet<Integer>();
 		
 	// duplicate literals are not detected, so the literal map can be constructed the other way around
 	public List<Literal> _ix2lit       = new ArrayList<Literal>();
 	
-	public List<SortedMap<Integer,List<Integer>>> _b_subj2pred2obj = new SoftList<SortedMap<Integer,List<Integer>>>();
-	public List<SortedMap<Integer,List<Integer>>> _n_subj2pred2obj = new SoftList<SortedMap<Integer,List<Integer>>>();
+	public List<Term> _b_subj2pred2obj = new SoftList<Term>();
+	public List<Term> _n_subj2pred2obj = new SoftList<Term>(); 
 	
 	public void load(String filename) throws RDFParseException, RDFHandlerException, FileNotFoundException, IOException {
 		URL url = new URL("file:"+filename);
@@ -59,31 +60,33 @@ public class RDFLoader extends RDFHandlerBase {
 	
 	@Override
 	public void handleStatement(Statement smt) {
+		
 		int subj_id = add(smt.getSubject());
 		int pred_id = add(smt.getPredicate());
 		int obj_id  = add(smt.getObject()); 
 		
 		int pred_ix = TermType.id2ix(pred_id); // pred type should be named
+		_pred_ixs.add(pred_ix);
 		int subj_ix = TermType.id2ix(subj_id), subj_type = TermType.id2type(subj_id);
-		SortedMap<Integer,List<Integer>> links; // maps predicates to object indices
+		Term term; // maps predicates to object indices
 		if (subj_type==TermType.NAMED){
-			links = _n_subj2pred2obj.get(subj_ix);
-			if (links==null) {
-				links = new TreeMap<Integer, List<Integer>>();
-				_n_subj2pred2obj.set(subj_ix, links);
+			term = _n_subj2pred2obj.get(subj_ix);
+			if (term==null) {
+				term = new Term();
+				_n_subj2pred2obj.set(subj_ix, term);
 			}
 		} else { // Subj is BNode
-			links = _b_subj2pred2obj.get(subj_ix);
-			if (links==null) {
-				links = new TreeMap<Integer, List<Integer>>();
-				_b_subj2pred2obj.set(subj_ix, links);
+			term = _b_subj2pred2obj.get(subj_ix);
+			if (term==null) {
+				term = new Term();
+				_b_subj2pred2obj.set(subj_ix, term);
 			}
 		}
 		
-		List<Integer> objs = links.get(pred_ix);
+		List<Integer> objs = term.get(pred_ix);
 		if (objs==null) {
 			objs = new ArrayList<Integer>();
-			links.put(pred_ix, objs);
+			term.put(pred_ix, objs);
 		}
 		objs.add(obj_id);
 	}

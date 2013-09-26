@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.data2semantics.RDFmodel.Boundary;
 import org.data2semantics.RDFmodel.IndexMap;
 import org.data2semantics.RDFmodel.RDFGraph;
 import org.data2semantics.RDFmodel.RDFhelper;
 import org.data2semantics.RDFmodel.StringTree;
+import org.data2semantics.RDFmodel.TermType;
 import org.data2semantics.RDFmodel.URIDistinguisher;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
@@ -47,12 +49,29 @@ public class URIPartition extends RDFhelper {
 		return sizes;
 	}
 	
+	@Out(name        = "Concepts",
+		 description = "A list of resources that appear to represent important concepts")
+	public List<String> concepts() {
+		List<String> res = new ArrayList<String>();
+		for (int id : _tbox) {
+			int type = TermType.id2type(id);
+			int ix   = TermType.id2ix(id);
+			switch (type) {
+			case TermType.NAMED: res.add(_G._named.get(ix).stringValue()); break;
+			case TermType.BNODE: res.add("bnode(#"+ix+")"); break;
+			case TermType.LITERAL: res.add(_G._literals.get(ix).stringValue()); break;
+			default: assert false: "Unknown data type ("+type+").";
+			}
+		}
+		return res;
+	}
 	
 	@Main public void main() {
 		_G = load(_fn);
 		_ST = new StringTree(_G._named);
-		_tbox = tbox_heuristic_most_incoming(_G, 8);
-		_boundary = findBestBoundary(_G, _tbox, _ST);
+		Pair<Boundary,Set<Integer>> pair = findBoundaryAndTBox(_G, _ST);
+		_boundary = pair.getLeft();
+		_tbox = pair.getRight();
 	}
 	
 
