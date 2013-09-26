@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 /* The following tree depicts in which order the various components of a Term are encoded.
  * Any component can be conditioned on after all its children have been encoded.
@@ -33,14 +34,17 @@ import java.util.Set;
 public class CoderContext {
 	private CLAccountant       _acc;
 	private Set<Integer>       _tbox;
-	private CodeComponent<?>   _active_component;
+	private Stack<CodeComponent<?>> _components = new Stack<CodeComponent<?>>();
 	
 	// -------------------------------------- URINode-------------------------------------------------
 	public final CodeComponent<StringTree> _c_urinode = new CodeComponent<StringTree>(null, null);
 	
-	// -------------------------------------- Term ----------------------------------------------------
-	// A term has no internal state of its own, only its components do.
-	// So does not need to be conditioned.
+	// GraphCoderSigBased
+	// The graph coder has no internal state of its own, so it does not need to be conditioned.
+	public final CodeComponent<RDFGraph> _c_graph;
+	
+	// Term
+	// A term has no internal state of its own, so it does not need to be conditioned.
 	public final CodeComponent<Term> _c_term = new CodeComponent<Term>("Term", Term.getFactory());
 
 	// LinkSet
@@ -87,22 +91,27 @@ public class CoderContext {
 	
 	// ================================================================================================
 	
-	public CoderContext(String name, Set<Integer> tbox, int nnamed, int nbnodes) {
+	public CoderContext(String name, Set<Integer> tbox, URIDistinguisher D, int nnamed, int nbnodes) {
 		_acc  = new CLAccountant(name);
 		_tbox = tbox;
 		
 		// instantiate all parameterized codermaps
+		 _c_graph    = new CodeComponent<RDFGraph>("Graph", RDFGraph.getFactory(D));
 		 _c_pred     = new CodeComponent<Integer>("Predicates", SparseMultinomialCoder.getFactory(nnamed));
 		 _c_namedobj = new CodeComponent<Integer>("NamedObj",   SparseMultinomialCoder.getFactory(nnamed), _c_urinode);
 		 _c_bnodeobj = new CodeComponent<Integer>("BNodeObj",   SparseMultinomialCoder.getFactory(nbnodes), _c_pred);
 	}
 	
 	public CLAccountant getResults() { return _acc; }
-	public void use_bits(double L) { _acc.add(_active_component.get_name(), L); }
+	public void use_bits(double L) { _acc.add(top_component().get_name(), L); }
 	public void use_bits(String name, double L) { _acc.add(name, L); }
+	public void spawned_new() { _acc.spawned_new(top_component().get_name()); }
 	public boolean in_tbox(int obj_id) { return _tbox.contains(obj_id); }
 	public Set<Integer> get_tbox() { return _tbox; }
-	public void set_active_component(CodeComponent<?> component) { _active_component = component; }
+	
+	public void push_component(CodeComponent<?> component) { _components.push(component); }
+	public void pop_component() { _components.pop(); }
+	public CodeComponent<?> top_component() { return _components.peek(); }
 	
 	static class CodeComponent<T> implements Coder<T> {
 		private String _name;
@@ -122,13 +131,14 @@ public class CoderContext {
 		public void set_conditional(T last) { _last = last; }
 				
 		@Override public void encode(CoderContext C, T obj) {
-			C.set_active_component(this);
+			C.push_component(this);
 			List<Object> key = new ArrayList<Object>();
 			for (CodeComponent<?> cm : _condition_on) key.add(cm._last);
 			Coder<T> c = _coders.get(key);
-			if (c==null) { c = _fact.build(); _coders.put(key, c); }
+			if (c==null) { c = _fact.build(); _coders.put(key, c); C.spawned_new(); }
 			c.encode(C, obj);
 			_last = obj;
+			C.pop_component();
 		}	
 	}
 }

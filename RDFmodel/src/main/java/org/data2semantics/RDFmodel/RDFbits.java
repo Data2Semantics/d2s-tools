@@ -86,7 +86,6 @@ public class RDFbits extends RDFhelper {
 			}
 		}
 		System.out.println();
-		
 	}
 	
 

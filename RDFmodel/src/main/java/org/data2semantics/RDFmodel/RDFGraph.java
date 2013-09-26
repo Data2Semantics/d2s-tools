@@ -73,6 +73,18 @@ public class RDFGraph {
 		return count_links;
 	}
 
+	public static CoderFactory<RDFGraph> getFactory(URIDistinguisher D) {
+		return new RDFCoderFactory(D);
+	}
+	
+	private static class RDFCoderFactory implements CoderFactory<RDFGraph> {
+		private URIDistinguisher _D;
+		public RDFCoderFactory(URIDistinguisher D) { _D = D; }
+		@Override public Coder<RDFGraph> build() {
+			return new GraphCoderSigBased(_D);
+		};
+	}
+	
 }
 
 

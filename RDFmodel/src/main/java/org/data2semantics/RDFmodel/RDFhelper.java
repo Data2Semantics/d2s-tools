@@ -44,8 +44,8 @@ public class RDFhelper {
 	
 	public static CLAccountant encode(RDFGraph G, Boundary B, Set<Integer> tbox, StringTree root) {
 		URIDistinguisher D = new URIDistinguisher(B, root);
-		CoderContext C = new CoderContext("Bsize="+B.size()+"", tbox, G._named.size(), G._nbnodes);
-		new GraphCoderSigBased(D).encode(C, G);
+		CoderContext C = new CoderContext("Bsize="+B.size()+"", tbox, D, G._named.size(), G._nbnodes);
+		C._c_graph.encode(C, G);
 		return C.getResults();
 	}
 	
