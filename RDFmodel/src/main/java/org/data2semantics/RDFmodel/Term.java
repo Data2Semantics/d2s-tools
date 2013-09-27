@@ -24,6 +24,7 @@ public class Term extends TreeMap<Integer, List<Integer>> {
 			
 			// encode objects outside of the signature
 			LinkType lt = null;
+			int n_same_linktype = 1;
 			for (Entry<Integer,List<Integer>> map : term.entrySet()) {
 				int pred_ix = map.getKey();
 				for (int obj_id: map.getValue()) {
@@ -36,7 +37,16 @@ public class Term extends TreeMap<Integer, List<Integer>> {
 					C._c_pred.set_conditional(next_lt.getPredIx());
 					C._c_objtype.set_conditional(next_lt.getObjType());
 					
-					if (lt != null) C._c_moreobjs.encode(C, next_lt.equals(lt) ? 1 : 0);
+					if (lt != null) {
+						boolean same = next_lt.equals(lt);
+						if (same) { 
+							n_same_linktype++;
+						} else {
+							C.use_bits("ABox bonus", -Codes.lgfac(n_same_linktype));
+							n_same_linktype = 1;
+						}
+						C._c_moreobjs.encode(C, same ? 1 : 0);
+					}
 					lt = next_lt;
 					int obj_ix = TermType.id2ix(obj_id);
 					switch (lt.getObjType()) {

@@ -55,6 +55,12 @@ public class Linkset extends HashSet<Link> {
 				C._c_link.encode(C,  lnk); 
 			}
 			C._c_morelinks.encode(C, 0);
+			
+			/* We redundantly encoded a set as a sequence;
+			 * by combining all code words that represent the same set using a permutation of 
+			 * the sequence we can reclaim some bits.
+			 */
+			C.use_bits("Linkset bonus", -Codes.lgfac(linkset.size()));
 		}
 	}
 }

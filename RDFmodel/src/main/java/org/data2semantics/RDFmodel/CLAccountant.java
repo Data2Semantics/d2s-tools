@@ -87,7 +87,12 @@ public class CLAccountant {
 				if (cl==null) { 
 					out.printf(" %15s", "-");
 				} else {
-					out.printf(" %10.1f(%3d)", cl.doubleValue(), acc._num.get(key));
+					Integer num = acc._num.get(key);
+					if (num==null) {
+						out.printf(" %10.1f     ", cl.doubleValue());
+					} else {
+						out.printf(" %10.1f(%3d)", cl.doubleValue(), acc._num.get(key));
+					}
 				}
 			}
 			out.println();
