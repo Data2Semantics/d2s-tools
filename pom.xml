@@ -5,7 +5,10 @@
   <packaging>pom</packaging>
   <artifactId>reactor</artifactId>
   <name>D2S Complexity Tools </name>
-  
+  <properties>
+	<maven.compiler.source>1.6</maven.compiler.source>
+	<maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
   <modules>
 	<module>d2s-platform</module>
 	<module>d2s-platform-experiments</module>
@@ -14,19 +17,6 @@
 	<module>kernelexperiments</module>
 	<module>proppred</module>
 </modules>
- <build>
- <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.0</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
- 
+
 </project>
  
