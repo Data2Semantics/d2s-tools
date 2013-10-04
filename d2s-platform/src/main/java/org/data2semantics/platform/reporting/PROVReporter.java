@@ -1,12 +1,21 @@
 package org.data2semantics.platform.reporting;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.jexl2.parser.JexlNode.Literal;
 import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Module;
@@ -69,10 +78,12 @@ public class PROVReporter implements Reporter {
 		return workflow;
 	}
 	
-	
 	private void writePROV() throws IOException {
 		ValueFactory factory = ValueFactoryImpl.getInstance();		
 		Model stmts = new LinkedHashModel();
+		FileInputStream fis = new FileInputStream(workflow.file());
+		String workflowMD5sum = DigestUtils.md5Hex(fis);
+		long currentTimeMilis = System.currentTimeMillis();
 		
 		// Define all the URI's that we are going to (re)use
 		URI eURI = factory.createURI(PROV_NAMESPACE, "Entity");
@@ -97,7 +108,7 @@ public class PROVReporter implements Reporter {
 		URI hadAgentURI  = factory.createURI(PROV_NAMESPACE, "agent");
 			
 		URI platformURI = factory.createURI(NAMESPACE + "ducktape/", InetAddress.getLocalHost().getHostName() + "/" + Global.getSerialversionuid());
-		URI workflowURI = factory.createURI(NAMESPACE + "workflow/", workflow.file().getAbsolutePath() + "/" + workflow.file().lastModified());
+		URI workflowURI = factory.createURI(NAMESPACE + "workflow/", workflow.file().getAbsolutePath() + "/" + workflowMD5sum);
 			
 		// The software is the agent and the workflow is the plan
 		stmts.add(factory.createStatement(platformURI, RDF.TYPE, agURI));
@@ -108,13 +119,14 @@ public class PROVReporter implements Reporter {
 		stmts.add(factory.createStatement(workflowURI, RDFS.LABEL, 
 				Literals.createLiteral(factory, workflow.name() + ", date: " + new Date(workflow.file().lastModified()))));
 		
+	
 		
-		
+		String moduleInstanceSumTimestamp = "module/instance/"+workflowMD5sum+"/"+currentTimeMilis+"/";
 		for (Module module : workflow.modules()) {
 			
 			for (ModuleInstance mi : module.instances()) {
 				// Create provenance for the module (as an activity)
-				URI miURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID());
+				URI miURI = factory.createURI(NAMESPACE + moduleInstanceSumTimestamp, module.name() + mi.moduleID());
 				stmts.add(factory.createStatement(miURI, RDF.TYPE, acURI)); // Activity
 				stmts.add(factory.createStatement(miURI, startAtURI, Literals.createLiteral(factory, new Date(mi.startTime())))); // Start time
 				stmts.add(factory.createStatement(miURI, endAtURI, Literals.createLiteral(factory, new Date(mi.endTime())))); // end time			
@@ -130,7 +142,7 @@ public class PROVReporter implements Reporter {
 				
 				// Create provenance for the outputs (as entities)
 				for (InstanceOutput io : mi.outputs()) {
-					URI ioURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID() + "/output/" + io.name());
+					URI ioURI = factory.createURI(NAMESPACE + moduleInstanceSumTimestamp, module.name() + mi.moduleID() + "/output/" + io.name());
 					stmts.add(factory.createStatement(ioURI, RDF.TYPE, eURI)); // entity
 					stmts.add(factory.createStatement(ioURI, wgbURI, miURI)); // wasGeneratedBy
 					stmts.add(factory.createStatement(ioURI, genAtURI, Literals.createLiteral(factory, new Date(io.creationTime())))); // generated at time
@@ -148,10 +160,10 @@ public class PROVReporter implements Reporter {
 					URI iiURI = null;
 					
 					if (ii.instanceOutput() != null) {
-						iiURI = factory.createURI(NAMESPACE + "module/instance/", ii.instanceOutput().module().name() 
+						iiURI = factory.createURI(NAMESPACE + moduleInstanceSumTimestamp, ii.instanceOutput().module().name() 
 								+ ii.instanceOutput().instance().moduleID() + "/output/" + ii.name());
 					} else {
-						iiURI = factory.createURI(NAMESPACE + "module/instance/", module.name() + mi.moduleID()
+						iiURI = factory.createURI(NAMESPACE + moduleInstanceSumTimestamp, module.name() + mi.moduleID()
 								+ "/input/" + ii.name());
 						
 						// If we can create a literal
