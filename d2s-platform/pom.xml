@@ -9,7 +9,11 @@
 	  <repository>
 	    <id>jade4j-releases</id>
 	    <url>https://raw.github.com/neuland/jade4j/master/releases</url>
-	  </repository>
+    	  </repository>
+	  <repository>
+	  <id> test</id>
+	  <url>http://ducktape.wongiseng.com/jenkins/job/Ducktape/7/maven-repository/repository</url>
+  	  </repository>
 	</repositories>
 	  
   <dependencies>
@@ -68,8 +72,14 @@
       <artifactId>graphviz-api</artifactId>
       <version>1.1</version>
     </dependency>
+      <dependency>
+    <groupId>commons-codec</groupId>
+    <artifactId>commons-codec</artifactId>
+    <version>1.4</version>
+    </dependency>
+    
   </dependencies>
-  
+
     <build>
 	  <resources>
 		<resource>

@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class TestKernelExperiment {
 
-	@Test
+	//@Test
 	public void testFirstWorkflowWithKernelModules() throws Exception {
 		
 		WorkflowParser parser = new WorkflowParser();
