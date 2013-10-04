@@ -18,7 +18,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
-@Module(name="GeoDataSet")
+@Module(name="AffiliationDataSet")
 public class AffiliationDataSetModule {
 	private RDFDataSet dataset;
 	private int minSize;

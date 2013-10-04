@@ -56,7 +56,11 @@ public class LibLINEARParmsModule {
 		} else {
 			parms.setSplitFraction((float) splitFraction);
 		}
-		parms.setDoWeightLabels(true);
+		
+		//parms.setDoWeightLabels(true);
+		
+		parms.setWeightLabels(EvaluationUtils.computeWeightLabels(target));
+		parms.setWeights(EvaluationUtils.computeWeights(target));
 
 		return parms;
 	}

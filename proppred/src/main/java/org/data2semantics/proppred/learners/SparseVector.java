@@ -41,6 +41,13 @@ public class SparseVector {
 		converted = false;
 	}
 	
+	public void multiplyScalar(double scalar) {
+		for (int i : vector.keySet()) {
+			vector.put(i, vector.get(i) * scalar);
+		}
+		converted = false;
+	}
+	
 	
 	public void setValue(int index, double value) {
 		vector.put(index, value);
