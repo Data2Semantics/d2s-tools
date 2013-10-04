@@ -109,7 +109,7 @@ public class PROVReporter implements Reporter {
 		
 	
 		
-		String moduleInstanceSumTimestamp = "module/instance/"+workflowMD5sum+"/"+currentTimeMilis+"/";
+		String moduleInstanceSumTimestamp = "module/instance/"+InetAddress.getLocalHost().getHostName()+"/"+workflowMD5sum+"/"+currentTimeMilis+"/";
 		for (Module module : workflow.modules()) {
 			
 			for (ModuleInstance mi : module.instances()) {
