@@ -2,30 +2,18 @@ package org.data2semantics.platform.reporting;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.jexl2.parser.JexlNode.Literal;
 import org.data2semantics.platform.Global;
 import org.data2semantics.platform.core.Module;
 import org.data2semantics.platform.core.ModuleInstance;
 import org.data2semantics.platform.core.Workflow;
 import org.data2semantics.platform.core.data.InstanceInput;
 import org.data2semantics.platform.core.data.InstanceOutput;
-import org.data2semantics.platform.core.data.ReferenceInput;
-import org.data2semantics.platform.util.Functions;
-
 import org.openrdf.model.BNode;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
