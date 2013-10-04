@@ -25,14 +25,19 @@ public class RDFbits extends RDFhelper {
 		
 	
 	public static void main(String [] args) throws FileNotFoundException {
-		// RDFGraph G = load("src/main/resources/AIFB/aifb-fixed_complete.n3");
+		RDFGraph G = load("src/main/resources/AIFB/aifb-fixed_complete.n3");
 		// RDFGraph G = load("src/main/resources/STCN/STCN_Publications.ttl");
 		// RDFGraph G = load("src/main/resources/LDMC/LDMC_Task1_train.ttl");
-		RDFGraph G = load("src/main/resources/STCN_edited");
+		// RDFGraph G = load("src/main/resources/STCN_edited");
 
 		// Blocks are a feeble attempt to be memory-conscious here
 		
 		G.printSomeStats();
+
+		System.gc(); // this hack is the only easy way to get memory consumption
+		Runtime rt = Runtime.getRuntime();
+		long mem = rt.totalMemory() - rt.freeMemory();		
+		System.out.println("Memory usage: "+(mem/1024)+"K in "+G._ntriples+" triples is "+(mem/G._ntriples)+" bytes/triple");
 		
 		int size_uris = 0, size_lits = 0;
 		
@@ -94,6 +99,7 @@ public class RDFbits extends RDFhelper {
 			}
 		}
 		System.out.println();
+		
 	}
 	
 

@@ -3,30 +3,30 @@ package org.data2semantics.RDFmodel;
 
 public class Link {
 	
-	public LinkType _lt;
-	public int _obj_ix;
+	private int _pred_ix;
+	private int _obj_type;
+	private int _obj_ix;
 	
-	public Link(LinkType lt, int obj_ix) { _lt = lt; _obj_ix = obj_ix; }
+	public Link(int pred_ix, int obj_type, int obj_ix) {
+		_pred_ix  = pred_ix;
+		_obj_type = obj_type;
+		_obj_ix   = obj_ix;
+	}
 	
-	public LinkType getLinkType() { return _lt; }
-	public int getObjIx() { return _obj_ix; }
+	public int getPredIx()  { return _pred_ix;  }
+	public int getObjType() { return _obj_type; }
+	public int getObjIx()   { return _obj_ix;   }
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((_lt == null) ? 0 : _lt.hashCode());
-		result = prime * result + _obj_ix;
-		return result;
+	@Override public int hashCode() {
+		return _pred_ix + 31 * (_obj_type * 5 + _obj_ix);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
+	@Override public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		Link other = (Link) obj;
-		return other._lt.equals(_lt) && _obj_ix == other._obj_ix;
+		Link o = (Link) obj;
+		return o._pred_ix==_pred_ix && o._obj_type==_obj_type && o._obj_ix==_obj_ix;
 	}
 
 	public static CoderFactory<Link> getFactory() {
@@ -41,15 +41,14 @@ public class Link {
 	private static class BasicLinkCoder implements Coder<Link> {
 				
 		@Override public void encode(CoderContext C, Link lnk) {
-			LinkType lt = lnk.getLinkType();
-			C._c_linktype.encode(C,  lt);
-			int obj_ix = lnk.getObjIx();
-			boolean in_tbox = obj_ix!=-1;
+			C._c_pred.encode(C, lnk._pred_ix);
+			C._c_objtype.encode(C, lnk._obj_type);
+			boolean in_tbox = lnk._obj_ix!=-1;
 			C._c_hasobj.encode(C, in_tbox ? 1 : 0);
 			if (in_tbox) {
-				switch (lt.getObjType()) {
-				case TermType.NAMED   : C._c_namedobj.encode(C, obj_ix); break;
-				case TermType.BNODE   : C._c_bnodeobj.encode(C, obj_ix); break;
+				switch (lnk._obj_type) {
+				case TermType.NAMED   : C._c_namedobj.encode(C, lnk._obj_ix); break;
+				case TermType.BNODE   : C._c_bnodeobj.encode(C, lnk._obj_ix); break;
 				case TermType.LITERAL : break; // literals appear in order and do not need to be encoded
 				default: assert false: "Unknown object type";
 				}

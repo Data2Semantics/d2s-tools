@@ -23,22 +23,21 @@ public class Term extends TreeMap<Integer, List<Integer>> {
 			C._c_linkset.encode(C, new Linkset(C.get_tbox(), term));
 			
 			// encode objects outside of the signature
-			LinkType lt = null;
+			Link lnk = null;
 			int n_same_linktype = 1;
 			for (Entry<Integer,List<Integer>> map : term.entrySet()) {
 				int pred_ix = map.getKey();
 				for (int obj_id: map.getValue()) {
 					if (C.in_tbox(obj_id)) continue; // object part of signature
-					LinkType next_lt = new LinkType(pred_ix, TermType.id2type(obj_id));
+					Link next_lnk = new Link(pred_ix, TermType.id2type(obj_id), -1);
 					
 					// Fix conditioning information for this object.
 					// This is an ugly hack, necessary because of out-of-order coding
-					C._c_linktype.set_conditional(next_lt);
-					C._c_pred.set_conditional(next_lt.getPredIx());
-					C._c_objtype.set_conditional(next_lt.getObjType());
+					C._c_pred.set_conditional(next_lnk.getPredIx());
+					C._c_objtype.set_conditional(next_lnk.getObjType());
 					
-					if (lt != null) {
-						boolean same = next_lt.equals(lt);
+					if (lnk != null) {
+						boolean same = next_lnk.equals(lnk);
 						if (same) { 
 							n_same_linktype++;
 						} else {
@@ -47,9 +46,9 @@ public class Term extends TreeMap<Integer, List<Integer>> {
 						}
 						C._c_moreobjs.encode(C, same ? 1 : 0);
 					}
-					lt = next_lt;
+					lnk = next_lnk;
 					int obj_ix = TermType.id2ix(obj_id);
-					switch (lt.getObjType()) {
+					switch (lnk.getObjType()) {
 					case TermType.NAMED   : C._c_namedobj.encode(C, obj_ix); break;
 					case TermType.BNODE   : C._c_bnodeobj.encode(C, obj_ix); break;
 					case TermType.LITERAL : break; // literals appear in order and do not need to be encoded
@@ -57,7 +56,7 @@ public class Term extends TreeMap<Integer, List<Integer>> {
 					}
 				}
 			}
-			if (lt!=null) C._c_moreobjs.encode(C, 0);
+			if (lnk!=null) C._c_moreobjs.encode(C, 0);
 		}
 		
 	}

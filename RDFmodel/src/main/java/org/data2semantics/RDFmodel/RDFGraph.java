@@ -16,15 +16,14 @@ public class RDFGraph {
 	// mappings of value types to integer identifiers
 	public List<URI>      _named;
 	public List<Literal>  _literals;
-	public int            _nbnodes, _npreds;
+	public int            _nbnodes, _npreds, _ntriples;
 	
 	public List<Term> _b_subj2pred2obj;
 	public List<Term> _n_subj2pred2obj;
 		
 	public RDFGraph(RDFLoader L) {
 
-		// ------------------------------ construct the new graph structure ---------------------------
-		
+		_ntriples        = L._ntriples;
 		_n_subj2pred2obj = L._n_subj2pred2obj;
 		_b_subj2pred2obj = L._b_subj2pred2obj;
 		_npreds          = L._pred_ixs.size();

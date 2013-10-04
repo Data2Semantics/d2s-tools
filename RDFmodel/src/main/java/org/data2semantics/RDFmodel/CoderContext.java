@@ -54,10 +54,6 @@ public class CoderContext {
 	// Link
 	// Can only usefully condition on URINode
 	public final CodeComponent<Link>     _c_link = new CodeComponent<Link>("Link", Link.getFactory());
-
-	// LinkType
-	// Can only usefully condition on URINode
-	public final CodeComponent<LinkType> _c_linktype = new CodeComponent<LinkType>("LinkType", LinkType.getFactory());
 	
 	// Predicate
 	// Can only usefully condition on URINode
@@ -80,14 +76,13 @@ public class CoderContext {
 	public final CodeComponent<Integer>  _c_bnodeobj;
 	
 	// More links? (in linkset)
-	// Can usefully condition on: URINode, Link (LinkType (Predicate, ObjType), HasObj, ObjIx)
+	// Can usefully condition on: URINode, Link (Predicate, ObjType, HasObj, ObjIx)
 	public final CodeComponent<Integer> _c_morelinks =
 		new CodeComponent<Integer>("MoreLinks", KT.getFactory(2), _c_link);
 			
 	// More objs with the same linktype? 
-	// Can usefully condition on: URINode, LinkSet, LinkType (Predicate, ObjType)
-	public final CodeComponent<Integer> _c_moreobjs = 
-		new CodeComponent<Integer>("MoreObjs", KT.getFactory(2), _c_linktype);
+	// Can usefully condition on: URINode, LinkSet, Predicate, ObjType
+	public final CodeComponent<Integer> _c_moreobjs; 
 	
 	// ================================================================================================
 	
@@ -100,6 +95,7 @@ public class CoderContext {
 		 _c_pred     = new CodeComponent<Integer>("Predicates", SparseMultinomialCoder.getFactory(nnamed));
 		 _c_namedobj = new CodeComponent<Integer>("NamedObj",   SparseMultinomialCoder.getFactory(nnamed), _c_urinode);
 		 _c_bnodeobj = new CodeComponent<Integer>("BNodeObj",   SparseMultinomialCoder.getFactory(nbnodes), _c_pred);
+		 _c_moreobjs = new CodeComponent<Integer>("MoreObjs", KT.getFactory(2), _c_pred, _c_objtype);
 	}
 	
 	public CLAccountant getResults() { return _acc; }

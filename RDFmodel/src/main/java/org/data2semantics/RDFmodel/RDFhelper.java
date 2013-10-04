@@ -97,7 +97,7 @@ public class RDFhelper {
 		int last_included = -1;
 		Set<Integer> tbox_best = new HashSet<Integer>();
 		double cl = encode(G, B, tbox_best, ST).L();
-		for (int ix=0; ix<items.size() && ix-last_included<100; ix++) {
+		for (int ix=0; ix<items.size() && ix-last_included<20; ix++) {
 			Entry<Integer,Integer> entry = items.get(items.size()-ix-1);
 			Set<Integer> tbox_test = new HashSet<Integer>(tbox_best);
 			tbox_test.add(entry.getKey());

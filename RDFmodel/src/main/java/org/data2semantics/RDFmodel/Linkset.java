@@ -12,8 +12,9 @@ public class Linkset extends HashSet<Link> {
 		assert edge_map!=null : "edge map lists may be empty but not null";
 		for (Map.Entry<Integer,List<Integer>> pred : edge_map.entrySet()) {
 			for (int obj_id : pred.getValue()) {
-				LinkType lt = new LinkType(pred.getKey(), TermType.id2type(obj_id));
-				add(new Link(lt, tbox.contains(obj_id) ? TermType.id2ix(obj_id) : -1));
+				add(new Link(pred.getKey(),
+							 TermType.id2type(obj_id),
+							 tbox.contains(obj_id) ? TermType.id2ix(obj_id) : -1));
 			}
 		}
     }

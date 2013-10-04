@@ -30,6 +30,7 @@ public class RDFLoader extends RDFHandlerBase {
 	public IndexMap<BNode>      _bnodes2ix  = new IndexMap<BNode>();
 	public IndexMap<URI>        _named2ix   = new IndexMap<URI>();
 	public Set<Integer>         _pred_ixs   = new HashSet<Integer>();
+	public int                  _ntriples   = 0; 
 		
 	// duplicate literals are not detected, so the literal map can be constructed the other way around
 	public List<Literal> _ix2lit       = new ArrayList<Literal>();
@@ -60,7 +61,7 @@ public class RDFLoader extends RDFHandlerBase {
 	
 	@Override
 	public void handleStatement(Statement smt) {
-		
+		_ntriples++;
 		int subj_id = add(smt.getSubject());
 		int pred_id = add(smt.getPredicate());
 		int obj_id  = add(smt.getObject()); 
