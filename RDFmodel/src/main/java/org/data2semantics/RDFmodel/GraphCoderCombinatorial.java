@@ -3,9 +3,13 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
-public class GraphCoderCombinatorial implements Coder<RDFGraph> {
+public class GraphCoderCombinatorial {
 	
-	@Override public void encode(CoderContext C, RDFGraph G) {		
+	private CLAccountant _acc;
+	
+	public GraphCoderCombinatorial(CLAccountant acc) { _acc = acc; }
+	
+	public void encode(RDFGraph G) {		
 		// already known: number of named nodes, number of literals
 		
 		// 1. Initialise 
@@ -52,16 +56,16 @@ public class GraphCoderCombinatorial implements Coder<RDFGraph> {
 		
 		// 3. Encode graph structure
 
-		C.use_bits("prelim", Codes.universal_nonnegint(nbnodes));      // number of bnodes
-		C.use_bits("prelim", Codes.universal_nonnegint(npreds));       // number of predicates
-		C.use_bits("prelim", npreds * Codes.lg(nnamed));               // set of predicates
+		_acc.add("prelim", Codes.universal_nonnegint(nbnodes));      // number of bnodes
+		_acc.add("prelim", Codes.universal_nonnegint(npreds));       // number of predicates
+		_acc.add("prelim", npreds * Codes.lg(nnamed));               // set of predicates
 
 		// encode first tot, then sum using tot, then counts using sum
-		C.use_bits("counts", Codes.universal_nonnegint(tot));  // tot # links
-		C.use_bits("counts", Codes.lgbinomial(tot+6-1,  6-1)); // array of link counts per src/dst type
+		_acc.add("counts", Codes.universal_nonnegint(tot));  // tot # links
+		_acc.add("counts", Codes.lgbinomial(tot+6-1,  6-1)); // array of link counts per src/dst type
 		for (int t1=0; t1<2; t1++) {
 			for (int t2=0; t2<3; t2++) {
-				C.use_bits("counts", Codes.lgbinomial(sum[t1][t2]+npreds-1, npreds-1));
+				_acc.add("counts", Codes.lgbinomial(sum[t1][t2]+npreds-1, npreds-1));
 			}
 		}
 		
@@ -75,15 +79,15 @@ public class GraphCoderCombinatorial implements Coder<RDFGraph> {
 			for (int t1=0; t1<2; t1++) {
 				for (int t2=0; t2<2; t2++) {
 					// adjacency matrix between objects of type t1 and t2 respectively:			
-					C.use_bits("adjacency", Codes.lgbinomial(nsubj[t1]*nsubj[t2], counts[t1][t2][pred]));
+					_acc.add("adjacency", Codes.lgbinomial(nsubj[t1]*nsubj[t2], counts[t1][t2][pred]));
 				}
 				// specify #literals with this pred for each subject
-				if (nsubj[t1]>0) C.use_bits("literals", Codes.lgbinomial(counts[t1][2][pred]+nsubj[t1]-1,  nsubj[t1]-1));
+				if (nsubj[t1]>0) _acc.add("literals", Codes.lgbinomial(counts[t1][2][pred]+nsubj[t1]-1,  nsubj[t1]-1));
 			}
 		}
 		
 		// We used a fixed bnode ordering, however, bnodes can be reordered arbitrarily without
 		// affecting code length
-		C.use_bits("bnode_bonus", -Codes.lgfac(nbnodes));			
+		_acc.add("bnode_bonus", -Codes.lgfac(nbnodes));			
 	}
 }

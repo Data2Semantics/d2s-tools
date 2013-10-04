@@ -25,10 +25,10 @@ public class RDFbits extends RDFhelper {
 		
 	
 	public static void main(String [] args) throws FileNotFoundException {
-		RDFGraph G = load("src/main/resources/AIFB/aifb-fixed_complete.n3");
+		// RDFGraph G = load("src/main/resources/AIFB/aifb-fixed_complete.n3");
 		// RDFGraph G = load("src/main/resources/STCN/STCN_Publications.ttl");
 		// RDFGraph G = load("src/main/resources/LDMC/LDMC_Task1_train.ttl");
-		// RDFGraph G = load("src/main/resources/STCN_edited");
+		RDFGraph G = load("src/main/resources/STCN_edited");
 
 		// Blocks are a feeble attempt to be memory-conscious here
 		
@@ -69,6 +69,14 @@ public class RDFbits extends RDFhelper {
 		System.out.println("\n\n-----------------------------------\n");
 		List<CLAccountant> res = new ArrayList<CLAccountant>();
 		res.add(root_acc); res.add(best_acc);
+		CLAccountant.report(res);
+		
+		
+		CLAccountant comb_acc = new CLAccountant("Combinatorial");
+		GraphCoderCombinatorial c = new GraphCoderCombinatorial(comb_acc);
+		c.encode(G);
+		res.clear();
+		res.add(comb_acc);
 		CLAccountant.report(res);
 		
 		System.out.println("\nBest boundary (size "+best_B.size()+"):");

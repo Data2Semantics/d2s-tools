@@ -96,7 +96,7 @@ public class CoderContext {
 		_tbox = tbox;
 		
 		// instantiate all parameterized codermaps
-		 _c_graph    = new CodeComponent<RDFGraph>("Graph", RDFGraph.getFactory(D));
+		 _c_graph    = new CodeComponent<RDFGraph>("Graph", GraphCoderSigBased.getFactory(D));
 		 _c_pred     = new CodeComponent<Integer>("Predicates", SparseMultinomialCoder.getFactory(nnamed));
 		 _c_namedobj = new CodeComponent<Integer>("NamedObj",   SparseMultinomialCoder.getFactory(nnamed), _c_urinode);
 		 _c_bnodeobj = new CodeComponent<Integer>("BNodeObj",   SparseMultinomialCoder.getFactory(nbnodes), _c_pred);
@@ -134,6 +134,7 @@ public class CoderContext {
 			C.push_component(this);
 			List<Object> key = new ArrayList<Object>();
 			for (CodeComponent<?> cm : _condition_on) key.add(cm._last);
+
 			Coder<T> c = _coders.get(key);
 			if (c==null) { c = _fact.build(); _coders.put(key, c); C.spawned_new(); }
 			c.encode(C, obj);

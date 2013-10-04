@@ -22,4 +22,16 @@ public class GraphCoderSigBased implements Coder<RDFGraph> {
 
 		C.use_bits(-Codes.lgfac(G._b_subj2pred2obj.size()));
 	}
+	
+	
+	public static CoderFactory<RDFGraph> getFactory(URIDistinguisher D) {
+		return new GraphCoderSigBasedFactory(D);
+	}
+	
+	private static class GraphCoderSigBasedFactory implements CoderFactory<RDFGraph> {
+		private URIDistinguisher _D;
+		public GraphCoderSigBasedFactory(URIDistinguisher D) { _D = D; }
+		@Override public Coder<RDFGraph> build() { return new GraphCoderSigBased(_D); }
+	}
+	
 }
