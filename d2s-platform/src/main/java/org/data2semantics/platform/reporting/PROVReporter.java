@@ -127,7 +127,6 @@ public class PROVReporter implements Reporter {
 				stmts.add(factory.createStatement(bn, hadAgentURI, platformURI));
 				stmts.add(factory.createStatement(miURI, qualAssoURI, bn));
 				
-				
 				// Create provenance for the outputs (as entities)
 				for (InstanceOutput io : mi.outputs()) {
 					URI ioURI = factory.createURI(NAMESPACE + moduleInstanceSumTimestamp, module.name() + mi.moduleID() + "/output/" + io.name());
