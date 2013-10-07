@@ -21,7 +21,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * Implementation of the IntersectionSubTree kernel from the ESWC 2012 paper by Loetsch et al.
- * They describe a more efficient implementation on the RDF graph directly.
+ * They describe a more efficient implementation on the RDF graph directly, which is implemented as the {@link org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel}.
  * 
  * @author Gerben
  *

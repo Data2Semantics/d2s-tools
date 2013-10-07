@@ -1,7 +1,14 @@
 package org.data2semantics.proppred.kernels;
 
 
-
+/**
+ * Simple implementation of a pair of two objects of type O datastructure.
+ * Note that equals and hashcode methods are overriden, such that two pairs are equal of their first and second object are equal.
+ * 
+ * @author Gerben
+ *
+ * @param <O>
+ */
 public class Pair<O> {
 	O first;
 	O second;

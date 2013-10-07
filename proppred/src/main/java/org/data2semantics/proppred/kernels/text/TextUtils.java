@@ -8,6 +8,13 @@ import java.util.Map;
 
 import org.data2semantics.proppred.learners.SparseVector;
 
+/**
+ * Some utilities methods for dealing with text, e.g. computing term-vectors (TF) and TF-IDF from those term-vectors.
+ * 
+ * 
+ * @author Gerben
+ *
+ */
 public class TextUtils {
 
 	public static List<SparseVector> computeTF(List<String> texts) {

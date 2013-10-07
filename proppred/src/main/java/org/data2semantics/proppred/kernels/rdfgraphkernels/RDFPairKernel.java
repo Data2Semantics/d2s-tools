@@ -14,6 +14,12 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 
+/**
+ * Simple kernel for computing a kernel on a pair of Resources. kernel1 is computed on the first elements of the pairs and kernel2 on the second.
+ * 
+ * @author Gerben
+ *
+ */
 public class RDFPairKernel {
 	double w1;
 	double w2;

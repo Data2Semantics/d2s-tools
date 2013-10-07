@@ -28,9 +28,6 @@ import de.bwaldvogel.liblinear.Problem;
  */
 public class LibLINEAR {
 
-
-
-
 	public static LibLINEARModel trainLinearModel(SparseVector[] featureVectors, double[] target, LibLINEARParameters params) {
 		Problem prob = createLinearProblem(featureVectors, target, params.getBias());
 		return trainLinearModel(prob, params);
