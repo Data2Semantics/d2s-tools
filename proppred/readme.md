@@ -10,6 +10,8 @@ Please have a look at Example.java, Example2.java and ExamplePair.java for detai
 Example.java illustrates the use of the PropertyPredictor class. In Example2.java the use of the LibLINEAR library is shown. 
 Finally, ExamplePair.java demonstrates a PairKernel to combine two graph kernels for link prediction.
 
+This library was used in the paper that won the Open Science Award at ECML/PKDD 2013. See  http://www.data2semantics.org/publications/ecmlpkdd-2013/ for the winning website.
+
 ## Packages 
 - `proppred.kernels` contains the basic kernel interface and some utility functions.
   - `proppred.kernels.graphkernels` contains graph kernels that take lists of JUNG graphs as input.
