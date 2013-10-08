@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.data2semantics</groupId>
+	<groupId>data2semantics</groupId>
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 

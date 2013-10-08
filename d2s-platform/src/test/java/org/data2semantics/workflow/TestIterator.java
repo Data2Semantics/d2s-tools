@@ -47,8 +47,6 @@ public class TestIterator {
 			}
 		}
 		
-		CSVReporter reporter = new CSVReporter(workflow, new File("output_dir_iterator"));
-		reporter.report();
 	}
 	
 	@Test
@@ -66,8 +64,6 @@ public class TestIterator {
 		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
 		
 		platformOrchestrator.orchestrate();
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_dir"));
-		reporter.report();
 		
 	}
 	
@@ -92,8 +88,6 @@ public class TestIterator {
 		for(InstanceOutput io : mi.outputs())
 			System.out.print(io.value()+ " ");
 		
-		//workflowContainer.dumpIntermediateResults();
-		platformOrchestrator.writeOutput("output_dir1");
 		
 	}
 	
@@ -116,8 +110,6 @@ public class TestIterator {
 		
 		System.out.println(workflow.modules().get(0).instances().get(0).outputs().get(0).value());
 		
-		//workflowContainer.dumpIntermediateResults();
-		platformOrchestrator.writeOutput("output_dir1");
 		
 	}
 

@@ -8,7 +8,7 @@
 	<description>Machine Learing Platform	</description>
 
 	<parent>
-		<groupId>org.data2semantics</groupId>
+		<groupId>data2semantics</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
         <relativePath>../parent/</relativePath>
