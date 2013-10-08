@@ -2,7 +2,10 @@ package org.data2semantics.proppred.learners.liblinear;
 
 
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.data2semantics.proppred.learners.Prediction;
@@ -24,9 +27,6 @@ import de.bwaldvogel.liblinear.Problem;
  *
  */
 public class LibLINEAR {
-
-
-
 
 	public static LibLINEARModel trainLinearModel(SparseVector[] featureVectors, double[] target, LibLINEARParameters params) {
 		Problem prob = createLinearProblem(featureVectors, target, params.getBias());
@@ -52,24 +52,52 @@ public class LibLINEAR {
 		Problem trainProb = null;
 		Problem testProb = null;
 
+		Map<Double, Double> cc = null;
+
+		Parameter linearParams = params.getParamsCopy();
+
+		/*
+		 * We set the weights here, because LibLINEAR crashes when there are weights for labels that are in the total set, but not in the train set. 
+		 * However in the case of cross-validation for parameter optimisation we cannot make sure that this does not happen, since the CV is done by the LibLINEAR CV method.
+		 * In the future we should implement our own CV. Moreover, we introduce a slight bias in this way, since the weights are computed over train+test in the CV case.
+		 * 
+		 */
 		if (params.isDoCrossValidation()) {
 			target = prob.y;
+			cc = EvaluationUtils.computeClassCounts(EvaluationUtils.doubles2target(prob.y));
+
+			/*
 			if (params.isDoWeightLabels()) {
-				params.setWeightLabels(EvaluationUtils.computeWeightLabels(EvaluationUtils.doubles2target(prob.y)));
-				params.setWeights(EvaluationUtils.computeWeights(EvaluationUtils.doubles2target(prob.y)));
+				linearParams.setWeights(EvaluationUtils.computeWeights(EvaluationUtils.doubles2target(prob.y)), EvaluationUtils.computeWeightLabels(EvaluationUtils.doubles2target(prob.y)));
 			}
+			 */
 
 		} else {
 			trainProb = createProblemTrainSplit(prob, params.getSplitFraction());
 			testProb  = createProblemTestSplit(prob, params.getSplitFraction());
-			target = testProb.y;	
+			target = testProb.y;
+
+			cc = EvaluationUtils.computeClassCounts(EvaluationUtils.doubles2target(trainProb.y));			
+
+			/*
 			if (params.isDoWeightLabels()) {
-				params.setWeightLabels(EvaluationUtils.computeWeightLabels(EvaluationUtils.doubles2target(trainProb.y)));
-				params.setWeights(EvaluationUtils.computeWeights(EvaluationUtils.doubles2target(trainProb.y)));
+				linearParams.setWeights(EvaluationUtils.computeWeights(EvaluationUtils.doubles2target(trainProb.y)), EvaluationUtils.computeWeightLabels(EvaluationUtils.doubles2target(trainProb.y)));
 			}
+			 */
 		}
 
-		Parameter linearParams = params.getParams();
+		if (params.isDoWeightLabels()) {
+			List<Double> wl = new ArrayList<Double>();
+			List<Integer> wll = new ArrayList<Integer>();
+			for (int i = 0; i < params.getWeightLabels().length; i++) {
+				if (cc.containsKey((double) params.getWeightLabels()[i])) {
+					wll.add(params.getWeightLabels()[i]);
+					wl.add(params.getWeights()[i]);
+				}
+			}
+			linearParams.setWeights(EvaluationUtils.target2Doubles(wl), EvaluationUtils.target2Integers(wll));
+		}
+
 
 		double score = 0, bestScore = 0, bestC = 0, bestP = 0;
 

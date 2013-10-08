@@ -44,6 +44,23 @@ public class EvaluationUtils {
 		return ret;
 	}
 	
+	public static int[] target2Integers(List<Integer> target) {
+		int[] ret = new int[target.size()];
+		for (int i = 0; i < target.size(); i++) {
+			ret[i] = target.get(i);
+		}
+		return ret;
+	}
+	
+	public static List<Integer> ints2target(int[] ints) {
+		List<Integer> ret = new ArrayList<Integer>();
+		for (int i = 0; i < ints.length; i++) {
+			ret.add(ints[i]);
+		}
+		return ret;
+	}
+	
+	
 	public static <T> Map<Double, T> reverseLabelMap(Map<T,Double> labelMap) {
 		Map<Double,T> revMap = new HashMap<Double,T>(); 
 	

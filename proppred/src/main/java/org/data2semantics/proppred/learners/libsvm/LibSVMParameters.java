@@ -77,6 +77,28 @@ public class LibSVMParameters {
 	svm_parameter getParams() {
 		return params;
 	}
+	
+	/**
+	 * Get a copy of the svm_parameter object
+	 * 
+	 * @return
+	 */
+	svm_parameter getParamsCopy() {
+		svm_parameter p2 = new svm_parameter();
+		
+		p2.svm_type = params.svm_type;
+		p2.kernel_type = params.kernel_type;
+		p2.eps = params.eps;
+		p2.shrinking = params.shrinking;
+		p2.probability = params.probability;
+		p2.cache_size = params.cache_size;
+		p2.nr_weight = params.nr_weight;
+		p2.weight = params.weight;
+		p2.weight_label = params.weight_label;
+		p2.p = params.p;
+		
+		return p2;
+	}
 
 	public int getAlgorithm() {
 		return params.svm_type;
@@ -135,11 +157,11 @@ public class LibSVMParameters {
 	}
 
 	public void setLinear() {
-		params.kernel_type = params.LINEAR;
+		params.kernel_type = svm_parameter.LINEAR;
 	}
 
 	public void setPrecomputedKernel() {
-		params.kernel_type = params.PRECOMPUTED;
+		params.kernel_type = svm_parameter.PRECOMPUTED;
 	}
 
 	public int getNumFolds() {
