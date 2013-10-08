@@ -1,5 +1,7 @@
 package org.data2semantics.RDFmodel.modules;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.data2semantics.RDFmodel.Boundary;
@@ -11,11 +13,15 @@ import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
 import org.data2semantics.platform.annotation.Out;
+import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
 
 @Module(name="RDFCompression") public class RDFCompression extends RDFhelper {
 	
 	private String _fn;
 	private RDFGraph _G;
+	private List<URI> _uris;
+	private List<Literal> _lits;
 	private StringTree _ST;
 	private int _minlinks;
 	private Set<Integer> _tbox;
@@ -53,14 +59,14 @@ import org.data2semantics.platform.annotation.Out;
 	
 
 	private void codelengths() {
-		String uristr = set2string(_G._named);
+		String uristr = set2string(_uris);
 		String packed = _ST.getPacked();
 		_cl_uris                = uristr.length() * 8;
 		_cl_uris_gzipped        = gzip(uristr);
 		_cl_uris_packed         = packed.length() * 8;
 		_cl_uris_packed_gzipped = gzip(packed);
 		
-		String lits = set2string(_G._literals);
+		String lits = set2string(_lits);
 		_cl_lits                = lits.length() * 8;
 		_cl_lits_gzipped        = gzip(lits);
 	}
@@ -79,16 +85,18 @@ import org.data2semantics.platform.annotation.Out;
 	}
 
 	private double cl_structure(Boundary B) {
-		CLAccountant acc = encode(_G, B, _tbox, _ST);
+		CLAccountant acc = encode(_G, _uris, B, _tbox, _ST).getResults();
 		return acc.L();
 	}
 	
 	@Main
 	public void main() {
-		_G = load(_fn);
-		_ST = new StringTree(_G._named);
+		_uris = new ArrayList<URI>();
+		_lits = new ArrayList<Literal>();
+		_G = load(_fn, _uris, _lits);
+		_ST = new StringTree(_uris);
 		_tbox = tbox_heuristic_most_incoming(_G, _minlinks);
-		_boundary = findBestBoundary(_G, _tbox, _ST);
+		_boundary = findBestBoundary(_G, _uris, _tbox, _ST);
 		codelengths();
 	}
 	

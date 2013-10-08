@@ -47,8 +47,8 @@ public class Link {
 			C._c_hasobj.encode(C, in_tbox ? 1 : 0);
 			if (in_tbox) {
 				switch (lnk._obj_type) {
-				case TermType.NAMED   : C._c_namedobj.encode(C, lnk._obj_ix); break;
-				case TermType.BNODE   : C._c_bnodeobj.encode(C, lnk._obj_ix); break;
+				case TermType.NAMED   : C._c_namedobj_t.encode(C, lnk._obj_ix); break;
+				case TermType.BNODE   : C._c_bnodeobj_t.encode(C, lnk._obj_ix); break;
 				case TermType.LITERAL : break; // literals appear in order and do not need to be encoded
 				default: assert false: "Unknown object type";
 				}

@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.data2semantics.RDFmodel.Linkset.LinksetCoderFactory;
+import org.openrdf.model.URI;
+
 /* The following tree depicts in which order the various components of a Term are encoded.
  * Any component can be conditioned on after all its children have been encoded.
  * However there is no provision to condition on an *element* of a sequence after that
@@ -21,9 +24,8 @@ import java.util.Stack;
  * Term
  *   LinkSet
  *     [ Link
- *         LinkType
- *           Predicate
- *           ObjType
+ *         Predicate
+ *         ObjType
  *         HasObj
  *         ObjIx 
  *       MoreLinks ]
@@ -49,7 +51,8 @@ public class CoderContext {
 
 	// LinkSet
 	// Can only usefully condition on URINode 
-	public final CodeComponent<Linkset> _c_linkset = new CodeComponent<Linkset>("Linkset", Linkset.getFactory(), _c_urinode);
+	public final LinksetCoderFactory    _f_linkset = Linkset.getFactory();
+	public final CodeComponent<Linkset> _c_linkset;
 		
 	// Link
 	// Can only usefully condition on URINode
@@ -67,35 +70,41 @@ public class CoderContext {
 	// Can usefully condition on: URINode, Predicate
 	public final CodeComponent<Integer>  _c_hasobj = new CodeComponent<Integer>("HasObj", KT.getFactory(2));
 	
-	// Named object
+	// Coders for the tbox objects. Separate for named and bnode objects.
 	// Can usefully condition on: URINode, Predicate
-	public final CodeComponent<Integer>  _c_namedobj;
-
-	// BNode object
-	// Can usefully condition on: URINode, Predicate
-	public final CodeComponent<Integer>  _c_bnodeobj;
+	public final CodeComponent<Integer> _c_namedobj_t;
+	public final CodeComponent<Integer> _c_bnodeobj_t;
 	
+	// Coders for the abox objects. Separate for named and bnode objects.
+	// Can usefully condition on: URINode, Linkset, Predicate
+	public final CodeComponent<Integer> _c_namedobj_a;
+	public final CodeComponent<Integer> _c_bnodeobj_a;
+		
 	// More links? (in linkset)
 	// Can usefully condition on: URINode, Link (Predicate, ObjType, HasObj, ObjIx)
-	public final CodeComponent<Integer> _c_morelinks =
-		new CodeComponent<Integer>("MoreLinks", KT.getFactory(2), _c_link);
-			
+	public final CodeComponent<Integer> _c_morelinks;
+	
 	// More objs with the same linktype? 
 	// Can usefully condition on: URINode, LinkSet, Predicate, ObjType
 	public final CodeComponent<Integer> _c_moreobjs; 
 	
 	// ================================================================================================
 	
-	public CoderContext(String name, Set<Integer> tbox, URIDistinguisher D, int nnamed, int nbnodes) {
+	public CoderContext(String name, Set<Integer> tbox, URIDistinguisher D, List<URI> uris, int nnamed, int nbnodes) {
 		_acc  = new CLAccountant(name);
 		_tbox = tbox;
-		
+				
 		// instantiate all parameterized codermaps
-		 _c_graph    = new CodeComponent<RDFGraph>("Graph", GraphCoderSigBased.getFactory(D));
-		 _c_pred     = new CodeComponent<Integer>("Predicates", SparseMultinomialCoder.getFactory(nnamed));
-		 _c_namedobj = new CodeComponent<Integer>("NamedObj",   SparseMultinomialCoder.getFactory(nnamed), _c_urinode);
-		 _c_bnodeobj = new CodeComponent<Integer>("BNodeObj",   SparseMultinomialCoder.getFactory(nbnodes), _c_pred);
-		 _c_moreobjs = new CodeComponent<Integer>("MoreObjs", KT.getFactory(2), _c_pred, _c_objtype);
+		_c_graph      = new CodeComponent<RDFGraph>("Graph", GraphCoderSigBased.getFactory(D, uris));
+		_c_pred       = new CodeComponent<Integer>("Predicates", SparseMultinomialCoder.getFactory(nnamed));
+		_c_namedobj_t = new CodeComponent<Integer>("NamedObjT",  SparseMultinomialCoder.getFactory(nnamed),  _c_urinode, _c_pred);
+		_c_bnodeobj_t = new CodeComponent<Integer>("BNodeObjT",  SparseMultinomialCoder.getFactory(nbnodes), _c_urinode, _c_pred);
+		_c_namedobj_a = new CodeComponent<Integer>("NamedObjA",  SparseMultinomialCoder.getFactory(nnamed),  _c_urinode, _c_pred);
+		_c_bnodeobj_a = new CodeComponent<Integer>("BNodeObjA",  SparseMultinomialCoder.getFactory(nbnodes), _c_urinode, _c_pred);
+		_c_moreobjs   = new CodeComponent<Integer>("MoreObjs",  KT.getFactory(2), _c_pred, _c_objtype);
+		_c_morelinks  =	new CodeComponent<Integer>("MoreLinks", KT.getFactory(2), _c_pred, _c_objtype);
+		
+		_c_linkset    = new CodeComponent<Linkset>("Linkset", _f_linkset, _c_urinode);
 	}
 	
 	public CLAccountant getResults() { return _acc; }
@@ -121,7 +130,7 @@ public class CoderContext {
 			_fact = fact;
 			_condition_on = condition_on;
 		}
-		
+				
 		public String get_name() { return _name; }
 		
 		public void set_conditional(T last) { _last = last; }

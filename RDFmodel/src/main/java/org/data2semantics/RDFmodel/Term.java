@@ -49,8 +49,8 @@ public class Term extends TreeMap<Integer, List<Integer>> {
 					lnk = next_lnk;
 					int obj_ix = TermType.id2ix(obj_id);
 					switch (lnk.getObjType()) {
-					case TermType.NAMED   : C._c_namedobj.encode(C, obj_ix); break;
-					case TermType.BNODE   : C._c_bnodeobj.encode(C, obj_ix); break;
+					case TermType.NAMED   : C._c_namedobj_a.encode(C, obj_ix); break;
+					case TermType.BNODE   : C._c_bnodeobj_a.encode(C, obj_ix); break;
 					case TermType.LITERAL : break; // literals appear in order and do not need to be encoded
 					default: assert false: "Unknown object type";
 					}

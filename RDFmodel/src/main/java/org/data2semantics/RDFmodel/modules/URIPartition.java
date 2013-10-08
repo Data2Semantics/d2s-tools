@@ -15,12 +15,15 @@ import org.data2semantics.RDFmodel.URIDistinguisher;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Out;
+import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 
 public class URIPartition extends RDFhelper {
 
 	private String _fn;
 	private RDFGraph _G;
+	private List<URI> _uris;
+	private List<Literal> _lits;
 	private StringTree _ST;
 	private Set<Integer> _tbox;
 	private Boundary _boundary;
@@ -35,7 +38,7 @@ public class URIPartition extends RDFhelper {
 		URIDistinguisher D = new URIDistinguisher(_boundary, _ST);
 		IndexMap<StringTree> map = new IndexMap<StringTree>();
 		List<List<String>> res = new ArrayList<List<String>>();
-		for (URI uri : _G._named) {
+		for (URI uri : _uris) {
 			String uristr = uri.stringValue();
 			StringTree st = D.get_node(uristr);
 			int cell = map.map(st);
@@ -57,9 +60,9 @@ public class URIPartition extends RDFhelper {
 			int type = TermType.id2type(id);
 			int ix   = TermType.id2ix(id);
 			switch (type) {
-			case TermType.NAMED: res.add(_G._named.get(ix).stringValue()); break;
+			case TermType.NAMED: res.add(_uris.get(ix).stringValue()); break;
 			case TermType.BNODE: res.add("bnode(#"+ix+")"); break;
-			case TermType.LITERAL: res.add(_G._literals.get(ix).stringValue()); break;
+			case TermType.LITERAL: res.add(_lits.get(ix).stringValue()); break;
 			default: assert false: "Unknown data type ("+type+").";
 			}
 		}
@@ -67,9 +70,11 @@ public class URIPartition extends RDFhelper {
 	}
 	
 	@Main public void main() {
-		_G = load(_fn);
-		_ST = new StringTree(_G._named);
-		Pair<Boundary,Set<Integer>> pair = findBoundaryAndTBox(_G, _ST);
+		_uris = new ArrayList<URI>();
+		_lits = new ArrayList<Literal>();
+		_G = load(_fn, _uris, _lits);
+		_ST = new StringTree(_uris);
+		Pair<Boundary,Set<Integer>> pair = findBoundaryAndTBox(_G, _uris, _ST);
 		_boundary = pair.getLeft();
 		_tbox = pair.getRight();
 	}

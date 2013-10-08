@@ -1,5 +1,6 @@
 package org.data2semantics.RDFmodel.modules;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -12,6 +13,7 @@ import org.data2semantics.RDFmodel.TermType;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Out;
+import org.openrdf.model.URI;
 
 public class LinkPrediction extends RDFhelper {
 	private String       _fn;
@@ -41,18 +43,20 @@ public class LinkPrediction extends RDFhelper {
 		_subjects = new HashSet<String>();
 		_targets  = new HashSet<String>();
 		
-		RDFGraph G = load(_fn);
+		List<URI> uris = new ArrayList<URI>();
+		
+		RDFGraph G = load(_fn, uris, null);
 		for (int subj_ix=0; subj_ix < G._n_subj2pred2obj.size(); subj_ix++) {
-			String subject = G._named.get(subj_ix).stringValue();
+			String subject = uris.get(subj_ix).stringValue();
 			SortedMap<Integer,List<Integer>> subj = G._n_subj2pred2obj.get(subj_ix);
 			for (Entry<Integer,List<Integer>> entry : subj.entrySet()) {
 				int pred_ix = entry.getKey();
-				String pred_uri = G._named.get(pred_ix).stringValue();
+				String pred_uri = uris.get(pred_ix).stringValue();
 				if (pred_uri.equals(_predicted_predicate)) {
 					_subjects.add(subject);
 					for (int obj_id : entry.getValue()) {
 						assert TermType.id2type(obj_id)==TermType.NAMED : "Only uri targets are supported";
-						_targets.add(G._named.get(TermType.id2ix(obj_id)).stringValue());
+						_targets.add(uris.get(TermType.id2ix(obj_id)).stringValue());
 					}
 				}
 			}

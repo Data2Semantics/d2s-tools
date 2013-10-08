@@ -17,7 +17,7 @@ public class GraphCoderCombinatorial {
 		int npreds  = G._npreds;
 		int nnamed  = G._n_subj2pred2obj.size();
 		int nbnodes = G._nbnodes;
-		int nlits   = G._literals.size();
+		int nlits   = G._nlits;
 		
 		int [] nsubj = { nnamed, nbnodes, nlits };
 		
