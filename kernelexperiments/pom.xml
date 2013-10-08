@@ -8,6 +8,14 @@
 	<maven.compiler.target>1.6</maven.compiler.target>
   </properties>
  
+ 
+	<parent>
+		<groupId>org.data2semantics</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+        <relativePath>../parent/</relativePath>
+	</parent>
+
   <dependencies>
   	<dependency>
   		<groupId>Data2Semantics</groupId>

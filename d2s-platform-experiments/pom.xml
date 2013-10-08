@@ -3,6 +3,14 @@
   <groupId>data2semantics</groupId>
   <artifactId>d2s-platform-experiments</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+	<parent>
+		<groupId>org.data2semantics</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+        <relativePath>../parent/</relativePath>
+	</parent>
+
   <dependencies>
   	<dependency>
   		<groupId>data2semantics</groupId>
@@ -17,17 +25,4 @@
 
 
   </dependencies>
-  <build>
-<plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.0</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
