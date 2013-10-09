@@ -56,17 +56,11 @@ public class LibLINEARParmsModule {
 		} else {
 			parms.setSplitFraction((float) splitFraction);
 		}
-
-		Map<Double, Double> counts = EvaluationUtils.computeClassCounts(target);
-		int[] wLabels = new int[counts.size()];
-		double[] weights = new double[counts.size()];
-
-		for (double label : counts.keySet()) {
-			wLabels[(int) label - 1] = (int) label;
-			weights[(int) label - 1] = 1 / counts.get(label);
-		}
-		parms.setWeightLabels(wLabels);
-		parms.setWeights(weights);
+		
+		//parms.setDoWeightLabels(true);
+		
+		parms.setWeightLabels(EvaluationUtils.computeWeightLabels(target));
+		parms.setWeights(EvaluationUtils.computeWeights(target));
 
 		return parms;
 	}

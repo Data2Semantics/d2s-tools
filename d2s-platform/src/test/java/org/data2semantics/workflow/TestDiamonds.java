@@ -48,8 +48,6 @@ public class TestDiamonds {
 		}
 		
 				
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_diamond"));
-		reporter.report();
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(4, workflow.getModuleByName("B").instances().size());
@@ -81,8 +79,6 @@ public class TestDiamonds {
 		}
 		
 				
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_diamond_ref"));
-		reporter.report();
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(4, workflow.getModuleByName("B").instances().size());
@@ -114,8 +110,6 @@ public class TestDiamonds {
 		}
 		
 				
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_diamond_ref"));
-		reporter.report();
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(4, workflow.getModuleByName("B").instances().size());
@@ -139,8 +133,6 @@ public class TestDiamonds {
 		
 
 				
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("output_diamond_ref"));
-		reporter.report();
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(4, workflow.getModuleByName("B").instances().size());
@@ -175,8 +167,6 @@ public class TestDiamonds {
 		}
 		
 				
-		HTMLReporter reporter = new HTMLReporter(workflow, new File("outputPairing"));
-		reporter.report();
 		
 		assertEquals(2, workflow.getModuleByName("A").instances().size());
 		assertEquals(3, workflow.getModuleByName("B").instances().size());

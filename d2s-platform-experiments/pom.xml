@@ -3,6 +3,14 @@
   <groupId>data2semantics</groupId>
   <artifactId>d2s-platform-experiments</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+	<parent>
+		<groupId>data2semantics</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+        <relativePath>../parent/</relativePath>
+	</parent>
+
   <dependencies>
   	<dependency>
   		<groupId>data2semantics</groupId>
@@ -14,5 +22,7 @@
             <artifactId>kernelexperiments</artifactId>
             <version>0.0.1-SNAPSHOT</version>
      </dependency>
+
+
   </dependencies>
 </project>

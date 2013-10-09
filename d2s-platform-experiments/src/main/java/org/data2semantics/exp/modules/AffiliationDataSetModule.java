@@ -19,7 +19,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 @Module(name="AffiliationDataSet")
-public class GeoDataSetModule {
+public class AffiliationDataSetModule {
 	private RDFDataSet dataset;
 	private int minSize;
 	private double fraction;
@@ -31,7 +31,7 @@ public class GeoDataSetModule {
 	private List<Double> target;
 	private List<Statement> blacklist;
 	
-	public GeoDataSetModule(
+	public AffiliationDataSetModule(
 			@In(name="dataset") RDFDataSet dataset,
 			@In(name="minSize") int minSize,
 			@In(name="fraction") double fraction,
@@ -51,15 +51,19 @@ public class GeoDataSetModule {
 		labels = new ArrayList<Value>();
 		
 		Random rand = new Random(seed);
+		
+		// Extract all triples with the affiliation predicate
+		List<Statement> stmts = dataset.getStatementsFromStrings(null, property, null);
 
-		List<Statement> stmts = dataset.getStatementsFromStrings(null, "http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "http://data.bgs.ac.uk/ref/Lexicon/NamedRockUnit");
-		for(Statement stmt: stmts) {
-			List<Statement> stmts2 = dataset.getStatementsFromStrings(stmt.getSubject().toString(), property, null);
-			for (Statement stmt2 : stmts2) {
-			if (rand.nextDouble() < fraction) {
-					instances.add(stmt2.getSubject());
-					labels.add(stmt2.getObject());
-				}
+		// initialize the lists of instances and labels
+		instances = new ArrayList<Resource>();
+		labels = new ArrayList<Value>();
+
+		// The subjects of the affiliation triples will we our instances and the objects our labels
+		for (Statement stmt : stmts) {
+			if (rand.nextDouble() <= fraction) {
+				instances.add(stmt.getSubject());
+				labels.add(stmt.getObject());
 			}
 		}
 

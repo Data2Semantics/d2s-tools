@@ -1,5 +1,6 @@
 package org.data2semantics.platform.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +52,8 @@ public final class Workflow {
 	 */
 	private String name;
 	
+	private File file;
+	
 	private Workflow() {
 		
 	}
@@ -81,6 +84,10 @@ public final class Workflow {
 	 */
 	public String name() {
 		return name;
+	}
+	
+	public File file() {
+		return file;
 	}
 	
 	public List<Module> modules(){
@@ -157,6 +164,13 @@ public final class Workflow {
 		{
 			check();
 			workflow.name = name;
+			return this;
+		}
+		
+		public WorkflowBuilder file(File file)
+		{
+			check();
+			workflow.file = file;
 			return this;
 		}
 		

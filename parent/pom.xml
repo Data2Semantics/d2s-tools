@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>data2semantics</groupId>
+	<artifactId>parent</artifactId>
+	<packaging>pom</packaging>
+
+	<name>parent</name>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<organization>
+		<name>Data2Semantics WP1 WP2</name>
+		<url>http://www.data2semantics.org</url>
+	</organization>
+
+	<description>Parent pom for D2S Tool</description>
+
+	<developers>
+		<developer>
+			<id>gerben</id>
+			<name>Gerben K.D De Vries</name>
+		</developer>
+
+		<developer>
+			<id>pbloem</id>
+			<name>Peter Bloem</name>
+		</developer>
+
+		<developer>
+			<id>wibisono</id>
+			<name>Adianto Wibisono</name>
+		</developer>
+	</developers>
+
+
+	<!-- Where we deploy stuff so that people can use, for the time being in internal ducktape server -->
+	<distributionManagement>
+	   <repository>
+	       <id>ducktape-nexus</id>
+	       <name>Ducktape Nexus repository releases </name>
+	       <url>http://ducktape.wongiseng.com/nexus/content/repositories/releases</url>
+	   </repository>
+
+	   <snapshotRepository>
+	       <id>ducktape-nexus</id>
+	       <name>Ducktape Nexus repository internal releases</name>
+	       <url>http://ducktape.wongiseng.com/nexus/content/repositories/snapshots</url>
+       	   </snapshotRepository>
+	</distributionManagement>
+
+</project>

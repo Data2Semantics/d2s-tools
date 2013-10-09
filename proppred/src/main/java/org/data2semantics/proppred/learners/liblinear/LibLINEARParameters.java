@@ -17,6 +17,7 @@ public class LibLINEARParameters {
 	public static final int LR_PRIMAL = 6;	
 
 	private int[] weightLabels;
+	private double[] weights;
 	private int algorithm;
 	private Parameter params;	
 	private double[] cs;
@@ -27,6 +28,10 @@ public class LibLINEARParameters {
 	private boolean doCrossValidation;
 	private int numFolds;
 	private float splitFraction;
+	private boolean doWeightLabels;
+	
+	private SolverType solver;
+	private double eps;
 	
 	private EvaluationFunction evalFunction;
 	
@@ -37,7 +42,6 @@ public class LibLINEARParameters {
 	}
 
 	public LibLINEARParameters(int algorithm) {
-		SolverType solver;
 		this.algorithm = algorithm;
 		
 		switch (algorithm) {
@@ -67,12 +71,16 @@ public class LibLINEARParameters {
 		verbose = false;
 		bias = -1;
 		doCrossValidation = true;
+		doWeightLabels = false;
 		numFolds = 5;
 		splitFraction = (float) 0.7;
 		ps = new double[1];
 		ps[0] = 0.1;
+		cs = new double[1];
+		cs[0] = 1;
+		eps = 0.1;
 		
-		params = new Parameter(solver, 1, 0.1);
+		params = new Parameter(solver, cs[0], eps);
 	}
 
 	public int getAlgorithm() {
@@ -102,6 +110,14 @@ public class LibLINEARParameters {
 	public Parameter getParams() {
 		return params;
 	}
+	
+	public Parameter getParamsCopy() {
+		Parameter p2 = new Parameter(params.getSolverType(), params.getC(), params.getEps());
+		p2.setWeights(params.getWeights(), params.getWeightLabels());
+		p2.setEps(params.getEps());
+		
+		return p2;
+	}
 
 	public double[] getCs() {
 		return cs;
@@ -116,9 +132,14 @@ public class LibLINEARParameters {
 	}
 
 	public void setEps(double eps) {
+		this.eps = eps;
 		params.setEps(eps);
 	}
-	
+
+	public double getEps() {
+		return eps;
+	}
+
 	public boolean isVerbose() {
 		return verbose;
 	}
@@ -161,6 +182,30 @@ public class LibLINEARParameters {
 	}
 
 	public void setWeights(double[] weights) {
+		this.weights = weights;
 		params.setWeights(weights, weightLabels);
+		doWeightLabels = true;
 	}
+	
+	public int[] getWeightLabels() {
+		return weightLabels;
+	}
+
+	public double[] getWeights() {
+		return weights;
+	}
+
+	public boolean isDoWeightLabels() {
+		return doWeightLabels;
+	}
+
+	/*
+	public void setDoWeightLabels(boolean doWeightLabels) {
+		this.doWeightLabels = doWeightLabels;
+	}
+	*/
+
+	public SolverType getSolver() {
+		return solver;
+	}	
 }

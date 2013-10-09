@@ -1,0 +1,8 @@
+workflow:
+  name: ExtractExcel 
+  modules:
+    - module:
+        name: ExtractExcel 
+        source: cli:src/test/resources/commandLine/extractexcel.cfg 
+        inputs:
+          filepath: src/test/resources/commandLine/excel-test.xls 

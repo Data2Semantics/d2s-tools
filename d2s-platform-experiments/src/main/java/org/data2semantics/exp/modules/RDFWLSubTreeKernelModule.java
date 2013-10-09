@@ -18,6 +18,7 @@ public class RDFWLSubTreeKernelModule extends RDFWLSubTreeKernel {
 	private List<Resource> instances;
 	private List<Statement> blacklist;
 	private SparseVector[] fv;
+	private int depth;
 	
 	public RDFWLSubTreeKernelModule(
 			@In(name="iterations") int iterations, 
@@ -32,6 +33,7 @@ public class RDFWLSubTreeKernelModule extends RDFWLSubTreeKernel {
 		this.dataset = dataset;
 		this.instances = instances;
 		this.blacklist = blacklist;
+		this.depth = depth;
 	}
 	
 	@Main
@@ -45,6 +47,10 @@ public class RDFWLSubTreeKernelModule extends RDFWLSubTreeKernel {
 		return fv;
 	}
 
+	@Out(name="depth")
+	public int getDepth() {
+		return depth;
+	}
 	
 	
 	

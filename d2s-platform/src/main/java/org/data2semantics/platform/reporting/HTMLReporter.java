@@ -1,5 +1,7 @@
 package org.data2semantics.platform.reporting;
 
+import static org.data2semantics.platform.reporting.ReporterTools.safe;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
@@ -131,8 +133,8 @@ public class HTMLReporter implements Reporter
 					if (inp instanceof ReferenceInput)
 					{
 						ReferenceInput ri = (ReferenceInput) inp;
-						result.append(ri.reference().module().name() + "->"
-								+ module.name() + "[label=\""
+						result.append("\""+ri.reference().module().name() + "\" -> \""
+								+ module.name() + "\" [label=\""
 								+ ri.reference().name() + "\"]");
 					} else if (inp instanceof MultiInput)
 					{
@@ -141,8 +143,8 @@ public class HTMLReporter implements Reporter
 							if (i instanceof ReferenceInput)
 							{
 								ReferenceInput ri = (ReferenceInput) i;
-								result.append(ri.reference().module().name()
-										+ "->" + module.name() + "[label=\""
+								result.append("\""+ri.reference().module().name()
+										+ "\" ->" + module.name() + "[label=\""
 										+ ri.reference().name() + "\"]");
 							}
 						}
@@ -270,6 +272,7 @@ public class HTMLReporter implements Reporter
 				{
 					Map<String, Object> outputMap = new LinkedHashMap<String, Object>();
 					outputMap.put("name", output.name());
+					outputMap.put("safe_name", safe(output.name()));
 					outputMap.put("description", output.description());
 	
 					List<Map<String, Object>> outputInstances = new ArrayList<Map<String, Object>>();
@@ -627,7 +630,7 @@ public class HTMLReporter implements Reporter
 			Map<String, Object> templateData = new LinkedHashMap<String, Object>();
 			
 			templateData.put("name", name);
-			templateData.put("url", imageFile.toString());
+			templateData.put("url", "images/"+filename);
 			
 			// * Load the template
 			JadeTemplate tpl;

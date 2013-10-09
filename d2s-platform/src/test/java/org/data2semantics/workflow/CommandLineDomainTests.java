@@ -91,8 +91,28 @@ public class CommandLineDomainTests {
 					System.out.print(io.name()+":"+io.value()+ " ");
 			}
 		}
+	}
+	
+	@Test 
+	public void testExtractExcel() throws IOException{
+		Workflow workflow = WorkflowParser.parseYAML("src/test/resources/commandLine/excel.yaml");
 		
+		ResourceSpace resourceSpace = new ResourceSpace();
 		
+		ExecutionProfile localExecutionProfile = new LocalExecutionProfile();
+		
+		Orchestrator platformOrchestrator = new Orchestrator(workflow, localExecutionProfile, resourceSpace);
+		
+		platformOrchestrator.orchestrate();
+		
+		for(Module m : workflow.modules()){
+			System.out.println("\nModule " + m.name());
+			
+			for(ModuleInstance mi :  m.instances()){
+					for(InstanceOutput io : mi.outputs())
+					System.out.print(io.name()+":"+io.value()+ " ");
+			}
+		}
 	}
 	@Test
 	public void testProcessBuilder() throws IOException{

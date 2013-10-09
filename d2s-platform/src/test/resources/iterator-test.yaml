@@ -21,7 +21,7 @@ workflow:
             
     - module:
         name: ArithModule
-        source: cli:src/test/resources/commandLine/ArithModule.cfg
+        source: org.data2semantics.modules.AdderModule
         inputs:
             first: 
                 reference: Spawn1.result

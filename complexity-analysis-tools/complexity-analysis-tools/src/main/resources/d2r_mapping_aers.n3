@@ -1,0 +1,998 @@
+@prefix map: <file:/Users/saramagliacane/Documents/workspace/d2r-server-0.7/prova.n3#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix db: <> .
+@prefix aers: <http://aers.data2semantics.org/vocab/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
+@prefix jdbc: <http://d2rq.org/terms/jdbc/> .
+@prefix d2r: <http://sites.wiwiss.fu-berlin.de/suhl/bizer/d2r-server/config.rdf#> .
+
+<> a d2r:Server;
+    rdfs:label "AERS D2R Server";
+    d2r:baseURI <http://aers.data2semantics.org/>;
+    d2r:port 2020;
+    d2r:vocabularyIncludeInstances true;
+    .
+
+
+map:database a d2rq:Database;
+	d2rq:jdbcDriver "com.mysql.jdbc.Driver";
+	d2rq:jdbcDSN "jdbc:mysql://localhost:3306/aers";
+	d2rq:username "root";
+	d2rq:password "visstick";
+	d2rq:allowDistinct "true";
+	d2rq:numericColumn "demo.isr";
+	d2rq:numericColumn "drug.isr";
+	d2rq:numericColumn "drug.drug_seq";
+	d2rq:textColumn "drug.drugname"
+	.
+
+
+
+
+
+# T
+map:case a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/case/@@demo.case|urlify@@";
+	d2rq:class aers:Case;
+	d2rq:classDefinitionLabel "Case";
+	.
+
+map:case__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:case ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Case #@@demo.case@@";
+	d2rq:condition "demo.case <> ''";
+	.
+
+
+
+
+map:status a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/status/@@demo.i_f_cod|urlify@@";
+	d2rq:class aers:Status;
+	d2rq:classDefinitionLabel "Status";
+	.
+
+map:status_initial__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:status ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Initial";
+	d2rq:condition "demo.i_f_cod = 'I'";
+	.
+
+map:status_followup__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:status ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Followup";
+	d2rq:condition "demo.i_f_cod = 'F'";
+	.
+
+
+
+
+map:report_type a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/report/type/@@demo.rept_cod|urlify@@";
+	d2rq:class aers:ReportType;
+	d2rq:classDefinitionLabel "Report Type";
+	.
+
+map:report_type_expedited__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:report_type ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Expedited (15-Day)";
+	d2rq:condition "demo.rept_cod = 'EXP'";
+	.
+
+map:report_type_periodic__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:report_type ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Periodic";
+	d2rq:condition "demo.rept_cod = 'PER'";
+	.
+
+map:report_type_direct__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:report_type ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Direct";
+	d2rq:condition "demo.rept_cod = 'DIR'";
+	.
+
+
+
+
+
+map:gender a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/gender/@@demo.gndr_cod|urlify@@";
+	d2rq:class aers:Gender;
+	d2rq:classDefinitionLabel "Gender";
+	d2rq:condition "demo.gndr_cod <> '' ";
+	.
+
+map:gender_unknown__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:gender ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Unknown";
+	d2rq:condition "demo.gndr_cod = 'UNK'";
+	.
+
+map:gender_male__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:gender ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Male";
+	d2rq:condition "demo.gndr_cod = 'M'";
+	.
+
+map:gender_female__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:gender ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Female";
+	d2rq:condition "demo.gndr_cod = 'F'";
+	.
+
+map:gender_not_specified__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:gender ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Not Specified";
+	d2rq:condition "demo.gndr_cod = 'NS'";
+	.
+
+
+
+
+
+map:occupation a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/occupation/@@demo.occp_cod|urlify@@";
+	d2rq:class aers:Occupation;
+	d2rq:classDefinitionLabel "Occupation";
+	d2rq:condition "demo.occp_cod <> '' ";
+	.
+
+map:occupation_md__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:occupation ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Physician";
+	d2rq:condition "demo.occp_cod = 'MD'";
+	.
+
+map:occupation_ph__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:occupation ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Pharmacist";
+	d2rq:condition "demo.occp_cod = 'PH'";
+	.
+
+map:occupation_ot__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:occupation ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Other health-professional";
+	d2rq:condition "demo.occp_cod = 'OT'";
+	.
+
+map:occupation_lw__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:occupation ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Lawyer";
+	d2rq:condition "demo.occp_cod = 'LW'";
+	.
+
+map:occupation_cn__label a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:occupation ;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Consumer";
+	d2rq:condition "demo.occp_cod = 'CN'";
+	.
+
+
+
+
+
+
+# Manufacturer
+map:manufacturer a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/manufacturer/@@demo.mfr_sndr|urlify@@";
+	d2rq:class aers:Manufacturer;
+	d2rq:classDefinitionLabel "Manufacturer";
+	d2rq:condition "demo.mfr_sndr <> ''";
+    .
+
+map:manufacturer__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:manufacturer;
+	d2rq:property rdfs:label;
+	d2rq:pattern "@@demo.mfr_sndr@@";
+	d2rq:condition "demo.mfr_sndr <> ''";
+    .
+ 
+ 
+ 
+    
+# Country
+map:country a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/country/@@demo.reporter_country|urlify@@";
+	d2rq:class aers:Country;
+	d2rq:classDefinitionLabel "Country";
+	d2rq:condition "demo.reporter_country <> ''";
+    .
+    
+map:country__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:country;
+	d2rq:property rdfs:label;
+	d2rq:pattern "@@demo.reporter_country@@";
+	d2rq:condition "demo.reporter_country <> ''";
+	.
+
+
+
+
+
+
+map:report a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/report/@@demo.isr|urlify@@";
+	d2rq:class aers:Report;
+	d2rq:classDefinitionLabel "Report";
+	.
+
+map:report__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Report #@@demo.isr@@";
+	d2rq:datatype xsd:string ;
+	.
+map:report_isr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:report_identifier;
+	d2rq:propertyDefinitionLabel "report identifier";
+	d2rq:column "demo.isr";
+	d2rq:datatype xsd:integer ;
+	.
+map:report_case a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:case;
+	d2rq:propertyDefinitionLabel "case";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/case/@@demo.case|urlify@@";
+	d2rq:condition "demo.case <> ''";
+	.
+
+map:report_i_f_cod a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:status;
+	d2rq:propertyDefinitionLabel "initial or followup";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/status/@@demo.i_f_cod|urlify@@";
+	d2rq:condition "demo.i_f_cod <> ''";
+	.
+map:report_foll_seq a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:followup_sequence;
+	d2rq:propertyDefinitionLabel "followup sequence";
+	d2rq:column "demo.foll_seq";
+	d2rq:datatype xsd:integer ;
+	d2rq:condition "demo.foll_seq <> ''";
+	.
+map:report_image a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:image;
+	d2rq:propertyDefinitionLabel "image";
+	d2rq:column "demo.image";
+	d2rq:datatype xsd:string ;
+	d2rq:condition "demo.image <> ''";
+	.
+map:report_event_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:event_date;
+	d2rq:propertyDefinitionLabel "event date";
+	d2rq:column "demo.event_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "demo.event_dt <> ''";
+	.
+map:report_mfr_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:manufacturer_date;
+	d2rq:propertyDefinitionLabel "date information received by manufacturer";
+	d2rq:column "demo.mfr_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "demo.mfr_dt <> ''";
+	.
+map:report_fda_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:fda_date;
+	d2rq:propertyDefinitionLabel "date FDA received report";
+	d2rq:column "demo.fda_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "demo.fda_dt <> ''";
+	.
+map:report_rept_cod a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:report_type;
+	d2rq:propertyDefinitionLabel "report type";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/report/type/@@demo.rept_cod|urlify@@";
+	d2rq:condition "demo.rept_cod <> ''";
+	.
+map:report_mfr_num a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:manufacturer_report_identifier;
+	d2rq:propertyDefinitionLabel "manufacturer report identifier";
+	d2rq:column "demo.mfr_num";
+	d2rq:condition "demo.mfr_num <> ''";
+	.
+map:report_mfr_sndr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:manufacturer;
+	d2rq:propertyDefinitionLabel "manufacturer";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/manufacturer/@@demo.mfr_sndr|urlify@@";
+	d2rq:condition "demo.mfr_sndr <> ''";
+	.
+#map:report_age a d2rq:PropertyBridge;
+#	d2rq:belongsToClassMap map:report;
+#	d2rq:property aers:demo_age;
+#	d2rq:propertyDefinitionLabel "demo age";
+#	d2rq:column "demo.age";
+#	d2rq:condition "demo.age <> ''";
+#	.
+
+
+map:report_age_decades a d2rq:PropertyBridge;
+	rdfs:comment "Convert from decades to xsd:duration" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:age;
+	d2rq:propertyDefinitionLabel "age";
+	d2rq:sqlExpression "CONCAT(CONCAT('P',demo.age*10),'Y0M0D')";
+	d2rq:condition "demo.age_cod = 'DEC'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "demo.age <> ''";
+    .
+	
+map:report_age_years a d2rq:PropertyBridge;
+	rdfs:comment "Convert from years to xsd:duration" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:age;
+	d2rq:propertyDefinitionLabel "age";
+	d2rq:sqlExpression "CONCAT(CONCAT('P',demo.age),'Y0M0D')";
+	d2rq:condition "demo.age_cod = 'YR'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "demo.age <> ''";
+    .
+
+map:report_age_months a d2rq:PropertyBridge;
+	rdfs:comment "Convert from months to xsd:duration" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:age;
+	d2rq:propertyDefinitionLabel "age";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y',demo.age),'M0D')";
+	d2rq:condition "demo.age_cod = 'MON'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "demo.age <> ''";
+    .
+
+map:report_age_weeks a d2rq:PropertyBridge;
+	rdfs:comment "Convert from weeks to xsd:duration" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:age;
+	d2rq:propertyDefinitionLabel "age";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M',demo.age*7),'D')";
+	d2rq:condition "demo.age_cod = 'WK'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "demo.age <> ''";
+    .
+
+map:report_age_days a d2rq:PropertyBridge;
+	rdfs:comment "Convert from days to xsd:duration" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:age;
+	d2rq:propertyDefinitionLabel "age";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M',demo.age),'D')";
+	d2rq:condition "demo.age_cod = 'DY'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "demo.age <> ''";
+    .
+
+map:report_age_hours a d2rq:PropertyBridge;
+	rdfs:comment "Convert from hours to xsd:duration" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:age;
+	d2rq:propertyDefinitionLabel "age";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M0DT',demo.age),'H')";
+	d2rq:condition "demo.age_cod = 'HR'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "demo.age <> ''";
+    .
+
+
+
+
+    
+    
+#map:report_age_cod a d2rq:PropertyBridge;
+#	d2rq:belongsToClassMap map:report;
+#	d2rq:property aers:demo_age_cod;
+#	d2rq:propertyDefinitionLabel "demo age_cod";
+#	d2rq:column "demo.age_cod";
+#	d2rq:condition "demo.age_cod <> ''";
+#	.
+
+
+map:report_gndr_cod a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:gender;
+	d2rq:propertyDefinitionLabel "gender";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/gender/@@demo.gndr_cod|urlify@@";
+	d2rq:condition "demo.gndr_cod <> ''";
+	.
+
+map:report_e_sub a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:electronic_submission;
+	d2rq:propertyDefinitionLabel "electronic submission";
+	d2rq:column "demo.e_sub";
+	d2rq:condition "demo.e_sub <> ''";
+	.
+
+
+
+map:report_weight_kilos a d2rq:PropertyBridge;
+	rdfs:comment "Weight in kilograms" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:weight;
+	d2rq:propertyDefinitionLabel "weight";
+	d2rq:column "demo.wt";
+	d2rq:condition "demo.wt_cod = 'KG'";
+	d2rq:datatype xsd:integer ;
+	d2rq:condition "demo.wt <> ''";
+    .
+
+map:report_weight_lbs a d2rq:PropertyBridge;
+	rdfs:comment "Weight in lbs, converted to kilograms" ;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:weight;
+	d2rq:propertyDefinitionLabel "weight";
+	d2rq:sqlExpression "demo.wt * 0.45359237";
+	d2rq:condition "demo.wt_cod = 'LBS'";
+	d2rq:datatype xsd:decimal ;
+	d2rq:condition "demo.wt <> ''";
+    .
+
+
+#map:report_wt_cod a d2rq:PropertyBridge;
+#	d2rq:belongsToClassMap map:report;
+#	d2rq:property aers:demo_wt_cod;
+#	d2rq:propertyDefinitionLabel "demo wt_cod";
+#	d2rq:column "demo.wt_cod";
+#	d2rq:condition "demo.wt_cod <> ''";
+#	.
+
+map:report_rept_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:report_date;
+	d2rq:propertyDefinitionLabel "report date";
+	d2rq:column "demo.rept_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "demo.rept_dt <> ''";
+	.
+map:report_occp_cod a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:reporter_occupation;
+	d2rq:propertyDefinitionLabel "reporter occupation";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/occupation/@@demo.occp_cod|urlify@@";
+	d2rq:condition "demo.occp_cod <> ''";
+	.
+map:report_death_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:death_date;
+	d2rq:propertyDefinitionLabel "death date";
+	d2rq:column "demo.death_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "demo.death_dt <> ''";
+	.
+map:report_to_mfr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:reported_to_manufacturer;
+	d2rq:propertyDefinitionLabel "reported to manufacturer";
+	d2rq:column "demo.to_mfr";
+	d2rq:condition "demo.to_mfr <> ''";
+	.
+map:report_confid a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:confidential_report;
+	d2rq:propertyDefinitionLabel "confidential report";
+	d2rq:column "demo.confid";
+	d2rq:condition "demo.confid <> ''";
+	.
+map:report_reporter_country a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:report;
+	d2rq:property aers:reporter_country;
+	d2rq:propertyDefinitionLabel "reporter country";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/country/@@demo.reporter_country|urlify@@";
+	d2rq:condition "demo.reporter_country <> ''";
+	.
+
+
+# Table reaction
+map:reaction a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/diagnosis/@@reac.pt|urlify@@";
+    d2rq:class aers:Reaction;
+    d2rq:classDefinitionLabel "Reaction";
+    .
+map:reaction_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:reaction;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "@@reac.pt@@";
+	d2rq:condition "reac.pt <> ''";
+	.
+
+map:reaction_isr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:reaction;
+	d2rq:property aers:reaction_of;
+	d2rq:propertyDefinitionLabel "reaction of";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/report/@@reac.isr|urlify@@";
+	.	
+
+# Table diagnosis
+map:diagnosis a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/diagnosis/@@indi.indi_pt|urlify@@";
+    d2rq:class aers:Diagnosis;
+    d2rq:classDefinitionLabel "Diagnosis";
+    .
+
+map:diagnosis_involvement a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:diagnosis;
+	d2rq:property aers:diagnosis_for;
+	d2rq:propertyDefinitionLabel "diagnosis for";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/involvement/@@indi.isr|urlify@@/@@indi.drug_seq|urlify@@";
+	.	
+
+map:diagnosis_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:diagnosis;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "@@indi.indi_pt@@";
+	d2rq:condition "indi.indi_pt <> ''";
+	.
+
+
+# Table therapy
+map:therapy a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/involvement/@@ther.isr|urlify@@/@@ther.drug_seq|urlify@@";
+    d2rq:class aers:Therapy;
+    d2rq:classDefinitionLabel "Therapy";
+    .
+
+map:therapy_isr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:therapy_of;
+	d2rq:propertyDefinitionLabel "therapy of";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/report/@@ther.isr|urlify@@";
+	.	
+
+map:therapy_start_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:start_date ;
+	d2rq:propertyDefinitionLabel "start date";
+	d2rq:column "ther.start_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "ther.start_dt <> '' AND ther.start_dt <> '0000-00-00'";
+	.
+
+map:therapy_end_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:end_date ;
+	d2rq:propertyDefinitionLabel "end date";
+	d2rq:column "ther.end_dt";
+	d2rq:datatype xsd:date ;
+	d2rq:condition "ther.end_dt <> '' AND ther.end_dt <> '0000-00-00'";
+	.
+
+
+
+
+map:therapy_duration_years a d2rq:PropertyBridge;
+	rdfs:comment "Convert from years to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P',ther.dur),'Y0M0D')";
+	d2rq:condition "ther.dur_cod = 'YR'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+map:therapy_duration_months a d2rq:PropertyBridge;
+	rdfs:comment "Convert from months to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y',ther.dur),'M0D')";
+	d2rq:condition "ther.dur_cod = 'MON'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+map:therapy_duration_weeks a d2rq:PropertyBridge;
+	rdfs:comment "Convert from weeks to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M',ther.dur*7),'D')";
+	d2rq:condition "ther.dur_cod = 'WK'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+map:therapy_duration_days a d2rq:PropertyBridge;
+	rdfs:comment "Convert from days to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M',ther.dur),'D')";
+	d2rq:condition "ther.dur_cod = 'DAY' OR ther.dur_cod = 'DY'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+map:therapy_duration_hours a d2rq:PropertyBridge;
+	rdfs:comment "Convert from hours to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M0DT',ther.dur),'H')";
+	d2rq:condition "ther.dur_cod = 'HR'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+map:therapy_duration_minutes a d2rq:PropertyBridge;
+	rdfs:comment "Convert from minutes to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M0DT0H',ther.dur),'M')";
+	d2rq:condition "ther.dur_cod = 'MIN'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+map:therapy_duration_seconds a d2rq:PropertyBridge;
+	rdfs:comment "Convert from seconds to xsd:duration" ;
+	d2rq:belongsToClassMap map:therapy;
+	d2rq:property aers:duration;
+	d2rq:propertyDefinitionLabel "duration";
+	d2rq:sqlExpression "CONCAT(CONCAT('P0Y0M0DT0H0M',ther.dur),'S')";
+	d2rq:condition "ther.dur_cod = 'SEC'";
+	d2rq:datatype xsd:duration ;
+	d2rq:condition "ther.dur <> ''";
+    .
+
+
+
+ 
+
+
+
+# Table outcome
+map:outcome a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/outcome/@@outc.outc_cod|urlify@@";
+    d2rq:class aers:Outcome;
+    d2rq:classDefinitionLabel "Outcome";
+    .
+
+map:outcome_de_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Death";
+	d2rq:condition "outc.outc_cod = 'DE'";
+	.
+
+map:outcome_lt_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Life-Threatening";
+	d2rq:condition "outc.outc_cod = 'LT'";
+	.
+
+map:outcome_ho_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Hospitalization - Initial or Prolonged";
+	d2rq:condition "outc.outc_cod = 'HO'";
+	.
+
+map:outcome_ds_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Disability";
+	d2rq:condition "outc.outc_cod = 'DS'";
+	.
+
+map:outcome_ca_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Congenital Anomaly";
+	d2rq:condition "outc.outc_cod = 'CA'";
+	.
+
+map:outcome_ri_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Required Intervention to Prevent Permanent Impairment/Damage";
+	d2rq:condition "outc.outc_cod = 'RI'";
+	.
+
+map:outcome_ot_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property rdfs:label ;
+	d2rq:pattern "Other";
+	d2rq:condition "outc.outc_cod = 'OT'";
+	.
+
+
+map:outcome_isr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:outcome;
+	d2rq:property aers:outcome_of;
+	d2rq:propertyDefinitionLabel "outcome of";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/report/@@outc.isr|urlify@@";
+	.	
+
+
+
+# Table drug_dechal
+map:drug_dechal a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/dechallenge/@@drug.dechal|urlify@@";
+    d2rq:class aers:Dechallenge;
+    d2rq:classDefinitionLabel "Dechallenge";
+    d2rq:condition "drug.dechal <> ''";
+    .
+
+map:drug_dechal_y__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_dechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Positive dechallenge";
+    d2rq:condition "drug.dechal = 'Y'";
+    .
+map:drug_dechal_n__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_dechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Negative dechallenge";
+    d2rq:condition "drug.dechal = 'N'";
+    .
+map:drug_dechal_u__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_dechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Unknown";
+    d2rq:condition "drug.dechal = 'U'";
+    .
+map:drug_dechal_d__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_dechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Does not apply";
+    d2rq:condition "drug.dechal = 'D'";
+    .
+
+
+# Table drug_rechal
+map:drug_rechal a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/rechallenge/@@drug.rechal|urlify@@";
+    d2rq:class aers:Dechallenge;
+    d2rq:classDefinitionLabel "Dechallenge";
+    d2rq:condition "drug.rechal <> ''";
+    .
+
+map:drug_rechal_y__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_rechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Positive rechallenge";
+    d2rq:condition "drug.rechal = 'Y'";
+    .
+map:drug_rechal_n__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_rechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Negative rechallenge";
+    d2rq:condition "drug.rechal = 'N'";
+    .
+map:drug_rechal_u__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_rechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Unknown";
+    d2rq:condition "drug.rechal = 'U'";
+    .
+map:drug_rechal_d__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_rechal;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Does not apply";
+    d2rq:condition "drug.rechal = 'D'";
+    .
+    
+    
+# Table drug
+map:drug a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/@@drug.drugname|urlify@@";
+    d2rq:class aers:Drug;
+    d2rq:classDefinitionLabel "Drug";
+    d2rq:condition "drug.drugname <> ''";
+    .
+
+map:drug__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug;
+	d2rq:property rdfs:label;
+	d2rq:pattern "@@drug.drugname@@";
+	d2rq:condition "drug.drugname <> ''";
+    .
+#map:drugInvolvement_sameAsDBPedia a d2rq:PropertyBridge;
+#    d2rq:belongsToClassMap map:drug;
+#    d2rq:property owl:sameAs;
+#    d2rq:uriSqlExpression "CONCAT('http://dbpedia.org/resource/', INITCAP(REPLACE(drug.drugname,' ','_')))";
+
+
+
+map:drugInvolvement a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/involvement/@@drug.isr|urlify@@/@@drug.drug_seq|urlify@@";
+	d2rq:class aers:Involvement;
+	d2rq:classDefinitionLabel "Involvement";
+	.
+map:drugInvolvement_involvedDrug a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:drug;
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/@@drug.drugname|urlify@@";
+    .
+
+
+
+map:drug_route a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/route/@@drug.route|urlify@@";
+	d2rq:class aers:DrugRoute;
+	d2rq:classDefinitionLabel "Drug Route";
+	d2rq:condition "drug.route <> ''";
+	.
+map:drug_route__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_route;
+	d2rq:property rdfs:label;
+    d2rq:pattern "@@drug.route@@";
+    d2rq:condition "drug.route <> ''";
+    .
+
+
+map:drug_role a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/role/@@drug.role_cod|urlify@@";
+	d2rq:class aers:DrugRole;
+	d2rq:classDefinitionLabel "Drug Role";
+	d2rq:condition "drug.role_cod <> ''";
+	.
+map:drug_role_ps__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_role;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Primary Suspect Drug";
+    d2rq:condition "drug.role_cod = 'PS'";
+    .
+map:drug_role_ss__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_role;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Secondary Suspect Drug";
+    d2rq:condition "drug.role_cod = 'SS'";
+    .
+map:drug_role_c__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_role;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Concomitant";
+    d2rq:condition "drug.role_cod = 'C'";
+    .
+map:drug_role_i__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_role;
+	d2rq:property rdfs:label;
+    d2rq:pattern "Interacting";
+    d2rq:condition "drug.role_cod = 'I'";
+    .
+map:drug_role_d__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drug_role;
+	d2rq:property rdfs:label;
+    d2rq:pattern "D";
+    d2rq:condition "drug.role_cod = 'D'";
+    .
+
+
+
+
+map:drugInvolvement__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Involvement of @@drug.drugname@@ in #@@drug.isr@@";
+	.
+map:drugInvolvement_isr a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:involved_in;
+	d2rq:propertyDefinitionLabel "involved in";
+    d2rq:uriPattern "http://aers.data2semantics.org/resource/report/@@drug.isr|urlify@@";
+	.
+#map:drugInvolvement_drug_seq a d2rq:PropertyBridge;
+#	d2rq:belongsToClassMap map:drugInvolvement;
+#	d2rq:property aers:id_in_report;
+#	d2rq:propertyDefinitionLabel "id in report";
+#	d2rq:column "drug.drug_seq";
+#	.
+map:drugInvolvement_role_cod a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:drug_role;
+	d2rq:propertyDefinitionLabel "drug role";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/role/@@drug.role_cod|urlify@@";
+	d2rq:condition "drug.role_cod <> ''";
+	.
+#map:drugInvolvement_drugname a d2rq:PropertyBridge;
+#	d2rq:belongsToClassMap map:drugInvolvement;
+#	d2rq:property aers:drug_name;
+#	d2rq:propertyDefinitionLabel "drug name";
+#	d2rq:column "drug.drugname";
+#	d2rq:condition "drug.drugname <> ''";
+#	.
+map:drugInvolvement_val_vbm a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:drug_name_source;
+	d2rq:propertyDefinitionLabel "source of drug name";
+	d2rq:column "drug.val_vbm";
+	d2rq:condition "drug.val_vbm <> ''";
+	.
+map:drugInvolvement_route a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:drug_route;
+	d2rq:propertyDefinitionLabel "drug route";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/route/@@drug.route|urlify@@";
+	d2rq:condition "drug.route <> ''";
+	.
+map:drugInvolvement_dose_vbm a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:drug_dose;
+	d2rq:propertyDefinitionLabel "drug dose";
+	d2rq:column "drug.dose_vbm";
+	d2rq:condition "drug.dose_vbm <> ''";
+	.
+map:drugInvolvement_dechal a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:dechallenge;
+	d2rq:propertyDefinitionLabel "drug dechallenge";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/dechallenge/@@drug.dechal|urlify@@";
+	d2rq:condition "drug.dechal <> ''";
+	.
+map:drugInvolvement_rechal a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:rechallenge;
+	d2rq:propertyDefinitionLabel "rechallenge";
+	d2rq:uriPattern "http://aers.data2semantics.org/resource/drug/rechallenge/@@drug.rechal|urlify@@";
+	d2rq:condition "drug.rechal <> ''";
+	.
+map:drugInvolvement_lot_num a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:lot_number;
+	d2rq:propertyDefinitionLabel "lot number";
+	d2rq:column "drug.lot_num";
+	d2rq:condition "drug.lot_num <> ''";
+	.
+map:drugInvolvement_exp_dt a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement; 
+	d2rq:property aers:drug_expiration_date;
+	d2rq:propertyDefinitionLabel "drug expiration date";
+	d2rq:column "drug.exp_dt";
+	d2rq:datatype xsd:date;
+	d2rq:condition "drug.exp_dt <> ''";
+	.
+map:drugInvolvement_nda_num a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:drugInvolvement;
+	d2rq:property aers:nda_number;
+	d2rq:propertyDefinitionLabel "NDA number";
+	d2rq:column "drug.nda_num";
+	d2rq:condition "drug.nda_num <> ''";
+	.
+

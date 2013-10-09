@@ -68,7 +68,7 @@ public class LibSVM {
 			setNoOutput();
 		}
 
-		svm_parameter svmParams = params.getParams();
+		svm_parameter svmParams = params.getParamsCopy();
 
 
 		double score = 0, bestScore = 0, bestC = 0, bestP = 0;

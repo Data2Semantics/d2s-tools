@@ -1,4 +1,10 @@
-import sys, xlrd
+import os, sys, xlrd
+
+try:
+    filename=os.environ["filepath"]
+except KeyError:
+    print "Please provide filepath required"
+    sys.exit(1)
 
 def extractTextFromExcel(path):
     print path
@@ -30,4 +36,5 @@ def extractTextFromExcel(path):
         #f.close();
     return text
 
-extractTextFromExcel(sys.argv[1])
+print "Yellow "+os.getcwd()
+print extractTextFromExcel(filename)

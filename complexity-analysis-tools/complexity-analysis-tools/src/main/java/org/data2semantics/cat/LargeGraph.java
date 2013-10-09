@@ -47,9 +47,9 @@ public class LargeGraph<N> extends HugeGraph<N>
 
 	public @State Graph<N> largestComponent;
 
-	private double plExponent;
-	private int plMin;
-	private double plSignificance;
+	protected double plExponent;
+	protected int plMin;
+	protected double plSignificance;
 
 	public LargeGraph(Graph<N> graph)
 	{

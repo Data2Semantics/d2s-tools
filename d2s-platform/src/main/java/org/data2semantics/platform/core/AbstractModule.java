@@ -310,7 +310,7 @@ public abstract class AbstractModule implements Module
 								// We are selecting next avlue from the same module instance
 								InstanceOutput refIO = curModuleInstance.output(ri.reference().name()); 
 								nextValue = refIO.value();
-								System.out.println("Assigning "+ri.reference().module().name()+"."+ri.reference().name()+" into "+name()+"."+coupledMi.name());
+								//System.out.println("Assigning "+ri.reference().module().name()+"."+ri.reference().name()+" into "+name()+"."+coupledMi.name());
 								nextUniverse.put(coupledMi, new InstanceInput(this, coupledMi, nextValue, refIO));
 							}
 						}
@@ -533,7 +533,6 @@ public abstract class AbstractModule implements Module
 			
 			// After execution, set values of output so that it can be referenced later on.
 			for(String resultName : results.keySet()){
-				System.out.println("Setting result " + resultName+" value "+ results.get(resultName));
 				outputs.get(resultName).setValue(results.get(resultName));
 			}
 			state = success ? State.FINISHED : State.FAILED;
