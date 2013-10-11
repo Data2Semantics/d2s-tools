@@ -5,6 +5,14 @@ import java.util.Map;
 
 import org.data2semantics.proppred.learners.Prediction;
 
+/**
+ * The macro-F1 evaluation measure, i.e. the average of the F1 for each class.
+ * The micro-F1 would be computed by taking the average precision and average recall.
+ * 
+ * 
+ * @author Gerben
+ *
+ */
 public class F1 implements EvaluationFunction {
 
 	public double computeScore(double[] target, Prediction[] prediction) {
@@ -25,11 +33,11 @@ public class F1 implements EvaluationFunction {
 				if ((prediction[i].getLabel() == label && target[i] == label)) {
 					temp1 += 1;
 				}
-				if ((prediction[i].getLabel() == label || target[i] == label)) {
+				else if ((prediction[i].getLabel() == label || target[i] == label)) {
 					temp2 += 1;
 				}
 			}
-			f1 += temp1 / temp2;
+			f1 += (2*temp1) /((2*temp1) + temp2);
 			temp1 = 0;
 			temp2 = 0;
 		}	

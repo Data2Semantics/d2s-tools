@@ -12,6 +12,7 @@ import java.util.Vector;
 public class CLAccountant {
 
 	private final HashMap<String, Double> _parts = new HashMap<String, Double>();
+	private final HashMap<String, Integer> _num  = new HashMap<String, Integer>();
 	
 	private String _name;
 	
@@ -24,6 +25,11 @@ public class CLAccountant {
 		double l = d==null ? 0 : d.doubleValue();
 		_parts.put(name, l+L);	
 		return L;
+	}
+	
+	public void spawned_new(String name) {
+		Integer num = _num.get(name);
+		_num.put(name,  num==null ? 1 : num+1);
 	}
 	
 	public double L() {
@@ -66,11 +72,11 @@ public class CLAccountant {
 				
 		// header
 		out.printf("%-20s |", "");
-		for (CLAccountant acc : results) out.printf(" %10s",  acc.getName());
+		for (CLAccountant acc : results) out.printf(" %15s",  acc.getName());
 		out.println();
 		for (int i=0; i<20; i++) out.print("-");
 		out.print("-+");
-		for (int i=0; i<results.size()*11; i++) out.print("-");
+		for (int i=0; i<results.size()*16; i++) out.print("-");
 		out.println();
 
 		// print row for each code length key in the list
@@ -79,9 +85,14 @@ public class CLAccountant {
 			for (CLAccountant acc : results) {
 				Double cl = acc._parts.get(key);
 				if (cl==null) { 
-					out.printf(" %10s", "-");
+					out.printf(" %15s", "-");
 				} else {
-					out.printf(" %10.1f", cl.doubleValue());
+					Integer num = acc._num.get(key);
+					if (num==null) {
+						out.printf(" %10.1f     ", cl.doubleValue());
+					} else {
+						out.printf(" %10.1f(%3d)", cl.doubleValue(), acc._num.get(key));
+					}
 				}
 			}
 			out.println();
@@ -90,10 +101,10 @@ public class CLAccountant {
 		// footer
 		for (int i=0; i<20; i++) out.print("-");
 		out.print("-+");
-		for (int i=0; i<results.size()*11; i++) out.print("-");
+		for (int i=0; i<results.size()*16; i++) out.print("-");
 		out.println();
 		out.printf("%-20s |", "");
-		for (CLAccountant acc : results) out.printf(" %10.1f",  acc.L());
+		for (CLAccountant acc : results) out.printf(" %10.1f     ",  acc.L());
 		out.println();
 		
 	}

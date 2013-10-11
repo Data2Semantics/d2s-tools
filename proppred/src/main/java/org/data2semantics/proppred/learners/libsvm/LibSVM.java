@@ -318,11 +318,11 @@ public class LibSVM {
 				if ((prediction[i] == label && target[i] == label)) {
 					temp1 += 1;
 				}
-				if ((prediction[i] == label || target[i] == label)) {
+				else if ((prediction[i] == label || target[i] == label)) {
 					temp2 += 1;
 				}
 			}
-			f1 += temp1 / temp2;
+			f1 += (2*temp1) / ((2*temp1) + temp2);
 			temp1 = 0;
 			temp2 = 0;
 		}	

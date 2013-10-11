@@ -4,21 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.data2semantics.RDFmodel.Boundary;
 import org.data2semantics.RDFmodel.IndexMap;
 import org.data2semantics.RDFmodel.RDFGraph;
 import org.data2semantics.RDFmodel.RDFhelper;
 import org.data2semantics.RDFmodel.StringTree;
+import org.data2semantics.RDFmodel.TermType;
 import org.data2semantics.RDFmodel.URIDistinguisher;
 import org.data2semantics.platform.annotation.In;
 import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Out;
+import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 
 public class URIPartition extends RDFhelper {
 
 	private String _fn;
 	private RDFGraph _G;
+	private List<URI> _uris;
+	private List<Literal> _lits;
 	private StringTree _ST;
 	private Set<Integer> _tbox;
 	private Boundary _boundary;
@@ -33,7 +38,7 @@ public class URIPartition extends RDFhelper {
 		URIDistinguisher D = new URIDistinguisher(_boundary, _ST);
 		IndexMap<StringTree> map = new IndexMap<StringTree>();
 		List<List<String>> res = new ArrayList<List<String>>();
-		for (URI uri : _G._named) {
+		for (URI uri : _uris) {
 			String uristr = uri.stringValue();
 			StringTree st = D.get_node(uristr);
 			int cell = map.map(st);
@@ -47,12 +52,31 @@ public class URIPartition extends RDFhelper {
 		return sizes;
 	}
 	
+	@Out(name        = "Concepts",
+		 description = "A list of resources that appear to represent important concepts")
+	public List<String> concepts() {
+		List<String> res = new ArrayList<String>();
+		for (int id : _tbox) {
+			int type = TermType.id2type(id);
+			int ix   = TermType.id2ix(id);
+			switch (type) {
+			case TermType.NAMED: res.add(_uris.get(ix).stringValue()); break;
+			case TermType.BNODE: res.add("bnode(#"+ix+")"); break;
+			case TermType.LITERAL: res.add(_lits.get(ix).stringValue()); break;
+			default: assert false: "Unknown data type ("+type+").";
+			}
+		}
+		return res;
+	}
 	
 	@Main public void main() {
-		_G = load(_fn);
-		_ST = new StringTree(_G._named);
-		_tbox = tbox_heuristic_most_incoming(_G, 8);
-		_boundary = findBestBoundary(_G, _tbox, _ST);
+		_uris = new ArrayList<URI>();
+		_lits = new ArrayList<Literal>();
+		_G = load(_fn, _uris, _lits);
+		_ST = new StringTree(_uris);
+		Pair<Boundary,Set<Integer>> pair = findBoundaryAndTBox(_G, _uris, _ST);
+		_boundary = pair.getLeft();
+		_tbox = pair.getRight();
 	}
 	
 

@@ -1,7 +1,5 @@
 package org.data2semantics.RDFmodel;
 
-public interface CoderFactory<T,C> {
-
-	public Coder<T> construct(C conditional);
-	
+public interface CoderFactory<T> {
+	public Coder<T> build();
 }

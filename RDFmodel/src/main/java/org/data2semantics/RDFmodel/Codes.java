@@ -18,12 +18,12 @@ public class Codes {
 
 	private static double [] lgfac_table = null;
 	
-	public static double sterling(int n) {
+	public static double sterling(long n) {
 		final double c = 0.5*lg(2*Math.PI);
 		return (n+0.5)*lg(n) - n/_ln2 + c;
 	}
 	
-	public static double lgfac(int n) {
+	public static double lgfac(long n) {
 		final int table_size = 10000;
 		if (lgfac_table==null) {
 			
@@ -33,12 +33,14 @@ public class Codes {
 				lgfac_table[i] = lgfac_table[i-1] + lg(i); 
 			}
 		}
-		return n < table_size ? lgfac_table[n] : sterling(n);
+		return n < table_size ? lgfac_table[(int)n] : sterling(n);
 	}
 	
-	public static double lgbinomial(int n, int m) { return lgfac(n)-lgfac(m)-lgfac(n-m); }
+	public static double lgbinomial(long n, long m) {
+		return 0<=m && m<=n ? lgfac(n)-lgfac(m)-lgfac(n-m) : 0L; 
+	}
 	
-	public static double lgmultinomial(int [] counts) {
+	public static double lgmultinomial(long [] counts) {
 		int sum = 0;
 		double L = 0;
 		for (int i=0; i<counts.length; i++) {
@@ -47,6 +49,12 @@ public class Codes {
 		}
 		L += lgfac(sum);
 		return L;
+	}
+
+	// returns lg(2^l1 + 2^l2)
+	public static double lgsum(double l1, double l2) {
+		double m = l1 > l2 ? l1 : l2;
+		return m+Codes.lg(Math.pow(2, l1-m)+Math.pow(2,  l2-m));
 	}
 	
 	

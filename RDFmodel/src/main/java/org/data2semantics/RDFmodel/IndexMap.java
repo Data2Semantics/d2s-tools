@@ -1,5 +1,6 @@
 package org.data2semantics.RDFmodel;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class IndexMap<T> extends HashMap<T, Integer> {
@@ -10,6 +11,13 @@ public class IndexMap<T> extends HashMap<T, Integer> {
 		Integer ix = get(item);
 		if (ix==null) { ix = size(); put(item, ix); }
 		return ix;
+	}
+	
+	public List<T> invert() {
+		List<T> res = new SoftList<T>();
+		for (java.util.Map.Entry<T, Integer> entry : entrySet()) 
+			res.set(entry.getValue(), entry.getKey());
+		return res;
 	}
 	
 }

@@ -1,64 +1,58 @@
 package org.data2semantics.RDFmodel;
-import java.util.Set;
 
 
 public class Link {
 	
-	public LinkType _lt;
-	public int _obj_ix;
+	private int _pred_ix;
+	private int _obj_type;
+	private int _obj_ix;
 	
-	public Link(LinkType lt, int obj_ix) { _lt = lt; _obj_ix = obj_ix; }
-	
-	public Link(Set<Integer> tbox, int pred_ix, int obj_id) {
-		int obj_type = TermType.id2type(obj_id);
-		int obj_ix   = TermType.id2ix(obj_id);
-		_lt = new LinkType(pred_ix, obj_type);
-		_obj_ix = tbox.contains(obj_id) ? obj_ix : -1;
+	public Link(int pred_ix, int obj_type, int obj_ix) {
+		_pred_ix  = pred_ix;
+		_obj_type = obj_type;
+		_obj_ix   = obj_ix;
 	}
 	
-	public LinkType getLinkType() { return _lt; }
-	public int getObjIx() { return _obj_ix; }
+	public int getPredIx()  { return _pred_ix;  }
+	public int getObjType() { return _obj_type; }
+	public int getObjIx()   { return _obj_ix;   }
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((_lt == null) ? 0 : _lt.hashCode());
-		result = prime * result + _obj_ix;
-		return result;
+	@Override public int hashCode() {
+		return _pred_ix + 31 * (_obj_type * 5 + _obj_ix);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
+	@Override public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		Link other = (Link) obj;
-		return other._lt.equals(_lt) && _obj_ix == other._obj_ix;
+		Link o = (Link) obj;
+		return o._pred_ix==_pred_ix && o._obj_type==_obj_type && o._obj_ix==_obj_ix;
 	}
-}
 
-class LinkCoder extends Coder<Link> {
-	private Conditioner<Integer, LinkType> _obj_coder;
-	private Conditioner<Integer, LinkType> _obj_in_tbox;
-	private BundleMaker<LinkType>          _lt_mapper;
-	private Coder<Bundle<LinkType>>        _linktype_coder;
-	
-	public LinkCoder(CLAccountant acc, String prefix, int nnamed, 
-					 BundleMaker<LinkType> lt_mapper, Conditioner<Integer,LinkType> obj_coder) {
-		init(acc, prefix);
-		_linktype_coder = new BundleRefCoder<LinkType>(new LinkTypeCoder(acc, "linktype", nnamed));
-		_obj_coder      = obj_coder;
-		_lt_mapper      = lt_mapper;
-		_obj_in_tbox    = new Conditioner<Integer,LinkType>(new KTFactory<LinkType>(acc, "in_tbox?", 2));
+	public static CoderFactory<Link> getFactory() {
+		return new CoderFactory<Link>() {
+			@Override public Coder<Link> build() {
+				return new ObjRefCoder<Link>(new BasicLinkCoder());
+			}
+		};
+		
 	}
-	
-	@Override
-	public void encode(Link lnk) {
-		Bundle<LinkType> ltb = _lt_mapper.bundle(lnk.getLinkType());
-		_linktype_coder.encode(ltb);
-		boolean in_tbox = lnk.getObjIx()!=-1;
-		_obj_in_tbox.get(ltb).encode(in_tbox ? 1 : 0);
-		if (in_tbox) _obj_coder.get(ltb).encode(lnk.getObjIx());
+
+	private static class BasicLinkCoder implements Coder<Link> {
+				
+		@Override public void encode(CoderContext C, Link lnk) {
+			C._c_pred.encode(C, lnk._pred_ix);
+			C._c_objtype.encode(C, lnk._obj_type);
+			boolean in_tbox = lnk._obj_ix!=-1;
+			C._c_hasobj.encode(C, in_tbox ? 1 : 0);
+			if (in_tbox) {
+				switch (lnk._obj_type) {
+				case TermType.NAMED   : C._c_namedobj_t.encode(C, lnk._obj_ix); break;
+				case TermType.BNODE   : C._c_bnodeobj_t.encode(C, lnk._obj_ix); break;
+				case TermType.LITERAL : break; // literals appear in order and do not need to be encoded
+				default: assert false: "Unknown object type";
+				}
+			}
+		}
 	}
 }
