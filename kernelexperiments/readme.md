@@ -1,6 +1,6 @@
 # Kernel Experiments
 
-NOTE: A bug has been fixed in the F1 computation, which results in higher F1 scores, however the ordering between scores has not changed.
+NOTE (9-10-2013): A bug has been fixed in the F1 computation, which results in higher F1 scores, however the ordering between scores has not changed.
 Originally the F1 was erroneously computed as: TP / (TP + FN + FP), now it is correctly computed as: 2*TP / ((2*TP) + FN + FP).
 
 This project contains classes that run experiments with the kernels and classfiers in the proppred project.
