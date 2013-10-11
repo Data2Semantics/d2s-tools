@@ -11,3 +11,8 @@ This project contains classes that run experiments with the kernels and classfie
 - `exp.dmold` contains experiments for the submission to the Data-Mining on Linked Data Workshop.
 - `exp.old` contains old code for experiments, which will be removed at some point.
 
+
+### Acknowledgments
+This software was supported by the Dutch national program COMMIT. 
+
+
