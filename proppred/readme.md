@@ -22,3 +22,7 @@ This library was used in the paper that won the Open Science Award at ECML/PKDD 
 
 ## Note
 This library is a maven project. It is dependent on the d2s-tools project, which contains some utility functions for handling RDF datasets and graphs. The d2s-tools project is also available form this repository.
+
+
+### Acknowledgments
+This software was supported by the Dutch national program COMMIT.
