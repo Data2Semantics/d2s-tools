@@ -5,7 +5,7 @@
 	<artifactId>d2s-platform</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>d2s-platform</name>
-	<description>Machine Learing Platform	</description>
+	<description>Machine Learning Platform	</description>
 
 	<parent>
 		<groupId>data2semantics</groupId>
