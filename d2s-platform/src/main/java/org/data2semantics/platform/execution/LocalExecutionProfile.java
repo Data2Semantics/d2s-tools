@@ -41,14 +41,14 @@ public class LocalExecutionProfile extends ExecutionProfile {
 				
 				for(ModuleInstance mi : m.instances()){
 	
-					System.out.println(" Executing instance of module  : " + mi.module().name());
-					System.out.println("    Inputs : "+mi.inputs());
+					// System.out.println(" Executing instance of module  : " + mi.module().name());
+					// System.out.println("    Inputs : "+mi.inputs());
 					mi.execute();
-					System.out.println("    Outputs : "+mi.outputs());
-					System.out.println(mi+" "+mi.state());
+					// System.out.println("    Outputs : "+mi.outputs());
+					// System.out.println(mi+" "+mi.state());
 							
 				}
-				System.out.println(m.name()+" "+m.finished());
+				// System.out.println(m.name()+" "+m.finished());
 				
 			
 			} else 

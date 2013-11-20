@@ -11,6 +11,23 @@
         <relativePath>../parent/</relativePath>
 	</parent>
 
+  <build>
+     <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.3.2</version>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+          </configuration>
+        </plugin>
+      
+      </plugins>
+      </pluginManagement>
+  </build>
+
   <dependencies>
   	<dependency>
   		<groupId>data2semantics</groupId>
@@ -18,7 +35,7 @@
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-            <groupId>Data2Semantics</groupId>
+            <groupId>data2semantics</groupId>
             <artifactId>kernelexperiments</artifactId>
             <version>0.0.1-SNAPSHOT</version>
      </dependency>

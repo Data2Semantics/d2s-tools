@@ -9,5 +9,6 @@ For the ECML/PKDD 2013 Open Science Award winning page see: http://www.data2sema
 
 
 
-
+### Acknowledgments
+This software was supported by the Dutch national program COMMIT.
 
