@@ -5,13 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 public class Linkset extends HashSet<Link> {
 	private static final long serialVersionUID = 1L;
 
-	public Linkset(Set<Integer> tbox, Map<Integer,List<Integer>> edge_map) {
+	public Linkset(Set<Integer> tbox, Map<Integer, SortedSet<Integer>> edge_map) {
 		assert edge_map!=null : "edge map lists may be empty but not null";
-		for (Map.Entry<Integer,List<Integer>> pred : edge_map.entrySet()) {
+		for (Map.Entry<Integer, SortedSet<Integer>> pred : edge_map.entrySet()) {
 			for (int obj_id : pred.getValue()) {
 				add(new Link(pred.getKey(),
 							 TermType.id2type(obj_id),
@@ -58,10 +59,10 @@ public class Linkset extends HashSet<Link> {
 		private static class BasicLinksetCoder implements Coder<Linkset> {
 			@Override public void encode(CoderContext C, Linkset linkset) {
 				for (Link lnk : linkset) {
-					C._c_morelinks.encode(C, 1);
+					C._c_morelinks.encode(C, 1); // at least one more link
 					C._c_link.encode(C,  lnk); 
 				}
-				C._c_morelinks.encode(C, 0);
+				C._c_morelinks.encode(C, 0); // no more links after the last one
 				
 				/* We redundantly encoded a set as a sequence;
 				 * by combining all code words that represent the same set using a permutation of 

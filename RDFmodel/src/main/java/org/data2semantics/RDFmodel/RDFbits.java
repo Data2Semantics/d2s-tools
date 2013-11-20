@@ -1,23 +1,22 @@
 package org.data2semantics.RDFmodel;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.data2semantics.RDFmodel.Linkset.LinksetCoderFactory.LinksetCoder;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
 
 
 public class RDFbits extends RDFhelper {
 	
 	public static void main(String [] args) {
-		laurens();
-		// test();
+		// laurens();
+		test();
 	}
 	
 	public static void laurens() {
-		RDFGraph G = load("src/main/resources/laurens/linkedMovieDb", null, null);
+		RDFGraph G = new RDFGraph(new RDFGraph.TripleFile("src/main/resources/laurens/linkedMovieDb_preprocessed/triples.dat"));
 		// RDFGraph G = load("src/main/resources/laurens/sp2bench", null, null);
 		// RDFGraph G = load("src/main/resources/laurens/SWdogfood", null, null);
 
@@ -25,7 +24,7 @@ public class RDFbits extends RDFhelper {
 		G.printSomeStats();
 
 		Set<Integer> tbox = tbox_heuristic_most_incoming(G, -30);
-		CoderContext C = encode(G, null, null, tbox, null);
+		CoderContext C = encode("Laurens", G, null, tbox);
 		CLAccountant acc = C.getResults();
 		int nl = C._f_linkset.get_nlinks();
 		int ntr = G._ntriples;
@@ -37,7 +36,7 @@ public class RDFbits extends RDFhelper {
 		int nsubj = G._nnamed+G._nbnodes;
 		System.out.printf("linktypes  / triples  = %7d   /%7d    = %.3f\n", nl,  ntr,   (double)nl/ntr);
 		System.out.printf("linksets   / subjects = %7d   /%7d    = %.3f\n", nls, nsubj, (double)nls/nsubj);
-		double cmpr = acc.L(), uncompr = log_ngraphs(nsubj, G._nbnodes, G._npreds, G._nlits, ntr);
+		double cmpr = acc.L(), uncompr = log_ngraphs(nsubj, G._nbnodes, G._preds.size(), G._nlits, ntr);
 		System.out.printf("compressed / uncompr  = %9.2f/%9.2f = %.2f\n", cmpr, uncompr, cmpr/uncompr);
 	}
 	
@@ -66,59 +65,43 @@ public class RDFbits extends RDFhelper {
 	}
 	
 	public static void test() {
-		List<URI>     uris = new ArrayList<URI>();
-		List<Literal> lits = new ArrayList<Literal>();
-		RDFGraph G = load("src/main/resources/AIFB/aifb-fixed_complete.n3", uris, lits);
-		
-		// RDFGraph G = load("src/main/resources/STCN/STCN_Publications.ttl");
-		// RDFGraph G = load("src/main/resources/LDMC/LDMC_Task1_train.ttl");
-		// RDFGraph G = load("src/main/resources/STCN_edited");
-
+		String dir = "src/main/resources/AIFB_preprocessed/";
+		RDFGraph G = new RDFGraph(new RDFGraph.PermutedTripleFile(dir+"triples.dat"));	
 		G.printSomeStats();
 		System.out.println("Memory used: "+(mem_used()/1024) + "K");
-		
-		int size_uris = 0, size_lits = 0;
-		// Blocks are a feeble attempt to be memory-conscious here		
-		{
-			String uristr = set2string(uris);
-			System.out.print("URI's: uncompressed "+uristr.length()*8+", compressed "+gzip(uristr)*8+", ");
-		}
-		
-		StringTree ST = new StringTree(uris);
-		{
-			String packed = ST.getPacked();
-			size_uris = gzip(packed);
-			System.out.println("packed "+packed.length()*8+", packed and zipped: "+size_uris+".");
-		}
-		
-		{
-			String litstring = set2string(lits);
-			size_lits = gzip(litstring);
-			System.out.println("Literals: "+litstring.length()*8 +", zipped: "+size_lits+".");
-		}
-		
+
 		List<CLAccountant> res = new ArrayList<CLAccountant>();
+		
+		
 		
 		// use root boundary to encode the data
 		Set<Integer> tbox = tbox_heuristic_most_incoming(G, -30);
-		// Set<Integer> tbox = tbox_greedy_search(G,root_B,ST);
-		CLAccountant root_acc = encode(G, null, null, tbox, null).getResults();
+		// Set<Integer> tbox = tbox_greedy_search(G, null);
+		CLAccountant root_acc = encode("TBox", G, null, tbox).getResults();
 		res.add(root_acc);
 		
 		Boundary best_B;
 		Set<Integer> best_tbox;
 		CLAccountant best_acc;
 		
-		// find both boundary and tbox
+		// find both boundary and tbox. Need to read the URIs and construct the StringTree
+		List<String> uris = null;
+		try { uris = load_strings(dir+"uris.txt"); } catch (IOException e) {
+			System.err.println("Can't load uris: "+e); System.exit(1);
+		}
+		StringTree ST = new StringTree(uris);
+		
 		Pair<Boundary,Set<Integer>> pair = findBoundaryAndTBox(G, uris, ST);
 		best_B = pair.getLeft();
 		best_tbox = pair.getRight();
-		best_acc = encode(G, uris, best_B, best_tbox, ST).getResults();
+		best_acc = encode("Boundary/TBox", G, best_B.get_uri_map(uris, ST), best_tbox).getResults();
 		res.add(best_acc);
-			
+		
 		System.out.println("\n\n-----------------------------------\n");
+		
 		CLAccountant.report(res);
 		
+		if (false) {
 		CLAccountant comb_acc = new CLAccountant("Combinatorial");
 		GraphCoderCombinatorial c = new GraphCoderCombinatorial(comb_acc);
 		c.encode(G);
@@ -136,11 +119,12 @@ public class RDFbits extends RDFhelper {
 			switch (TermType.id2type(id)) {
 			case TermType.NAMED: System.out.println(". "+uris.get(ix)); break;
 			case TermType.BNODE: System.out.println(". Bnode, ix="+ix); break;
-			case TermType.LITERAL: System.out.println(". Literal?!: "+lits.get(ix)); break;
+			case TermType.LITERAL: System.out.println(". Literal?!"); break;
 			default: assert false: "Unknown type";
 			}
 		}
-		System.out.println();		
+		System.out.println();
+		}
 	}
 	
 
