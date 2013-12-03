@@ -23,6 +23,7 @@
   <modules>
 	<module>d2s-platform</module>
 	<module>d2s-platform-experiments</module>
+	<module>complexity-analysis-tools/complexity-analysis-tools</module>
 	<module>RDFmodel</module>
 	<module>d2s-tools</module>
 	<module>kernelexperiments</module>

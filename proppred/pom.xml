@@ -10,7 +10,7 @@
 </parent>
 
     
-  <groupId>Data2Semantics</groupId>
+  <groupId>data2semantics</groupId>
   <artifactId>proppred</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
@@ -21,7 +21,7 @@
  
   <dependencies>
   	<dependency>
-  		<groupId>Data2Semantics</groupId>
+  		<groupId>data2semantics</groupId>
   		<artifactId>d2stools</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>

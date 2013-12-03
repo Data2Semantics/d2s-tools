@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 
 import org.data2semantics.RDFmodel.RDFGraph;
 import org.data2semantics.RDFmodel.RDFhelper;
@@ -43,13 +44,13 @@ public class LinkPrediction extends RDFhelper {
 		_subjects = new HashSet<String>();
 		_targets  = new HashSet<String>();
 		
+		RDFGraph G = new RDFGraph(new RDFGraph.TripleFile(_fn)); // FIXME: URIs uninitialized!
 		List<URI> uris = new ArrayList<URI>();
 		
-		RDFGraph G = load(_fn, uris, null);
 		for (int subj_ix=0; subj_ix < G._n_subj2pred2obj.size(); subj_ix++) {
 			String subject = uris.get(subj_ix).stringValue();
-			SortedMap<Integer,List<Integer>> subj = G._n_subj2pred2obj.get(subj_ix);
-			for (Entry<Integer,List<Integer>> entry : subj.entrySet()) {
+			SortedMap<Integer, SortedSet<Integer>> subj = G._n_subj2pred2obj.get(subj_ix);
+			for (Entry<Integer, SortedSet<Integer>> entry : subj.entrySet()) {
 				int pred_ix = entry.getKey();
 				String pred_uri = uris.get(pred_ix).stringValue();
 				if (pred_uri.equals(_predicted_predicate)) {

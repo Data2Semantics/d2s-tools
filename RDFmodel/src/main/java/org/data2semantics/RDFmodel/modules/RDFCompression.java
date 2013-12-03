@@ -14,13 +14,12 @@ import org.data2semantics.platform.annotation.Main;
 import org.data2semantics.platform.annotation.Module;
 import org.data2semantics.platform.annotation.Out;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
 
 @Module(name="RDFCompression") public class RDFCompression extends RDFhelper {
 	
 	private String _fn;
 	private RDFGraph _G;
-	private List<URI> _uris;
+	private List<String> _uris;
 	private List<Literal> _lits;
 	private StringTree _ST;
 	private int _minlinks;
@@ -85,15 +84,15 @@ import org.openrdf.model.URI;
 	}
 
 	private double cl_structure(Boundary B) {
-		CLAccountant acc = encode(_G, _uris, B, _tbox, _ST).getResults();
+		CLAccountant acc = encode("test", _G, B.get_uri_map(_uris, _ST), _tbox).getResults();
 		return acc.L();
 	}
 	
 	@Main
 	public void main() {
-		_uris = new ArrayList<URI>();
+		_uris = new ArrayList<String>();
 		_lits = new ArrayList<Literal>();
-		_G = load(_fn, _uris, _lits);
+		_G = new RDFGraph(new RDFGraph.TripleFile(_fn)); // FIXME: URIs uninitialized!
 		_ST = new StringTree(_uris);
 		_tbox = tbox_heuristic_most_incoming(_G, _minlinks);
 		_boundary = findBestBoundary(_G, _uris, _tbox, _ST);

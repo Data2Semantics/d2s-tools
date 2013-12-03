@@ -1,7 +1,7 @@
 package org.data2semantics.RDFmodel;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.SortedSet;
 
 public class GraphCoderCombinatorial {
 	
@@ -14,7 +14,7 @@ public class GraphCoderCombinatorial {
 		
 		// 1. Initialise 
 		
-		int npreds  = G._npreds;
+		int npreds  = G._preds.size();
 		int nnamed  = G._n_subj2pred2obj.size();
 		int nbnodes = G._nbnodes;
 		int nlits   = G._nlits;
@@ -39,10 +39,10 @@ public class GraphCoderCombinatorial {
 		// 2. Count some stuff
 		
 		for (int nb=0; nb<2; nb++) {
-			for (SortedMap<Integer,List<Integer>> map : (nb==0 ? G._n_subj2pred2obj : G._b_subj2pred2obj)) {
-				for (Entry<Integer,List<Integer>> e : map.entrySet()) {
-					int pred_ix = e.getKey();
-					int pred = pred_map.map(pred_ix);
+			for (SortedMap<Integer,SortedSet<Integer>> map : (nb==0 ? G._n_subj2pred2obj : G._b_subj2pred2obj)) {
+				for (Entry<Integer,SortedSet<Integer>> e : map.entrySet()) {
+					int pred_id = e.getKey();
+					int pred = pred_map.map(pred_id);
 					for (int obj_id : e.getValue()) {
 						int type = TermType.id2type(obj_id);
 						int t = type==TermType.NAMED ? 0 : type==TermType.BNODE ? 1 : 2;

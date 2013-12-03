@@ -1,29 +1,15 @@
 package org.data2semantics.RDFmodel;
 
-import java.util.List;
-
-import org.openrdf.model.URI;
 
 public class GraphCoderSigBased implements Coder<RDFGraph> {
 	
-	private URIDistinguisher _uri_distinguisher;
-	private List<URI>        _uris;
+	private int [] _uri_map;
 	
-	public GraphCoderSigBased(URIDistinguisher uri_distinguisher, List<URI> uris) {
-		_uri_distinguisher = uri_distinguisher;
-		_uris              = uris;
-	}
+	public GraphCoderSigBased(int [] uri_map) { _uri_map = uri_map; }
 	
 	@Override public void encode(CoderContext C, RDFGraph G) {
 		for (int named_ix=0; named_ix < G._nnamed; named_ix++) {
-			StringTree node;
-			if (_uri_distinguisher==null) {
-				node = null;
-			} else {
-				String uri = _uris.get(named_ix).stringValue();
-				node = _uri_distinguisher.get_node(uri);
-			}
-			C._c_urinode.set_conditional(node);
+			if (_uri_map != null) C._c_urinode.set_conditional(_uri_map[named_ix]);
 			C._c_term.encode(C, G._n_subj2pred2obj.get(named_ix));
 		}
 		
@@ -32,19 +18,18 @@ public class GraphCoderSigBased implements Coder<RDFGraph> {
 			C._c_term.encode(C, G._b_subj2pred2obj.get(bnode_ix));
 		}
 
-		C.use_bits(-Codes.lgfac(G._b_subj2pred2obj.size()));
+		C.use_bits("Bnode order bonus", -Codes.lgfac(G._b_subj2pred2obj.size()));
 	}
 	
 	
-	public static CoderFactory<RDFGraph> getFactory(URIDistinguisher D, List<URI> uris) {
-		return new GraphCoderSigBasedFactory(D, uris);
+	public static CoderFactory<RDFGraph> getFactory(int [] uri_map) {
+		return new GraphCoderSigBasedFactory(uri_map);
 	}
 	
 	private static class GraphCoderSigBasedFactory implements CoderFactory<RDFGraph> {
-		private URIDistinguisher _D;
-		private List<URI> _uris;
-		public GraphCoderSigBasedFactory(URIDistinguisher D, List<URI> uris) { _D = D; _uris = uris; }
-		@Override public Coder<RDFGraph> build() { return new GraphCoderSigBased(_D, _uris); }
+		private int [] _uri_map;
+		public GraphCoderSigBasedFactory(int [] uri_map) { _uri_map = uri_map; }
+		@Override public Coder<RDFGraph> build() { return new GraphCoderSigBased(_uri_map); }
 	}
 	
 }

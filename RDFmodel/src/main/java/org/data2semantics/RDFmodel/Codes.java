@@ -18,7 +18,7 @@ public class Codes {
 
 	private static double [] lgfac_table = null;
 	
-	public static double sterling(long n) {
+	public static double stirling(long n) {
 		final double c = 0.5*lg(2*Math.PI);
 		return (n+0.5)*lg(n) - n/_ln2 + c;
 	}
@@ -33,7 +33,7 @@ public class Codes {
 				lgfac_table[i] = lgfac_table[i-1] + lg(i); 
 			}
 		}
-		return n < table_size ? lgfac_table[(int)n] : sterling(n);
+		return n < table_size ? lgfac_table[(int)n] : stirling(n);
 	}
 	
 	public static double lgbinomial(long n, long m) {

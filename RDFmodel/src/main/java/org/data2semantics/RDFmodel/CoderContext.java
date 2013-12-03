@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.data2semantics.RDFmodel.Linkset.LinksetCoderFactory;
-import org.openrdf.model.URI;
 
 /* The following tree depicts in which order the various components of a Term are encoded.
  * Any component can be conditioned on after all its children have been encoded.
@@ -39,7 +38,7 @@ public class CoderContext {
 	private Stack<CodeComponent<?>> _components = new Stack<CodeComponent<?>>();
 	
 	// -------------------------------------- URINode-------------------------------------------------
-	public final CodeComponent<StringTree> _c_urinode = new CodeComponent<StringTree>(null, null);
+	public final CodeComponent<Integer> _c_urinode = new CodeComponent<Integer>(null, null);
 	
 	// GraphCoderSigBased
 	// The graph coder has no internal state of its own, so it does not need to be conditioned.
@@ -81,7 +80,10 @@ public class CoderContext {
 	public final CodeComponent<Integer> _c_bnodeobj_a;
 		
 	// More links? (in linkset)
-	// Can usefully condition on: URINode, Link (Predicate, ObjType, HasObj, ObjIx)
+	// Can usefully condition on: URINode.
+	// Can NOT condition on the link:
+	// - a linkset may be empty in which case there are no links
+	// - since linkset ordering is undefined, so after which link the set is done is arbitrary 
 	public final CodeComponent<Integer> _c_morelinks;
 	
 	// More objs with the same linktype? 
@@ -90,19 +92,19 @@ public class CoderContext {
 	
 	// ================================================================================================
 	
-	public CoderContext(String name, Set<Integer> tbox, URIDistinguisher D, List<URI> uris, int nnamed, int nbnodes) {
+	public CoderContext(String name, int [] uri_map, Set<Integer> tbox, int nnamed, int nbnodes) {
 		_acc  = new CLAccountant(name);
 		_tbox = tbox;
 				
 		// instantiate all parameterized codermaps
-		_c_graph      = new CodeComponent<RDFGraph>("Graph", GraphCoderSigBased.getFactory(D, uris));
+		_c_graph      = new CodeComponent<RDFGraph>("Graph", GraphCoderSigBased.getFactory(uri_map));
 		_c_pred       = new CodeComponent<Integer>("Predicates", SparseMultinomialCoder.getFactory(nnamed));
 		_c_namedobj_t = new CodeComponent<Integer>("NamedObjT",  SparseMultinomialCoder.getFactory(nnamed),  _c_urinode, _c_pred);
 		_c_bnodeobj_t = new CodeComponent<Integer>("BNodeObjT",  SparseMultinomialCoder.getFactory(nbnodes), _c_urinode, _c_pred);
 		_c_namedobj_a = new CodeComponent<Integer>("NamedObjA",  SparseMultinomialCoder.getFactory(nnamed),  _c_urinode, _c_pred);
 		_c_bnodeobj_a = new CodeComponent<Integer>("BNodeObjA",  SparseMultinomialCoder.getFactory(nbnodes), _c_urinode, _c_pred);
-		_c_moreobjs   = new CodeComponent<Integer>("MoreObjs",  KT.getFactory(2), _c_pred, _c_objtype);
-		_c_morelinks  =	new CodeComponent<Integer>("MoreLinks", KT.getFactory(2), _c_pred, _c_objtype);
+		_c_moreobjs   = new CodeComponent<Integer>("MoreObjs",  KT.getFactory(2));//, _c_pred, _c_objtype);
+		_c_morelinks  =	new CodeComponent<Integer>("MoreLinks", KT.getFactory(2));
 		
 		_c_linkset    = new CodeComponent<Linkset>("Linkset", _f_linkset, _c_urinode);
 	}

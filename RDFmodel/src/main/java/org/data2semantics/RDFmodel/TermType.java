@@ -1,4 +1,7 @@
 package org.data2semantics.RDFmodel;
+
+import java.util.Comparator;
+
 /* There are four types of terms in an RDF graph.
  * For each type, there is an enumeration of terms of this type, and term is associated with its index
  * in this enumeration. That is the term's "ix" value.
@@ -24,6 +27,13 @@ public class TermType {
 	
 	public static String type2string(int type) {
 		return type==BNODE ? "BN" : type==NAMED ? "NA" : type==LITERAL ? "LI" : "??";
+	}
+	
+	public static class IdComparator implements Comparator<Integer> {
+		@Override public int compare(Integer arg0, Integer arg1) {
+			int d = id2type(arg0)-id2type(arg1);
+			return d==0 ? id2ix(arg0)-id2ix(arg1) : d;
+		}
 	}
 	
 }

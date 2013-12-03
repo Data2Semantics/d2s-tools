@@ -20,8 +20,24 @@ public class Boundary extends HashSet<StringTree> {
 		return nw;
 	}
 	
-	@Override
-	public String toString() {
+	public int [] get_uri_map(List<String> uris, StringTree root) {
+		IndexMap<StringTree> node_map = new IndexMap<StringTree>();
+		int [] map = new int[uris.size()];
+		for (int i=0; i<uris.size(); i++) {
+			String path = uris.get(i);
+			StringTree pos = root;
+			while (!contains(pos) && !path.isEmpty()) {
+				pos = pos.lookup(path);
+				if (pos==null) break;
+				path = path.substring(pos.getEdgeLabelFromParent().length());
+			}
+			assert pos!=null : "URI "+uris.get(i)+" not encountered in the boundary";
+			map[i] = node_map.map(pos);
+		}
+		return map;
+	}
+	
+	@Override public String toString() {
 		StringBuilder sb = new StringBuilder();
 		List<String> items = new ArrayList<String>();
 		for (StringTree node : this) items.add(node.pathFromRoot());
