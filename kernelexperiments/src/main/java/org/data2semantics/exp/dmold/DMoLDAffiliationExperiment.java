@@ -9,9 +9,14 @@ import org.data2semantics.exp.RDFMLExperiment;
 import org.data2semantics.exp.utils.RDFOldKernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.exp.utils.ResultsTable;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFCombinedKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFFeatureVectorKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFGraphKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexPathWithTextKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFIntersectionTreeEdgeVertexWithSuperTypesPathKernel;
+import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLBiSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeKernel;
 import org.data2semantics.proppred.kernels.rdfgraphkernels.RDFWLSubTreeWithTextKernel;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
@@ -38,7 +43,7 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 
 		int[] depths = {1,2,3};
 		int[] iterations = {0,2,4,6};
-		boolean inference = true;
+		boolean inference = false;
 
 
 		createAffiliationPredictionDataSet(1);
@@ -50,12 +55,12 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 		resTable.setDigits(2);
 
 		for (int depth : depths) {
-			resTable.newRow("WL RDF, depth="+depth);
+			resTable.newRow("WL RDF Bi, depth="+depth);
 			for (int it : iterations) {
-				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFWLBiSubTreeKernel(it, depth, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
 
 				
-				System.out.println("Running WL RDF: " + depth + " " + it);
+				System.out.println("Running WL RDF Bi: " + depth + " " + it);
 				exp.run();
 
 				for (Result res : exp.getResults()) {
@@ -64,6 +69,43 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+
+		
+		
+		for (int depth : depths) {
+			resTable.newRow("WL RDF forward, depth="+depth);
+			for (int it : iterations) {
+				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+
+				
+				System.out.println("Running WL RDF Fwd: " + depth + " " + it);
+				exp.run();
+
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+			}
+		}
+		System.out.println(resTable);
+
+		for (int depth : depths) {
+			resTable.newRow("WL RDF reverse, depth="+depth);
+			for (int it : iterations) {
+				RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFWLSubTreeKernel(it, depth, inference, true, true, false), seeds, svmParms, dataset, instances, labels, blackList);
+
+				
+				System.out.println("Running WL RDF Rev: " + depth + " " + it);
+				exp.run();
+
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+			}
+		}
+		System.out.println(resTable);
+
+		
+		/*
 
 		for (int depth : depths) {
 			resTable.newRow("WL RDF BoW, depth="+depth);
@@ -81,6 +123,9 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 		
+		*/
+		
+		/*
 		ResultsTable table2 = new ResultsTable();
 		
 		for (int depth : depths) {
@@ -98,6 +143,47 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+	
+			
+		for (int depth : depths) {
+			resTable.newRow("ITP with ST, depth="+depth);
+			table2.newRow("");
+			
+			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionTreeEdgeVertexWithSuperTypesPathKernel(depth, false, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
+
+			System.out.println("Running EVP with ST: " + depth);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+				table2.addResult(res);
+			}
+		}
+		System.out.println(resTable);
+		
+		
+		for (int depth : depths) {
+			resTable.newRow("ITP + BoL, depth="+depth);
+			table2.newRow("");
+			
+			List<RDFFeatureVectorKernel> kernels = new ArrayList<RDFFeatureVectorKernel>();
+			kernels.add(new RDFIntersectionTreeEdgeVertexPathKernel(depth, false, inference, false));
+			kernels.add(new RDFWLSubTreeKernel(0, depth, inference, false));
+						
+			RDFGraphKernel k = new RDFCombinedKernel(kernels, true);
+			
+			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(k, seeds, svmParms, dataset, instances, labels, blackList);
+
+			System.out.println("Running EVP + BoL: " + depth);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+				table2.addResult(res);
+			}
+		}
+		System.out.println(resTable);
+		
 		
 		for (int depth : depths) {
 			resTable.newRow("ITP BoW, depth="+depth);
@@ -115,6 +201,10 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 		}
 		System.out.println(resTable);
 		
+		*/
+		
+		/*
+		
 		for (int depth : depths) {
 			resTable.newRow("IST, depth="+depth);
 			RDFOldKernelExperiment exp = new RDFOldKernelExperiment(new RDFIntersectionSubTreeKernel(depth, 1, inference, true), seeds, svmParms, dataset, instances, labels, blackList);
@@ -127,8 +217,10 @@ public class DMoLDAffiliationExperiment extends RDFMLExperiment {
 			}
 		}
 		
+		*/
+		
 		resTable.addCompResults(resTable.getBestResults());
-		resTable.addCompResults(table2.getBestResults());
+		//resTable.addCompResults(table2.getBestResults());
 		System.out.println(resTable);
 
 	}

@@ -16,6 +16,8 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class GraphFactory {
 
+	
+	
 	public static DirectedGraph<Vertex<String>, Edge<String>> createDirectedGraph(List<Statement> sesameGraph) 
 	{
 		return createDirectedGraph(sesameGraph, null, null);
