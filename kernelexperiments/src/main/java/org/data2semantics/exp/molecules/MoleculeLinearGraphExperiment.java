@@ -1,6 +1,7 @@
 package org.data2semantics.exp.molecules;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +12,16 @@ import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.Result;
 import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.learners.Prediction;
+import org.data2semantics.proppred.learners.SparseVector;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
+import org.data2semantics.proppred.learners.liblinear.LibLINEAR;
+import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.nodes.UGraph;
 
-public class MoleculeGraphExperiment<G> extends KernelExperiment<MoleculeKernel<G>> {
-	private LibSVMParameters svmParms;
+public class MoleculeLinearGraphExperiment<G> extends KernelExperiment<LinearMoleculeKernel<G>> {
+	private LibLINEARParameters linParms;
 	private List<Double> labels;
 	private List<G> graphs;
 	private List<EvaluationFunction> evalFunctions;
@@ -26,9 +30,9 @@ public class MoleculeGraphExperiment<G> extends KernelExperiment<MoleculeKernel<
 	
 	
 	
-	public MoleculeGraphExperiment(MoleculeKernel<G> kernel, long[] seeds, LibSVMParameters svmParms, List<G> graphs, List<Double> labels, List<EvaluationFunction> evalFunctions) {
+	public MoleculeLinearGraphExperiment(LinearMoleculeKernel<G> kernel, long[] seeds, LibLINEARParameters linParms, List<G> graphs, List<Double> labels, List<EvaluationFunction> evalFunctions) {
 		super(kernel, seeds);
-		this.svmParms = svmParms;
+		this.linParms = linParms;
 		this.labels = labels;
 		this.graphs = graphs;
 		this.evalFunctions = evalFunctions;
@@ -56,23 +60,27 @@ public class MoleculeGraphExperiment<G> extends KernelExperiment<MoleculeKernel<
 		tempLabels.addAll(labels);
 
 		tic = System.currentTimeMillis();
-		System.out.println("Computing kernel...");
-		double[][] matrix = kernel.compute(graphs);
+		System.out.println("Computing FVs...");
+		SparseVector[] fv = kernel.computeFeatureVectors(graphs);
 		toc = System.currentTimeMillis();
+		
+		List<SparseVector> fvList = Arrays.asList(fv);
+
 
 		compR.setLabel("kernel comp time");
 
 		System.out.println("Performing CV...");
 		for (int j = 0; j < seeds.length; j++) {
-			matrix = KernelUtils.shuffle(matrix, seeds[j]);
-			Collections.shuffle(tempLabels, new Random(seeds[j]));		
+			Collections.shuffle(fvList, new Random(seeds[j]));
+			fv = fvList.toArray(new SparseVector[1]);
 			
+			Collections.shuffle(tempLabels, new Random(seeds[j]));			
 			double[] target = new double[tempLabels.size()];
 			for (int i = 0; i < target.length; i++) {
 				target[i] = tempLabels.get(i);
 			}
 
-			Prediction[] pred = LibSVM.crossValidate(matrix, target, svmParms, svmParms.getNumFolds());
+			Prediction[] pred = LibLINEAR.crossValidate(fv, target, linParms, linParms.getNumFolds());
 				
 			for (EvaluationFunction ef : evalFunctions) {
 				resultMap.get(ef)[j] = ef.computeScore(target, pred);	

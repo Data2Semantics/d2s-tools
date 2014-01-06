@@ -113,7 +113,9 @@ public class LibLINEARParameters {
 	
 	public Parameter getParamsCopy() {
 		Parameter p2 = new Parameter(params.getSolverType(), params.getC(), params.getEps());
-		p2.setWeights(params.getWeights(), params.getWeightLabels());
+		if (weights != null) {
+			p2.setWeights(params.getWeights(), params.getWeightLabels());
+		}		
 		p2.setEps(params.getEps());
 		
 		return p2;

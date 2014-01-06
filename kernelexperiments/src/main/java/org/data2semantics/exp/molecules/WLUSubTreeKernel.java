@@ -27,7 +27,7 @@ import org.nodes.UTGraph;
  * @author Gerben
  *
  */
-public class WLUSubTreeKernel implements Kernel {
+public class WLUSubTreeKernel implements MoleculeKernel<UGraph<String>>, LinearMoleculeKernel<UGraph<String>> {
 	private int iterations = 2;
 	protected String label;
 	protected boolean normalize;
@@ -59,8 +59,8 @@ public class WLUSubTreeKernel implements Kernel {
 
 	public SparseVector[] computeFeatureVectors(List<UGraph<String>> trainGraphs) {
 		// Have to use UGraph implementation for copying.
-		// List<UTGraph<StringBuilder,?>> graphs = copyGraphs(trainGraphs);
-		List<UTGraph<StringBuilder,Object>> graphs = copyGraphs(trainGraphs);
+		// List<UTGraph<StringLabel,?>> graphs = copyGraphs(trainGraphs);
+		List<UTGraph<StringLabel,Object>> graphs = copyGraphs(trainGraphs);
 
 		SparseVector[] featureVectors = new SparseVector[graphs.size()];
 		for (int i = 0; i < featureVectors.length; i++) {
@@ -105,25 +105,25 @@ public class WLUSubTreeKernel implements Kernel {
 	 * @param startLabel
 	 * @param currentLabel
 	 */
-	private void relabelGraphs2MultisetLabels(List<UTGraph<StringBuilder,Object>> graphs, int startLabel, int currentLabel) {
-		Map<String, Bucket<UNode<StringBuilder>>> buckets = new HashMap<String, Bucket<UNode<StringBuilder>>>();
+	private void relabelGraphs2MultisetLabels(List<UTGraph<StringLabel,Object>> graphs, int startLabel, int currentLabel) {
+		Map<String, Bucket<UNode<StringLabel>>> buckets = new HashMap<String, Bucket<UNode<StringLabel>>>();
 
 		// Initialize buckets
 		for (int i = startLabel; i < currentLabel; i++) {
-			buckets.put(Integer.toString(i), new Bucket<UNode<StringBuilder>>(Integer.toString(i)));
+			buckets.put(Integer.toString(i), new Bucket<UNode<StringLabel>>(Integer.toString(i)));
 		}
 
 		// 1. Fill buckets 
-		for (UTGraph<StringBuilder,?> graph : graphs) {
-			for (UNode<StringBuilder> vertex : graph.nodes()) {
+		for (UTGraph<StringLabel,?> graph : graphs) {
+			for (UNode<StringLabel> vertex : graph.nodes()) {
 				buckets.get(vertex.label().toString()).getContents().addAll(vertex.neighbors());
 			}
 		}
 
 		// 2. add bucket labels to existing labels
 		// Change the original label to a prefix label
-		for (UTGraph<StringBuilder,?> graph : graphs) {
-			for (UNode<StringBuilder> vertex : graph.nodes()) {
+		for (UTGraph<StringLabel,?> graph : graphs) {
+			for (UNode<StringLabel> vertex : graph.nodes()) {
 				vertex.label().append("_");
 			}
 		}
@@ -131,8 +131,8 @@ public class WLUSubTreeKernel implements Kernel {
 		// 3. Relabel to the labels in the buckets
 		for (int i = startLabel; i < currentLabel; i++) {
 			// Process vertices
-			Bucket<UNode<StringBuilder>> bucket = buckets.get(Integer.toString(i));			
-			for (UNode<StringBuilder> vertex : bucket.getContents()) {
+			Bucket<UNode<StringLabel>> bucket = buckets.get(Integer.toString(i));			
+			for (UNode<StringLabel> vertex : bucket.getContents()) {
 				vertex.label().append(bucket.getLabel());
 				vertex.label().append("_");
 			}
@@ -147,18 +147,18 @@ public class WLUSubTreeKernel implements Kernel {
 	 * @param currentLabel
 	 * @return
 	 */
-	private int compressGraphLabels(List<UTGraph<StringBuilder,Object>> graphs, Map<String, String> labelDict, int currentLabel) {
+	private int compressGraphLabels(List<UTGraph<StringLabel,Object>> graphs, Map<String, String> labelDict, int currentLabel) {
 		String label;
 
-		for (UTGraph<StringBuilder,Object> graph : graphs) {
-			for (UNode<StringBuilder> vertex : graph.nodes()) {
+		for (UTGraph<StringLabel,Object> graph : graphs) {
+			for (UNode<StringLabel> vertex : graph.nodes()) {
 				label = labelDict.get(vertex.label().toString());
 				if (label == null) {
 					label = Integer.toString(currentLabel);
 					currentLabel++;
 					labelDict.put(vertex.label().toString(), label);
 				}
-				vertex.label().delete(0, vertex.label().length());
+				vertex.label().clear();
 				vertex.label().append(label);
 			}
 		}
@@ -174,7 +174,7 @@ public class WLUSubTreeKernel implements Kernel {
 	 * @param startLabel
 	 * @param currentLabel
 	 */
-	private void computeFVs(List<UTGraph<StringBuilder,Object>> graphs, SparseVector[] featureVectors, double weight, int lastIndex) {
+	private void computeFVs(List<UTGraph<StringLabel,Object>> graphs, SparseVector[] featureVectors, double weight, int lastIndex) {
 		int index;
 		for (int i = 0; i < graphs.size(); i++) {
 			featureVectors[i].setLastIndex(lastIndex);
@@ -183,7 +183,7 @@ public class WLUSubTreeKernel implements Kernel {
 			//Arrays.fill(featureVectors[i], 0.0);
 
 			// for each vertex, use the label as index into the feature vector and do a + 1,
-			for (UNode<StringBuilder> vertex : graphs.get(i).nodes()) {
+			for (UNode<StringLabel> vertex : graphs.get(i).nodes()) {
 				index = Integer.parseInt(vertex.label().toString());	
 				featureVectors[i].setValue(index, featureVectors[i].getValue(index) + weight);
 				//featureVectors[i][index] += 1.0;
@@ -211,13 +211,13 @@ public class WLUSubTreeKernel implements Kernel {
 		}
 	}
 
-	private static List<UTGraph<StringBuilder,Object>> copyGraphs(List<UGraph<String>> graphs) {
-		List<UTGraph<StringBuilder,Object>> newGraphs = new ArrayList<UTGraph<StringBuilder, Object>>();
+	private static List<UTGraph<StringLabel,Object>> copyGraphs(List<UGraph<String>> graphs) {
+		List<UTGraph<StringLabel,Object>> newGraphs = new ArrayList<UTGraph<StringLabel, Object>>();
 				
 		for (UGraph<String> graph : graphs) {
-			UTGraph<StringBuilder,Object> newGraph = new MapUTGraph<StringBuilder,Object>();
+			UTGraph<StringLabel,Object> newGraph = new MapUTGraph<StringLabel,Object>();
 			for (UNode<String> vertex : graph.nodes()) {
-				newGraph.add(new StringBuilder(vertex.label()));
+				newGraph.add(new StringLabel(vertex.label()));
 			}
 			for (ULink<String> edge : graph.links()) {
 				newGraph.nodes().get(edge.first().index()).connect(newGraph.nodes().get(edge.second().index()), null);
