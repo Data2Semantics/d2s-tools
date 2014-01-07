@@ -2,11 +2,14 @@ package org.data2semantics.exp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.data2semantics.exp.RDFMLExperiment;
+import org.data2semantics.exp.molecules.GraphUtils;
 import org.data2semantics.exp.molecules.RDFIntersectionSubTreeSlashBurnKernel;
 import org.data2semantics.exp.molecules.RDFWLSubTreeSlashBurnKernel;
 import org.data2semantics.exp.utils.KernelExperiment;
@@ -32,6 +35,10 @@ import org.data2semantics.proppred.learners.evaluation.F1;
 import org.data2semantics.proppred.learners.liblinear.LibLINEARParameters;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
 import org.data2semantics.tools.rdf.RDFFileDataSet;
+import org.nodes.DTGraph;
+import org.nodes.DTNode;
+import org.nodes.algorithms.SlashBurn;
+import org.nodes.util.Functions.Dir;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
@@ -55,7 +62,9 @@ public class AffiliationExperiment extends RDFMLExperiment {
 		int[] depths = {1,2,3};
 		int[] iterations = {0,2,4,6};
 
-		boolean inference = true;
+		boolean inference = false;
+		boolean forward = true;
+		
 
 		createAffiliationPredictionDataSet(1);
 
@@ -82,9 +91,6 @@ public class AffiliationExperiment extends RDFMLExperiment {
 		linParms.setWeightLabels(wLabels);
 		linParms.setWeights(weights);
 
-
-		createAffiliationPredictionDataSet(1);
-
 		LibSVMParameters svmParms = new LibSVMParameters(LibSVMParameters.C_SVC, cs);
 		svmParms.setNumFolds(10);
 
@@ -93,15 +99,34 @@ public class AffiliationExperiment extends RDFMLExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 		resTable.setDigits(2);
+		
+		
+		DTGraph<String,String> sGraph = org.nodes.data.RDF.createDirectedGraph(dataset.getStatements(null, null, null, inference), null, null);
+		List<DTNode<String,String>> hubs = SlashBurn.getHubs(sGraph, (int) Math.round(0.05 * sGraph.nodes().size()), true);
+		
+		// Remove hubs from list that are root nodes
+		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
+		Set<String> is = new HashSet<String>();
+		for (Resource r : instances) {
+			is.add(r.toString());
+		}
+		for (DTNode<String,String> hub : hubs) {
+			if (is.contains(hub.label())) {
+				rn.add(hub);
+			}
+		}
+		hubs.removeAll(rn);
+		
+	
+		int[] hf = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+		
+		//int[] hf = {8,10,12};
 
-
-		int[] hf = {1,2,3,4,6,8,10,12,14,16,18,20};
-
-		/*
+		///*
 		for (int i : depths) {			
 			resTable.newRow("RDF WL forward");
 			for (int it : iterations) {
-				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, true, false);
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, i, inference, true, forward, false);
 				
 				//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 				KernelExperiment<RDFGraphKernel> exp = new RDFGraphKernelExperiment(k, seeds, svmParms, dataset, instances, target, blackList, evalFuncs);
@@ -116,13 +141,35 @@ public class AffiliationExperiment extends RDFMLExperiment {
 			}
 		}
 
+		for (int h : hf) {
+			for (int i : depths) {			
+				resTable.newRow("RDF WL forward Degree " + h);
+				for (int it : iterations) {
+					RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, i, inference, true, forward);
+					k.setHubMap(GraphUtils.createDegreeHubMap(sGraph.nodes(), h));
+
+					//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+					KernelExperiment<RDFGraphKernel> exp = new RDFGraphKernelExperiment(k, seeds, svmParms, dataset, instances, target, blackList, evalFuncs);
+
+
+					System.out.println("Running WL RDF fwd Degree: " + i + " " + it + " " + h);
+					exp.run();
+
+					for (Result res : exp.getResults()) {
+						resTable.addResult(res);
+					}	
+				}
+			}
+		}
+		System.out.println(resTable);
+		
 
 		for (int h : hf) {
 			for (int i : depths) {			
 				resTable.newRow("RDF WL forward SB " + h);
 				for (int it : iterations) {
-					RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, i, inference, true, true);
-					k.setHubThreshold(h);
+					RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, i, inference, true, forward);
+					k.setHubMap(GraphUtils.createHubMap(hubs, h));
 
 					//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 					KernelExperiment<RDFGraphKernel> exp = new RDFGraphKernelExperiment(k, seeds, svmParms, dataset, instances, target, blackList, evalFuncs);
@@ -138,9 +185,10 @@ public class AffiliationExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
-		*/
+		//*/
 
 
+		/*
 		for (int h : hf) {
 			for (int i : depths) {			
 				resTable.newRow("RDF IST SB " + h);
@@ -160,6 +208,7 @@ public class AffiliationExperiment extends RDFMLExperiment {
 				}
 		}
 		System.out.println(resTable);
+		//*/
 
 		
 		

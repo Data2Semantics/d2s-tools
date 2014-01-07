@@ -88,7 +88,42 @@ public class RDFIntersectionSubTreeSlashBurnKernel implements RDFGraphKernel {
 	public double[][] compute(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
 		double[][] kernel = KernelUtils.initMatrix(instances.size(), instances.size());
 		Tree<Vertex<Integer>, Edge<Integer>> tree;
-
+	
+		// --- SlashBurn baby!
+		DTGraph<String,String> sGraph = org.nodes.data.RDF.createDirectedGraph(dataset.getStatements(null, null, null, inference), null, null);
+		List<DTNode<String,String>> hubs = SlashBurn.getHubs(sGraph, (int) Math.round(0.05 * sGraph.nodes().size()), true);
+		
+		// Remove hubs from list that are root nodes
+		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
+		Set<String> is = new HashSet<String>();
+		for (Resource r : instances) {
+			is.add(r.toString());
+		}
+		for (DTNode<String,String> hub : hubs) {
+			if (is.contains(hub.label())) {
+				rn.add(hub);
+			}
+		}
+		hubs.removeAll(rn);
+		
+		// Create the hubMap
+		Map<String,Integer> hubMap = new HashMap<String,Integer>();		
+		for (int i = 0; i < hubs.size() && i < hubThreshold; i++) {
+			org.nodes.util.Pair<Dir,String> sig = SlashBurn.primeSignature(hubs.get(i));
+			System.out.println("Removing: " + hubs.get(i).label() + " " + sig.second());
+			
+			if (sig.first() == Dir.IN) {
+				hubMap.put(sig.second() + hubs.get(i).label(), i);	
+			} else {
+				hubMap.put(hubs.get(i).label() + sig.second(), i);
+			}
+			
+		}
+		
+		DTGraph<StringLabel,StringLabel> graph = createGraphFromRDF(dataset, instances, blackList, hubMap);
+		
+		/*
+		
 		DTGraph<StringLabel,StringLabel> graph = createGraphFromRDF(dataset, instances, blackList);
 		// --- SlashBurn baby!
 		DTGraph<String,String> sGraph = copy2StringLabeledGraph(graph);
@@ -117,6 +152,10 @@ public class RDFIntersectionSubTreeSlashBurnKernel implements RDFGraphKernel {
 			String newLabel = "";
 
 			System.out.println("Removing: " + invLabelMap.get(Integer.parseInt(hubs.get(index).label())));
+			System.out.println("With in nodes:");	
+			for (DTNode<String,String> n : hubs.get(index).in()) {
+				System.out.println("In: " + invLabelMap.get(Integer.parseInt(n.label())));
+			}
 
 			DTNode<StringLabel,StringLabel> hubN = graph.get(hubs.get(index).index());
 			Collection<? extends DTLink<StringLabel,StringLabel>> links;
@@ -151,6 +190,7 @@ public class RDFIntersectionSubTreeSlashBurnKernel implements RDFGraphKernel {
 		for (DTLink<StringLabel,StringLabel> l : toRemove) {
 			l.remove();
 		}
+		*/
 		// --- End SlashBurn
 
 		for (int i = 0; i < instances.size(); i++) {
@@ -169,10 +209,11 @@ public class RDFIntersectionSubTreeSlashBurnKernel implements RDFGraphKernel {
 	}
 
 
-	private DTGraph<StringLabel,StringLabel> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
+	private DTGraph<StringLabel,StringLabel> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList, Map<String, Integer> hubMap) {
 		Map<String, DTNode<StringLabel,StringLabel>> vertexMap  = new HashMap<String, DTNode<StringLabel,StringLabel>>();
 		Map<String, DTNode<StringLabel,StringLabel>> literalMap = new HashMap<String, DTNode<StringLabel,StringLabel>>();
 		Map<String, DTLink<StringLabel,StringLabel>>   edgeMap  = new HashMap<String, DTLink<StringLabel,StringLabel>>();
+		Map<DTNode<StringLabel,StringLabel>, Integer> rewriteMap= new HashMap<DTNode<StringLabel,StringLabel>, Integer>();
 
 		DTGraph<StringLabel,StringLabel> graph = new MapDTGraph<StringLabel,StringLabel>();
 
@@ -210,57 +251,90 @@ public class RDFIntersectionSubTreeSlashBurnKernel implements RDFGraphKernel {
 
 					for (Statement stmt : result) {
 
-						// Process new vertex
-						if (stmt.getObject() instanceof Literal) {
-							idStr = stmt.toString();
-							idStr2 = stmt.getObject().toString();
-							if (literalMap.containsKey(idStr)) {
-								newV = literalMap.get(idStr);
-							} else {
-								newV = graph.add(new StringLabel());
-								if (!labelMap.containsKey(idStr2)) {
-									labelMap.put(idStr2, labelCounter);
-									invLabelMap.put(labelCounter,idStr2);
+						// Check for In link hub
+						idStr = stmt.getPredicate().toString() + stmt.getObject().toString();
+						if (hubMap.containsKey(idStr)) {
+							DTNode<StringLabel,StringLabel> sn = vertexMap.get(stmt.getSubject().toString());
+							if (rewriteMap.get(sn) == null || rewriteMap.get(sn) < hubMap.get(idStr)) { // hub is non-existent or on deeper level, then change label
+								if (!labelMap.containsKey(idStr)) {
+									labelMap.put(idStr, labelCounter);
 									labelCounter++;
 								}
-								newV.label().append(Integer.toString(labelMap.get(idStr2)));
-								literalMap.put(idStr, newV);
+								sn.label().clear();
+								sn.label().append(Integer.toString(labelMap.get(idStr)));
+								
+								//System.out.println("removed IN hub: " + idStr);
 							}
-							
-						} else {
+						} else { // if not an In link hub, then we can proceed with at least adding the object as a vertex and continuing retrieving the graph from this vertex
 
-							idStr = stmt.getObject().toString();
-							if (vertexMap.containsKey(idStr)) { // existing vertex
-								newV = vertexMap.get(idStr);				 	
-							} else { // New vertex
-								labelMap.put(idStr, labelCounter);
-								invLabelMap.put(labelCounter, idStr);
-								newV = graph.add(new StringLabel(Integer.toString(labelCounter)));
-								labelCounter++;
-								vertexMap.put(idStr, newV);
+							// Process new vertex
+							if (stmt.getObject() instanceof Literal) {
+								idStr = stmt.toString();
+								idStr2 = stmt.getObject().toString();
+								if (literalMap.containsKey(idStr)) {
+									newV = literalMap.get(idStr);
+								} else {
+									newV = graph.add(new StringLabel());
+									if (!labelMap.containsKey(idStr2)) {
+										labelMap.put(idStr2, labelCounter);
+										invLabelMap.put(labelCounter,idStr2);
+										labelCounter++;
+									}
+									newV.label().append(Integer.toString(labelMap.get(idStr2)));
+									literalMap.put(idStr, newV);
+								}
+
+							} else {
+
+								idStr = stmt.getObject().toString();
+								if (vertexMap.containsKey(idStr)) { // existing vertex
+									newV = vertexMap.get(idStr);				 	
+								} else { // New vertex
+									labelMap.put(idStr, labelCounter);
+									invLabelMap.put(labelCounter, idStr);
+									newV = graph.add(new StringLabel(Integer.toString(labelCounter)));
+									labelCounter++;
+									vertexMap.put(idStr, newV);
+								}
 							}
-						}
 
-						// Process new Edge
-						idStr = stmt.toString();
-						idStr2 = stmt.getPredicate().toString();
-						if (edgeMap.containsKey(idStr)) { // existing edge
-							newE = edgeMap.get(idStr);
+							// Check for Out link hub
+							idStr = stmt.getSubject().toString() + stmt.getPredicate().toString();
+							if (hubMap.containsKey(idStr)) {
+								if (rewriteMap.get(newV) == null || rewriteMap.get(newV) < hubMap.get(idStr)) { // hub is non-existent or on deeper level, then change label
+									if (!labelMap.containsKey(idStr)) {
+										labelMap.put(idStr, labelCounter);
+										labelCounter++;
+									}
+									newV.label().clear();
+									newV.label().append(Integer.toString(labelMap.get(idStr)));
+									
+									//System.out.println("removed OUT hub: " + idStr);
+								}
+							} else { // if not an Out link hub, then we can also add the edge
 
-						} else { // new edge
-							if (!labelMap.containsKey(idStr2)) {
-								labelMap.put(idStr2, labelCounter);
-								invLabelMap.put(labelCounter, idStr2);
-								labelCounter++;
+								// Process new Edge
+								idStr = stmt.toString();
+								idStr2 = stmt.getPredicate().toString();
+								if (edgeMap.containsKey(idStr)) { // existing edge
+									newE = edgeMap.get(idStr);
+
+								} else { // new edge
+									if (!labelMap.containsKey(idStr2)) {
+										labelMap.put(idStr2, labelCounter);
+										invLabelMap.put(labelCounter, idStr2);
+										labelCounter++;
+									}
+									newE = vertexMap.get(stmt.getSubject().toString()).connect(newV, new StringLabel(Integer.toString(labelMap.get(idStr2))));
+									edgeMap.put(idStr, newE);
+								}
 							}
-							newE = vertexMap.get(stmt.getSubject().toString()).connect(newV, new StringLabel(Integer.toString(labelMap.get(idStr2))));
-							edgeMap.put(idStr, newE);
-						}
 
 
-						// Store the object nodes if the loop continues (i>0) and if its a Resource
-						if (i > 0 && stmt.getObject() instanceof Resource) {
-							newQueryNodes.add((Resource) stmt.getObject());
+							// Store the object nodes if the loop continues (i>0) and if its a Resource
+							if (i > 0 && stmt.getObject() instanceof Resource) {
+								newQueryNodes.add((Resource) stmt.getObject());
+							}
 						}
 					}
 				}

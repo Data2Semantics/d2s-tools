@@ -3,21 +3,31 @@ package org.data2semantics.exp.molecules;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.data2semantics.tools.rdf.RDFDataSet;
 import org.nodes.DTGraph;
 import org.nodes.DTLink;
 import org.nodes.DTNode;
+import org.nodes.DegreeComparator;
 import org.nodes.MapDTGraph;
 import org.nodes.MapUTGraph;
+import org.nodes.Node;
 import org.nodes.UGraph;
 import org.nodes.ULink;
 import org.nodes.UNode;
+import org.nodes.algorithms.SlashBurn;
+import org.nodes.util.Functions.Dir;
+import org.nodes.util.MaxObserver;
+import org.nodes.util.Pair;
 import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -33,6 +43,64 @@ import org.openrdf.model.vocabulary.RDF;
 public class GraphUtils {
 	public static final String NAMESPACE = "http://www.data2semantics.org/molecule/";
 
+	public static Map<String,Integer> createHubMap(List<DTNode<String,String>> hubs, int th) {
+		Map<String,Integer> hubMap = new HashMap<String,Integer>();		
+		for (int i = 0; i < hubs.size() && i < th; i++) {
+			org.nodes.util.Pair<Dir,String> sig = SlashBurn.primeSignature(hubs.get(i));
+			
+			if (sig.first() == Dir.IN) {
+				hubMap.put(sig.second() + hubs.get(i).label(), i);	
+				System.out.println("Removing: " + sig.second() + " -> " + hubs.get(i).label());
+			} else {
+				hubMap.put(hubs.get(i).label() + sig.second(), i);
+				System.out.println("Removing: " + hubs.get(i).label() + " -> " + sig.second());
+			}	
+		}
+		System.out.println("Total hubs: " + hubMap.size());
+		return hubMap;
+	}
+	
+	public static Map<String,Integer> createRDFTypeHubMap(RDFDataSet ts, boolean inference) {
+		Map<String,Integer> hubMap = new HashMap<String,Integer>();
+		List<Statement> types = ts.getStatements(null, RDF.TYPE, null, inference);
+		Map<Resource, Integer> classCounts = new HashMap<Resource, Integer>();
+		
+		// Count different classes
+		for (Statement s : types) {
+			Resource c = (Resource) s.getObject();
+			classCounts.put(c, (classCounts.containsKey(c)) ? classCounts.get(c) + 1 : 0);
+		}
+		
+		// Get the largest class size
+		List<Integer> counts = new ArrayList<Integer>(classCounts.values());
+		Collections.sort(counts);
+		int max = counts.get(counts.size()-1);
+	
+		// Create the hubmap, with largest hubs having the lowest numbers
+		for (Resource c : classCounts.keySet()) {
+			hubMap.put(RDF.TYPE.toString() + c.toString(), max - classCounts.get(c));
+		}
+		return hubMap;
+	}
+	
+	public static Map<String,Integer> createDegreeHubMap(List<? extends DTNode<String,String>> nodes, int th) {
+		Map<String,Integer> hubMap = new HashMap<String,Integer>();
+		Comparator<DTNode<String,String>> comp = new SlashBurn.SignatureComparator<String,String>();
+		MaxObserver<DTNode<String,String>> obs = new MaxObserver<DTNode<String,String>>(th, comp);
+		obs.observe(nodes);
+		int i = 0;
+		for (DTNode<String,String> n : obs.elements()) {
+			Pair<Dir,String> sig = SlashBurn.primeSignature(n);
+			if (sig.first() == Dir.IN) {
+				hubMap.put(sig.second() + n.label(), i);
+			} else {
+				hubMap.put(n.label() + sig.second(), i);
+			}
+			i++;		
+		}
+	return hubMap;
+	}
+	
 
 	public static List<Statement> moleculeGraph2RDF(UGraph<String> graph, String moleculeID, boolean blankRoot) {
 		List<Statement> moleculeRDF = new ArrayList<Statement>();

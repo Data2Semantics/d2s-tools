@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.RDFGraphKernelExperiment;
@@ -24,7 +26,9 @@ import org.data2semantics.tools.rdf.RDFDataSet;
 import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.nodes.DTGraph;
 import org.nodes.DTLink;
+import org.nodes.DTNode;
 import org.nodes.UGraph;
+import org.nodes.algorithms.SlashBurn;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
@@ -54,7 +58,7 @@ public class MoleculeExperiment {
 		//createDataSet(NCI109_DIR, graphs, labels);
 		//createDataSet(DD_DIR, graphs, labels);
 
-		/*
+		
 		// Separate RDF graphs dataset
 		List<List<Statement>> rdfTriples = createMoleculeRDFGraphs(graphs, true);
 		List<DTGraph<String,String>> rdfGraphs = new ArrayList<DTGraph<String,String>>();
@@ -80,6 +84,22 @@ public class MoleculeExperiment {
 			instances.add(stmt.getSubject());
 		}
 
+		
+		DTGraph<String,String> sGraph = org.nodes.data.RDF.createDirectedGraph(ts.getStatements(null, null, null, false), null, null);
+		List<DTNode<String,String>> hubs = SlashBurn.getHubs(sGraph, (int) Math.round(0.05 * sGraph.nodes().size()), true);
+		
+		// Remove hubs from list that are root nodes
+		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
+		Set<String> is2 = new HashSet<String>();
+		for (Resource r : instances) {
+			is2.add(r.toString());
+		}
+		for (DTNode<String,String> hub : hubs) {
+			if (is2.contains(hub.label())) {
+				rn.add(hub);
+			}
+		}
+		hubs.removeAll(rn);
 		
 
 		/*
@@ -122,7 +142,7 @@ public class MoleculeExperiment {
 		ResultsTable resTable = new ResultsTable();
 		resTable.setDigits(2);
 
-		/*
+		///*
 		for (int it : iterations) {
 			resTable.newRow("WL, it: " + it);
 			MoleculeLinearGraphExperiment<UGraph<String>> exp = new MoleculeLinearGraphExperiment<UGraph<String>>(new WLUSubTreeKernel(it, true), seeds, linParms, graphs, labels, evalFuncs);
@@ -137,7 +157,7 @@ public class MoleculeExperiment {
 		System.out.println(resTable);
 		//*/
 
-		/*
+		
 		for (int it : iterations2) {
 			resTable.newRow("WL separate RDF, it: " + it);
 			MoleculeLinearGraphExperiment<DTGraph<String,String>> exp = new MoleculeLinearGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, true), seeds, linParms, rdfGraphs, labels, evalFuncs);
@@ -153,11 +173,14 @@ public class MoleculeExperiment {
 		//*/
 
 
-		/*
+		
 		for (int it : iterations2) {
 			resTable.newRow("WL RDF, it: " + it);
 			for (int d = 1; d < 4; d++) {
-				RDFGraphKernelExperiment exp = new RDFGraphKernelExperiment(new RDFWLSubTreeSlashBurnKernel(it, d, true, true, true), seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
+				RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, d, false, true, true);
+				k.setHubMap(GraphUtils.createRDFTypeHubMap(ts, false));
+			
+				RDFGraphKernelExperiment exp = new RDFGraphKernelExperiment(k, seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
 
 				System.out.println("Running WL RDF, it: " + it);
 				exp.run();
@@ -170,8 +193,31 @@ public class MoleculeExperiment {
 		}
 		//*/
 		
-		int[] hf = {1,2,3,4,5,6,7,8,9,10};
+		int[] hf = {0,1,2,3,4,5,6,7};
 		
+		for (int h : hf) {
+			for (int i : depths) {			
+				resTable.newRow("RDF WL forward SB " + h);
+				for (int it : iterations) {
+					RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, i, false, true, true);
+					k.setHubMap(GraphUtils.createHubMap(hubs, h));
+
+					//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+					KernelExperiment<RDFGraphKernel> exp = new RDFGraphKernelExperiment(k, seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
+
+
+					System.out.println("Running WL RDF fwd SB: " + i + " " + it + " " + h);
+					exp.run();
+
+					for (Result res : exp.getResults()) {
+						resTable.addResult(res);
+					}	
+				}
+			}
+		}
+		System.out.println(resTable);
+		
+		/*
 		for (int h : hf) {
 			for (int i : depths) {			
 				resTable.newRow("RDF IST SB " + h);
@@ -191,6 +237,7 @@ public class MoleculeExperiment {
 				}
 		}
 		System.out.println(resTable);
+		*/
 
 		
 		
