@@ -100,13 +100,95 @@ public class GraphUtils {
 		return subGraphs;
 	}
 
+	public static List<DTGraph<String,String>> simplifyGraph3Way(DTGraph<String,String> graph, Map<String,Integer> hubMap, List<DTNode<String,String>> instanceNodes, List<List<DTNode<String,String>>> newInstanceNodes) {
+		DTGraph<String,String> newGraphLi = new MapDTGraph<String,String>();
+		DTGraph<String,String> newGraphLa = new MapDTGraph<String,String>();
+		DTGraph<String,String> newGraphLiLa = new MapDTGraph<String,String>();
+		List<DTNode<String,String>> ninLi = new ArrayList<DTNode<String,String>>(instanceNodes.size());
+		List<DTNode<String,String>> ninLa = new ArrayList<DTNode<String,String>>(instanceNodes.size());
+		List<DTNode<String,String>> ninLiLa = new ArrayList<DTNode<String,String>>(instanceNodes.size());
+		newInstanceNodes.add(ninLi);
+		newInstanceNodes.add(ninLa);
+		newInstanceNodes.add(ninLiLa);
+		for (int i = 0; i < instanceNodes.size(); i++) {
+			ninLi.add(instanceNodes.get(i));
+			ninLa.add(instanceNodes.get(i));
+			ninLiLa.add(instanceNodes.get(i));
+		}
+		
+		Set<DTLink<String,String>> toRemoveLinks = new HashSet<DTLink<String,String>>();
+
+		Map<DTNode<String,String>,Integer> iNodeMap = new HashMap<DTNode<String,String>,Integer>();	
+		for (int i = 0; i < instanceNodes.size(); i++) {
+			iNodeMap.put(instanceNodes.get(i), i);
+		}	
+		
+		for (DTNode<String,String> node : graph.nodes()) {
+			String newLabel = null;
+			int lowestDepth = 0;
+			DTLink<String,String> remLink = null;;
+			for (DTLink<String,String> inLink : node.linksIn()) {
+				String rel = inLink.from().label() + inLink.tag();
+				if (hubMap.containsKey(rel) && hubMap.get(rel) >= lowestDepth) {
+					newLabel = rel;
+					lowestDepth = hubMap.get(rel);
+					remLink = inLink;
+				}
+			}
+			for (DTLink<String,String> outLink : node.linksOut()) {
+				String rel = outLink.tag() + outLink.to().label();
+				if (hubMap.containsKey(rel) && hubMap.get(rel) >= lowestDepth) {
+					newLabel = rel;
+					lowestDepth = hubMap.get(rel);
+					remLink = outLink;
+				}
+			}
+			if (newLabel == null) {
+				newLabel = node.label();
+			} 
+			DTNode<String,String> newLi = newGraphLi.add(node.label());
+			DTNode<String,String> newLa = newGraphLa.add(newLabel);
+			DTNode<String,String> newLiLa = newGraphLiLa.add(newLabel);
+
+			if (iNodeMap.containsKey(node)) { // We also need to replace the instance nodes with new instance nodes in the simplified graph
+				ninLi.set(iNodeMap.get(node), newLi);
+				ninLa.set(iNodeMap.get(node), newLa);
+				ninLiLa.set(iNodeMap.get(node), newLiLa);
+			}
+			
+			if (remLink != null) {
+				toRemoveLinks.add(remLink);
+			}
+		}
+
+		for(DTLink<String,String> link : graph.links()) {
+			int a = link.from().index();
+			int b = link.to().index();
+
+			if (!toRemoveLinks.contains(link)) {
+				newGraphLi.nodes().get(a).connect(newGraphLi.nodes().get(b), link.tag());
+				newGraphLiLa.nodes().get(a).connect(newGraphLiLa.nodes().get(b), link.tag());
+			}
+			newGraphLa.nodes().get(a).connect(newGraphLa.nodes().get(b), link.tag());
+		}
+		List<DTGraph<String,String>> ret = new ArrayList<DTGraph<String,String>>();
+		ret.add(newGraphLi);
+		ret.add(newGraphLa);
+		ret.add(newGraphLiLa);
+		return ret;
+	}
+
 
 
 	public static DTGraph<String,String> simplifyGraph(DTGraph<String,String> graph, Map<String,Integer> hubMap, List<DTNode<String,String>> instanceNodes, boolean relabel, boolean removeLinks) {
 		DTGraph<String,String> newGraph = new MapDTGraph<String,String>();
-		Map<DTNode<String,String>,DTNode<String,String>> nodeMap = new HashMap<DTNode<String,String>,DTNode<String,String>>();
 		Set<DTLink<String,String>> toRemoveLinks = new HashSet<DTLink<String,String>>();
 
+		Map<DTNode<String,String>,Integer> iNodeMap = new HashMap<DTNode<String,String>,Integer>();	
+		for (int i = 0; i < instanceNodes.size(); i++) {
+			iNodeMap.put(instanceNodes.get(i), i);
+		}	
+		
 		for (DTNode<String,String> node : graph.nodes()) {
 			String newLabel = null;
 			int lowestDepth = 0;
@@ -132,16 +214,14 @@ public class GraphUtils {
 			} else if (!relabel) {
 				newLabel = node.label();
 			}
-			nodeMap.put(node, newGraph.add(newLabel));
-
+			DTNode<String,String> newN = newGraph.add(newLabel);
+			if (iNodeMap.containsKey(node)) { // We also need to replace the instance nodes with new instance nodes in the simplified graph
+				instanceNodes.set(iNodeMap.get(node), newN);
+			}
+			
 			if (remLink != null && removeLinks) {
 				toRemoveLinks.add(remLink);
 			}
-		}
-
-		// We also need to replace the instance nodes with new instance nodes in the simplified graph
-		for (int i = 0; i < instanceNodes.size(); i++) {
-			instanceNodes.set(i, nodeMap.get(instanceNodes.get(i)));
 		}
 
 		for(DTLink<String,String> link : graph.links()) {
