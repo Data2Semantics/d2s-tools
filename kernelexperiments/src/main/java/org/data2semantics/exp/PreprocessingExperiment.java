@@ -65,13 +65,13 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 	public static void main(String[] args) {
 
-		for (int i = 3; i < 4; i++) {
+		for (int i = 0; i < 4; i++) {
 			switch (i) {
 			case 0: createAffiliationPredictionDataSet(AIFB, 1); break;
 			case 1: createCommitteeMemberPredictionDataSet(); break;
-			case 2: createTask2DataSet(TASK2, 1,11); break;
-			case 3: dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+			case 2: dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
 			createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis"); break;
+			case 3: createTask2DataSet(TASK2, 1,11); break;
 			}
 			experiment();
 		}
@@ -104,17 +104,20 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		//-------
 		//Data graph, with the label information
-		List<Statement> allStmts = GraphUtils.getStatements4Depth(dataset, instances, 3, false);
-		List<Statement> allStmts2 = dataset.getStatements(null, null, null, false);
-		System.out.println("reduced: " + allStmts.size() + ", full: " + allStmts2.size());
-		
-		allStmts.removeAll(blackList);
-		DTGraph<String,String> sGraph = org.nodes.data.RDF.createDirectedGraph(allStmts, null, null);
-		System.out.println("Total nodes: " + sGraph.nodes().size());
+		List<Statement> allStmts3 = GraphUtils.getStatements4Depth(dataset, instances, 4, false);
+		List<Statement> allStmts4 = GraphUtils.getStatements4Depth(dataset, instances, 4, false);
+	
+		allStmts3.removeAll(blackList);
+		allStmts4.removeAll(blackList);
+		DTGraph<String,String> graph3 = org.nodes.data.RDF.createDirectedGraph(allStmts3, null, null); //used to generate instances
+		DTGraph<String,String> graph4 = org.nodes.data.RDF.createDirectedGraph(allStmts4, null, null); //Used to find hubs
+		System.out.println("Total nodes d3: " + graph3.nodes().size() + ", total nodes d4: " + graph4.nodes().size());
 
-		List<DTNode<String,String>> instanceNodes = new ArrayList<DTNode<String,String>>();
+		List<DTNode<String,String>> instanceNodes3 = new ArrayList<DTNode<String,String>>();
+		List<DTNode<String,String>> instanceNodes4 = new ArrayList<DTNode<String,String>>();
 		for (Resource i : instances) {
-			instanceNodes.add(sGraph.node(i.toString()));
+			instanceNodes3.add(graph3.node(i.toString()));
+			instanceNodes4.add(graph4.node(i.toString()));
 		}
 		//--------
 
@@ -124,12 +127,12 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		int maxHubs = 1000;
 
 		// RDF.Type hubs
-		List<DTNode<String,String>> RDFTypeHubs = GraphUtils.getTypeHubs(sGraph);
+		List<DTNode<String,String>> RDFTypeHubs = GraphUtils.getTypeHubs(graph4);
 
 		// Regular Degree
 		Comparator<Node<String>> compRegDeg = new DegreeComparator<String>();
 		MaxObserver<Node<String>> obsRegDeg = new MaxObserver<Node<String>>(maxHubs + instances.size(), compRegDeg);
-		obsRegDeg.observe(sGraph.nodes());
+		obsRegDeg.observe(graph4.nodes());
 		List<DTNode<String,String>> regDegreeHubs = new ArrayList<DTNode<String,String>>();
 		for (Node<String> n : obsRegDeg.elements()) {
 			regDegreeHubs.add((DTNode<String,String>) n);
@@ -138,7 +141,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		// Signature Degree
 		Comparator<DTNode<String,String>> compSigDeg = new SlashBurn.SignatureComparator<String,String>();
 		MaxObserver<DTNode<String,String>> obsSigDeg = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compSigDeg);				
-		obsSigDeg.observe(sGraph.nodes());
+		obsSigDeg.observe(graph4.nodes());
 		List<DTNode<String,String>> sigDegreeHubs = new ArrayList<DTNode<String,String>>(obsSigDeg.elements());
 
 		// Informed Degree
@@ -146,13 +149,13 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		for (double d : target) {
 			classes.add((int) d);
 		}
-		Classified<DTNode<String, String>> classified = Classification.combine(instanceNodes, classes);
+		Classified<DTNode<String, String>> classified = Classification.combine(instanceNodes4, classes);
 
-		InformedAvoidance ia = new InformedAvoidance(sGraph, classified, 3);	
+		InformedAvoidance ia = new InformedAvoidance(graph4, classified, 3);	
 
 		Comparator<DTNode<String, String>> compUnInformed = ia.uninformedComparator(3);
 		MaxObserver<DTNode<String,String>> obsUnInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compUnInformed);
-		obsUnInformed.observe(sGraph.nodes());
+		obsUnInformed.observe(graph4.nodes());
 		List<DTNode<String,String>> unInformedDegreeHubs = new ArrayList<DTNode<String,String>>(obsUnInformed.elements());
 
 		Iterator<DTNode<String, String>> ite = unInformedDegreeHubs.iterator();
@@ -162,7 +165,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(3);
 		MaxObserver<DTNode<String,String>> obsInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compInformed);
-		obsInformed.observe(sGraph.nodes());
+		obsInformed.observe(graph4.nodes());
 		List<DTNode<String,String>> informedDegreeHubs = new ArrayList<DTNode<String,String>>(obsInformed.elements());
 
 		ite = informedDegreeHubs.iterator();
@@ -176,7 +179,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		for (Resource r : instances) {
 			is.add(r.toString());
 		}
-		for (DTNode<String,String> n : sGraph.nodes()) {
+		for (DTNode<String,String> n : graph4.nodes()) {
 			if (is.contains(n.label())) {
 				rn.add(n);
 			}
@@ -198,19 +201,20 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-		//	int[] hubThs = {20};
-
-		int[] iterations = {0,1,2,3,4,5,6};
-
+		//int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+			int[] hubThs = {20};
+		
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
 
+		/*
+		int[] iterations = {0,1,2,3,4,5,6};
+		
 		for (int i : iterations) {
 			resTable.newRow("Baseline: " + i);
-			List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
+			List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
 
 			exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(i, true, forward), 
-					seeds, svmParms, GraphUtils.getSubGraphs(sGraph, newIN, depth), target, evalFuncs);
+					seeds, svmParms, GraphUtils.getSubGraphs(graph3, newIN, depth), target, evalFuncs);
 
 			System.out.println("running baseline, it: " + i);
 			exp.run();
@@ -220,19 +224,23 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
+		*/
 
 		for (int th : hubThs) {
 			resTable.newRow("Hub Threshold: " + th);
 
 			for (List<DTNode<String,String>> hubList : hubLists) {
 
+				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
+				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList, th), instanceNodes3, newIN);
+				
 				///*
-				List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-				DTGraph<String,String> newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, false, true);
-				System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + sGraph.numLinks());
+				//List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
+				//DTGraph<String,String> newG = GraphUtils.simplifyGraph(graph3, GraphUtils.createHubMap(hubList, th), newIN, false, true);
+				//System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + graph3.numLinks());
 				
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
-						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
+						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(0), newIN.get(0), depth), target, evalFuncs);
 
 				System.out.println("running, remove hubs, th: " + th);
 				exp.run();
@@ -241,12 +249,12 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 					resTable.addResult(res);
 				}
 
-				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, false);
-				System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + sGraph.numLinks());
+				//newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
+				//newG = GraphUtils.simplifyGraph(graph3, GraphUtils.createHubMap(hubList, th), newIN, true, false);
+				//System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + graph3.numLinks());
 				
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
-						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
+						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(1), newIN.get(1), depth), target, evalFuncs);
 
 				System.out.println("running, relabel hubs, th: " + th);
 				exp.run();
@@ -255,12 +263,12 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 					resTable.addResult(res);
 				}
 
-				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, true);
-				System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + sGraph.numLinks());
+				//newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
+				//newG = GraphUtils.simplifyGraph(graph3, GraphUtils.createHubMap(hubList, th), newIN, true, true);
+				//System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + graph3.numLinks());
 
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
-						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
+						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(2), newIN.get(2), depth), target, evalFuncs);
 
 				System.out.println("running, relabel+remove hubs, th: " + th);
 				exp.run();
