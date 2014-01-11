@@ -513,7 +513,7 @@
   <rdf:Description rdf:about="http://data.semanticweb.org/conference/iswc/2012/complete">
     <dgtwc:number_of_triples rdf:datatype="http://www.w3.org/2001/XMLSchema#long">16795</dgtwc:number_of_triples>
     <dcterms:creator rdf:resource="http://data.semanticweb.org/person/li-ding"/>
-    <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-11-11T16:37:43-0800</dcterms:modified>
+    <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-11-11T16:37:43-08:00</dcterms:modified>
     <dcterms:hasVersion>iswc2012 metadata v20121111</dcterms:hasVersion>
     <rdf:type rdf:resource="http://data-gov.tw.rpi.edu/2009/data-gov-twc.rdf#Dataset"/>
   </rdf:Description>

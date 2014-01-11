@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.SparseVector;
@@ -181,7 +182,18 @@ public class LibSVM {
 		return pred;
 	}
 
+	
+	/**
+	 * Replacement for the crossvalidate function in LibSVM itself, since we cannot control the splits there.
+	 * We assume that the instance list is randomized
+	 * 
+	 * @param prob
+	 * @param svmParams
+	 * @param folds
+	 * @return
+	 */
 	private static Prediction[] crossValidate(svm_problem prob, svm_parameter svmParams, int folds) {
+		//return new LibSVMModel(svm.svm_train(svmProb, svmParams));	
 		double[] prediction = new double[prob.l];
 		svm.svm_cross_validation(prob, svmParams, folds, prediction);
 		Prediction[] pred2 = new Prediction[prob.l];

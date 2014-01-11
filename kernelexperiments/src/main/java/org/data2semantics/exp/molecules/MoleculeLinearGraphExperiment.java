@@ -44,6 +44,7 @@ public class MoleculeLinearGraphExperiment<G> extends KernelExperiment<LinearMol
 			double[] resA = new double[seeds.length];
 			res.setLabel(evalFunc.getLabel());
 			res.setScores(resA);
+			res.setHigherIsBetter(evalFunc.isHigherIsBetter());
 			results.add(res);
 			resultMap.put(evalFunc, resA);
 		}

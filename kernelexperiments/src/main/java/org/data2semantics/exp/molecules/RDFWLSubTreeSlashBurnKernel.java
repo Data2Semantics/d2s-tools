@@ -58,7 +58,9 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 	private boolean ignoreLiterals;
 	private boolean reverse;
 
-	
+	private boolean relabel;
+
+
 	public RDFWLSubTreeSlashBurnKernel(int iterations, int depth, boolean inference, boolean normalize, boolean reverse) {
 		this(iterations, depth, inference, normalize);
 		this.reverse = reverse;
@@ -77,7 +79,8 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 		this.instanceEdgeIndexMap = new HashMap<String, Map<DTLink<MapLabel,MapLabel>, Integer>>();
 
 		this.hubMap = new HashMap<String,Integer>();
-		
+		this.relabel = true;
+
 		startLabel = 1; // start at 1, since featureVectors need to start at index 1
 		labelCounter = 2;
 
@@ -99,7 +102,7 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 		this.normalize = normalize;
 	}
 
-	
+
 	public void setHubMap(Map<String,Integer> hm) {
 		hubMap = hm;
 	}
@@ -110,6 +113,10 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 
 	public void setReverse(boolean reverse) {
 		this.reverse = reverse;
+	}
+
+	public void setRelabel(boolean re) {
+		this.relabel = re;
 	}
 
 	public Map<String,String> getInverseLabelMap() {
@@ -127,76 +134,7 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 			featureVectors[i] = new SparseVector();
 		}	
 
-		DTGraph<MapLabel,MapLabel> graph = createGraphFromRDF(dataset, instances, blackList);
-
-		/*
-		// --- SlashBurn baby!
-		DTGraph<String,String> sGraph = copy2StringLabeledGraph(graph);
-		List<DTNode<String,String>> hubs = SlashBurn.getHubs(sGraph, (int) Math.round(0.05 * sGraph.nodes().size()), true);
-
-		// Remove hubs from list that are root nodes
-		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
-		Set<String> is = new HashSet<String>();
-		for (Resource r : instances) {
-			is.add(labelMap.get(r.toString()));
-		}
-		for (DTNode<String,String> hub : hubs) {
-			if (is.contains(hub.label())) {
-				rn.add(hub);
-			}
-		}
-		hubs.removeAll(rn);
-
-		List<DTLink<MapLabel,MapLabel>> toRemove = new ArrayList<DTLink<MapLabel,MapLabel>>();
-		int index = 0;
-		hubThreshold = Math.min(hubThreshold, hubs.size());
-		System.out.println("Removing " + hubThreshold + " hubs.");
-
-		while (index < hubThreshold) {
-			Pair<Dir,String> sig = SlashBurn.primeSignature(hubs.get(index));
-			String newLabel = "";
-
-			DTNode<MapLabel,MapLabel> hubN = graph.get(hubs.get(index).index());
-			Collection<? extends DTLink<MapLabel,MapLabel>> links;
-			if (sig.first() == Dir.IN) {
-				links = hubN.linksIn();
-				newLabel = sig.second() + "_" + hubs.get(index).label();
-			} else {
-				links = hubN.linksOut();
-				newLabel = hubs.get(index).label() + "_" + sig.second();
-			}			
-			if (!labelMap.containsKey(newLabel)) {
-				labelMap.put(newLabel, Integer.toString(labelCounter));
-				labelCounter++;
-			}
-			newLabel = labelMap.get(newLabel);
-
-			for (DTLink<MapLabel,MapLabel> link : links) {
-				Set<Integer> keys = link.tag().keySet();
-				for (int key : keys) {
-					if (link.tag().get(key).toString().equals(sig.second())) { // If the label is equal, then this is a link to cut
-						toRemove.add(link);
-						if (sig.first() == Dir.IN) {
-							for (int depth : link.from().label().keySet()) {
-								link.from().label().put(depth, new StringBuilder(newLabel));
-							}
-						} else {
-							for (int depth : link.to().label().keySet()) {
-								link.to().label().put(depth, new StringBuilder(newLabel));
-							}
-						}
-					}
-				}
-			}
-			index++;
-		}
-		for (DTLink<MapLabel,MapLabel> l : toRemove) {
-			l.remove();
-		}
-		// --- End SlashBurn
-		*/
-
-
+		DTGraph<MapLabel,MapLabel> graph = createGraphFromRDF(dataset, instances, new HashSet<Statement>(blackList));
 		// separate method to remove root labels, because slash burn will also do this in a different way, we want to play with this.
 		//removeRootLabels(instances);
 
@@ -227,7 +165,7 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 	}
 
 
-	private DTGraph<MapLabel,MapLabel> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, List<Statement> blackList) {
+	private DTGraph<MapLabel,MapLabel> createGraphFromRDF(RDFDataSet dataset, List<Resource> instances, Set<Statement> blackList) {
 		Map<String, DTNode<MapLabel,MapLabel>> literalMap = new HashMap<String, DTNode<MapLabel,MapLabel>>();
 		Map<String, DTNode<MapLabel,MapLabel>> vertexMap = new HashMap<String, DTNode<MapLabel,MapLabel>>();
 		Map<String, DTLink<MapLabel,MapLabel>> edgeMap = new HashMap<String, DTLink<MapLabel,MapLabel>>();
@@ -268,92 +206,99 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 					result = dataset.getStatements(queryNode, null, null, inference);
 
 					for (Statement stmt : result) {
-						newV = null;
+						if (!blackList.contains(stmt)) { // relation should not be in the blacklist
+							newV = null;
 
-						// check for In link Hub
-						idStr = stmt.getPredicate().toString() + stmt.getObject().toString();
-						if (hubMap.containsKey(idStr)) {
-							DTNode<MapLabel,MapLabel> sn = vertexMap.get(stmt.getSubject().toString());
-							if (rewriteMap.get(sn) == null || rewriteMap.get(sn) < hubMap.get(idStr)) { // hub is non-existent or on deeper level, then change label
-								if (!labelMap.containsKey(idStr)) {
-									labelMap.put(idStr, Integer.toString(labelCounter));
-									labelCounter++;
-								}
-								sn.label().put(i+1, new StringBuilder(labelMap.get(idStr)));
-							} 
-						} else { // if not an IN link hub, then we can at least add the object as a regular vertex
-
-							if (stmt.getObject() instanceof Literal) { // literal
-								if (!ignoreLiterals) { // do nothing if we ignore literals, if's are nested, because we do not want to go to the non-literal stage
-									idStr = stmt.toString();
-									idStr2 = stmt.getObject().toString();
-
-									if (literalMap.containsKey(idStr)) {
-										newV = literalMap.get(idStr);				 
-										newV.label().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this vertex
-									} else {
-										newV = graph.add(new MapLabel());
-										if (!labelMap.containsKey(idStr2)) { 
-											labelMap.put(idStr2, Integer.toString(labelCounter));
-											labelCounter++;
-										}
-										newV.label().put(i, new StringBuilder(labelMap.get(idStr2)));
-										literalMap.put(idStr, newV);
-									}
-								}
-							} else { // Non-literal
-								idStr = stmt.getObject().toString();
-								if (vertexMap.containsKey(idStr)) { // existing vertex
-									newV = vertexMap.get(idStr);				 
-									newV.label().put(i, new StringBuilder(labelMap.get(idStr))); // Set the label for depth i to the already existing label for this vertex
-								} else { // New vertex
-									newV = graph.add(new MapLabel());
-									labelMap.put(idStr, Integer.toString(labelCounter));
-									newV.label().put(i, new StringBuilder(Integer.toString(labelCounter)));
-									labelCounter++;
-									vertexMap.put(idStr, newV);
-								}
-							}
-
-							// Check for Out link hub
-							idStr = stmt.getSubject().toString() + stmt.getPredicate().toString();
+							// check for In link Hub
+							idStr = stmt.getPredicate().toString() + stmt.getObject().toString();
 							if (hubMap.containsKey(idStr)) {
-								if (rewriteMap.get(newV) == null || rewriteMap.get(newV) < hubMap.get(idStr)) { // hub is non-existent or on deeper level, then change label
-									if (!labelMap.containsKey(idStr)) {
-										labelMap.put(idStr, Integer.toString(labelCounter));
-										labelCounter++;
-									}
-									newV.label().put(i, new StringBuilder(labelMap.get(idStr)));
-
-									//System.out.println("removed OUT hub: " + idStr);
-								}
-							} else { // if not an Out link hub, then we can also add the edge
-
-								// Process new Edge
-								if (newV != null) { // need a check, because vertex might have been an ignored literal
-									idStr = stmt.toString();
-									idStr2 = stmt.getPredicate().toString();
-									if (edgeMap.containsKey(idStr)) { // existing edge
-										newE = edgeMap.get(idStr);
-										newE.tag().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this edge
-
-									} else { // new edge
-										if (!labelMap.containsKey(idStr2)) { // Edge labels are not unique, in contrast to vertex labels, thus we need to check whether it exists already
-											labelMap.put(idStr2, Integer.toString(labelCounter));
+								if (relabel) {
+									DTNode<MapLabel,MapLabel> sn = vertexMap.get(stmt.getSubject().toString());
+									if (rewriteMap.get(sn) == null || rewriteMap.get(sn) < hubMap.get(idStr)) { // hub is non-existent or on deeper level, then change label
+										if (!labelMap.containsKey(idStr)) {
+											labelMap.put(idStr, Integer.toString(labelCounter));
 											labelCounter++;
 										}
-										newE = vertexMap.get(stmt.getSubject().toString()).connect(newV, new MapLabel());
-										newE.tag().put(i, new StringBuilder(labelMap.get(idStr2)));
-										edgeMap.put(idStr, newE);	
+										sn.label().put(i+1, new StringBuilder(labelMap.get(idStr)));
+									} 
+								}
+							} else { // if not an IN link hub, then we can at least add the object as a regular vertex
+
+								if (stmt.getObject() instanceof Literal) { // literal
+									if (!ignoreLiterals) { // do nothing if we ignore literals, if's are nested, because we do not want to go to the non-literal stage
+										idStr = stmt.toString();
+										idStr2 = stmt.getObject().toString();
+
+										if (literalMap.containsKey(idStr)) {
+											newV = literalMap.get(idStr);				 
+											newV.label().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this vertex
+										} else {
+											newV = graph.add(new MapLabel());
+											if (!labelMap.containsKey(idStr2)) { 
+												labelMap.put(idStr2, Integer.toString(labelCounter));
+												labelCounter++;
+											}
+											newV.label().put(i, new StringBuilder(labelMap.get(idStr2)));
+											literalMap.put(idStr, newV);
+										}
 									}
+								} else { // Non-literal
+									idStr = stmt.getObject().toString();
+									if (vertexMap.containsKey(idStr)) { // existing vertex
+										newV = vertexMap.get(idStr);				 
+										newV.label().put(i, new StringBuilder(labelMap.get(idStr))); // Set the label for depth i to the already existing label for this vertex
+									} else { // New vertex
+										newV = graph.add(new MapLabel());
+										labelMap.put(idStr, Integer.toString(labelCounter));
+										newV.label().put(i, new StringBuilder(Integer.toString(labelCounter)));
+										labelCounter++;
+										vertexMap.put(idStr, newV);
+									}
+								}
+
+								// Check for Out link hub
+								idStr = stmt.getSubject().toString() + stmt.getPredicate().toString();
+								if (hubMap.containsKey(idStr)) {
+									if (relabel) {
+										if (rewriteMap.get(newV) == null || rewriteMap.get(newV) < hubMap.get(idStr)) { // hub is non-existent or on deeper level, then change label
+											if (!labelMap.containsKey(idStr)) {
+												labelMap.put(idStr, Integer.toString(labelCounter));
+												labelCounter++;
+											}
+											newV.label().put(i, new StringBuilder(labelMap.get(idStr)));
+
+											//System.out.println("removed OUT hub: " + idStr);
+										}
+									}
+								} else { // if not an Out link hub, then we can also add the edge
+
+									// Process new Edge
+									if (newV != null) { // need a check, because vertex might have been an ignored literal
+										idStr = stmt.toString();
+										idStr2 = stmt.getPredicate().toString();
+										if (edgeMap.containsKey(idStr)) { // existing edge
+											newE = edgeMap.get(idStr);
+											newE.tag().put(i, new StringBuilder(labelMap.get(idStr2))); // Set the label for depth i to the already existing label for this edge
+
+										} else { // new edge
+											if (!labelMap.containsKey(idStr2)) { // Edge labels are not unique, in contrast to vertex labels, thus we need to check whether it exists already
+												labelMap.put(idStr2, Integer.toString(labelCounter));
+												labelCounter++;
+											}
+											newE = vertexMap.get(stmt.getSubject().toString()).connect(newV, new MapLabel());
+											newE.tag().put(i, new StringBuilder(labelMap.get(idStr2)));
+											edgeMap.put(idStr, newE);	
+										}
+									}
+								}
+
+
+								// Store the object nodes if the loop continues (i>0) and if its a Resource
+								if (i > 0 && stmt.getObject() instanceof Resource) {
+									newQueryNodes.add((Resource) stmt.getObject());
 								}
 							}
 
-
-							// Store the object nodes if the loop continues (i>0) and if its a Resource
-							if (i > 0 && stmt.getObject() instanceof Resource) {
-								newQueryNodes.add((Resource) stmt.getObject());
-							}
 						}
 					}
 				}
@@ -362,12 +307,6 @@ public class RDFWLSubTreeSlashBurnKernel implements RDFGraphKernel, RDFFeatureVe
 			}		
 		}
 
-		// Remove edges for statements on the blackList
-		for (Statement stmt : blackList) {
-			if (edgeMap.containsKey(stmt.toString())) {
-				edgeMap.get(stmt.toString()).remove();
-			}
-		}
 		return graph;
 	}
 

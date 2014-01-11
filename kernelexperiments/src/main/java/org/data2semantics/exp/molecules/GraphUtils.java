@@ -43,21 +43,121 @@ import org.openrdf.model.vocabulary.RDF;
 public class GraphUtils {
 	public static final String NAMESPACE = "http://www.data2semantics.org/molecule/";
 
-	public static Map<String,Integer> createHubMap(List<DTNode<String,String>> hubs, int th) {
-		Map<String,Integer> hubMap = new HashMap<String,Integer>();		
-		for (int i = 0; i < hubs.size() && i < th; i++) {
-			org.nodes.util.Pair<Dir,String> sig = SlashBurn.primeSignature(hubs.get(i));
-			
-			if (sig.first() == Dir.IN) {
-				hubMap.put(sig.second() + hubs.get(i).label(), i);	
-				System.out.println("Removing: " + sig.second() + " -> " + hubs.get(i).label());
-			} else {
-				hubMap.put(hubs.get(i).label() + sig.second(), i);
-				System.out.println("Removing: " + hubs.get(i).label() + " -> " + sig.second());
-			}	
+	public static List<DTGraph<String,String>> getSubGraphs(DTGraph<String,String> graph, List<DTNode<String,String>> instances, int depth) {
+		List<DTGraph<String,String>> subGraphs = new ArrayList<DTGraph<String,String>>();
+		Map<DTNode<String,String>,DTNode<String,String>> nodeMap;
+		Map<DTLink<String,String>,DTLink<String,String>> linkMap;
+		List<DTNode<String,String>> searchNodes, newSearchNodes;
+		
+		for (DTNode<String,String> startNode : instances) {
+			DTGraph<String,String> newGraph = new MapDTGraph<String,String>();
+			searchNodes = new ArrayList<DTNode<String,String>>();
+			searchNodes.add(startNode);
+			nodeMap = new HashMap<DTNode<String,String>,DTNode<String,String>>();
+			linkMap = new HashMap<DTLink<String,String>,DTLink<String,String>>();
+			for (int i = 0; i < depth; i++) {
+				newSearchNodes = new ArrayList<DTNode<String,String>>();
+				for (DTNode<String,String> node : searchNodes) {
+					for (DTLink<String,String> link : node.linksOut()) {
+						if (!nodeMap.containsKey(link.from())) {
+							nodeMap.put(link.from(), newGraph.add(link.from().label()));
+						}
+						if (!nodeMap.containsKey(link.to())) {
+							nodeMap.put(link.to(), newGraph.add(link.to().label()));
+							newSearchNodes.add(link.to());
+						}
+						if (!linkMap.containsKey(link)) {
+							linkMap.put(link, nodeMap.get(link.from()).connect(nodeMap.get(link.to()), link.tag()));
+						}
+					}
+				}
+				searchNodes = newSearchNodes;
+			}
+			subGraphs.add(newGraph);
 		}
-		System.out.println("Total hubs: " + hubMap.size());
-		return hubMap;
+		return subGraphs;
+	}
+	
+	
+	
+	public static DTGraph<String,String> simplifyGraph(DTGraph<String,String> graph, Map<String,Integer> hubMap, List<DTNode<String,String>> instanceNodes, boolean relabel, boolean removeLinks) {
+		DTGraph<String,String> newGraph = new MapDTGraph<String,String>();
+		Map<DTNode<String,String>,DTNode<String,String>> nodeMap = new HashMap<DTNode<String,String>,DTNode<String,String>>();
+		Set<DTLink<String,String>> toRemoveLinks = new HashSet<DTLink<String,String>>();
+		
+		for (DTNode<String,String> node : graph.nodes()) {
+			String newLabel = null;
+			int lowestDepth = 0;
+			DTLink<String,String> remLink = null;;
+			for (DTLink<String,String> inLink : node.linksIn()) {
+				String rel = inLink.from().label() + inLink.tag();
+				if (hubMap.containsKey(rel) && hubMap.get(rel) >= lowestDepth) {
+					newLabel = rel;
+					lowestDepth = hubMap.get(rel);
+					remLink = inLink;
+				}
+			}
+			for (DTLink<String,String> outLink : node.linksOut()) {
+				String rel = outLink.tag() + outLink.to().label();
+				if (hubMap.containsKey(rel) && hubMap.get(rel) >= lowestDepth) {
+					newLabel = rel;
+					lowestDepth = hubMap.get(rel);
+					remLink = outLink;
+				}
+			}
+			if (!relabel || newLabel == null) {
+				newLabel = node.label();
+			}
+			nodeMap.put(node, newGraph.add(newLabel));
+			
+			if (remLink != null && removeLinks) {
+				toRemoveLinks.add(remLink);
+			}
+		}
+		
+		for (int i = 0; i < instanceNodes.size(); i++) {
+			instanceNodes.set(i, nodeMap.get(instanceNodes.get(i)));
+		}
+		
+		for(DTLink<String,String> link : graph.links()) {
+			int a = link.from().index();
+			int b = link.to().index();
+			
+			if (!toRemoveLinks.contains(link)) {
+				newGraph.nodes().get(a).connect(newGraph.nodes().get(b), link.tag());
+			}
+		}
+		return newGraph;
+	}
+	
+	public static List<DTNode<String,String>> getTypeHubs(DTGraph<String,String> graph) {
+		List<DTNode<String,String>> typeNodes = new ArrayList<DTNode<String,String>>();
+		Map<DTNode<String,String>, Integer> countMap = new HashMap<DTNode<String,String>,Integer>();
+		
+		for (DTLink<String,String> link : graph.links()) {
+			if (link.tag().equals(RDF.TYPE.toString())) {
+				if (!countMap.containsKey(link.to())) {
+					countMap.put(link.to(), 0);
+					typeNodes.add(link.to());
+				} else {
+					countMap.put(link.to(), countMap.get(link.to())+1);
+				}
+			}
+		}
+		Collections.sort(typeNodes, new TypeNodeComparator(countMap));
+		Collections.reverse(typeNodes);
+		return typeNodes;
+	}
+	
+	static class TypeNodeComparator implements Comparator<DTNode<String,String>> {
+		private Map<DTNode<String,String>,Integer> cm;
+		
+		public TypeNodeComparator(Map<DTNode<String,String>,Integer> countMap) {
+			cm = countMap;		
+		}
+		public int compare(DTNode<String, String> o1, DTNode<String, String> o2) {
+			return cm.get(o1) - cm.get(o2);
+		}	
 	}
 	
 	public static Map<String,Integer> createRDFTypeHubMap(RDFDataSet ts, boolean inference) {
@@ -83,22 +183,36 @@ public class GraphUtils {
 		return hubMap;
 	}
 	
-	public static Map<String,Integer> createDegreeHubMap(List<? extends DTNode<String,String>> nodes, int th) {
+	public static Map<String,Integer> createNonSigHubMap(List<DTNode<String,String>> hubs, int th) {
 		Map<String,Integer> hubMap = new HashMap<String,Integer>();
-		Comparator<DTNode<String,String>> comp = new SlashBurn.SignatureComparator<String,String>();
-		MaxObserver<DTNode<String,String>> obs = new MaxObserver<DTNode<String,String>>(th, comp);
-		obs.observe(nodes);
-		int i = 0;
-		for (DTNode<String,String> n : obs.elements()) {
-			Pair<Dir,String> sig = SlashBurn.primeSignature(n);
-			if (sig.first() == Dir.IN) {
-				hubMap.put(sig.second() + n.label(), i);
-			} else {
-				hubMap.put(n.label() + sig.second(), i);
+			
+		for (int i = 0; i < hubs.size() && i < th; i++) {
+			for (DTLink<String,String> e : hubs.get(i).linksIn()) {
+				hubMap.put(e.tag() + hubs.get(i).label(), i);
 			}
-			i++;		
+			for (DTLink<String,String> e : hubs.get(i).linksOut()) {
+				hubMap.put(hubs.get(i).label() + e.tag(), i);
+			}			
 		}
+		System.out.println("Total hubs: " + hubMap.size());
 	return hubMap;
+	}
+	
+	public static Map<String,Integer> createHubMap(List<DTNode<String,String>> hubs, int th) {
+		Map<String,Integer> hubMap = new HashMap<String,Integer>();		
+		for (int i = 0; i < hubs.size() && i < th; i++) {
+			org.nodes.util.Pair<Dir,String> sig = SlashBurn.primeSignature(hubs.get(i));
+			
+			if (sig.first() == Dir.IN) {
+				hubMap.put(sig.second() + hubs.get(i).label(), i);	
+				//System.out.println("Removing: " + sig.second() + " -> " + hubs.get(i).label());
+			} else {
+				hubMap.put(hubs.get(i).label() + sig.second(), i);
+				//ystem.out.println("Removing: " + hubs.get(i).label() + " -> " + sig.second());
+			}	
+		}
+		System.out.println("Total hubs: " + hubMap.size());
+		return hubMap;
 	}
 	
 

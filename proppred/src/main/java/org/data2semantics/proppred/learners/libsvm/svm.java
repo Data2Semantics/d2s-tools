@@ -1329,7 +1329,12 @@ class svm {
 	// construct and solve various formulations
 	//
 	static final int LIBSVM_VERSION=312; 
-	static final Random rand = new Random();
+	
+	/*
+	 * Edit 08-01-2014, by GKD de Vries
+	 * Change to always use the same random number generator, to always get the same results. 
+	 */
+	static Random rand = new Random(1337);
 
 	static svm_print_interface svm_print_stdout = new svm_print_interface()
 	{
@@ -1776,6 +1781,12 @@ class svm {
 	// Cross-validation decision values for probability estimates
 	private static void svm_binary_svc_probability(svm_problem prob, svm_parameter param, double Cp, double Cn, double[] probAB)
 	{
+		/*
+		 * Edit 08-01-2014, by GKD de Vries
+		 * Change to always use the same random number generator, to always get the same results. 
+		 */
+		rand = new Random(1337);
+		
 		int i;
 		int nr_fold = 5;
 		int[] perm = new int[prob.l];
@@ -2181,6 +2192,12 @@ class svm {
 	// Stratified cross validation
 	static void svm_cross_validation(svm_problem prob, svm_parameter param, int nr_fold, double[] target)
 	{
+		/*
+		 * Edit 08-01-2014, by GKD de Vries
+		 * Change to always use the same random number generator, to always get the same results. 
+		 */
+		rand = new Random(1337);
+		
 		int i;
 		int[] fold_start = new int[nr_fold+1];
 		int l = prob.l;

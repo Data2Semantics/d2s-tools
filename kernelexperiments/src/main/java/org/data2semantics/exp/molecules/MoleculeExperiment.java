@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +28,11 @@ import org.data2semantics.tools.rdf.RDFSingleDataSet;
 import org.nodes.DTGraph;
 import org.nodes.DTLink;
 import org.nodes.DTNode;
+import org.nodes.DegreeComparator;
+import org.nodes.Node;
 import org.nodes.UGraph;
 import org.nodes.algorithms.SlashBurn;
+import org.nodes.util.MaxObserver;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
@@ -58,7 +62,7 @@ public class MoleculeExperiment {
 		//createDataSet(NCI109_DIR, graphs, labels);
 		//createDataSet(DD_DIR, graphs, labels);
 
-		
+
 		// Separate RDF graphs dataset
 		List<List<Statement>> rdfTriples = createMoleculeRDFGraphs(graphs, true);
 		List<DTGraph<String,String>> rdfGraphs = new ArrayList<DTGraph<String,String>>();
@@ -69,7 +73,7 @@ public class MoleculeExperiment {
 		}
 		//*/
 
-		
+
 		// As one RDF graph dataset
 		List<List<Statement>> rdfTriples2 = createMoleculeRDFGraphs(graphs, false);
 		RDFDataSet ts = new RDFSingleDataSet();
@@ -84,9 +88,19 @@ public class MoleculeExperiment {
 			instances.add(stmt.getSubject());
 		}
 
-		
+
 		DTGraph<String,String> sGraph = org.nodes.data.RDF.createDirectedGraph(ts.getStatements(null, null, null, false), null, null);
-		List<DTNode<String,String>> hubs = SlashBurn.getHubs(sGraph, (int) Math.round(0.05 * sGraph.nodes().size()), true);
+		List<DTNode<String,String>> hubs = SlashBurn.getHubs(sGraph, 2, true);
+		// (int) Math.round(0.05 * sGraph.nodes().size())
+		
+	
+		Comparator<Node<String>> comp2 = new DegreeComparator<String>();
+		MaxObserver<Node<String>> obs2 = new MaxObserver<Node<String>>(hubs.size() + instances.size(), comp2);
+		obs2.observe(sGraph.nodes());
+		List<DTNode<String,String>> nonSigDegreeHubs = new ArrayList<DTNode<String,String>>();
+		for (Node<String> n : obs2.elements()) {
+			nonSigDegreeHubs.add((DTNode<String,String>) n);
+		}
 		
 		// Remove hubs from list that are root nodes
 		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
@@ -94,13 +108,17 @@ public class MoleculeExperiment {
 		for (Resource r : instances) {
 			is2.add(r.toString());
 		}
-		for (DTNode<String,String> hub : hubs) {
-			if (is2.contains(hub.label())) {
-				rn.add(hub);
+		for (DTNode<String,String> n : sGraph.nodes()) {
+			if (is2.contains(n.label())) {
+				rn.add(n);
 			}
 		}
 		hubs.removeAll(rn);
+		nonSigDegreeHubs.removeAll(rn);
 		
+		System.out.println(hubs.size() + ": " + hubs);
+		System.out.println(nonSigDegreeHubs.size() + ": " + nonSigDegreeHubs);
+
 
 		/*
 		List<Statement> all = new ArrayList<Statement>();
@@ -118,7 +136,7 @@ public class MoleculeExperiment {
 
 
 		int[] depths = {1,2,3};
-		
+
 
 		//int[] iterations  = {0,1,2,3,4, 5, 6, 7, 8, 9,10};
 		//int[] iterations2 = {0,2,4,6,8,10,12,14,16,18,20};
@@ -141,11 +159,12 @@ public class MoleculeExperiment {
 
 		ResultsTable resTable = new ResultsTable();
 		resTable.setDigits(2);
+		//resTable.setManWU(0.05);
 
 		///*
 		for (int it : iterations) {
 			resTable.newRow("WL, it: " + it);
-			MoleculeLinearGraphExperiment<UGraph<String>> exp = new MoleculeLinearGraphExperiment<UGraph<String>>(new WLUSubTreeKernel(it, true), seeds, linParms, graphs, labels, evalFuncs);
+			MoleculeGraphExperiment<UGraph<String>> exp = new MoleculeGraphExperiment<UGraph<String>>(new WLUSubTreeKernel(it, true), seeds, svmParms, graphs, labels, evalFuncs);
 
 			System.out.println("Running WL, it: " + it);
 			exp.run();
@@ -157,7 +176,7 @@ public class MoleculeExperiment {
 		System.out.println(resTable);
 		//*/
 
-		
+		/*
 		for (int it : iterations2) {
 			resTable.newRow("WL separate RDF, it: " + it);
 			MoleculeLinearGraphExperiment<DTGraph<String,String>> exp = new MoleculeLinearGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, true), seeds, linParms, rdfGraphs, labels, evalFuncs);
@@ -172,14 +191,13 @@ public class MoleculeExperiment {
 		System.out.println(resTable);
 		//*/
 
-
 		
-		for (int it : iterations2) {
-			resTable.newRow("WL RDF, it: " + it);
-			for (int d = 1; d < 4; d++) {
-				RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, d, false, true, true);
-				k.setHubMap(GraphUtils.createRDFTypeHubMap(ts, false));
-			
+		for (int d = 1; d < 4; d++) {
+			for (int it : iterations2) {		
+				resTable.newRow("WL RDF, " + d + ", " + it);
+				
+				RDFWLSubTreeKernel k = new RDFWLSubTreeKernel(it, d, false, true, true, false);
+				
 				RDFGraphKernelExperiment exp = new RDFGraphKernelExperiment(k, seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
 
 				System.out.println("Running WL RDF, it: " + it);
@@ -191,22 +209,42 @@ public class MoleculeExperiment {
 			}
 			System.out.println(resTable);
 		}
+
+
+		for (int d = 1; d < 4; d++) {
+			resTable.newRow("WL RDF type, d " + d);
+			for (int it : iterations2) {		
+
+				RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, d, false, true, true);
+				k.setHubMap(GraphUtils.createRDFTypeHubMap(ts, false));
+
+				RDFGraphKernelExperiment exp = new RDFGraphKernelExperiment(k, seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
+
+				System.out.println("Running WL RDF, type it: " + it);
+				exp.run();
+
+				for (Result res : exp.getResults()) {
+					resTable.addResult(res);
+				}
+			}
+			System.out.println(resTable);
+		}
 		//*/
-		
+
 		int[] hf = {0,1,2,3,4,5,6,7};
-		
+
 		for (int h : hf) {
 			for (int i : depths) {			
-				resTable.newRow("RDF WL forward SB " + h);
-				for (int it : iterations) {
+				resTable.newRow("RDF WL NonSig " + h);
+				for (int it : iterations2) {
 					RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, i, false, true, true);
-					k.setHubMap(GraphUtils.createHubMap(hubs, h));
+					k.setHubMap(GraphUtils.createNonSigHubMap(nonSigDegreeHubs, h));
 
 					//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, target, blackList, evalFuncs);
 					KernelExperiment<RDFGraphKernel> exp = new RDFGraphKernelExperiment(k, seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
 
 
-					System.out.println("Running WL RDF fwd SB: " + i + " " + it + " " + h);
+					System.out.println("Running WL RDF NonSig: " + i + " " + it + " " + h);
 					exp.run();
 
 					for (Result res : exp.getResults()) {
@@ -214,9 +252,32 @@ public class MoleculeExperiment {
 					}	
 				}
 			}
+			System.out.println(resTable);
 		}
-		System.out.println(resTable);
 		
+		for (int h : hf) {
+			for (int i : depths) {			
+				resTable.newRow("RDF WL SB " + h);
+				for (int it : iterations2) {
+					RDFWLSubTreeSlashBurnKernel k = new RDFWLSubTreeSlashBurnKernel(it, i, false, true, true);
+					k.setHubMap(GraphUtils.createHubMap(hubs, h));
+
+					//KernelExperiment<RDFFeatureVectorKernel> exp = new RDFLinearKernelExperiment(k, seeds, linParms, dataset, instances, target, blackList, evalFuncs);
+					KernelExperiment<RDFGraphKernel> exp = new RDFGraphKernelExperiment(k, seeds, svmParms, ts, instances, labels, new ArrayList<Statement>(), evalFuncs);
+
+
+					System.out.println("Running WL RDF SB: " + i + " " + it + " " + h);
+					exp.run();
+
+					for (Result res : exp.getResults()) {
+						resTable.addResult(res);
+					}	
+				}
+			}
+			System.out.println(resTable);
+		}
+
+
 		/*
 		for (int h : hf) {
 			for (int i : depths) {			
@@ -237,10 +298,10 @@ public class MoleculeExperiment {
 				}
 		}
 		System.out.println(resTable);
-		*/
+		 */
 
-		
-		
+
+
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);
 

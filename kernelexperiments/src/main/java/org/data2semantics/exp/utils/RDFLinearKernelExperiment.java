@@ -59,6 +59,7 @@ public class RDFLinearKernelExperiment extends KernelExperiment<RDFFeatureVector
 			Result res = new Result();
 			double[] resA = new double[seeds.length];
 			res.setLabel(evalFunc.getLabel());
+			res.setHigherIsBetter(evalFunc.isHigherIsBetter());
 			res.setScores(resA);
 			results.add(res);
 			resultMap.put(evalFunc, resA);
