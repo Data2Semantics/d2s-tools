@@ -55,7 +55,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 
-public class AffiliationPreAndInstExperiment extends RDFMLExperiment {
+public class PreprocessingExperiment extends RDFMLExperiment {
 	private static String dataFile = "datasets/aifb-fixed_complete.n3";
 
 
@@ -71,7 +71,12 @@ public class AffiliationPreAndInstExperiment extends RDFMLExperiment {
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
 
 		
-		createAffiliationPredictionDataSet(1);
+		//createAffiliationPredictionDataSet(1);		
+		//createCommitteeMemberPredictionDataSet();
+		
+		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+		createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
+
 
 		// --------------
 		// Learning Algorithm settings
@@ -91,7 +96,7 @@ public class AffiliationPreAndInstExperiment extends RDFMLExperiment {
 		//---------
 		// Results Table
 		ResultsTable resTable = new ResultsTable();
-		resTable.setDigits(2);
+		resTable.setDigits(3);
 		//---------
 
 		//-------
@@ -138,7 +143,7 @@ public class AffiliationPreAndInstExperiment extends RDFMLExperiment {
 		Classified<DTNode<String, String>> classified = Classification.combine(instanceNodes, classes);
 
 		InformedAvoidance ia = new InformedAvoidance(sGraph, classified, 3);		 
-		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(3);
+		Comparator<DTNode<String, String>> compInformed = ia.uninformedComparator(3);
 		MaxObserver<DTNode<String,String>> obsInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compInformed);
 		obsInformed.observe(sGraph.nodes());
 		List<DTNode<String,String>> informedDegreeHubs = new ArrayList<DTNode<String,String>>(obsInformed.elements());
@@ -165,17 +170,35 @@ public class AffiliationPreAndInstExperiment extends RDFMLExperiment {
 		hubLists.add(RDFTypeHubs);
 		hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
-		hubLists.add(informedDegreeHubs);
+		//hubLists.add(informedDegreeHubs);
 
 
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-	//	int[] hubThs = {100};
+	//	int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		int[] hubThs = {16,17,18,19,20};
 
+		int[] iterations = {0,1,2,3,4,5,6};
 		
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
+		
+		for (int i : iterations) {
+			resTable.newRow("Baseline: " + i);
+			List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
+			
+			exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(i, true, forward), 
+					seeds, svmParms, GraphUtils.getSubGraphs(sGraph, newIN, depth), target, evalFuncs);
+
+			System.out.println("running baseline, it: " + i);
+			exp.run();
+			
+			for (Result res : exp.getResults()) {
+				resTable.addResult(res);
+			}
+		}
+		System.out.println(resTable);
+		
 		for (int th : hubThs) {
 			resTable.newRow("Hub Threshold: " + th);
 
@@ -325,5 +348,50 @@ public class AffiliationPreAndInstExperiment extends RDFMLExperiment {
 		System.out.println(LibSVM.computeClassCounts(LibSVM.createTargets(labels, labelMap)));
 		System.out.println(labelMap);
 	}
+	
+	private static void createCommitteeMemberPredictionDataSet() {
+		RDFFileDataSet testSetA = new RDFFileDataSet("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/eswc-2011-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/eswc-2012-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/eswc-2008-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/eswc-2009-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/iswc-2012-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
+		testSetA.addFile("datasets/iswc-2010-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/iswc-2009-complete.rdf", RDFFormat.RDFXML);
+		//testSetA.addFile("datasets/iswc-2008-complete.rdf", RDFFormat.RDFXML);
+
+		RDFFileDataSet testSetB = new RDFFileDataSet("datasets/iswc-2012-complete.rdf", RDFFormat.RDFXML);
+
+		instances = new ArrayList<Resource>();
+		List<Resource> instancesB = new ArrayList<Resource>();
+		labels = new ArrayList<Value>();
+		List<Statement> stmts = testSetA.getStatementsFromStrings(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Person");
+		for (Statement stmt : stmts) {
+			instancesB.add(stmt.getSubject()); 
+		}	
+
+		int pos = 0, neg = 0;
+		for (Resource instance : instancesB) {
+			if (!testSetB.getStatements(instance, null, null).isEmpty()) {
+				instances.add(instance);
+				if (testSetB.getStatementsFromStrings(instance.toString(), "http://data.semanticweb.org/ns/swc/ontology#holdsRole", "http://data.semanticweb.org/conference/iswc/2012/pc-member/research", false).size() > 0) {
+					labels.add(testSetA.createLiteral("true"));
+					pos++;
+				} else {
+					labels.add(testSetA.createLiteral("false"));
+					neg++;
+				}
+			}
+		}
+
+		dataset = testSetA;		
+		blackList = new ArrayList<Statement>();
+
+		System.out.println("Pos and Neg: " + pos + " " + neg);
+		System.out.println("Baseline acc: " + Math.max(pos, neg) / ((double)pos+neg));
+
+	}
+
 
 }

@@ -7203,7 +7203,7 @@ Tutorial webpage: http://iswc2011.semanticweb.org/tutorials/but-i-did-a-user-stu
         <swc:hasLocation rdf:resource="http://data.semanticweb.org/conference/iswc/2011/place/maritim"/>
         <swc:isSubEventOf rdf:resource="http://data.semanticweb.org/conference/iswc/2011"/>
         <rdfs:label>Conference Dinner</rdfs:label>
-        <ical:dtstart rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2011-10-26T109:30:00+02:00</ical:dtstart>
+        <ical:dtstart rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2011-10-26T09:30:00+02:00</ical:dtstart>
     </swc:SocialEvent>
 
     <swc:SessionEvent rdf:about="http://data.semanticweb.org/conference/iswc/2011/sessions/doctoral-consortium/1">
@@ -7853,7 +7853,7 @@ Bringing together researchers and representatives from industry is a special foc
         <swc:hasLocation rdf:resource="http://data.semanticweb.org/conference/iswc/2011/place/maritim"/>
         <swc:isSubEventOf rdf:resource="http://data.semanticweb.org/conference/iswc/2011"/>
         <rdfs:label>Opening Ceremony</rdfs:label>
-        <ical:dtend rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2011-10-25T9:30:00+02:00</ical:dtend>
+        <ical:dtend rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2011-10-25T09:30:00+02:00</ical:dtend>
         <ical:dtstart rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2011-10-25T09:00:00+02:00</ical:dtstart>
     </swc:TalkEvent>
 

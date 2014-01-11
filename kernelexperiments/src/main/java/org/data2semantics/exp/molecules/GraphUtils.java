@@ -105,7 +105,9 @@ public class GraphUtils {
 					remLink = outLink;
 				}
 			}
-			if (!relabel || newLabel == null) {
+			if (newLabel == null) {
+				newLabel = node.label();
+			} else if (!relabel) {
 				newLabel = node.label();
 			}
 			nodeMap.put(node, newGraph.add(newLabel));
@@ -115,6 +117,7 @@ public class GraphUtils {
 			}
 		}
 		
+		// We also need to replace the instance nodes with new instance nodes in the simplified graph
 		for (int i = 0; i < instanceNodes.size(); i++) {
 			instanceNodes.set(i, nodeMap.get(instanceNodes.get(i)));
 		}

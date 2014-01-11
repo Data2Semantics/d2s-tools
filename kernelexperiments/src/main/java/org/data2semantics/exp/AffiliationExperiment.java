@@ -72,7 +72,7 @@ public class AffiliationExperiment extends RDFMLExperiment {
 
 		boolean inference = false;
 		boolean forward = true;
-		boolean relabel = false;
+		boolean relabel = true;
 
 
 		createAffiliationPredictionDataSet(1);
