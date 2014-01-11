@@ -35,7 +35,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
- * Statics for dealing with Lilian graphs
+ * Statics for dealing with nodes graphs & RDF
  * 
  * @author Gerben
  *
@@ -43,12 +43,34 @@ import org.openrdf.model.vocabulary.RDF;
 public class GraphUtils {
 	public static final String NAMESPACE = "http://www.data2semantics.org/molecule/";
 
+	public static List<Statement> getStatements4Depth(RDFDataSet ts, List<Resource> instances, int depth, boolean inference) {
+		Set<Statement> stmts = new HashSet<Statement>();
+		List<Resource> searchFront = new ArrayList<Resource>(instances);
+		List<Resource> newSearchFront;
+		
+		for (int i = 0; i < depth; i++) {
+			newSearchFront = new ArrayList<Resource>();
+			for (Resource r : searchFront) {
+				List<Statement> res = ts.getStatements(r, null, null, inference);
+				stmts.addAll(res);
+				for (Statement stmt : res) {
+					if (stmt.getObject() instanceof Resource) {
+						newSearchFront.add((Resource) stmt.getObject()); 
+					}
+				}
+			}
+			searchFront = newSearchFront;
+		}
+		return new ArrayList<Statement>(stmts);
+	}
+
+
 	public static List<DTGraph<String,String>> getSubGraphs(DTGraph<String,String> graph, List<DTNode<String,String>> instances, int depth) {
 		List<DTGraph<String,String>> subGraphs = new ArrayList<DTGraph<String,String>>();
 		Map<DTNode<String,String>,DTNode<String,String>> nodeMap;
 		Map<DTLink<String,String>,DTLink<String,String>> linkMap;
 		List<DTNode<String,String>> searchNodes, newSearchNodes;
-		
+
 		for (DTNode<String,String> startNode : instances) {
 			DTGraph<String,String> newGraph = new MapDTGraph<String,String>();
 			searchNodes = new ArrayList<DTNode<String,String>>();
@@ -77,14 +99,14 @@ public class GraphUtils {
 		}
 		return subGraphs;
 	}
-	
-	
-	
+
+
+
 	public static DTGraph<String,String> simplifyGraph(DTGraph<String,String> graph, Map<String,Integer> hubMap, List<DTNode<String,String>> instanceNodes, boolean relabel, boolean removeLinks) {
 		DTGraph<String,String> newGraph = new MapDTGraph<String,String>();
 		Map<DTNode<String,String>,DTNode<String,String>> nodeMap = new HashMap<DTNode<String,String>,DTNode<String,String>>();
 		Set<DTLink<String,String>> toRemoveLinks = new HashSet<DTLink<String,String>>();
-		
+
 		for (DTNode<String,String> node : graph.nodes()) {
 			String newLabel = null;
 			int lowestDepth = 0;
@@ -111,32 +133,32 @@ public class GraphUtils {
 				newLabel = node.label();
 			}
 			nodeMap.put(node, newGraph.add(newLabel));
-			
+
 			if (remLink != null && removeLinks) {
 				toRemoveLinks.add(remLink);
 			}
 		}
-		
+
 		// We also need to replace the instance nodes with new instance nodes in the simplified graph
 		for (int i = 0; i < instanceNodes.size(); i++) {
 			instanceNodes.set(i, nodeMap.get(instanceNodes.get(i)));
 		}
-		
+
 		for(DTLink<String,String> link : graph.links()) {
 			int a = link.from().index();
 			int b = link.to().index();
-			
+
 			if (!toRemoveLinks.contains(link)) {
 				newGraph.nodes().get(a).connect(newGraph.nodes().get(b), link.tag());
 			}
 		}
 		return newGraph;
 	}
-	
+
 	public static List<DTNode<String,String>> getTypeHubs(DTGraph<String,String> graph) {
 		List<DTNode<String,String>> typeNodes = new ArrayList<DTNode<String,String>>();
 		Map<DTNode<String,String>, Integer> countMap = new HashMap<DTNode<String,String>,Integer>();
-		
+
 		for (DTLink<String,String> link : graph.links()) {
 			if (link.tag().equals(RDF.TYPE.toString())) {
 				if (!countMap.containsKey(link.to())) {
@@ -151,10 +173,10 @@ public class GraphUtils {
 		Collections.reverse(typeNodes);
 		return typeNodes;
 	}
-	
+
 	static class TypeNodeComparator implements Comparator<DTNode<String,String>> {
 		private Map<DTNode<String,String>,Integer> cm;
-		
+
 		public TypeNodeComparator(Map<DTNode<String,String>,Integer> countMap) {
 			cm = countMap;		
 		}
@@ -162,33 +184,33 @@ public class GraphUtils {
 			return cm.get(o1) - cm.get(o2);
 		}	
 	}
-	
+
 	public static Map<String,Integer> createRDFTypeHubMap(RDFDataSet ts, boolean inference) {
 		Map<String,Integer> hubMap = new HashMap<String,Integer>();
 		List<Statement> types = ts.getStatements(null, RDF.TYPE, null, inference);
 		Map<Resource, Integer> classCounts = new HashMap<Resource, Integer>();
-		
+
 		// Count different classes
 		for (Statement s : types) {
 			Resource c = (Resource) s.getObject();
 			classCounts.put(c, (classCounts.containsKey(c)) ? classCounts.get(c) + 1 : 0);
 		}
-		
+
 		// Get the largest class size
 		List<Integer> counts = new ArrayList<Integer>(classCounts.values());
 		Collections.sort(counts);
 		int max = counts.get(counts.size()-1);
-	
+
 		// Create the hubmap, with largest hubs having the lowest numbers
 		for (Resource c : classCounts.keySet()) {
 			hubMap.put(RDF.TYPE.toString() + c.toString(), max - classCounts.get(c));
 		}
 		return hubMap;
 	}
-	
+
 	public static Map<String,Integer> createNonSigHubMap(List<DTNode<String,String>> hubs, int th) {
 		Map<String,Integer> hubMap = new HashMap<String,Integer>();
-			
+
 		for (int i = 0; i < hubs.size() && i < th; i++) {
 			for (DTLink<String,String> e : hubs.get(i).linksIn()) {
 				hubMap.put(e.tag() + hubs.get(i).label(), i);
@@ -198,14 +220,14 @@ public class GraphUtils {
 			}			
 		}
 		System.out.println("Total hubs: " + hubMap.size());
-	return hubMap;
+		return hubMap;
 	}
-	
+
 	public static Map<String,Integer> createHubMap(List<DTNode<String,String>> hubs, int th) {
 		Map<String,Integer> hubMap = new HashMap<String,Integer>();		
 		for (int i = 0; i < hubs.size() && i < th; i++) {
 			org.nodes.util.Pair<Dir,String> sig = SlashBurn.primeSignature(hubs.get(i));
-			
+
 			if (sig.first() == Dir.IN) {
 				hubMap.put(sig.second() + hubs.get(i).label(), i);	
 				//System.out.println("Removing: " + sig.second() + " -> " + hubs.get(i).label());
@@ -217,7 +239,7 @@ public class GraphUtils {
 		System.out.println("Total hubs: " + hubMap.size());
 		return hubMap;
 	}
-	
+
 
 	public static List<Statement> moleculeGraph2RDF(UGraph<String> graph, String moleculeID, boolean blankRoot) {
 		List<Statement> moleculeRDF = new ArrayList<Statement>();
@@ -254,7 +276,7 @@ public class GraphUtils {
 		Map<DTNode<String,String>,DTNode<String,String>> rnm = new HashMap<DTNode<String,String>,DTNode<String,String>>();
 		Set<DTLink<String,String>> rls = new HashSet<DTLink<String,String>>();
 		priorities.add("");
-		
+
 		for (String prio : priorities) {
 			for (DTLink<String,String> link : graph.links()) {
 				DTNode<String,String> n1 = link.from();

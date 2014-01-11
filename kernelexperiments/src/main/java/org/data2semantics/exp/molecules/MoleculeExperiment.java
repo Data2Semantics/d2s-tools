@@ -307,7 +307,7 @@ public class MoleculeExperiment {
 
 	}
 
-	private static void createDataSet(String dirName, List<UGraph<String>> graphs, List<Double> labels) {
+	protected static void createDataSet(String dirName, List<UGraph<String>> graphs, List<Double> labels) {
 		try {
 			File dir = new File(dirName);
 			for (String fileName : dir.list()) {
@@ -322,7 +322,7 @@ public class MoleculeExperiment {
 	}
 
 
-	private static List<List<Statement>> createMoleculeRDFGraphs(List<UGraph<String>> graphs, boolean blankRoot) {
+	protected static List<List<Statement>> createMoleculeRDFGraphs(List<UGraph<String>> graphs, boolean blankRoot) {
 		List<List<Statement>> rdfGraphs = new ArrayList<List<Statement>>();
 
 		int idx = 1;
@@ -335,7 +335,7 @@ public class MoleculeExperiment {
 	}
 
 
-	private static Double getGraphLabel(String fileName) {
+	protected static Double getGraphLabel(String fileName) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(fileName));
 
@@ -354,7 +354,7 @@ public class MoleculeExperiment {
 		return 0.0;
 	}
 
-	private static void saveRDF(List<Statement> stmts, String filename) {
+	protected static void saveRDF(List<Statement> stmts, String filename) {
 		try {
 			File file = new File(filename);
 			RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, new FileWriter(file));

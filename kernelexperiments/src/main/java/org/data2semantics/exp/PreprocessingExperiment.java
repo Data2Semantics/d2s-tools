@@ -1,9 +1,11 @@
 package org.data2semantics.exp;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -53,30 +55,31 @@ import org.nodes.util.Functions.Dir;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 
 public class PreprocessingExperiment extends RDFMLExperiment {
-	private static String dataFile = "datasets/aifb-fixed_complete.n3";
+	private static String AIFB = "datasets/aifb-fixed_complete.n3";
+	private static String TASK2 = "C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_train.ttl";
 
 
 	public static void main(String[] args) {
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-file")) {
-				i++;
-				dataFile = args[i];
-			}
-		}		
 
+		for (int i = 3; i < 4; i++) {
+			switch (i) {
+			case 0: createAffiliationPredictionDataSet(AIFB, 1); break;
+			case 1: createCommitteeMemberPredictionDataSet(); break;
+			case 2: createTask2DataSet(TASK2, 1,11); break;
+			case 3: dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+			createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis"); break;
+			}
+			experiment();
+		}
+	}
+	public static void experiment() {
+		
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
-
-		
-		//createAffiliationPredictionDataSet(1);		
-		//createCommitteeMemberPredictionDataSet();
-		
-		dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-		createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis");
-
 
 		// --------------
 		// Learning Algorithm settings
@@ -101,7 +104,10 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		//-------
 		//Data graph, with the label information
-		List<Statement> allStmts = dataset.getStatements(null, null, null, false);
+		List<Statement> allStmts = GraphUtils.getStatements4Depth(dataset, instances, 4, false);
+		List<Statement> allStmts2 = dataset.getStatements(null, null, null, false);
+		System.out.println("reduced: " + allStmts.size() + ", full: " + allStmts2.size());
+		
 		allStmts.removeAll(blackList);
 		DTGraph<String,String> sGraph = org.nodes.data.RDF.createDirectedGraph(allStmts, null, null);
 		System.out.println("Total nodes: " + sGraph.nodes().size());
@@ -115,7 +121,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		//--------
 		// Get the different hub lists
-		int maxHubs = 100;
+		int maxHubs = 1000;
 
 		// RDF.Type hubs
 		List<DTNode<String,String>> RDFTypeHubs = GraphUtils.getTypeHubs(sGraph);
@@ -142,13 +148,27 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		}
 		Classified<DTNode<String, String>> classified = Classification.combine(instanceNodes, classes);
 
-		InformedAvoidance ia = new InformedAvoidance(sGraph, classified, 3);		 
-		Comparator<DTNode<String, String>> compInformed = ia.uninformedComparator(3);
+		InformedAvoidance ia = new InformedAvoidance(sGraph, classified, 3);	
+
+		Comparator<DTNode<String, String>> compUnInformed = ia.uninformedComparator(3);
+		MaxObserver<DTNode<String,String>> obsUnInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compUnInformed);
+		obsUnInformed.observe(sGraph.nodes());
+		List<DTNode<String,String>> unInformedDegreeHubs = new ArrayList<DTNode<String,String>>(obsUnInformed.elements());
+
+		Iterator<DTNode<String, String>> ite = unInformedDegreeHubs.iterator();
+		while(ite.hasNext())
+			if(! ia.viableHub(ite.next(), 3, 3))
+				ite.remove();
+
+		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(3);
 		MaxObserver<DTNode<String,String>> obsInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compInformed);
 		obsInformed.observe(sGraph.nodes());
 		List<DTNode<String,String>> informedDegreeHubs = new ArrayList<DTNode<String,String>>(obsInformed.elements());
 
-
+		ite = informedDegreeHubs.iterator();
+		while(ite.hasNext())
+			if(! ia.viableHub(ite.next(), 3, 3))
+				ite.remove();
 
 		// Remove hubs from list that are root nodes
 		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
@@ -164,82 +184,87 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		RDFTypeHubs.removeAll(rn);
 		regDegreeHubs.removeAll(rn);
 		sigDegreeHubs.removeAll(rn);
+		unInformedDegreeHubs.removeAll(rn);
 		informedDegreeHubs.removeAll(rn);
 
 		List<List<DTNode<String,String>>> hubLists = new ArrayList<List<DTNode<String,String>>>();
 		hubLists.add(RDFTypeHubs);
 		hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
-		//hubLists.add(informedDegreeHubs);
+		hubLists.add(unInformedDegreeHubs);
+		hubLists.add(informedDegreeHubs);
 
 
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-	//	int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-		int[] hubThs = {16,17,18,19,20};
+		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		//	int[] hubThs = {20};
 
 		int[] iterations = {0,1,2,3,4,5,6};
-		
+
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
-		
+
 		for (int i : iterations) {
 			resTable.newRow("Baseline: " + i);
 			List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-			
+
 			exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(i, true, forward), 
 					seeds, svmParms, GraphUtils.getSubGraphs(sGraph, newIN, depth), target, evalFuncs);
 
 			System.out.println("running baseline, it: " + i);
 			exp.run();
-			
+
 			for (Result res : exp.getResults()) {
 				resTable.addResult(res);
 			}
 		}
 		System.out.println(resTable);
-		
+
 		for (int th : hubThs) {
 			resTable.newRow("Hub Threshold: " + th);
 
 			for (List<DTNode<String,String>> hubList : hubLists) {
-				
+
 				///*
 				List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				DTGraph<String,String> newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, false, true);
+				System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + sGraph.numLinks());
 				
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, remove hubs, th: " + th);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
-				
+
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, false);
+				System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + sGraph.numLinks());
 				
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, relabel hubs, th: " + th);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
 
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, true);
-				
+				System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + sGraph.numLinks());
+
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, relabel+remove hubs, th: " + th);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
@@ -248,15 +273,18 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 			}
 			System.out.println(resTable);
 		}
-		
+
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);		
 		System.out.println(resTable.allScoresToString());
+		
+		saveResults(resTable.toString(), "results_" + System.currentTimeMillis() + ".txt");
+		saveResults(resTable.allScoresToString(), "results_" + System.currentTimeMillis() + ".txt");
 	}
 
 
 
-	private static void createAffiliationPredictionDataSet(double frac) {
+	private static void createAffiliationPredictionDataSet(String dataFile, double frac) {
 		Random rand = new Random(1);
 
 		// Read in data set
@@ -348,7 +376,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		System.out.println(LibSVM.computeClassCounts(LibSVM.createTargets(labels, labelMap)));
 		System.out.println(labelMap);
 	}
-	
+
 	private static void createCommitteeMemberPredictionDataSet() {
 		RDFFileDataSet testSetA = new RDFFileDataSet("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/eswc-2011-complete.rdf", RDFFormat.RDFXML);
@@ -390,7 +418,38 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		System.out.println("Pos and Neg: " + pos + " " + neg);
 		System.out.println("Baseline acc: " + Math.max(pos, neg) / ((double)pos+neg));
+	}
 
+	private static void createTask2DataSet(String dataFile, double fraction, long seed) {
+		RDFFileDataSet d = new RDFFileDataSet(dataFile, RDFFormat.TURTLE);
+
+		dataset = d;
+
+		Random rand = new Random(seed);
+
+
+
+		List<Statement> stmts = dataset.getStatementsFromStrings(null, RDF.TYPE.toString(), "http://purl.org/procurement/public-contracts#Contract");
+		instances = new ArrayList<Resource>();
+		labels = new ArrayList<Value>();
+		blackList = new ArrayList<Statement>();
+
+		for(Statement stmt: stmts) {
+			List<Statement> stmts2 = dataset.getStatementsFromStrings(stmt.getSubject().toString(), "http://example.com/multicontract", null);
+
+			for (Statement stmt2 : stmts2) {
+
+				if (rand.nextDouble() < fraction) {
+					instances.add(stmt2.getSubject());
+					labels.add(stmt2.getObject());
+				}
+			}
+		}
+
+		removeSmallClasses(5);
+		createBlackList();
+
+		System.out.println(EvaluationUtils.computeClassCounts(EvaluationUtils.createTarget(labels)));
 	}
 
 
