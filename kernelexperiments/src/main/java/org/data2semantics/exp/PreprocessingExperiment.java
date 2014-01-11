@@ -67,16 +67,16 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		for (int i = 0; i < 4; i++) {
 			switch (i) {
-			case 0: createAffiliationPredictionDataSet(AIFB, 1); break;
-			case 1: createCommitteeMemberPredictionDataSet(); break;
+			case 0: createAffiliationPredictionDataSet(AIFB, 1); experiment(true); break;
+			case 1: createCommitteeMemberPredictionDataSet(); experiment(true); break;
 			case 2: dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
-			createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis"); break;
-			case 3: createTask2DataSet(TASK2, 1,11); break;
+			createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis"); experiment(false); break;
+			case 3: createTask2DataSet(TASK2, 1,11); experiment(false); break;
 			}
-			experiment();
+
 		}
 	}
-	public static void experiment() {
+	public static void experiment(boolean fullGraph) {
 		
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
@@ -105,7 +105,12 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		//-------
 		//Data graph, with the label information
 		List<Statement> allStmts3 = GraphUtils.getStatements4Depth(dataset, instances, 4, false);
-		List<Statement> allStmts4 = GraphUtils.getStatements4Depth(dataset, instances, 4, false);
+		List<Statement> allStmts4;
+		if (fullGraph) {
+			allStmts4 = dataset.getStatements(null, null, null, false);
+		} else {
+			allStmts4 = GraphUtils.getStatements4Depth(dataset, instances, 5, false);
+		}
 	
 		allStmts3.removeAll(blackList);
 		allStmts4.removeAll(blackList);
@@ -151,26 +156,26 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		}
 		Classified<DTNode<String, String>> classified = Classification.combine(instanceNodes4, classes);
 
-		InformedAvoidance ia = new InformedAvoidance(graph4, classified, 3);	
+		InformedAvoidance ia = new InformedAvoidance(graph4, classified, 4);	
 
-		Comparator<DTNode<String, String>> compUnInformed = ia.uninformedComparator(3);
+		Comparator<DTNode<String, String>> compUnInformed = ia.uninformedComparator(4);
 		MaxObserver<DTNode<String,String>> obsUnInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compUnInformed);
 		obsUnInformed.observe(graph4.nodes());
 		List<DTNode<String,String>> unInformedDegreeHubs = new ArrayList<DTNode<String,String>>(obsUnInformed.elements());
 
 		Iterator<DTNode<String, String>> ite = unInformedDegreeHubs.iterator();
 		while(ite.hasNext())
-			if(! ia.viableHub(ite.next(), 3, 3))
+			if(! ia.viableHub(ite.next(), 4, 4))
 				ite.remove();
 
-		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(3);
+		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(4);
 		MaxObserver<DTNode<String,String>> obsInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compInformed);
 		obsInformed.observe(graph4.nodes());
 		List<DTNode<String,String>> informedDegreeHubs = new ArrayList<DTNode<String,String>>(obsInformed.elements());
 
 		ite = informedDegreeHubs.iterator();
 		while(ite.hasNext())
-			if(! ia.viableHub(ite.next(), 3, 3))
+			if(! ia.viableHub(ite.next(), 4, 4))
 				ite.remove();
 
 		// Remove hubs from list that are root nodes
