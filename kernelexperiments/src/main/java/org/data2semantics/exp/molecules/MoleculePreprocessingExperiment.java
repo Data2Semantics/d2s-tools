@@ -3,6 +3,7 @@ package org.data2semantics.exp.molecules;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -36,8 +37,8 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		List<Double> labels = new ArrayList<Double>();
 
 		// Regular graph dataset
-		createDataSet(MUTAG_DIR, graphs, labels);
-		//createDataSet(ENZYMES_DIR, graphs, labels);
+		//createDataSet(MUTAG_DIR, graphs, labels);
+		createDataSet(ENZYMES_DIR, graphs, labels);
 
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
@@ -79,7 +80,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		//---------
 		// Results Table
 		ResultsTable resTable = new ResultsTable();
-		resTable.setDigits(2);
+		resTable.setDigits(3);
 		//---------
 
 		//--- instance nodes
@@ -92,7 +93,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 
 		//--------
 		// Get the different hub lists
-		int maxHubs = 100;
+		int maxHubs = 1000;
 
 		// RDF.Type hubs
 		List<DTNode<String,String>> RDFTypeHubs = GraphUtils.getTypeHubs(sGraph);
@@ -119,13 +120,27 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		}
 		Classified<DTNode<String, String>> classified = Classification.combine(instanceNodes, classes);
 
-		InformedAvoidance ia = new InformedAvoidance(sGraph, classified, 3);		 
-		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(3);
+		InformedAvoidance ia = new InformedAvoidance(sGraph, classified, 4);	
+
+		Comparator<DTNode<String, String>> compUnInformed = ia.uninformedComparator(4);
+		MaxObserver<DTNode<String,String>> obsUnInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compUnInformed);
+		obsUnInformed.observe(sGraph.nodes());
+		List<DTNode<String,String>> unInformedDegreeHubs = new ArrayList<DTNode<String,String>>(obsUnInformed.elements());
+
+		Iterator<DTNode<String, String>> ite = unInformedDegreeHubs.iterator();
+		while(ite.hasNext())
+			if(! ia.viableHub(ite.next(), 4, 4))
+				ite.remove();
+
+		Comparator<DTNode<String, String>> compInformed = ia.informedComparator(4);
 		MaxObserver<DTNode<String,String>> obsInformed = new MaxObserver<DTNode<String,String>>(maxHubs + instances.size(), compInformed);
 		obsInformed.observe(sGraph.nodes());
 		List<DTNode<String,String>> informedDegreeHubs = new ArrayList<DTNode<String,String>>(obsInformed.elements());
 
-
+		ite = informedDegreeHubs.iterator();
+		while(ite.hasNext())
+			if(! ia.viableHub(ite.next(), 4, 4))
+				ite.remove();
 
 		// Remove hubs from list that are root nodes
 		List<DTNode<String,String>> rn = new ArrayList<DTNode<String,String>>();
@@ -141,22 +156,24 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		RDFTypeHubs.removeAll(rn);
 		regDegreeHubs.removeAll(rn);
 		sigDegreeHubs.removeAll(rn);
+		unInformedDegreeHubs.removeAll(rn);
 		informedDegreeHubs.removeAll(rn);
 
 		List<List<DTNode<String,String>>> hubLists = new ArrayList<List<DTNode<String,String>>>();
 		hubLists.add(RDFTypeHubs);
 		hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
-		//hubLists.add(informedDegreeHubs);
-		
+		hubLists.add(unInformedDegreeHubs);
+		hubLists.add(informedDegreeHubs);
+
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		int[] hubThs = {0,8};
-	//	int[] hubThs = {100};
+		int[] hubThs = {0,1,2,3,4,5,6,7,8,9};
+		//	int[] hubThs = {100};
 
 		int[] iterations = {1,2,3,4,5,6};
-		
+
 		for (int i : iterations) {
 			resTable.newRow("WL, it: " + it);
 			MoleculeGraphExperiment<UGraph<String>> exp = new MoleculeGraphExperiment<UGraph<String>>(new WLUSubTreeKernel(i, true), seeds, svmParms, graphs, labels, evalFuncs);
@@ -169,50 +186,50 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 			}
 		}
 		System.out.println(resTable);
-		
-		
+
+
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
 		for (int th : hubThs) {
 			resTable.newRow("Hub Threshold: " + th);
 
 			for (List<DTNode<String,String>> hubList : hubLists) {
-				
+
 				///*
 				List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				DTGraph<String,String> newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, false, true);
-				
+
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, remove hubs, th: " + th);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
-				
+
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, false);
-				
+
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, relabel hubs, th: " + th);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
 
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, true);
-				
+
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, relabel+remove hubs, th: " + th);
 				exp.run();
-				
+
 				for (Result res : exp.getResults()) {
 					resTable.addResult(res);
 				}
@@ -221,7 +238,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 			}
 			System.out.println(resTable);
 		}
-		
+
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);		
 		System.out.println(resTable.allScoresToString());

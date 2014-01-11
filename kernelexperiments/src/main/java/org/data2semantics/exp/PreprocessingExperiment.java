@@ -77,7 +77,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		}
 	}
 	public static void experiment(boolean fullGraph) {
-		
+
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};	
 
@@ -111,7 +111,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		} else {
 			allStmts4 = GraphUtils.getStatements4Depth(dataset, instances, 5, false);
 		}
-	
+
 		allStmts3.removeAll(blackList);
 		allStmts4.removeAll(blackList);
 		DTGraph<String,String> graph3 = org.nodes.data.RDF.createDirectedGraph(allStmts3, null, null); //used to generate instances
@@ -206,14 +206,14 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		//int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-			int[] hubThs = {20};
-		
+		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		//int[] hubThs = {};
+
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
 
 		/*
 		int[] iterations = {0,1,2,3,4,5,6};
-		
+
 		for (int i : iterations) {
 			resTable.newRow("Baseline: " + i);
 			List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
@@ -229,7 +229,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 			}
 		}
 		System.out.println(resTable);
-		*/
+		 */
 
 		for (int th : hubThs) {
 			resTable.newRow("Hub Threshold: " + th);
@@ -238,12 +238,12 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
 				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList, th), instanceNodes3, newIN);
-				
+
 				///*
 				//List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
 				//DTGraph<String,String> newG = GraphUtils.simplifyGraph(graph3, GraphUtils.createHubMap(hubList, th), newIN, false, true);
 				//System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + graph3.numLinks());
-				
+
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(0), newIN.get(0), depth), target, evalFuncs);
 
@@ -257,7 +257,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 				//newIN = new ArrayList<DTNode<String,String>>(instanceNodes3);
 				//newG = GraphUtils.simplifyGraph(graph3, GraphUtils.createHubMap(hubList, th), newIN, true, false);
 				//System.out.println("New #links: "+ newG.numLinks() + ", old #links: " + graph3.numLinks());
-				
+
 				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
 						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(1), newIN.get(1), depth), target, evalFuncs);
 
@@ -290,9 +290,74 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		resTable.addCompResults(resTable.getBestResults());
 		System.out.println(resTable);		
 		System.out.println(resTable.allScoresToString());
+
+		saveResults(resTable.toString(), "results_simp_" + System.currentTimeMillis() + ".txt");
+		saveResults(resTable.allScoresToString(), "results_full_simp_" + System.currentTimeMillis() + ".txt");
+
+/*
+ * INSTANCE EXTRACTION!!!!! ah yeah ;)
+ * 
+ */
 		
-		saveResults(resTable.toString(), "results_" + System.currentTimeMillis() + ".txt");
-		saveResults(resTable.allScoresToString(), "results_" + System.currentTimeMillis() + ".txt");
+		// Discover average size
+		List<DTGraph<String,String>> sg = GraphUtils.getSubGraphs(graph3, new ArrayList<DTNode<String,String>>(instanceNodes3), 3);
+		double avg = 0;
+		for (DTGraph<String,String> sgp : sg) {
+			avg += sgp.size();
+		}
+		avg /= sg.size();
+		System.out.println("Average Number of nodes: " + avg);
+		
+		// Results Table
+		ResultsTable resTable2 = new ResultsTable();
+		resTable2.setDigits(3);
+
+		double[] fracs = {0.5, 1.0, 1.5, 2.0};
+
+		for (double frac : fracs) {
+			resTable2.newRow("Fraction: " + frac);
+			
+			List<DTGraph<String,String>> ihDepth = InstanceHelper.getInstances(graph4, instanceNodes4, target, InstanceHelper.Method.DEPTH, (int) Math.round(frac*avg), 4, true);	
+			
+			exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), seeds, svmParms, ihDepth, target, evalFuncs);
+			
+			System.out.println("running, Depth: " + frac);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable2.addResult(res);
+			}
+			
+			List<DTGraph<String,String>> ihUnInformed = InstanceHelper.getInstances(graph4, instanceNodes4, target, InstanceHelper.Method.UNINFORMED, (int) Math.round(frac*avg), 4, true);
+			
+			exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), seeds, svmParms, ihUnInformed, target, evalFuncs);
+			
+			System.out.println("running, UnInformed: " + frac);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable2.addResult(res);
+			}
+			
+			List<DTGraph<String,String>> ihInformed = InstanceHelper.getInstances(graph4, instanceNodes4, target, InstanceHelper.Method.INFORMED, (int) Math.round(frac*avg), 4, true);
+
+			exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), seeds, svmParms, ihInformed, target, evalFuncs);
+			
+			System.out.println("running, Informed: " + frac);
+			exp.run();
+
+			for (Result res : exp.getResults()) {
+				resTable2.addResult(res);
+			}
+			System.out.println(resTable2);	
+		}
+		
+		resTable2.addCompResults(resTable2.getBestResults());
+		System.out.println(resTable2);		
+		System.out.println(resTable2.allScoresToString());
+
+		saveResults(resTable2.toString(), "results_ie_" + System.currentTimeMillis() + ".txt");
+		saveResults(resTable2.allScoresToString(), "results_full_ie_" + System.currentTimeMillis() + ".txt");
 	}
 
 
