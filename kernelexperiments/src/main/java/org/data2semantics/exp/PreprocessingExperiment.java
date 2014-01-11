@@ -104,7 +104,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 		//-------
 		//Data graph, with the label information
-		List<Statement> allStmts = GraphUtils.getStatements4Depth(dataset, instances, 4, false);
+		List<Statement> allStmts = GraphUtils.getStatements4Depth(dataset, instances, 3, false);
 		List<Statement> allStmts2 = dataset.getStatements(null, null, null, false);
 		System.out.println("reduced: " + allStmts.size() + ", full: " + allStmts2.size());
 		
