@@ -37,8 +37,8 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		List<Double> labels = new ArrayList<Double>();
 
 		// Regular graph dataset
-		//createDataSet(MUTAG_DIR, graphs, labels);
-		createDataSet(ENZYMES_DIR, graphs, labels);
+		createDataSet(MUTAG_DIR, graphs, labels);
+		//createDataSet(ENZYMES_DIR, graphs, labels);
 
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
@@ -175,7 +175,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		int[] iterations = {1,2,3,4,5,6};
 
 		for (int i : iterations) {
-			resTable.newRow("WL, it: " + it);
+			resTable.newRow("WL, it: " + i);
 			MoleculeGraphExperiment<UGraph<String>> exp = new MoleculeGraphExperiment<UGraph<String>>(new WLUSubTreeKernel(i, true), seeds, svmParms, graphs, labels, evalFuncs);
 
 			System.out.println("Running WL, it: " + i);
