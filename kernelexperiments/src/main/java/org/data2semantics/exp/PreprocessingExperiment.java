@@ -60,16 +60,18 @@ import org.openrdf.rio.RDFFormat;
 
 public class PreprocessingExperiment extends RDFMLExperiment {
 	private static String AIFB = "datasets/aifb-fixed_complete.n3";
+	private static String BGS_FOLDER =  "C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL";
+	private static String ISWC_FOLDER = "datasets/";
 	private static String TASK2 = "C:\\Users\\Gerben\\Dropbox\\D2S\\Task2\\LDMC_Task2_train.ttl";
 
 
 	public static void main(String[] args) {
 
-		for (int i = 1; i < 4; i++) {
+		for (int i = 0; i < 4; i++) {
 			switch (i) {
 			case 0: createAffiliationPredictionDataSet(AIFB, 1); experiment(true); break;
 			case 1: createCommitteeMemberPredictionDataSet(); experiment(true); break;
-			case 2: dataset = new RDFFileDataSet("C:\\Users\\Gerben\\Dropbox\\data_bgs_ac_uk_ALL", RDFFormat.NTRIPLES);
+			case 2: dataset = new RDFFileDataSet(BGS_FOLDER, RDFFormat.NTRIPLES);
 			createGeoDataSet(1, 1, "http://data.bgs.ac.uk/ref/Lexicon/hasLithogenesis"); experiment(false); break;
 			case 3: createTask2DataSet(TASK2, 1,11); experiment(false); break;
 			}
@@ -206,8 +208,8 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		//int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-		int[] hubThs = {};
+		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		//int[] hubThs = {};
 
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
 
@@ -312,7 +314,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		ResultsTable resTable2 = new ResultsTable();
 		resTable2.setDigits(3);
 
-		double[] fracs = {0.25, 0.5, 0.75, 1.0}; //, 1.5, 2.0};
+		double[] fracs = {0.25, 0.5, 0.75, 1.0, 1.5, 2.0};
 
 		for (double frac : fracs) {
 			resTable2.newRow("Fraction: " + frac);
@@ -456,18 +458,18 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 	}
 
 	private static void createCommitteeMemberPredictionDataSet() {
-		RDFFileDataSet testSetA = new RDFFileDataSet("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
+		RDFFileDataSet testSetA = new RDFFileDataSet(ISWC_FOLDER + "iswc-2011-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/eswc-2011-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/eswc-2012-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/eswc-2008-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/eswc-2009-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/iswc-2012-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/iswc-2011-complete.rdf", RDFFormat.RDFXML);
-		testSetA.addFile("datasets/iswc-2010-complete.rdf", RDFFormat.RDFXML);
+		testSetA.addFile(ISWC_FOLDER + "iswc-2010-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/iswc-2009-complete.rdf", RDFFormat.RDFXML);
 		//testSetA.addFile("datasets/iswc-2008-complete.rdf", RDFFormat.RDFXML);
 
-		RDFFileDataSet testSetB = new RDFFileDataSet("datasets/iswc-2012-complete.rdf", RDFFormat.RDFXML);
+		RDFFileDataSet testSetB = new RDFFileDataSet(ISWC_FOLDER + "iswc-2012-complete.rdf", RDFFormat.RDFXML);
 
 		instances = new ArrayList<Resource>();
 		List<Resource> instancesB = new ArrayList<Resource>();

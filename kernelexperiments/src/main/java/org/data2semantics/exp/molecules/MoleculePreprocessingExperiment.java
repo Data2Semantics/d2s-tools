@@ -31,16 +31,26 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
 
 public class MoleculePreprocessingExperiment extends MoleculeExperiment {
-
+	public static final String MUTAG_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\mutag\\";
+	public static final String ENZYMES_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\enzymes\\";
+	
 	public static void main(String[] args) {
 		List<UGraph<String>> graphs = new ArrayList<UGraph<String>>();
 		List<Double> labels = new ArrayList<Double>();
 
-		// Regular graph dataset
 		createDataSet(MUTAG_DIR, graphs, labels);
-		//createDataSet(ENZYMES_DIR, graphs, labels);
+		experiment(graphs, labels);
+		
+		graphs = new ArrayList<UGraph<String>>();
+		labels = new ArrayList<Double>();
+		
+		createDataSet(ENZYMES_DIR, graphs, labels);
+		experiment(graphs, labels);
 
+	}
 
+	public static void experiment(List<UGraph<String>> graphs, List<Double> labels) {	
+		
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};
 

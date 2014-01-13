@@ -42,8 +42,8 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 
 public class MoleculeExperiment {
-	public static final String MUTAG_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\mutag\\";
-	public static final String ENZYMES_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\enzymes\\";
+	public static String MUTAG_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\mutag\\";
+	public static String ENZYMES_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\enzymes\\";
 	public static final String NCI1_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\nci1\\";
 	public static final String NCI109_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\nci109\\";
 	public static final String DD_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\DD\\";
