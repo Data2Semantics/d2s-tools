@@ -199,15 +199,15 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		hubLists.add(RDFTypeHubs);
 		hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
-		hubLists.add(unInformedDegreeHubs);
-		hubLists.add(informedDegreeHubs);
+		//hubLists.add(unInformedDegreeHubs);
+		//hubLists.add(informedDegreeHubs);
 
 
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-		//int[] hubThs = {};
+		//int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		int[] hubThs = {};
 
 		MoleculeGraphExperiment<DTGraph<String,String>> exp;
 
@@ -312,7 +312,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 		ResultsTable resTable2 = new ResultsTable();
 		resTable2.setDigits(3);
 
-		double[] fracs = {0.5, 1.0, 1.5, 2.0};
+		double[] fracs = {0.25, 0.5, 0.75, 1.0}; //, 1.5, 2.0};
 
 		for (double frac : fracs) {
 			resTable2.newRow("Fraction: " + frac);
