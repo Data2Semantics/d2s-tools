@@ -65,7 +65,7 @@ public class PreprocessingExperiment extends RDFMLExperiment {
 
 	public static void main(String[] args) {
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 1; i < 4; i++) {
 			switch (i) {
 			case 0: createAffiliationPredictionDataSet(AIFB, 1); experiment(true); break;
 			case 1: createCommitteeMemberPredictionDataSet(); experiment(true); break;
