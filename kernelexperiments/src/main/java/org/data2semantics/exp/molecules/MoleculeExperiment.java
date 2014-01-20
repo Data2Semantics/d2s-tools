@@ -161,6 +161,22 @@ public class MoleculeExperiment {
 		resTable.setDigits(2);
 		//resTable.setManWU(0.05);
 
+		List<WLUSubTreeKernel> kernels = new ArrayList<WLUSubTreeKernel>();
+		for (int it : iterations) {
+			kernels.add(new WLUSubTreeKernel(it, true));
+		}
+		resTable.newRow("WL, optimized");
+		MoleculeGraphMultipleKernelsExperiment<UGraph<String>> exp2 = new MoleculeGraphMultipleKernelsExperiment<UGraph<String>>(kernels, seeds, svmParms, graphs, labels, evalFuncs);
+
+		System.out.println("Running WL optimized");
+		exp2.run();
+		
+		for (Result res : exp2.getResults()) {
+			resTable.addResult(res);
+		}
+		System.out.println(resTable);
+		
+		
 		///*
 		for (int it : iterations) {
 			resTable.newRow("WL, it: " + it);

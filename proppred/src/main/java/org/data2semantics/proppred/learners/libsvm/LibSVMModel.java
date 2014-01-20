@@ -10,6 +10,7 @@ package org.data2semantics.proppred.learners.libsvm;
  */
 public class LibSVMModel {
 	private svm_model model;
+	private String kernelSetting;
 	
 	LibSVMModel(svm_model model) {
 		this.model = model;
@@ -18,6 +19,16 @@ public class LibSVMModel {
 	svm_model getModel() {
 		return model;
 	}
+
+	public String getKernelSetting() {
+		return kernelSetting;
+	}
+
+	public void setKernelSetting(String kernelSetting) {
+		this.kernelSetting = kernelSetting;
+	}
+	
+	
 	
 	/*
 	public double[] getRho() {
