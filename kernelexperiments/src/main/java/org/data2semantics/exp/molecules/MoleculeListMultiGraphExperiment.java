@@ -9,7 +9,6 @@ import java.util.Random;
 
 import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.Result;
-import org.data2semantics.mustard.kernels.graphkernels.GraphKernel;
 import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
