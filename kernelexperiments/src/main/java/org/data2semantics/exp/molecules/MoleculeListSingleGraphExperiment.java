@@ -9,31 +9,35 @@ import java.util.Random;
 
 import org.data2semantics.exp.utils.KernelExperiment;
 import org.data2semantics.exp.utils.Result;
+import org.data2semantics.mustard.kernels.graphkernels.GraphKernel;
 import org.data2semantics.proppred.kernels.KernelUtils;
 import org.data2semantics.proppred.learners.Prediction;
 import org.data2semantics.proppred.learners.evaluation.EvaluationFunction;
 import org.data2semantics.proppred.learners.libsvm.LibSVM;
 import org.data2semantics.proppred.learners.libsvm.LibSVMParameters;
+import org.nodes.DTGraph;
+import org.nodes.DTNode;
 import org.nodes.UGraph;
 
-public class MoleculeGraphMultipleKernelsExperiment<G> extends KernelExperiment<MoleculeKernel<G>> {
+public class MoleculeListSingleGraphExperiment extends KernelExperiment<RDFDTGraphIntersectionSubTreeKernel> {
 	private LibSVMParameters svmParms;
 	private List<Double> labels;
-	private List<G> graphs;
+	private DTGraph<String,String> graph;
 	private List<EvaluationFunction> evalFunctions;
 	private Result compR;
 	private Map<EvaluationFunction, double[]> resultMap;
-	private List<? extends MoleculeKernel<G>> kernels;
+	private List<RDFDTGraphIntersectionSubTreeKernel> kernels;
+	private List<DTNode<String,String>> iNodes;
 	
 	
-	
-	public MoleculeGraphMultipleKernelsExperiment(List<? extends MoleculeKernel<G>> kernels, long[] seeds, LibSVMParameters svmParms, List<G> graphs, List<Double> labels, List<EvaluationFunction> evalFunctions) {
+	public MoleculeListSingleGraphExperiment(List<RDFDTGraphIntersectionSubTreeKernel> kernels, long[] seeds, LibSVMParameters svmParms, DTGraph<String,String> graph, List<DTNode<String,String>> iNodes, List<Double> labels, List<EvaluationFunction> evalFunctions) {
 		super(null, seeds);
 		this.svmParms = svmParms;
 		this.labels = labels;
-		this.graphs = graphs;
+		this.graph = graph;
 		this.evalFunctions = evalFunctions;
 		this.kernels = kernels;
+		this.iNodes = iNodes;
 		
 		resultMap = new HashMap<EvaluationFunction,double[]>();
 		
@@ -57,17 +61,17 @@ public class MoleculeGraphMultipleKernelsExperiment<G> extends KernelExperiment<
 
 		List<Double> tempLabels = new ArrayList<Double>();
 		tempLabels.addAll(labels);
-		
-		Map<String, double[][]> matrices = new HashMap<String, double[][]>();
 
-		tic = System.currentTimeMillis();	
+		Map<String, double[][]> matrices = new HashMap<String, double[][]>();
+		
+		tic = System.currentTimeMillis();
 		System.out.println("Computing kernels...");	
-		for (MoleculeKernel<G> kernel : kernels) {
-			double[][] matrix = kernel.compute(graphs);
+		for (RDFDTGraphIntersectionSubTreeKernel kernel : kernels) {
+			double[][] matrix = kernel.compute(graph, iNodes);
 			matrices.put(kernel.getLabel(), matrix);
 		}
 		toc = System.currentTimeMillis();
-
+		
 		compR.setLabel("kernel comp time");
 
 		System.out.println("Performing CV...");
