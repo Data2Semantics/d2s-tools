@@ -318,7 +318,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 
 				// 2
 				kernelsIST = new ArrayList<RDFDTGraphIntersectionSubTreeKernel>();
-				kernelsIST.add(new RDFDTGraphIntersectionSubTreeKernel(3,1,true));
+				kernelsIST.add(new RDFDTGraphIntersectionSubTreeKernel(depth,1,true));
 	
 				expIST = new MoleculeListSingleGraphExperiment(kernelsIST, seeds, svmParms, newGs.get(1), newIN.get(1), target, evalFuncs);
 
@@ -331,7 +331,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 
 				// 3
 				kernelsIST = new ArrayList<RDFDTGraphIntersectionSubTreeKernel>();
-				kernelsIST.add(new RDFDTGraphIntersectionSubTreeKernel(3,1,true));
+				kernelsIST.add(new RDFDTGraphIntersectionSubTreeKernel(depth,1,true));
 				
 				expIST = new MoleculeListSingleGraphExperiment(kernelsIST, seeds, svmParms, newGs.get(2), newIN.get(2), target, evalFuncs);
 
