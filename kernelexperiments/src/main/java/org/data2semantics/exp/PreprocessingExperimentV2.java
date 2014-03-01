@@ -251,6 +251,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
 				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList, th), instanceNodes3, newIN);
 
+				///*
 				// 1
 				List<WLSubTreeKernel> kernelsWL = new ArrayList<WLSubTreeKernel>();
 				for (int iti : it) {
@@ -259,7 +260,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				
 				expWL = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL,	seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(0), newIN.get(0), depth), target, evalFuncs);
 
-				System.out.println("running, remove hubs, th: " + th);
+				System.out.println("WL running, remove hubs, th: " + th);
 				expWL.run();
 
 				for (Result res : expWL.getResults()) {
@@ -275,7 +276,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				expWL = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, 
 						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(1), newIN.get(1), depth), target, evalFuncs);
 
-				System.out.println("running, relabel hubs, th: " + th);
+				System.out.println("WL running, relabel hubs, th: " + th);
 				expWL.run();
 
 				for (Result res : expWL.getResults()) {
@@ -291,13 +292,13 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				expWL = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, 
 						seeds, svmParms, GraphUtils.getSubGraphs(newGs.get(2), newIN.get(2), depth), target, evalFuncs);
 
-				System.out.println("running, relabel+remove hubs, th: " + th);
+				System.out.println("WL running, relabel+remove hubs, th: " + th);
 				expWL.run();
 
 				for (Result res : expWL.getResults()) {
 					resTableWL.addResult(res);
 				}
-				
+				//*/
 				
 				//-------
 				// IST

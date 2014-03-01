@@ -70,11 +70,12 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 	public double[][] compute(DTGraph<String,String> graph, List<DTNode<String,String>> iNodes) {
 		double[][] kernel = KernelUtils.initMatrix(iNodes.size(), iNodes.size());
 		Tree<Vertex<Integer>, Edge<Integer>> tree;
-
+		DTGraph<String,String> newG = toIntGraph(graph,iNodes);
+		
 			
 		for (int i = 0; i < iNodes.size(); i++) {
 			for (int j = i; j < iNodes.size(); j++) {
-				tree = computeIntersectionTree(graph, iNodes.get(i), iNodes.get(j));
+				tree = computeIntersectionTree(newG, iNodes.get(i), iNodes.get(j));
 				kernel[i][j] = subTreeScore(tree, tree.getRoot(), discountFactor);
 				kernel[j][i] = kernel[i][j];
 			}
@@ -86,6 +87,42 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 			return kernel;
 		}
 	}
+	
+	private DTGraph<String,String> toIntGraph(DTGraph<String,String> graph, List<DTNode<String,String>> iNodes) {
+		DTGraph<String,String> newG = new MapDTGraph<String,String>();
+		Map<String,String> labelMap = new HashMap<String,String>();
+		
+		Map<DTNode<String,String>,Integer> iNodeMap = new HashMap<DTNode<String,String>,Integer>();	
+		for (int i = 0; i < iNodes.size(); i++) {
+			iNodeMap.put(iNodes.get(i), i);
+		}	
+		
+		
+		for (DTNode<String,String> n : graph.nodes()) {
+			String lab = labelMap.get(n.label());
+			if (lab == null) {
+				lab = Integer.toString(labelMap.size());
+				labelMap.put(n.label(), lab);		
+			}
+			DTNode<String,String> newN = newG.add(lab);
+			
+			if (iNodeMap.containsKey(n)) {
+				iNodes.set(iNodeMap.get(n), newN);
+			}
+		}
+		
+		for (DTLink<String,String> l : graph.links()) {
+			String lab = labelMap.get(l.tag());
+			if (lab == null) {
+				lab = Integer.toString(labelMap.size());
+				labelMap.put(l.tag(), lab);		
+			}
+			newG.nodes().get(l.from().index()).connect(newG.nodes().get(l.to().index()), lab);
+		}
+		
+		return newG;
+	}
+	
 
 
 	private Tree<Vertex<Integer>, Edge<Integer>> computeIntersectionTree(DTGraph<String,String> graph, DTNode<String,String> rootA, DTNode<String,String> rootB) {
