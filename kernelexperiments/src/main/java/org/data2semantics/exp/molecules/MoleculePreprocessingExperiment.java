@@ -33,24 +33,24 @@ import org.openrdf.model.vocabulary.RDF;
 public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 	public static final String MUTAG_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\mutag\\";
 	public static final String ENZYMES_DIR = "C:\\Users\\Gerben\\Dropbox\\D2S\\graph_molecule_data\\enzymes\\";
-	
+
 	public static void main(String[] args) {
 		List<UGraph<String>> graphs = new ArrayList<UGraph<String>>();
 		List<Double> labels = new ArrayList<Double>();
 
 		createDataSet(MUTAG_DIR, graphs, labels);
 		experiment(graphs, labels);
-		
+
 		graphs = new ArrayList<UGraph<String>>();
 		labels = new ArrayList<Double>();
-		
+
 		createDataSet(ENZYMES_DIR, graphs, labels);
 		experiment(graphs, labels);
 
 	}
 
 	public static void experiment(List<UGraph<String>> graphs, List<Double> labels) {	
-		
+
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
 		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};
 
@@ -173,8 +173,8 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		hubLists.add(RDFTypeHubs);
 		hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
-		hubLists.add(unInformedDegreeHubs);
-		hubLists.add(informedDegreeHubs);
+		//hubLists.add(unInformedDegreeHubs);
+		//hubLists.add(informedDegreeHubs);
 
 		boolean forward = true;
 		int it = 6;
@@ -182,65 +182,82 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		int[] hubThs = {0,1,2,3,4,5,6,7,8,9};
 		//	int[] hubThs = {100};
 
-		int[] iterations = {1,2,3,4,5,6};
+		int[] iterations = {0,1,2,3,4,5,6};
+		int[] iterations2 = {0,2,4,6,8,10,12};
 
+		List<WLUSubTreeKernel> kernelsUWL = new ArrayList<WLUSubTreeKernel>();
 		for (int i : iterations) {
-			resTable.newRow("WL, it: " + i);
-			MoleculeGraphExperiment<UGraph<String>> exp = new MoleculeGraphExperiment<UGraph<String>>(new WLUSubTreeKernel(i, true), seeds, svmParms, graphs, labels, evalFuncs);
-
-			System.out.println("Running WL, it: " + i);
-			exp.run();
-
-			for (Result res : exp.getResults()) {
-				resTable.addResult(res);
-			}
+			kernelsUWL.add(new WLUSubTreeKernel(i,true));			
 		}
+
+		MoleculeListMultiGraphExperiment<UGraph<String>> exp = new MoleculeListMultiGraphExperiment<UGraph<String>>(kernelsUWL, seeds, svmParms, graphs, labels, evalFuncs);
+
+		System.out.println("Running UWL");
+		exp.run();
+
+		for (Result res : exp.getResults()) {
+			resTable.addResult(res);
+		}
+
 		System.out.println(resTable);
 
 
-		MoleculeGraphExperiment<DTGraph<String,String>> exp;
+		MoleculeListMultiGraphExperiment<DTGraph<String,String>> exp2;
 		for (int th : hubThs) {
 			resTable.newRow("Hub Threshold: " + th);
 
 			for (List<DTNode<String,String>> hubList : hubLists) {
+				
+				List<WLSubTreeKernel> kernelsWL = new ArrayList<WLSubTreeKernel>();
+				for (int i : iterations2) {
+					kernelsWL.add(new WLSubTreeKernel(i,true, forward));			
+				}
 
 				///*
 				List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				DTGraph<String,String> newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, false, true);
 
-				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
-						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
+				exp2 = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, remove hubs, th: " + th);
-				exp.run();
+				exp2.run();
 
-				for (Result res : exp.getResults()) {
+				for (Result res : exp2.getResults()) {
 					resTable.addResult(res);
 				}
 
+				kernelsWL = new ArrayList<WLSubTreeKernel>();
+				for (int i : iterations2) {
+					kernelsWL.add(new WLSubTreeKernel(i,true, forward));			
+				}
+				
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, false);
 
-				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
-						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
+				exp2 = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, relabel hubs, th: " + th);
-				exp.run();
+				exp2.run();
 
-				for (Result res : exp.getResults()) {
+				for (Result res : exp2.getResults()) {
 					resTable.addResult(res);
+				}
+				
+				kernelsWL = new ArrayList<WLSubTreeKernel>();
+				for (int i : iterations2) {
+					kernelsWL.add(new WLSubTreeKernel(i,true, forward));			
 				}
 
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
 				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, true);
 
-				exp = new MoleculeGraphExperiment<DTGraph<String,String>>(new WLSubTreeKernel(it, true, forward), 
+				exp2 = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
 				System.out.println("running, relabel+remove hubs, th: " + th);
-				exp.run();
+				exp2.run();
 
-				for (Result res : exp.getResults()) {
+				for (Result res : exp2.getResults()) {
 					resTable.addResult(res);
 				}
 				//*/
