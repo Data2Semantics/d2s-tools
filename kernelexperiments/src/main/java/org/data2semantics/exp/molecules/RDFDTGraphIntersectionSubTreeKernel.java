@@ -101,7 +101,7 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 		for (DTNode<String,String> n : graph.nodes()) {
 			String lab = labelMap.get(n.label());
 			if (lab == null) {
-				lab = Integer.toString(labelMap.size());
+				lab = Integer.toString(labelMap.size()+1);
 				labelMap.put(n.label(), lab);		
 			}
 			DTNode<String,String> newN = newG.add(lab);
@@ -114,7 +114,7 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 		for (DTLink<String,String> l : graph.links()) {
 			String lab = labelMap.get(l.tag());
 			if (lab == null) {
-				lab = Integer.toString(labelMap.size());
+				lab = Integer.toString(labelMap.size()+1);
 				labelMap.put(l.tag(), lab);		
 			}
 			newG.nodes().get(l.from().index()).connect(newG.nodes().get(l.to().index()), lab);
@@ -148,7 +148,7 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 
 				if (vt.getVertex() == null) { // root nodes
 					for (DTNode<String,String> v : commonChilds) {
-						newSearchFrontPartial.put(new VertexTracker(v, vtCount++), new Vertex<Integer>(v == null ? 0 : Integer.parseInt(v.label().toString())));					 
+						newSearchFrontPartial.put(new VertexTracker(v, vtCount++), new Vertex<Integer>(v == null ? 0 : Integer.parseInt(v.label())));					 
 					}
 
 				} else {
@@ -156,7 +156,7 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 						if (edge.to() == rootA || edge.to() == rootB) { // if we find a root node
 							newSearchFrontPartial.put(new VertexTracker(null, vtCount++), new Vertex<Integer>(0));
 						} else {
-							newSearchFrontPartial.put(new VertexTracker(edge.to(),vtCount++), new Vertex<Integer>(Integer.parseInt(edge.to().label().toString())));
+							newSearchFrontPartial.put(new VertexTracker(edge.to(),vtCount++), new Vertex<Integer>(Integer.parseInt(edge.to().label())));
 						}
 					}
 				}			

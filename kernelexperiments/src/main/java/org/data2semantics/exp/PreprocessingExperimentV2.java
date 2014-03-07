@@ -203,11 +203,15 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		//hubLists.add(unInformedDegreeHubs);
 		//hubLists.add(informedDegreeHubs);
 
+		
+		System.out.println(sigDegreeHubs);
+		
 
 		boolean forward = true;
 		int[] it = {0,2,4,6};
 		int depth = 3;
-		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		//int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		int[] hubThs = {25,26,27,28,29,30,31,32,33,34,35};
 		//int[] hubThs = {};
 
 		
@@ -242,6 +246,9 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		MoleculeListMultiGraphExperiment<DTGraph<String,String>> expWL;
 		MoleculeListSingleGraphExperiment expIST;
 		
+		
+		///*
+		
 		for (int th : hubThs) {
 			resTableWL.newRow("Hub Threshold: " + th);
 			resTableIST.newRow("Hub Threshold: " + th);
@@ -251,9 +258,12 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
 				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList, th), instanceNodes3, newIN);
 
-				///*
+				
 				// 1
 				List<WLSubTreeKernel> kernelsWL = new ArrayList<WLSubTreeKernel>();
+				
+				/*
+				
 				for (int iti : it) {
 					kernelsWL.add(new WLSubTreeKernel(iti, true, forward));
 				}		
@@ -282,6 +292,8 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				for (Result res : expWL.getResults()) {
 					resTableWL.addResult(res);
 				}
+				
+				*/
 
 				// 3
 				kernelsWL = new ArrayList<WLSubTreeKernel>();
@@ -298,8 +310,9 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				for (Result res : expWL.getResults()) {
 					resTableWL.addResult(res);
 				}
-				//*/
 				
+				
+				/*
 				//-------
 				// IST
 				//-------
@@ -342,6 +355,8 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				for (Result res : expIST.getResults()) {
 					resTableIST.addResult(res);
 				}
+				
+				*/
 
 			}
 			System.out.println(resTableWL);
@@ -357,6 +372,8 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 
 		saveResults(resTableWL.toString() + "\n" + resTableIST.toString(), "results_simp_" + System.currentTimeMillis() + ".txt");
 		saveResults(resTableWL.allScoresToString() + "\n" + resTableIST.allScoresToString(), "results_full_simp_" + System.currentTimeMillis() + ".txt");
+		
+		//*/
 
 	}
 
