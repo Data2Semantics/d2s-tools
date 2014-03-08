@@ -197,8 +197,8 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		informedDegreeHubs.removeAll(rn);
 
 		List<List<DTNode<String,String>>> hubLists = new ArrayList<List<DTNode<String,String>>>();
-		hubLists.add(RDFTypeHubs);
-		hubLists.add(regDegreeHubs);
+		//hubLists.add(RDFTypeHubs);
+		//hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
 		//hubLists.add(unInformedDegreeHubs);
 		//hubLists.add(informedDegreeHubs);
