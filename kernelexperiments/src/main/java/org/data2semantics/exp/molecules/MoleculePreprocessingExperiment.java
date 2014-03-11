@@ -38,8 +38,10 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		List<UGraph<String>> graphs = new ArrayList<UGraph<String>>();
 		List<Double> labels = new ArrayList<Double>();
 
+		/*
 		createDataSet(MUTAG_DIR, graphs, labels);
 		experiment(graphs, labels);
+		*/
 
 		graphs = new ArrayList<UGraph<String>>();
 		labels = new ArrayList<Double>();
@@ -52,7 +54,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 	public static void experiment(List<UGraph<String>> graphs, List<Double> labels) {	
 
 		long[] seeds = {11,21,31,41,51,61,71,81,91,101};
-		double[] cs = {0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000};
+		double[] cs = {1, 10, 100, 1000, 10000}; // 100000, 1000000
 
 		// --------------
 		// Learning Algorithm settings
@@ -182,7 +184,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		int[] hubThs = {0,1,2,3,4,5,6,7,8,9};
 		//	int[] hubThs = {100};
 
-		int[] iterations = {0,1,2,3,4,5,6};
+		int[] iterations  =   {1,2,3,4,5 ,6};
 		int[] iterations2 = {0,2,4,6,8,10,12};
 
 		List<WLUSubTreeKernel> kernelsUWL = new ArrayList<WLUSubTreeKernel>();
@@ -195,6 +197,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		System.out.println("Running UWL");
 		exp.run();
 
+		resTable.newRow("UWL - baseline");
 		for (Result res : exp.getResults()) {
 			resTable.addResult(res);
 		}

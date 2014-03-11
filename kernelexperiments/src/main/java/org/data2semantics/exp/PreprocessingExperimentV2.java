@@ -210,7 +210,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		boolean forward = true;
 		int[] it = {0,2,4,6};
 		int depth = 3;
-		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		int[] hubThs = {1,2,3,4,5,10,20,30,40,50,100};
 		//int[] hubThs = {25,26,27,28,29,30,31,32,33,34,35};
 		
 		//int[] hubThs = {};
@@ -262,7 +262,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				}
 
 				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
-				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), th, regDegree), instanceNodes3, newIN);
+				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), 10000, regDegree), instanceNodes3, newIN);
 
 				
 				// 1
@@ -319,7 +319,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				
 				//*/
 				
-				///*
+				/*
 				//-------
 				// IST
 				//-------
