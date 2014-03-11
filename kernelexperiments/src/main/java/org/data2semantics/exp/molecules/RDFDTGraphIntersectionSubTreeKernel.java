@@ -70,8 +70,8 @@ public class RDFDTGraphIntersectionSubTreeKernel implements Kernel {
 	public double[][] compute(DTGraph<String,String> graph, List<DTNode<String,String>> iNodes) {
 		double[][] kernel = KernelUtils.initMatrix(iNodes.size(), iNodes.size());
 		Tree<Vertex<Integer>, Edge<Integer>> tree;
-		DTGraph<String,String> newG = toIntGraph(graph,iNodes);
 		
+		DTGraph<String,String> newG = toIntGraph(graph,iNodes);
 			
 		for (int i = 0; i < iNodes.size(); i++) {
 			for (int j = i; j < iNodes.size(); j++) {

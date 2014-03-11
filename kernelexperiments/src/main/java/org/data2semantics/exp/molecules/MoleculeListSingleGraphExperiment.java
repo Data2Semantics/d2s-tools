@@ -70,6 +70,7 @@ public class MoleculeListSingleGraphExperiment extends KernelExperiment<RDFDTGra
 			matrices.put(kernel.getLabel(), matrix);
 		}
 		toc = System.currentTimeMillis();
+		System.out.println("done in " + (toc - tic) + " msecs.");
 		
 		compR.setLabel("kernel comp time");
 

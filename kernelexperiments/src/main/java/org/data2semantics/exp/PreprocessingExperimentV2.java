@@ -198,8 +198,8 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 
 		List<List<DTNode<String,String>>> hubLists = new ArrayList<List<DTNode<String,String>>>();
 		//hubLists.add(RDFTypeHubs);
-		//hubLists.add(regDegreeHubs);
-		hubLists.add(sigDegreeHubs);
+		hubLists.add(regDegreeHubs);
+		//hubLists.add(sigDegreeHubs);
 		//hubLists.add(unInformedDegreeHubs);
 		//hubLists.add(informedDegreeHubs);
 
@@ -210,8 +210,9 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		boolean forward = true;
 		int[] it = {0,2,4,6};
 		int depth = 3;
-		//int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
-		int[] hubThs = {25,26,27,28,29,30,31,32,33,34,35};
+		int[] hubThs = {0,1,2,3,4,5,10,20,30,40,50,100};
+		//int[] hubThs = {25,26,27,28,29,30,31,32,33,34,35};
+		
 		//int[] hubThs = {};
 
 		
@@ -254,15 +255,20 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 			resTableIST.newRow("Hub Threshold: " + th);
 
 			for (List<DTNode<String,String>> hubList : hubLists) {
+				boolean regDegree = false;
+				int maxSize = hubList.size();
+				if (hubList == regDegreeHubs) {
+					regDegree = true;
+				}
 
 				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
-				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList, th), instanceNodes3, newIN);
+				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), th, regDegree), instanceNodes3, newIN);
 
 				
 				// 1
 				List<WLSubTreeKernel> kernelsWL = new ArrayList<WLSubTreeKernel>();
 				
-				/*
+				///*
 				
 				for (int iti : it) {
 					kernelsWL.add(new WLSubTreeKernel(iti, true, forward));
@@ -293,7 +299,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 					resTableWL.addResult(res);
 				}
 				
-				*/
+				
 
 				// 3
 				kernelsWL = new ArrayList<WLSubTreeKernel>();
@@ -311,8 +317,9 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 					resTableWL.addResult(res);
 				}
 				
+				//*/
 				
-				/*
+				///*
 				//-------
 				// IST
 				//-------
@@ -356,7 +363,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 					resTableIST.addResult(res);
 				}
 				
-				*/
+				//*/
 
 			}
 			System.out.println(resTableWL);

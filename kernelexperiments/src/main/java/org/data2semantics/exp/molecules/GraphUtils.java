@@ -47,7 +47,7 @@ public class GraphUtils {
 		Set<Statement> stmts = new HashSet<Statement>();
 		List<Resource> searchFront = new ArrayList<Resource>(instances);
 		List<Resource> newSearchFront;
-		
+
 		for (int i = 0; i < depth; i++) {
 			newSearchFront = new ArrayList<Resource>();
 			for (Resource r : searchFront) {
@@ -115,14 +115,14 @@ public class GraphUtils {
 			ninLa.add(instanceNodes.get(i));
 			ninLiLa.add(instanceNodes.get(i));
 		}
-		
+
 		Set<DTLink<String,String>> toRemoveLinks = new HashSet<DTLink<String,String>>();
 
 		Map<DTNode<String,String>,Integer> iNodeMap = new HashMap<DTNode<String,String>,Integer>();	
 		for (int i = 0; i < instanceNodes.size(); i++) {
 			iNodeMap.put(instanceNodes.get(i), i);
 		}	
-		
+
 		for (DTNode<String,String> node : graph.nodes()) {
 			String newLabel = null;
 			int lowestDepth = 0;
@@ -155,7 +155,7 @@ public class GraphUtils {
 				ninLa.set(iNodeMap.get(node), newLa);
 				ninLiLa.set(iNodeMap.get(node), newLiLa);
 			}
-			
+
 			if (remLink != null) {
 				toRemoveLinks.add(remLink);
 			}
@@ -188,7 +188,7 @@ public class GraphUtils {
 		for (int i = 0; i < instanceNodes.size(); i++) {
 			iNodeMap.put(instanceNodes.get(i), i);
 		}	
-		
+
 		for (DTNode<String,String> node : graph.nodes()) {
 			String newLabel = null;
 			int lowestDepth = 0;
@@ -218,7 +218,7 @@ public class GraphUtils {
 			if (iNodeMap.containsKey(node)) { // We also need to replace the instance nodes with new instance nodes in the simplified graph
 				instanceNodes.set(iNodeMap.get(node), newN);
 			}
-			
+
 			if (remLink != null && removeLinks) {
 				toRemoveLinks.add(remLink);
 			}
@@ -301,6 +301,14 @@ public class GraphUtils {
 		}
 		System.out.println("Total hubs: " + hubMap.size());
 		return hubMap;
+	}
+
+	public static Map<String,Integer> createHubMap(List<DTNode<String,String>> hubs, int th, boolean allLinks) {
+		if (allLinks) {
+			return createNonSigHubMap(hubs, th);
+		} else {
+			return createHubMap(hubs, th);
+		}
 	}
 
 	public static Map<String,Integer> createHubMap(List<DTNode<String,String>> hubs, int th) {
