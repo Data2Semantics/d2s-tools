@@ -181,7 +181,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		boolean forward = true;
 		int it = 6;
 		int depth = 3;
-		int[] hubThs = {0,1,2,3,4,5,6,7,8,9};
+		int[] hubThs = {0,1,2,3,4,5,6};
 		//	int[] hubThs = {100};
 
 		int[] iterations  =   {1,2,3,4,5 ,6};
@@ -211,6 +211,12 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 
 			for (List<DTNode<String,String>> hubList : hubLists) {
 				
+				boolean regDegree = false;
+				int maxSize = hubList.size();
+				if (hubList == regDegreeHubs) {
+					regDegree = true;
+				}
+				
 				List<WLSubTreeKernel> kernelsWL = new ArrayList<WLSubTreeKernel>();
 				for (int i : iterations2) {
 					kernelsWL.add(new WLSubTreeKernel(i,true, forward));			
@@ -218,7 +224,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 
 				///*
 				List<DTNode<String,String>> newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-				DTGraph<String,String> newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, false, true);
+				DTGraph<String,String> newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), 10000, regDegree), newIN, false, true);
 
 				exp2 = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
@@ -235,7 +241,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 				}
 				
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, false);
+				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), 10000, regDegree), newIN, true, false);
 
 				exp2 = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
 
@@ -252,7 +258,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 				}
 
 				newIN = new ArrayList<DTNode<String,String>>(instanceNodes);
-				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList, th), newIN, true, true);
+				newG = GraphUtils.simplifyGraph(sGraph, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), 10000, regDegree), newIN, true, true);
 
 				exp2 = new MoleculeListMultiGraphExperiment<DTGraph<String,String>>(kernelsWL, 
 						seeds, svmParms, GraphUtils.getSubGraphs(newG, newIN, depth), target, evalFuncs);
