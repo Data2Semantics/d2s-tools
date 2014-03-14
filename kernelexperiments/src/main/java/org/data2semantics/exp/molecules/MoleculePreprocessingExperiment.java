@@ -38,10 +38,10 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		List<UGraph<String>> graphs = new ArrayList<UGraph<String>>();
 		List<Double> labels = new ArrayList<Double>();
 
-		/*
+		
 		createDataSet(MUTAG_DIR, graphs, labels);
 		experiment(graphs, labels);
-		*/
+		
 
 		graphs = new ArrayList<UGraph<String>>();
 		labels = new ArrayList<Double>();
@@ -172,8 +172,8 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		informedDegreeHubs.removeAll(rn);
 
 		List<List<DTNode<String,String>>> hubLists = new ArrayList<List<DTNode<String,String>>>();
-		hubLists.add(RDFTypeHubs);
-		hubLists.add(regDegreeHubs);
+		//hubLists.add(RDFTypeHubs);
+		//hubLists.add(regDegreeHubs);
 		hubLists.add(sigDegreeHubs);
 		//hubLists.add(unInformedDegreeHubs);
 		//hubLists.add(informedDegreeHubs);
@@ -184,9 +184,10 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		int[] hubThs = {0,1,2,3,4,5,6};
 		//	int[] hubThs = {100};
 
-		int[] iterations  =   {1,2,3,4,5 ,6};
+		int[] iterations  =   {0,1,2,3,4,5,6};
 		int[] iterations2 = {0,2,4,6,8,10,12};
 
+		///*
 		List<WLUSubTreeKernel> kernelsUWL = new ArrayList<WLUSubTreeKernel>();
 		for (int i : iterations) {
 			kernelsUWL.add(new WLUSubTreeKernel(i,true));			
@@ -203,6 +204,7 @@ public class MoleculePreprocessingExperiment extends MoleculeExperiment {
 		}
 
 		System.out.println(resTable);
+		//*/
 
 
 		MoleculeListMultiGraphExperiment<DTGraph<String,String>> exp2;

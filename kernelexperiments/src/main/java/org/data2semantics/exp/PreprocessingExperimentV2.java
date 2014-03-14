@@ -70,7 +70,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 
 	public static void main(String[] args) {
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 3; i++) {
 			switch (i) {
 			case 0: createAffiliationPredictionDataSet(AIFB, 1); experiment(true); break;
 			case 1: createCommitteeMemberPredictionDataSet(); experiment(true); break;
@@ -197,9 +197,9 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		informedDegreeHubs.removeAll(rn);
 
 		List<List<DTNode<String,String>>> hubLists = new ArrayList<List<DTNode<String,String>>>();
-		//hubLists.add(RDFTypeHubs);
+		hubLists.add(RDFTypeHubs);
 		hubLists.add(regDegreeHubs);
-		//hubLists.add(sigDegreeHubs);
+		hubLists.add(sigDegreeHubs);
 		//hubLists.add(unInformedDegreeHubs);
 		//hubLists.add(informedDegreeHubs);
 
@@ -210,7 +210,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 		boolean forward = true;
 		int[] it = {0,2,4,6};
 		int depth = 3;
-		int[] hubThs = {1,2,3,4,5,10,20,30,40,50,100};
+		int[] hubThs = {0,1,2,3,4,5,10,20,30,40};
 		//int[] hubThs = {25,26,27,28,29,30,31,32,33,34,35};
 		
 		//int[] hubThs = {};
@@ -264,11 +264,10 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				List<List<DTNode<String,String>>> newIN = new ArrayList<List<DTNode<String,String>>>();
 				List<DTGraph<String,String>> newGs = GraphUtils.simplifyGraph3Way(graph3, GraphUtils.createHubMap(hubList.subList(0, Math.min(maxSize, th)), 10000, regDegree), instanceNodes3, newIN);
 
+				///*
 				
 				// 1
 				List<WLSubTreeKernel> kernelsWL = new ArrayList<WLSubTreeKernel>();
-				
-				///*
 				
 				for (int iti : it) {
 					kernelsWL.add(new WLSubTreeKernel(iti, true, forward));
@@ -319,7 +318,7 @@ public class PreprocessingExperimentV2 extends RDFMLExperiment {
 				
 				//*/
 				
-				/*
+				///*
 				//-------
 				// IST
 				//-------
